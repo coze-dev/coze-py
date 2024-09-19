@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "cozepy"
+version = "0.1.0"
+description = "OpebAPI SDK for Coze(coze.com/coze.cn)"
+authors = ["chyroc <chyroc@bytedance.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
