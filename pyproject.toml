@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "cozepy"
+name = "pycoze"
 version = "0.1.0"
 description = "OpebAPI SDK for Coze(coze.com/coze.cn)"
 authors = ["chyroc <chyroc@bytedance.com>"]

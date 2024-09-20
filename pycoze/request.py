@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from cozepy.auth import Auth
+    from pycoze.auth import Auth
 
 
 class Requester(object):
