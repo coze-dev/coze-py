@@ -6,7 +6,8 @@ authors = ["chyroc <chyroc@bytedance.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.8"
+requests = "^2.32.3"
 
 
 [build-system]
