@@ -1,6 +1,6 @@
-from cozepy.auth import Auth
-from cozepy.model import CozeModel
-from cozepy.request import Requester
+from pycoze.auth import Auth
+from pycoze.model import CozeModel
+from pycoze.request import Requester
 
 
 class BotPromptInfo(CozeModel):

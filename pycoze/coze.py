@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING
 
-from cozepy.auth import Auth
-from cozepy.request import Requester
+from pycoze.auth import Auth
+from pycoze.request import Requester
 
 if TYPE_CHECKING:
-    from cozepy.bot import BotClient
+    from pycoze.bot import BotClient
 
 
 class Coze(object):
@@ -22,6 +22,6 @@ class Coze(object):
     @property
     def bot(self) -> 'BotClient':
         if not self._bot:
-            from cozepy.bot import BotClient
+            from pycoze.bot import BotClient
             self._bot = BotClient(self._base_url, self._auth, self._requester)
         return self._bot
