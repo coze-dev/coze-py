@@ -1,9 +1,9 @@
 from enum import IntEnum
 from typing import List
 
-from pycoze.auth import Auth
-from pycoze.model import CozeModel, NumberPaged
-from pycoze.request import Requester
+from cozepy.auth import Auth
+from cozepy.model import CozeModel, NumberPaged
+from cozepy.request import Requester
 
 
 class BotPromptInfo(CozeModel):

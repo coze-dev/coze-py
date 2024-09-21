@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "pycoze"
+name = "cozepy"
 version = "0.1.0"
-description = "OpebAPI SDK for Coze(coze.com/coze.cn)"
+description = "OpenAPI SDK for Coze(coze.com/coze.cn)"
 authors = ["chyroc <chyroc@bytedance.com>"]
 readme = "README.md"
 

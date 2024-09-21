@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Optional
 import requests
 
 if TYPE_CHECKING:
-    from pycoze.auth import Auth
+    from cozepy.auth import Auth
 
 from typing import Type, TypeVar
 
