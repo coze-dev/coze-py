@@ -29,7 +29,7 @@ class Requester(object):
                  ):
         self._auth = auth
 
-    def request(self, method: str, url: str, model: Type[T], params: dict = None, headers: dict = None) -> dict:
+    def request(self, method: str, url: str, model: Type[T], params: dict = None, headers: dict = None) -> T:
         """
         Send a request to the server.
         """
