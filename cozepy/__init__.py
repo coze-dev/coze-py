@@ -1,8 +1,8 @@
-from auth import Auth, PersonalAccessToken
+from .auth import Auth, PersonalAccessToken
 
-from coze import Coze
+from .coze import Coze
 
-from model import TokenPaged, NumberPaged
+from .model import TokenPaged, NumberPaged
 
 __all__ = [
     'Auth',
