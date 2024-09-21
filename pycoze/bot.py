@@ -2,7 +2,7 @@ from enum import IntEnum
 from typing import List
 
 from pycoze.auth import Auth
-from pycoze.model import CozeModel
+from pycoze.model import CozeModel, NumberPaged
 from pycoze.request import Requester
 
 
@@ -81,6 +81,20 @@ class Bot(CozeModel):
     model_info: BotModelInfo
 
 
+class SimpleBot(CozeModel):
+    # The ID for the bot.
+    bot_id: str
+    # The name of the bot.
+    bot_name: str
+    # The description of the bot.
+    description: str
+    # The URL address for the bot's avatar.
+    icon_url: str
+    # The latest publish time of the bot, in the format of a 10-digit Unix timestamp in seconds (s).
+    # This API returns the list of bots sorted in descending order by this field.
+    publish_time: str
+
+
 class BotClient(object):
     """
     Bot class.
@@ -91,12 +105,12 @@ class BotClient(object):
         self._auth = auth
         self._requester = requester
 
-    def get_online_info_v1(self, *, bot_id: str):
+    def get_online_info_v1(self, *, bot_id: str) -> Bot:
         """
         Get the configuration information of the bot, which must have been published
         to the Bot as API channel.
-        docs: https://www.coze.com/docs/developer_guides/get_metadata?_lang=en
 
+        :docs: https://www.coze.com/docs/developer_guides/get_metadata?_lang=en
         :calls: `GET /v1/bot/get_online_info`
         """
         url = f'{self._base_url}/v1/bot/get_online_info'
@@ -105,3 +119,31 @@ class BotClient(object):
         }
 
         return self._requester.request('get', url, Bot, params=params)
+
+    def list_published_bots_v1(self, *,
+                               space_id: str,
+                               page_num: int = 1,
+                               page_size: int = 20) -> NumberPaged[SimpleBot]:
+        """
+        Get the bots published as API service.
+
+        :docs: https://www.coze.com/docs/developer_guides/published_bots_list?_lang=en
+        :calls: `GET /v1/space/published_bots_list`
+        """
+        url = f'{self._base_url}/v1/space/published_bots_list'
+        params = {
+            'space_id': space_id,
+            'page_size': page_size,
+            'page_index': page_num,
+        }
+        data = self._requester.request('get', url, self._PrivateListPublishedBotsV1Data, params=params)
+        return NumberPaged(
+            items=data.space_bots,
+            page_num=page_num,
+            page_size=page_size,
+            total=data.total,
+        )
+
+    class _PrivateListPublishedBotsV1Data(CozeModel):
+        space_bots: List[SimpleBot]
+        total: int
