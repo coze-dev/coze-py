@@ -32,7 +32,7 @@ jobs:
       - name: Run tests
         run: poetry run pytest
         env:
-          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+          COZE_TOKEN: ${{ secrets.COZE_TOKEN }}
           SPACE_ID_1: ${{ secrets.SPACE_ID_1 }}
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
