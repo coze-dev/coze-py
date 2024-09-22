@@ -7,11 +7,7 @@ from cozepy import PersonalAccessToken, Coze
 class TestBotClient(TestCase):
     def test_list_published_bots_v1(self):
         space_id = os.getenv('SPACE_ID_1').strip()
-        token = os.getenv('PYPI_TOKEN').strip()
-        for i in space_id:
-            print('space', i)
-        for i in token:
-            print('token', i)
+        token = os.getenv('COZE_TOKEN').strip()
         auth = PersonalAccessToken(token)
         cli = Coze(auth=auth)
 
