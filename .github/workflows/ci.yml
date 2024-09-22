@@ -30,7 +30,7 @@ jobs:
           pip install poetry 
           poetry install
       - name: Run tests
-        run: poetry run tox
+        run: poetry run pytest
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
           SPACE_ID_1: ${{ secrets.SPACE_ID_1 }}
