@@ -9,10 +9,11 @@ if TYPE_CHECKING:
 
 
 class Coze(object):
-    def __init__(self,
-                 auth: Auth,
-                 base_url: str = COZE_COM_BASE_URL,
-                 ):
+    def __init__(
+        self,
+        auth: Auth,
+        base_url: str = COZE_COM_BASE_URL,
+    ):
         self._auth = auth
         self._base_url = base_url
         self._requester = Requester(auth=auth)
@@ -21,8 +22,9 @@ class Coze(object):
         self._bot = None
 
     @property
-    def bot(self) -> 'BotClient':
+    def bot(self) -> "BotClient":
         if not self._bot:
             from cozepy.bot import BotClient
+
             self._bot = BotClient(self._base_url, self._auth, self._requester)
         return self._bot

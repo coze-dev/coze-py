@@ -11,8 +11,8 @@ from .config import COZE_COM_BASE_URL
 
 
 def _random_hex(length):
-    hex_characters = '0123456789abcdef'
-    return ''.join(random.choice(hex_characters) for _ in range(length))
+    hex_characters = "0123456789abcdef"
+    return "".join(random.choice(hex_characters) for _ in range(length))
 
 
 class OAuthToken(CozeModel):
@@ -21,9 +21,9 @@ class OAuthToken(CozeModel):
     # How long the access token is valid, in seconds (UNIX timestamp)
     expires_in: int
     # An OAuth 2.0 refresh token. The app can use this token to acquire other access tokens after the current access token expires. Refresh tokens are long-lived.
-    refresh_token: str = ''
+    refresh_token: str = ""
     # fixed: Bearer
-    token_type: str = ''
+    token_type: str = ""
 
 
 class DeviceAuthCode(CozeModel):
@@ -40,7 +40,7 @@ class DeviceAuthCode(CozeModel):
 
     @property
     def verification_url(self):
-        return f'{self.verification_uri}?user_code={self.user_code}'
+        return f"{self.verification_uri}?user_code={self.user_code}"
 
 
 class ApplicationOAuth(object):
@@ -48,12 +48,12 @@ class ApplicationOAuth(object):
     App OAuth process to support obtaining token and refreshing token.
     """
 
-    def __init__(self, client_id: str, client_secret: str = '', base_url: str = COZE_COM_BASE_URL):
+    def __init__(self, client_id: str, client_secret: str = "", base_url: str = COZE_COM_BASE_URL):
         self._client_id = client_id
         self._client_secret = client_secret
         self._base_url = base_url
         self._api_endpoint = urlparse(base_url).netloc
-        self._token = ''
+        self._token = ""
         self._requester = Requester()
 
     def jwt_auth(self, private_key: str, kid: str, ttl: int):
@@ -61,28 +61,26 @@ class ApplicationOAuth(object):
         Get the token by jwt with jwt auth flow.
         """
         jwt_token = self._gen_jwt(self._api_endpoint, private_key, self._client_id, kid, 3600)
-        url = f'{self._base_url}/api/permission/oauth2/token'
-        headers = {
-            'Authorization': f'Bearer {jwt_token}'
-        }
+        url = f"{self._base_url}/api/permission/oauth2/token"
+        headers = {"Authorization": f"Bearer {jwt_token}"}
         body = {
-            'duration_seconds': ttl,
-            'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            "duration_seconds": ttl,
+            "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
         }
-        return self._requester.request('post', url, OAuthToken, headers=headers, body=body)
+        return self._requester.request("post", url, OAuthToken, headers=headers, body=body)
 
     def _gen_jwt(self, api_endpoint: str, private_key: str, client_id: str, kid: str, ttl: int):
         now = int(time.time())
-        header = {'alg': 'RS256', 'typ': 'JWT', 'kid': kid}
+        header = {"alg": "RS256", "typ": "JWT", "kid": kid}
         payload = {
             "iss": client_id,
-            'aud': api_endpoint,
+            "aud": api_endpoint,
             "iat": now,
             "exp": now + ttl,
-            'jti': _random_hex(16),
+            "jti": _random_hex(16),
         }
         s = jwt.encode(header, payload, private_key)
-        return s.decode('utf-8')
+        return s.decode("utf-8")
 
 
 class Auth(abc.ABC):

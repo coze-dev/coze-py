@@ -29,6 +29,10 @@ jobs:
         run: |
           pip install poetry 
           poetry install
+      - name: Build
+        run: |
+          poetry run black . --check
+          poetry build
       - name: Run tests
         run: poetry run pytest
         env:

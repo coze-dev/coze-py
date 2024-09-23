@@ -13,7 +13,7 @@ class BotPromptInfo(CozeModel):
 
 class BotOnboardingInfo(CozeModel):
     # Configured prologue of the bot.
-    prologue: str = ''
+    prologue: str = ""
     # The list of recommended questions configured for the bot.
     # This field will not be returned when user suggested questions are not enabled.
     suggested_questions: List[str] = []
@@ -113,30 +113,27 @@ class BotClient(object):
         :docs: https://www.coze.com/docs/developer_guides/get_metadata?_lang=en
         :calls: `GET /v1/bot/get_online_info`
         """
-        url = f'{self._base_url}/v1/bot/get_online_info'
-        params = {
-            'bot_id': bot_id
-        }
+        url = f"{self._base_url}/v1/bot/get_online_info"
+        params = {"bot_id": bot_id}
 
-        return self._requester.request('get', url, Bot, params=params)
+        return self._requester.request("get", url, Bot, params=params)
 
-    def list_published_bots_v1(self, *,
-                               space_id: str,
-                               page_num: int = 1,
-                               page_size: int = 20) -> NumberPaged[SimpleBot]:
+    def list_published_bots_v1(
+        self, *, space_id: str, page_num: int = 1, page_size: int = 20
+    ) -> NumberPaged[SimpleBot]:
         """
         Get the bots published as API service.
 
         :docs: https://www.coze.com/docs/developer_guides/published_bots_list?_lang=en
         :calls: `GET /v1/space/published_bots_list`
         """
-        url = f'{self._base_url}/v1/space/published_bots_list'
+        url = f"{self._base_url}/v1/space/published_bots_list"
         params = {
-            'space_id': space_id,
-            'page_size': page_size,
-            'page_index': page_num,
+            "space_id": space_id,
+            "page_size": page_size,
+            "page_index": page_num,
         }
-        data = self._requester.request('get', url, self._PrivateListPublishedBotsV1Data, params=params)
+        data = self._requester.request("get", url, self._PrivateListPublishedBotsV1Data, params=params)
         return NumberPaged(
             items=data.space_bots,
             page_num=page_num,

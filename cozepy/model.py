@@ -6,9 +6,7 @@ T = TypeVar("T", bound=BaseModel)
 
 
 class CozeModel(BaseModel):
-    model_config = ConfigDict(
-        protected_namespaces=()
-    )
+    model_config = ConfigDict(protected_namespaces=())
 
 
 class PagedBase(Generic[T]):
@@ -30,8 +28,8 @@ class TokenPaged(PagedBase[T]):
     return is next_page_token + has_more.
     """
 
-    def __init__(self, items: List[T], next_page_token: str = '', has_more: bool = None):
-        has_more = has_more if has_more is not None else next_page_token != ''
+    def __init__(self, items: List[T], next_page_token: str = "", has_more: bool = None):
+        has_more = has_more if has_more is not None else next_page_token != ""
         super().__init__(items, has_more)
         self.next_page_token = next_page_token
 
@@ -48,4 +46,6 @@ class NumberPaged(PagedBase[T]):
         self.total = total
 
     def __repr__(self):
-        return f"NumberPaged(items={self.items}, page_num={self.page_num}, page_size={self.page_size}, total={self.total})"
+        return (
+            f"NumberPaged(items={self.items}, page_num={self.page_num}, page_size={self.page_size}, total={self.total})"
+        )

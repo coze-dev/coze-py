@@ -4,15 +4,12 @@ from .coze import Coze
 from .model import TokenPaged, NumberPaged
 
 __all__ = [
-    'ApplicationOAuth',
-    'Auth',
-    'TokenAuth',
-
-    'COZE_COM_BASE_URL',
-    'COZE_CN_BASE_URL',
-
-    'Coze',
-
-    'TokenPaged',
-    'NumberPaged'
+    "ApplicationOAuth",
+    "Auth",
+    "TokenAuth",
+    "COZE_COM_BASE_URL",
+    "COZE_CN_BASE_URL",
+    "Coze",
+    "TokenPaged",
+    "NumberPaged",
 ]
