@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING, Tuple, Optional
 
 import requests
 from requests import Response
@@ -59,7 +59,7 @@ class Requester(object):
         """
         pass
 
-    def __parse_requests_code_msg(self, r: Response) -> Tuple[int | None, str, T|None]:
+    def __parse_requests_code_msg(self, r: Response) -> Tuple[Optional[int], str, Optional[T]]:
         try:
             json = r.json()
         except:
