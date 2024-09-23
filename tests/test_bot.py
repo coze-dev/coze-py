@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase
 
-from cozepy import PersonalAccessToken, Coze
+from cozepy import TokenAuth, Coze
 
 
 class TestBotClient(TestCase):
@@ -10,7 +10,7 @@ class TestBotClient(TestCase):
         token = os.getenv('COZE_TOKEN').strip()
         for i in token:
             print('token', i)
-        auth = PersonalAccessToken(token)
+        auth = TokenAuth(token)
         cli = Coze(auth=auth, base_url='https://api.coze.cn')
 
         res = cli.bot.list_published_bots_v1(space_id=space_id, page_size=2)

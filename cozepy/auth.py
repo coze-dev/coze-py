@@ -38,12 +38,9 @@ class Auth(abc.ABC):
         headers["Authorization"] = f"{self.token_type} {self.token}"
 
 
-class PersonalAccessToken(Auth):
+class TokenAuth(Auth):
     """
-    The personal access token created in https://www.coze.cn/open/oauth/pats.
-
-    :param token: the token created in coze pats website
-    :type token: str
+    The fixed access token auth flow.
     """
 
     def __init__(self, token: str):
