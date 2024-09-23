@@ -40,7 +40,6 @@ class Requester(object):
         if self._auth:
             self._auth.authentication(headers)
         r = requests.request(method, url, params=params, headers=headers, json=body)
-        print(r.text)
 
         code, msg, data = self.__parse_requests_code_msg(r)
 
