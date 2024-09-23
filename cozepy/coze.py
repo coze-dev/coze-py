@@ -5,7 +5,8 @@ from cozepy.config import COZE_COM_BASE_URL
 from cozepy.request import Requester
 
 if TYPE_CHECKING:
-    from cozepy.bot import BotClient
+    from .bot import BotClient
+    from .workspace import WorkspaceClient
 
 
 class Coze(object):
@@ -20,6 +21,7 @@ class Coze(object):
 
         # service client
         self._bot = None
+        self._workspace = None
 
     @property
     def bot(self) -> "BotClient":
@@ -28,3 +30,11 @@ class Coze(object):
 
             self._bot = BotClient(self._base_url, self._auth, self._requester)
         return self._bot
+
+    @property
+    def workspace(self) -> "WorkspaceClient":
+        if not self._workspace:
+            from cozepy.workspace import WorkspaceClient
+
+            self._workspace = WorkspaceClient(self._base_url, self._auth, self._requester)
+        return self._workspace

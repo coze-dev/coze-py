@@ -71,7 +71,7 @@ class Requester(object):
             return
 
         if "code" in json and "msg" in json and int(json["code"]) > 0:
-            return int(json["code"]), json["msg"], json["data"]
+            return int(json["code"]), json["msg"], json.get("data") or None
         if "error_message" in json and json["error_message"] != "":
             return None, json["error_message"], None
         if "data" in json:
