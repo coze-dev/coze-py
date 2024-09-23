@@ -34,6 +34,9 @@ jobs:
         env:
           COZE_TOKEN: ${{ secrets.COZE_TOKEN }}
           SPACE_ID_1: ${{ secrets.SPACE_ID_1 }}
+          COZE_JWT_AUTH_CLIENT_ID: ${{ secrets.COZE_JWT_AUTH_CLIENT_ID }}
+          COZE_JWT_AUTH_PRIVATE_KEY: ${{ secrets.COZE_JWT_AUTH_PRIVATE_KEY }}
+          COZE_JWT_AUTH_KEY_ID: ${{ secrets.COZE_JWT_AUTH_KEY_ID }}
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
 
