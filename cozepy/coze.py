@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from cozepy.auth import Auth
+from cozepy.config import COZE_COM_BASE_URL
 from cozepy.request import Requester
 
 if TYPE_CHECKING:
@@ -10,7 +11,7 @@ if TYPE_CHECKING:
 class Coze(object):
     def __init__(self,
                  auth: Auth,
-                 base_url: str = 'https://api.coze.com',
+                 base_url: str = COZE_COM_BASE_URL,
                  ):
         self._auth = auth
         self._base_url = base_url
