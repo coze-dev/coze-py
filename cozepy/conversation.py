@@ -1,4 +1,4 @@
-from enum import StrEnum, Enum
+from enum import Enum
 from typing import Dict, List, Optional
 
 from .auth import Auth
@@ -13,7 +13,7 @@ class MessageRole(str, Enum):
     assistant = "assistant"
 
 
-class MessageType(StrEnum):
+class MessageType(str, Enum):
     # User input content.
     # 用户输入内容。
     question = "question"
@@ -37,7 +37,7 @@ class MessageType(StrEnum):
     verbose = "verbose"
 
 
-class MessageContentType(StrEnum):
+class MessageContentType(str, Enum):
     # Text.
     # 文本。
     text = "text"
@@ -49,7 +49,7 @@ class MessageContentType(StrEnum):
     card = "card"
 
 
-class MessageObjectStringType(StrEnum):
+class MessageObjectStringType(str, Enum):
     """
     The content type of the multimodal message.
     """
