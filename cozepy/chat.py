@@ -138,3 +138,53 @@ class ChatClient(object):
             return self._requester.request("post", url, Chat, body=body, stream=stream)
 
         return ChatIterator(self._requester.request("post", url, Chat, body=body, stream=stream))
+
+    def get_v3(
+        self,
+        *,
+        conversation_id: str,
+        chat_id: str,
+    ) -> Chat:
+        """
+        Create a conversation.
+        Conversation is an interaction between a bot and a user, including one or more messages.
+        """
+        url = f"{self._base_url}/v3/chat/retrieve"
+        params = {
+            "conversation_id": conversation_id,
+            "chat_id": chat_id,
+        }
+        return self._requester.request("post", url, Chat, params=params)
+
+    def list_message_v3(
+        self,
+        *,
+        conversation_id: str,
+        chat_id: str,
+    ) -> List[Message]:
+        """
+        Create a conversation.
+        Conversation is an interaction between a bot and a user, including one or more messages.
+        """
+        url = f"{self._base_url}/v3/chat/message/list"
+        params = {
+            "conversation_id": conversation_id,
+            "chat_id": chat_id,
+        }
+        return self._requester.request("post", url, List[Message], params=params)
+
+    def cancel_v3(
+        self,
+        *,
+        conversation_id: str,
+        chat_id: str,
+    ) -> Chat:
+        """
+        Call this API to cancel an ongoing chat.
+        """
+        url = f"{self._base_url}/v3/chat/cancel"
+        params = {
+            "conversation_id": conversation_id,
+            "chat_id": chat_id,
+        }
+        return self._requester.request("post", url, Chat, params=params)
