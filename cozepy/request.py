@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Tuple, Optional
+from typing import TYPE_CHECKING, Tuple, Optional, Iterator, Union
 
 import requests
 from requests import Response
@@ -36,7 +36,8 @@ class Requester(object):
         params: dict = None,
         headers: dict = None,
         body: dict = None,
-    ) -> T:
+        stream: bool = False,
+    ) -> Union[T, Iterator[bytes]]:
         """
         Send a request to the server.
         """
@@ -44,7 +45,9 @@ class Requester(object):
             headers = {}
         if self._auth:
             self._auth.authentication(headers)
-        r = requests.request(method, url, params=params, headers=headers, json=body)
+        r = requests.request(method, url, params=params, headers=headers, json=body, stream=stream)
+        if stream:
+            return r.iter_lines()
 
         code, msg, data = self.__parse_requests_code_msg(r)
 

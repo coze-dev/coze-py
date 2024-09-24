@@ -8,8 +8,6 @@ class TestBotClient(TestCase):
     def test_list_published_bots_v1(self):
         space_id = os.getenv("SPACE_ID_1").strip()
         token = os.getenv("COZE_TOKEN").strip()
-        for i in token:
-            print("token", i)
         auth = TokenAuth(token)
         cli = Coze(auth=auth, base_url=COZE_CN_BASE_URL)
 
