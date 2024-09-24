@@ -1,9 +1,9 @@
 import json
 from enum import Enum
-from typing import Dict, List, Iterator, Tuple, Union
+from typing import Dict, List, Iterator, Union
 
 from .auth import Auth
-from .model import Message, Chat, MessageResponse, CozeModel
+from .model import Message, Chat, CozeModel
 from .request import Requester
 
 
@@ -48,7 +48,7 @@ class Event(str, Enum):
 class ChatEvent(CozeModel):
     event: Event
     chat: Chat = None
-    message: MessageResponse = None
+    message: Message = None
 
 
 class ChatIterator(object):
@@ -88,7 +88,7 @@ class ChatIterator(object):
         elif event == Event.error:
             raise Exception(f"error event: {line}")
         elif event in [Event.conversation_message_delta, Event.conversation_message_completed]:
-            return ChatEvent(event=event, message=MessageResponse.model_validate(json.loads(data)))
+            return ChatEvent(event=event, message=Message.model_validate(json.loads(data)))
         elif event in [
             Event.conversation_chat_created,
             Event.conversation_chat_in_progress,
