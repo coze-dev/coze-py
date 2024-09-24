@@ -1,8 +1,6 @@
 import json
 from enum import Enum
-from typing import Dict, List, Iterator
-
-from click import Tuple
+from typing import Dict, List, Iterator, Tuple
 
 from .auth import Auth
 from .model import Message, Chat, MessageResponse, CozeModel
