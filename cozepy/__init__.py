@@ -1,8 +1,9 @@
 from .auth import ApplicationOAuth, Auth, TokenAuth
 from .config import COZE_COM_BASE_URL, COZE_CN_BASE_URL
 from .coze import Coze
-from .model import TokenPaged, NumberPaged
 from .model import (
+    TokenPaged,
+    NumberPaged,
     MessageRole,
     MessageType,
     MessageContentType,
@@ -11,6 +12,7 @@ from .model import (
     Message,
 )
 from .conversation import Conversation
+from .chat import Chat, ChatEvent, ChatIterator, Event
 
 __all__ = [
     "ApplicationOAuth",
@@ -28,4 +30,8 @@ __all__ = [
     "MessageObjectString",
     "Message",
     "Conversation",
+    "Chat",
+    "ChatEvent",
+    "ChatIterator",
+    "Event",
 ]

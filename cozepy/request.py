@@ -37,7 +37,7 @@ class Requester(object):
         headers: dict = None,
         body: dict = None,
         stream: bool = False,
-    ) -> T | Iterator[bytes]:
+    ) -> Tuple[T, Iterator[bytes]]:
         """
         Send a request to the server.
         """
