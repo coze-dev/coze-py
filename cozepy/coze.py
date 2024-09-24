@@ -7,6 +7,7 @@ from cozepy.request import Requester
 if TYPE_CHECKING:
     from .bot import BotClient
     from .workspace import WorkspaceClient
+    from .conversation import ConversationClient
 
 
 class Coze(object):
@@ -22,6 +23,7 @@ class Coze(object):
         # service client
         self._bot = None
         self._workspace = None
+        self._conversation = None
 
     @property
     def bot(self) -> "BotClient":
@@ -38,3 +40,11 @@ class Coze(object):
 
             self._workspace = WorkspaceClient(self._base_url, self._auth, self._requester)
         return self._workspace
+
+    @property
+    def conversation(self) -> "ConversationClient":
+        if not self._conversation:
+            from cozepy.conversation import ConversationClient
+
+            self._conversation = ConversationClient(self._base_url, self._auth, self._requester)
+        return self._conversation

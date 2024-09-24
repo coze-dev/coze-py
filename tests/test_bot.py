@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase
 
-from cozepy import TokenAuth, Coze
+from cozepy import TokenAuth, Coze, COZE_CN_BASE_URL
 
 
 class TestBotClient(TestCase):
@@ -11,7 +11,7 @@ class TestBotClient(TestCase):
         for i in token:
             print("token", i)
         auth = TokenAuth(token)
-        cli = Coze(auth=auth, base_url="https://api.coze.cn")
+        cli = Coze(auth=auth, base_url=COZE_CN_BASE_URL)
 
         res = cli.bot.list_published_bots_v1(space_id=space_id, page_size=2)
         assert res.total > 1
