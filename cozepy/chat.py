@@ -1,6 +1,6 @@
 import json
 from enum import Enum
-from typing import Dict, List, Iterator, Tuple
+from typing import Dict, List, Iterator, Tuple, Union
 
 from .auth import Auth
 from .model import Message, Chat, MessageResponse, CozeModel
@@ -118,7 +118,7 @@ class ChatClient(object):
         auto_save_history: bool = True,
         meta_data: Dict[str, str] = None,
         conversation_id: str = None,
-    ) -> Tuple[Chat, ChatIterator]:
+    ) -> Union[Chat, ChatIterator]:
         """
         Create a conversation.
         Conversation is an interaction between a bot and a user, including one or more messages.

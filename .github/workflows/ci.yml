@@ -43,6 +43,7 @@ jobs:
           COZE_JWT_AUTH_CLIENT_ID: ${{ secrets.COZE_JWT_AUTH_CLIENT_ID }}
           COZE_JWT_AUTH_PRIVATE_KEY: ${{ secrets.COZE_JWT_AUTH_PRIVATE_KEY }}
           COZE_JWT_AUTH_KEY_ID: ${{ secrets.COZE_JWT_AUTH_KEY_ID }}
+          COZE_BOT_ID_TRANSLATE: ${{ secrets.COZE_BOT_ID_TRANSLATE }}
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
 
