@@ -136,4 +136,14 @@ class ConversationClient(object):
             "messages": [i.model_dump() for i in messages] if len(messages) > 0 else [],
             "meta_data": meta_data,
         }
-        return self._requester.request("get", url, Conversation, body=body)
+        return self._requester.request("post", url, Conversation, body=body)
+
+    def get_v1(self, *, conversation_id: str) -> Conversation:
+        """
+        Get the information of specific conversation.
+        """
+        url = f"{self._base_url}/v1/conversation/retrieve"
+        params = {
+            "conversation_id": conversation_id,
+        }
+        return self._requester.request("get", url, Conversation, params=params)
