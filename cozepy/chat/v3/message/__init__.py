@@ -1,13 +1,10 @@
 import json
 from enum import Enum
-from typing import Dict, List, Iterator, Union, TYPE_CHECKING
+from typing import Dict, List, Iterator, Union
 
 from cozepy.auth import Auth
 from cozepy.model import Message, Chat, CozeModel
 from cozepy.request import Requester
-
-if TYPE_CHECKING:
-    from .message import MessageClient as ChatMessageClient
 
 
 class Event(str, Enum):
@@ -104,84 +101,25 @@ class ChatIterator(object):
             raise Exception(f"unknown event: {line}")
 
 
-class ChatClient(object):
+class MessageClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = base_url
         self._auth = auth
         self._requester = requester
-        self._message = None
 
-    def create(
-        self,
-        *,
-        bot_id: str,
-        user_id: str,
-        additional_messages: List[Message] = None,
-        stream: bool = False,
-        custom_variables: Dict[str, str] = None,
-        auto_save_history: bool = True,
-        meta_data: Dict[str, str] = None,
-        conversation_id: str = None,
-    ) -> Union[Chat, ChatIterator]:
-        """
-        Create a conversation.
-        Conversation is an interaction between a bot and a user, including one or more messages.
-        """
-        url = f"{self._base_url}/v3/chat"
-        body = {
-            "bot_id": bot_id,
-            "user_id": user_id,
-            "additional_messages": [i.model_dump() for i in additional_messages] if additional_messages else [],
-            "stream": stream,
-            "custom_variables": custom_variables,
-            "auto_save_history": auto_save_history,
-            "conversation_id": conversation_id if conversation_id else None,
-            "meta_data": meta_data,
-        }
-        if not stream:
-            return self._requester.request("post", url, Chat, body=body, stream=stream)
-
-        return ChatIterator(self._requester.request("post", url, Chat, body=body, stream=stream))
-
-    def retrieve(
+    def list(
         self,
         *,
         conversation_id: str,
         chat_id: str,
-    ) -> Chat:
+    ) -> List[Message]:
         """
         Create a conversation.
         Conversation is an interaction between a bot and a user, including one or more messages.
         """
-        url = f"{self._base_url}/v3/chat/retrieve"
+        url = f"{self._base_url}/v3/chat/message/list"
         params = {
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return self._requester.request("post", url, Chat, params=params)
-
-    @property
-    def message(
-        self,
-    ) -> "ChatMessageClient":
-        if self._message is None:
-            from .message import MessageClient
-
-            self._message = MessageClient(self._base_url, self._auth, self._requester)
-        return self._message
-
-    def cancel(
-        self,
-        *,
-        conversation_id: str,
-        chat_id: str,
-    ) -> Chat:
-        """
-        Call this API to cancel an ongoing chat.
-        """
-        url = f"{self._base_url}/v3/chat/cancel"
-        params = {
-            "conversation_id": conversation_id,
-            "chat_id": chat_id,
-        }
-        return self._requester.request("post", url, Chat, params=params)
+        return self._requester.request("post", url, List[Message], params=params)
