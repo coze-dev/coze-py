@@ -40,7 +40,7 @@ class WorkspaceClient(object):
         self._auth = auth
         self._requester = requester
 
-    def list_workspace_v1(self, *, page_num: int = 1, page_size: int = 20, headers=None) -> NumberPaged[Workspace]:
+    def list(self, *, page_num: int = 1, page_size: int = 20, headers=None) -> NumberPaged[Workspace]:
         url = f"{self._base_url}/v1/workspaces"
         params = {
             "page_size": page_size,

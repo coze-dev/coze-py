@@ -1,8 +1,8 @@
 from typing import Dict, List
 
-from .auth import Auth
-from .model import CozeModel, Message
-from .request import Requester
+from cozepy.auth import Auth
+from cozepy.model import CozeModel, Message
+from cozepy.request import Requester
 
 
 class Conversation(CozeModel):
@@ -17,7 +17,7 @@ class ConversationClient(object):
         self._auth = auth
         self._requester = requester
 
-    def create_v1(self, *, messages: List[Message] = None, meta_data: Dict[str, str] = None) -> Conversation:
+    def create(self, *, messages: List[Message] = None, meta_data: Dict[str, str] = None) -> Conversation:
         """
         Create a conversation.
         Conversation is an interaction between a bot and a user, including one or more messages.
@@ -29,7 +29,7 @@ class ConversationClient(object):
         }
         return self._requester.request("post", url, Conversation, body=body)
 
-    def get_v1(self, *, conversation_id: str) -> Conversation:
+    def get(self, *, conversation_id: str) -> Conversation:
         """
         Get the information of specific conversation.
         """

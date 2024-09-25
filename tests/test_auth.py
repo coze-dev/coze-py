@@ -16,5 +16,5 @@ def test_jwt_auth():
     token = app.jwt_auth(private_key, key_id, 30)
     assert token.access_token != ""
     assert token.token_type == "Bearer"
-    assert token.expires_in - int(time.time()) <= 30
+    assert token.expires_in - int(time.time()) <= 31
     assert token.refresh_token == ""

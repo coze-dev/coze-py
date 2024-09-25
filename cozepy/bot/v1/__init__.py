@@ -105,7 +105,7 @@ class BotClient(object):
         self._auth = auth
         self._requester = requester
 
-    def get_online_info_v1(self, *, bot_id: str) -> Bot:
+    def get_online_info(self, *, bot_id: str) -> Bot:
         """
         Get the configuration information of the bot, which must have been published
         to the Bot as API channel.
@@ -118,9 +118,7 @@ class BotClient(object):
 
         return self._requester.request("get", url, Bot, params=params)
 
-    def list_published_bots_v1(
-        self, *, space_id: str, page_num: int = 1, page_size: int = 20
-    ) -> NumberPaged[SimpleBot]:
+    def list(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> NumberPaged[SimpleBot]:
         """
         Get the bots published as API service.
 

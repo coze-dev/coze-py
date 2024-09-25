@@ -11,7 +11,7 @@ class TestBotClient(TestCase):
         auth = TokenAuth(token)
         cli = Coze(auth=auth, base_url=COZE_CN_BASE_URL)
 
-        res = cli.bot.list_published_bots_v1(space_id=space_id, page_size=2)
+        res = cli.bot.v1.list(space_id=space_id, page_size=2)
         assert res.total > 1
         assert res.has_more
         assert len(res.items) > 1
