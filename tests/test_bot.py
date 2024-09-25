@@ -21,7 +21,7 @@ class TestBotClient(TestCase):
             assert res.has_more
             assert len(res.items) > 1
 
-    def test_bot_v1_get_online_info(self):
+    def test_bot_v1_retrieve(self):
         bot_id = self.bot_id
 
         cli_list = [
@@ -31,7 +31,7 @@ class TestBotClient(TestCase):
             Coze(auth=jwt_auth, base_url=COZE_CN_BASE_URL),
         ]
         for cli in cli_list:
-            bot = cli.bot.v1.get_online_info(bot_id=bot_id)
+            bot = cli.bot.v1.retrieve(bot_id=bot_id)
             assert bot is not None
             assert bot.bot_id == bot_id
 

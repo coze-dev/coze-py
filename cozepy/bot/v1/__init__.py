@@ -105,7 +105,7 @@ class BotClient(object):
         self._auth = auth
         self._requester = requester
 
-    def get_online_info(self, *, bot_id: str) -> Bot:
+    def retrieve(self, *, bot_id: str) -> Bot:
         """
         Get the configuration information of the bot, which must have been published
         to the Bot as API channel.

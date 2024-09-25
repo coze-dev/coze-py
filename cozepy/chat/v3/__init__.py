@@ -139,7 +139,7 @@ class ChatClient(object):
 
         return ChatIterator(self._requester.request("post", url, Chat, body=body, stream=stream))
 
-    def get(
+    def retrieve(
         self,
         *,
         conversation_id: str,

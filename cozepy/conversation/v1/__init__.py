@@ -29,7 +29,7 @@ class ConversationClient(object):
         }
         return self._requester.request("post", url, Conversation, body=body)
 
-    def get(self, *, conversation_id: str) -> Conversation:
+    def retrieve(self, *, conversation_id: str) -> Conversation:
         """
         Get the information of specific conversation.
         """
