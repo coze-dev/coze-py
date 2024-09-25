@@ -62,6 +62,8 @@ class Requester(object):
             item_model = get_args(model)[0]
             return [item_model.model_validate(item) for item in data]
         else:
+            if model is None:
+                return None
             return model.model_validate(data)
 
     async def arequest(self, method: str, path: str, **kwargs) -> dict:

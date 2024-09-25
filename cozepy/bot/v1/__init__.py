@@ -58,27 +58,27 @@ class Bot(CozeModel):
     # The ID for the bot.
     bot_id: str
     # The name of the bot.
-    name: str
+    name: str = None
     # The description of the bot.
-    description: str
+    description: str = None
     # The URL address for the bot's avatar.
-    icon_url: str
+    icon_url: str = None
     # The creation time, in the format of a 10-digit Unix timestamp in seconds (s).
-    create_time: int
+    create_time: int = None
     # The update time, in the format of a 10-digit Unix timestamp in seconds (s).
-    update_time: int
+    update_time: int = None
     # The latest version of the bot.
-    version: str
+    version: str = None
     # The prompt configuration for the bot. For more information, see Prompt object.
-    prompt_info: BotPromptInfo
+    prompt_info: BotPromptInfo = None
     # The onboarding message configuration for the bot. For more information, see Onboarding object.
-    onboarding_info: BotOnboardingInfo
+    onboarding_info: BotOnboardingInfo = None
     # The mode of the Bot, values: 0: Single Agent mode, 1: Multi Agent mode, 3: Single Agent Workflow mode.
-    bot_mode: BotMode
+    bot_mode: BotMode = None
     # The plugins configured for the bot. For more information, see  Plugin object.
-    plugin_info_list: List[BotPluginInfo]
+    plugin_info_list: List[BotPluginInfo] = None
     # The model configured for the bot. For more information, see Model object.
-    model_info: BotModelInfo
+    model_info: BotModelInfo = None
 
 
 class SimpleBot(CozeModel):
@@ -104,6 +104,66 @@ class BotClient(object):
         self._base_url = base_url
         self._auth = auth
         self._requester = requester
+
+    def create(
+        self,
+        *,
+        space_id: str,
+        name: str,
+        description: str = None,
+        icon_file_id: str = None,
+        prompt_info: BotPromptInfo = None,
+        onboarding_info: BotOnboardingInfo = None,
+    ) -> Bot:
+        url = f"{self._base_url}/v1/bot/create"
+        body = {
+            "space_id": space_id,
+            "name": name,
+            "description": description,
+            "icon_file_id": icon_file_id,
+            "prompt_info": prompt_info.model_dump() if prompt_info else None,
+            "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
+        }
+
+        return self._requester.request("post", url, Bot, body=body)
+
+    def update(
+        self,
+        *,
+        bot_id: str,
+        name: str = None,
+        description: str = None,
+        icon_file_id: str = None,
+        prompt_info: BotPromptInfo = None,
+        onboarding_info: BotOnboardingInfo = None,
+    ) -> Bot:
+        url = f"{self._base_url}/v1/bot/update"
+        body = {
+            "bot_id": bot_id,
+            "name": name,
+            "description": description,
+            "icon_file_id": icon_file_id,
+            "prompt_info": prompt_info.model_dump() if prompt_info else None,
+            "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
+        }
+
+        return self._requester.request("post", url, None, body=body)
+
+    def publish(
+        self,
+        *,
+        bot_id: str,
+        connector_ids: List[str] = None,
+    ) -> Bot:
+        url = f"{self._base_url}/v1/bot/publish"
+        if not connector_ids:
+            connector_ids = ["API"]
+        body = {
+            "bot_id": bot_id,
+            "connector_ids": connector_ids,
+        }
+
+        return self._requester.request("post", url, Bot, body=body)
 
     def retrieve(self, *, bot_id: str) -> Bot:
         """
