@@ -56,7 +56,7 @@ class ApplicationOAuth(object):
         self._token = ""
         self._requester = Requester()
 
-    def jwt_auth(self, private_key: str, kid: str, ttl: int):
+    def jwt_auth(self, private_key: str, kid: str, ttl: int) -> OAuthToken:
         """
         Get the token by jwt with jwt auth flow.
         """
@@ -136,4 +136,41 @@ class TokenAuth(Auth):
 
     @property
     def token(self) -> str:
+        return self._token
+
+
+class JWTAuth(Auth):
+    """
+    The JWT auth flow.
+    """
+
+    def __init__(self, client_id: str, private_key: str, kid: str, ttl: int = 7200, base_url: str = COZE_COM_BASE_URL):
+        assert isinstance(client_id, str)
+        assert isinstance(private_key, str)
+        assert isinstance(kid, str)
+        assert isinstance(ttl, int)
+        assert ttl > 0
+        assert isinstance(base_url, str)
+
+        self._client_id = client_id
+        self._private_key = private_key
+        self._kid = kid
+        self._ttl = ttl
+        self._base_url = base_url
+        self._token = None
+        self._oauth_cli = ApplicationOAuth(self._client_id, base_url=self._base_url)
+
+    @property
+    def token_type(self) -> str:
+        return "Bearer"
+
+    @property
+    def token(self) -> str:
+        token = self._generate_token()
+        return token.access_token
+
+    def _generate_token(self):
+        if self._token is not None and int(time.time()) < self._token.expires_in:
+            return self._token
+        self._token = self._oauth_cli.jwt_auth(self._private_key, self._kid, self._ttl)
         return self._token

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Tuple, Optional, Union, List, get_origin, get_args
+from typing import TYPE_CHECKING, Tuple, Optional, Union, List, get_origin, get_args, Iterator
 
 import requests
 from requests import Response
@@ -37,7 +37,7 @@ class Requester(object):
         headers: dict = None,
         body: dict = None,
         stream: bool = False,
-    ) -> Union[T, List[T]]:
+    ) -> Union[T, List[T], Iterator[bytes]]:
         """
         Send a request to the server.
         """
