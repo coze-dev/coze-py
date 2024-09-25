@@ -144,11 +144,7 @@ class JWTAuth(Auth):
     The JWT auth flow.
     """
 
-    def __init__(self, client_id: str,
-                 private_key: str,
-                 kid: str,
-                 ttl: int = 7200,
-                 base_url: str = COZE_COM_BASE_URL):
+    def __init__(self, client_id: str, private_key: str, kid: str, ttl: int = 7200, base_url: str = COZE_COM_BASE_URL):
         assert isinstance(client_id, str)
         assert isinstance(private_key, str)
         assert isinstance(kid, str)

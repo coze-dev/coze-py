@@ -12,4 +12,4 @@ def test_jwt_app_oauth():
 
 
 def test_jwt_auth():
-    assert jwt_auth.token != ''
+    assert jwt_auth.token != ""

@@ -29,14 +29,14 @@ class Requester(object):
         self._auth = auth
 
     def request(
-            self,
-            method: str,
-            url: str,
-            model: Union[Type[T], List[Type[T]]],
-            params: dict = None,
-            headers: dict = None,
-            body: dict = None,
-            stream: bool = False,
+        self,
+        method: str,
+        url: str,
+        model: Union[Type[T], List[Type[T]]],
+        params: dict = None,
+        headers: dict = None,
+        body: dict = None,
+        stream: bool = False,
     ) -> Union[T, List[T], Iterator[bytes]]:
         """
         Send a request to the server.

@@ -13,7 +13,7 @@ class TestBotClient(TestCase):
             # fixed token
             Coze(auth=fixed_token_auth, base_url=COZE_CN_BASE_URL),
             # jwt auth
-            Coze(auth=jwt_auth, base_url=COZE_CN_BASE_URL)
+            Coze(auth=jwt_auth, base_url=COZE_CN_BASE_URL),
         ]
         for cli in cli_list:
             res = cli.bot.v1.list(space_id=space_id, page_size=2)
@@ -28,7 +28,7 @@ class TestBotClient(TestCase):
             # fixed token
             Coze(auth=fixed_token_auth, base_url=COZE_CN_BASE_URL),
             # jwt auth
-            Coze(auth=jwt_auth, base_url=COZE_CN_BASE_URL)
+            Coze(auth=jwt_auth, base_url=COZE_CN_BASE_URL),
         ]
         for cli in cli_list:
             bot = cli.bot.v1.get_online_info(bot_id=bot_id)
