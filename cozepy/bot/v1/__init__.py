@@ -105,56 +105,62 @@ class BotClient(object):
         self._auth = auth
         self._requester = requester
 
-    def create(self, *,
-               space_id: str,
-               name: str,
-               description: str = None,
-               icon_file_id: str = None,
-               prompt_info: BotPromptInfo = None,
-               onboarding_info: BotOnboardingInfo = None
-               ) -> Bot:
+    def create(
+        self,
+        *,
+        space_id: str,
+        name: str,
+        description: str = None,
+        icon_file_id: str = None,
+        prompt_info: BotPromptInfo = None,
+        onboarding_info: BotOnboardingInfo = None,
+    ) -> Bot:
         url = f"{self._base_url}/v1/bot/create"
         body = {
             "space_id": space_id,
-            'name': name,
-            'description': description,
-            'icon_file_id': icon_file_id,
-            'prompt_info': prompt_info.model_dump() if prompt_info else None,
-            'onboarding_info': onboarding_info.model_dump() if onboarding_info else None
+            "name": name,
+            "description": description,
+            "icon_file_id": icon_file_id,
+            "prompt_info": prompt_info.model_dump() if prompt_info else None,
+            "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
         }
 
         return self._requester.request("post", url, Bot, body=body)
 
-    def update(self, *,
-               bot_id: str,
-               name: str = None,
-               description: str = None,
-               icon_file_id: str = None,
-               prompt_info: BotPromptInfo = None,
-               onboarding_info: BotOnboardingInfo = None,
-               ) -> Bot:
+    def update(
+        self,
+        *,
+        bot_id: str,
+        name: str = None,
+        description: str = None,
+        icon_file_id: str = None,
+        prompt_info: BotPromptInfo = None,
+        onboarding_info: BotOnboardingInfo = None,
+    ) -> Bot:
         url = f"{self._base_url}/v1/bot/update"
         body = {
             "bot_id": bot_id,
-            'name': name,
-            'description': description,
-            'icon_file_id': icon_file_id,
-            'prompt_info': prompt_info.model_dump() if prompt_info else None,
-            'onboarding_info': onboarding_info.model_dump() if onboarding_info else None
+            "name": name,
+            "description": description,
+            "icon_file_id": icon_file_id,
+            "prompt_info": prompt_info.model_dump() if prompt_info else None,
+            "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
         }
 
         return self._requester.request("post", url, None, body=body)
 
-    def publish(self, *,
-                bot_id: str,
-                connector_ids: List[str]=None,
-                ) -> Bot:
+    def publish(
+        self,
+        *,
+        bot_id: str,
+        connector_ids: List[str] = None,
+    ) -> Bot:
         url = f"{self._base_url}/v1/bot/publish"
         if not connector_ids:
-            connector_ids = ['API']
+            connector_ids = ["API"]
         body = {
             "bot_id": bot_id,
-            'connector_ids': connector_ids,
+            "connector_ids": connector_ids,
         }
 
         return self._requester.request("post", url, Bot, body=body)
