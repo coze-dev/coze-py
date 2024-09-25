@@ -1,8 +1,8 @@
 import os
 
-from cozepy import TokenAuth, Coze, COZE_CN_BASE_URL, Message, ChatIterator, Event
+from cozepy import TokenAuth, Coze, COZE_CN_BASE_URL, Message
 from cozepy.auth import _random_hex
-from cozepy.model import ChatStatus
+from cozepy.chat.v3 import ChatIterator, Event
 
 
 def test_chat_v3_not_stream():
@@ -12,7 +12,7 @@ def test_chat_v3_not_stream():
     auth = TokenAuth(token)
     cli = Coze(auth=auth, base_url=COZE_CN_BASE_URL)
 
-    chat = cli.chat.chat_v3(
+    chat = cli.chat.v3.create(
         bot_id=bot_id,
         user_id=_random_hex(10),
         additional_messages=[Message.user_text_message("Hi, how are you?")],
@@ -37,7 +37,7 @@ def test_chat_v3_stream():
     auth = TokenAuth(token)
     cli = Coze(auth=auth, base_url=COZE_CN_BASE_URL)
 
-    chat_iter: ChatIterator = cli.chat.chat_v3(
+    chat_iter: ChatIterator = cli.chat.v3.create(
         bot_id=bot_id,
         user_id=_random_hex(10),
         additional_messages=[Message.user_text_message("Hi, how are you?")],

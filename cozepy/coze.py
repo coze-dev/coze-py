@@ -38,7 +38,7 @@ class Coze(object):
     @property
     def workspace(self) -> "WorkspaceClient":
         if not self._workspace:
-            from cozepy.workspace import WorkspaceClient
+            from .workspace import WorkspaceClient
 
             self._workspace = WorkspaceClient(self._base_url, self._auth, self._requester)
         return self._workspace
@@ -46,7 +46,7 @@ class Coze(object):
     @property
     def conversation(self) -> "ConversationClient":
         if not self._conversation:
-            from cozepy.conversation import ConversationClient
+            from .conversation import ConversationClient
 
             self._conversation = ConversationClient(self._base_url, self._auth, self._requester)
         return self._conversation

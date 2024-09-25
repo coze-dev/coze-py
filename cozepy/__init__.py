@@ -11,8 +11,6 @@ from .model import (
     MessageObjectString,
     Message,
 )
-from .conversation import Conversation
-from .chat import Chat, ChatEvent, ChatIterator, Event
 
 __all__ = [
     "ApplicationOAuth",
@@ -29,9 +27,4 @@ __all__ = [
     "MessageObjectStringType",
     "MessageObjectString",
     "Message",
-    "Conversation",
-    "Chat",
-    "ChatEvent",
-    "ChatIterator",
-    "Event",
 ]
