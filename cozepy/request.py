@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Tuple, Optional, Iterator, Union
+from typing import TYPE_CHECKING, Tuple, Optional, Union, List, get_origin, get_args
 
 import requests
 from requests import Response
@@ -32,12 +32,12 @@ class Requester(object):
         self,
         method: str,
         url: str,
-        model: Type[T],
+        model: Union[Type[T], List[Type[T]]],
         params: dict = None,
         headers: dict = None,
         body: dict = None,
         stream: bool = False,
-    ) -> Union[T, Iterator[bytes]]:
+    ) -> Union[T, List[T]]:
         """
         Send a request to the server.
         """
@@ -58,7 +58,11 @@ class Requester(object):
         elif code is None and msg != "":
             logid = r.headers.get("x-tt-logid")
             raise Exception(f"{msg}, logid:{logid}")
-        return model.model_validate(data)
+        if get_origin(model) is list:
+            item_model = get_args(model)[0]
+            return [item_model.model_validate(item) for item in data]
+        else:
+            return model.model_validate(data)
 
     async def arequest(self, method: str, path: str, **kwargs) -> dict:
         """
