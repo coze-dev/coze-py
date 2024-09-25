@@ -13,5 +13,6 @@ class ConversationClient(object):
     def v1(self):
         if not self._v1:
             from .v1 import ConversationClient
+
             self._v1 = ConversationClient(self._base_url, self._auth, self._requester)
         return self._v1

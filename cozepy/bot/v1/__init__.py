@@ -118,9 +118,7 @@ class BotClient(object):
 
         return self._requester.request("get", url, Bot, params=params)
 
-    def list(
-            self, *, space_id: str, page_num: int = 1, page_size: int = 20
-    ) -> NumberPaged[SimpleBot]:
+    def list(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> NumberPaged[SimpleBot]:
         """
         Get the bots published as API service.
 

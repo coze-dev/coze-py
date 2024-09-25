@@ -19,8 +19,9 @@ class BotClient(object):
         self._v1 = None
 
     @property
-    def v1(self) -> 'BotClientV1':
+    def v1(self) -> "BotClientV1":
         if not self._v1:
             from .v1 import BotClient
+
             self._v1 = BotClient(self._base_url, self._auth, self._requester)
         return self._v1

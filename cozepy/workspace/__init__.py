@@ -17,5 +17,6 @@ class WorkspaceClient(object):
     def v1(self):
         if not self._v1:
             from .v1 import WorkspaceClient
+
             self._v1 = WorkspaceClient(self._base_url, self._auth, self._requester)
         return self._v1

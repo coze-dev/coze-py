@@ -15,5 +15,6 @@ class ChatClient(object):
     def v3(self):
         if not self._v3:
             from .v3 import ChatClient
+
             self._v3 = ChatClient(self._base_url, self._auth, self._requester)
         return self._v3

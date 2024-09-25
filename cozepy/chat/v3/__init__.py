@@ -108,16 +108,16 @@ class ChatClient(object):
         self._requester = requester
 
     def create(
-            self,
-            *,
-            bot_id: str,
-            user_id: str,
-            additional_messages: List[Message] = None,
-            stream: bool = False,
-            custom_variables: Dict[str, str] = None,
-            auto_save_history: bool = True,
-            meta_data: Dict[str, str] = None,
-            conversation_id: str = None,
+        self,
+        *,
+        bot_id: str,
+        user_id: str,
+        additional_messages: List[Message] = None,
+        stream: bool = False,
+        custom_variables: Dict[str, str] = None,
+        auto_save_history: bool = True,
+        meta_data: Dict[str, str] = None,
+        conversation_id: str = None,
     ) -> Union[Chat, ChatIterator]:
         """
         Create a conversation.
@@ -140,10 +140,10 @@ class ChatClient(object):
         return ChatIterator(self._requester.request("post", url, Chat, body=body, stream=stream))
 
     def get(
-            self,
-            *,
-            conversation_id: str,
-            chat_id: str,
+        self,
+        *,
+        conversation_id: str,
+        chat_id: str,
     ) -> Chat:
         """
         Create a conversation.
@@ -157,10 +157,10 @@ class ChatClient(object):
         return self._requester.request("post", url, Chat, params=params)
 
     def list_message(
-            self,
-            *,
-            conversation_id: str,
-            chat_id: str,
+        self,
+        *,
+        conversation_id: str,
+        chat_id: str,
     ) -> List[Message]:
         """
         Create a conversation.
@@ -174,10 +174,10 @@ class ChatClient(object):
         return self._requester.request("post", url, List[Message], params=params)
 
     def cancel_v3(
-            self,
-            *,
-            conversation_id: str,
-            chat_id: str,
+        self,
+        *,
+        conversation_id: str,
+        chat_id: str,
     ) -> Chat:
         """
         Call this API to cancel an ongoing chat.
