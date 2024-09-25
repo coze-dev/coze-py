@@ -29,14 +29,14 @@ class Requester(object):
         self._auth = auth
 
     def request(
-        self,
-        method: str,
-        url: str,
-        model: Union[Type[T], List[Type[T]]],
-        params: dict = None,
-        headers: dict = None,
-        body: dict = None,
-        stream: bool = False,
+            self,
+            method: str,
+            url: str,
+            model: Union[Type[T], List[Type[T]]],
+            params: dict = None,
+            headers: dict = None,
+            body: dict = None,
+            stream: bool = False,
     ) -> Union[T, List[T], Iterator[bytes]]:
         """
         Send a request to the server.
@@ -62,6 +62,8 @@ class Requester(object):
             item_model = get_args(model)[0]
             return [item_model.model_validate(item) for item in data]
         else:
+            if model is None:
+                return None
             return model.model_validate(data)
 
     async def arequest(self, method: str, path: str, **kwargs) -> dict:
