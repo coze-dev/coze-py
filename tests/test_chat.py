@@ -1,16 +1,15 @@
 import os
 
-from cozepy import TokenAuth, Coze, COZE_CN_BASE_URL, Message
+from cozepy import Coze, COZE_CN_BASE_URL, Message
 from cozepy.auth import _random_hex
 from cozepy.chat.v3 import ChatIterator, Event
+from tests.config import fixed_token_auth
 
 
 def test_chat_v3_not_stream():
-    token = os.getenv("COZE_TOKEN").strip()
     bot_id = os.getenv("COZE_BOT_ID_TRANSLATE").strip()
 
-    auth = TokenAuth(token)
-    cli = Coze(auth=auth, base_url=COZE_CN_BASE_URL)
+    cli = Coze(auth=fixed_token_auth, base_url=COZE_CN_BASE_URL)
 
     chat = cli.chat.v3.create(
         bot_id=bot_id,
@@ -31,11 +30,9 @@ def test_chat_v3_not_stream():
 
 
 def test_chat_v3_stream():
-    token = os.getenv("COZE_TOKEN").strip()
     bot_id = os.getenv("COZE_BOT_ID_TRANSLATE").strip()
 
-    auth = TokenAuth(token)
-    cli = Coze(auth=auth, base_url=COZE_CN_BASE_URL)
+    cli = Coze(auth=fixed_token_auth, base_url=COZE_CN_BASE_URL)
 
     chat_iter: ChatIterator = cli.chat.v3.create(
         bot_id=bot_id,

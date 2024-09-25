@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Tuple, Optional, Union, List, get_origin, get_args
+from typing import TYPE_CHECKING, Tuple, Optional, Union, List, get_origin, get_args, Iterator
 
 import requests
 from requests import Response
@@ -29,15 +29,15 @@ class Requester(object):
         self._auth = auth
 
     def request(
-        self,
-        method: str,
-        url: str,
-        model: Union[Type[T], List[Type[T]]],
-        params: dict = None,
-        headers: dict = None,
-        body: dict = None,
-        stream: bool = False,
-    ) -> Union[T, List[T]]:
+            self,
+            method: str,
+            url: str,
+            model: Union[Type[T], List[Type[T]]],
+            params: dict = None,
+            headers: dict = None,
+            body: dict = None,
+            stream: bool = False,
+    ) -> Union[T, List[T], Iterator[bytes]]:
         """
         Send a request to the server.
         """
