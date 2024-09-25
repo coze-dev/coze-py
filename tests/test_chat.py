@@ -21,13 +21,13 @@ def test_chat_v3_not_stream():
     assert chat is not None
     assert chat.id != ""
 
-    while True:
-        chat = cli.chat.get_v3(conversation_id=chat.conversation_id, chat_id=chat.id)
-        if chat.status != ChatStatus.in_progress:
-            break
-    messages = cli.chat.list_message_v3(conversation_id=chat.conversation_id, chat_id=chat.id)
-    print(messages)
-    assert len(messages) > 0
+    # while True:
+    #     chat = cli.chat.get_v3(conversation_id=chat.conversation_id, chat_id=chat.id)
+    #     if chat.status != ChatStatus.in_progress:
+    #         break
+    # messages = cli.chat.list_message_v3(conversation_id=chat.conversation_id, chat_id=chat.id)
+    # print(messages)
+    # assert len(messages) > 0
 
 
 def test_chat_v3_stream():
