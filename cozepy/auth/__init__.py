@@ -7,7 +7,7 @@ from authlib.jose import jwt
 
 from cozepy.model import CozeModel
 from cozepy.request import Requester
-from .config import COZE_COM_BASE_URL
+from cozepy.config import COZE_COM_BASE_URL
 
 
 def _random_hex(length):

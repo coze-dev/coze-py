@@ -4,7 +4,7 @@ from cozepy.auth import Auth
 from cozepy.request import Requester
 
 if TYPE_CHECKING:
-    from .v1 import WorkflowClient as WorkflowClientV1
+    from .runs import WorkflowClient as WorkflowClientRuns
 
 
 class WorkflowClient(object):
@@ -12,12 +12,12 @@ class WorkflowClient(object):
         self._base_url = base_url
         self._auth = auth
         self._requester = requester
-        self._v1 = None
+        self._runs = None
 
     @property
-    def v1(self) -> "WorkflowClientV1":
-        if not self._v1:
-            from .v1 import WorkflowClient
+    def runs(self) -> "WorkflowClientRuns":
+        if not self._runs:
+            from .runs import WorkflowClient
 
-            self._v1 = WorkflowClient(self._base_url, self._auth, self._requester)
-        return self._v1
+            self._runs = WorkflowClient(self._base_url, self._auth, self._requester)
+        return self._runs

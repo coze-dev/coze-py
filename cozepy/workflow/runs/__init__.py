@@ -155,7 +155,7 @@ class WorkflowClient(object):
         self._requester = requester
         self._v1 = None
 
-    def run(
+    def create(
         self, *, workflow_id: str, parameters: Dict[str, Any] = None, bot_id: str = None, ext: Dict[str, Any] = None
     ) -> WorkflowRunResult:
         """
@@ -187,7 +187,7 @@ class WorkflowClient(object):
         body = {"workflow_id": workflow_id, "parameters": parameters, "bot_id": bot_id, "ext": ext}
         return self._requester.request("post", url, WorkflowRunResult, body=body)
 
-    def stream_run(
+    def stream(
         self,
         *,
         workflow_id: str,
@@ -221,7 +221,7 @@ class WorkflowClient(object):
         body = {"workflow_id": workflow_id, "parameters": parameters, "bot_id": bot_id, "ext": ext}
         return WorkflowEventIterator(self._requester.request("post", url, None, body=body, stream=True))
 
-    def stream_resume(
+    def resume(
         self,
         *,
         workflow_id: str,

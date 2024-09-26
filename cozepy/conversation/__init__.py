@@ -1,5 +1,15 @@
+from typing import Dict, List
+
 from cozepy.auth import Auth
+from cozepy.chat.v3 import Message
+from cozepy.model import CozeModel
 from cozepy.request import Requester
+
+
+class Conversation(CozeModel):
+    id: str
+    created_at: int
+    meta_data: Dict[str, str]
 
 
 class ConversationClient(object):
@@ -7,12 +17,34 @@ class ConversationClient(object):
         self._base_url = base_url
         self._auth = auth
         self._requester = requester
-        self._v1 = None
+        self._message = None
 
     @property
-    def v1(self):
-        if not self._v1:
-            from .v1 import ConversationClient
+    def message(self):
+        if not self._message:
+            from .message import MessageClient
 
-            self._v1 = ConversationClient(self._base_url, self._auth, self._requester)
-        return self._v1
+            self._message = MessageClient(self._base_url, self._auth, self._requester)
+        return self._message
+
+    def create(self, *, messages: List[Message] = None, meta_data: Dict[str, str] = None) -> Conversation:
+        """
+        Create a conversation.
+        Conversation is an interaction between a bot and a user, including one or more messages.
+        """
+        url = f"{self._base_url}/v1/conversation/create"
+        body = {
+            "messages": [i.model_dump() for i in messages] if len(messages) > 0 else [],
+            "meta_data": meta_data,
+        }
+        return self._requester.request("post", url, Conversation, body=body)
+
+    def retrieve(self, *, conversation_id: str) -> Conversation:
+        """
+        Get the information of specific conversation.
+        """
+        url = f"{self._base_url}/v1/conversation/retrieve"
+        params = {
+            "conversation_id": conversation_id,
+        }
+        return self._requester.request("get", url, Conversation, params=params)
