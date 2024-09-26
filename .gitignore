@@ -5,3 +5,4 @@ dist/
 debug.*
 .env
 .env_private
+scripts/
