@@ -1,4 +1,10 @@
-# coze-py
+# Coze Python API SDK
+
+[![PyPI version](https://img.shields.io/pypi/v/cozepy.svg)](https://pypi.org/project/cozepy/)
+
+## Requirements
+
+Python 3.7 or higher.
 
 ## Install
 
