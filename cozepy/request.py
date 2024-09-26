@@ -4,10 +4,9 @@ from typing import (
     Optional,
     Union,
     List,
-    get_origin,
-    get_args,
     Iterator,
 )
+from typing_extensions import get_args, get_origin  # compatibility with python 3.7
 
 import httpx
 from httpx import Response
