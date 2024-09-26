@@ -285,15 +285,28 @@ class ChatClient(object):
         *,
         bot_id: str,
         user_id: str,
+        conversation_id: str = None,
         additional_messages: List[Message] = None,
         custom_variables: Dict[str, str] = None,
         auto_save_history: bool = True,
         meta_data: Dict[str, str] = None,
-        conversation_id: str = None,
     ) -> Chat:
         """
-        Create a conversation.
-        Conversation is an interaction between a bot and a user, including one or more messages.
+        Call the Chat API with non-streaming to send messages to a published Coze bot.
+
+        docs en: https://www.coze.com/docs/developer_guides/chat_v3
+        docs zh: https://www.coze.cn/docs/developer_guides/chat_v3
+
+        :param bot_id: The ID of the bot that the API interacts with.
+        :param user_id: The user who calls the API to chat with the bot.
+        This parameter is defined, generated, and maintained by the user within their business system.
+        :param conversation_id: Indicate which conversation the chat is taking place in.
+        :param additional_messages: Additional information for the conversation. You can pass the user's query for this
+        conversation through this field. The array length is limited to 100, meaning up to 100 messages can be input.
+        :param custom_variables: The customized variable in a key-value pair.
+        :param auto_save_history: Whether to automatically save the history of conversation records.
+        :param meta_data: Additional information, typically used to encapsulate some business-related fields.
+        :return: chat object
         """
         return self._create(
             bot_id=bot_id,
@@ -318,8 +331,21 @@ class ChatClient(object):
         conversation_id: str = None,
     ) -> ChatChatIterator:
         """
-        Create a conversation.
-        Conversation is an interaction between a bot and a user, including one or more messages.
+        Call the Chat API with streaming to send messages to a published Coze bot.
+
+        docs en: https://www.coze.com/docs/developer_guides/chat_v3
+        docs zh: https://www.coze.cn/docs/developer_guides/chat_v3
+
+        :param bot_id: The ID of the bot that the API interacts with.
+        :param user_id: The user who calls the API to chat with the bot.
+        This parameter is defined, generated, and maintained by the user within their business system.
+        :param conversation_id: Indicate which conversation the chat is taking place in.
+        :param additional_messages: Additional information for the conversation. You can pass the user's query for this
+        conversation through this field. The array length is limited to 100, meaning up to 100 messages can be input.
+        :param custom_variables: The customized variable in a key-value pair.
+        :param auto_save_history: Whether to automatically save the history of conversation records.
+        :param meta_data: Additional information, typically used to encapsulate some business-related fields.
+        :return: iterator of ChatEvent
         """
         return self._create(
             bot_id=bot_id,
@@ -371,8 +397,14 @@ class ChatClient(object):
         chat_id: str,
     ) -> Chat:
         """
-        Create a conversation.
-        Conversation is an interaction between a bot and a user, including one or more messages.
+        Get the detailed information of the chat.
+
+        docs en: https://www.coze.com/docs/developer_guides/retrieve_chat
+        docs zh: https://www.coze.cn/docs/developer_guides/retrieve_chat
+
+        :param conversation_id: The ID of the conversation.
+        :param chat_id: The ID of the chat.
+        :return: chat object
         """
         url = f"{self._base_url}/v3/chat/retrieve"
         params = {
@@ -389,6 +421,15 @@ class ChatClient(object):
     ) -> Chat:
         """
         Call this API to cancel an ongoing chat.
+
+        docs en: https://www.coze.com/docs/developer_guides/chat_cancel
+        docs zh: https://www.coze.cn/docs/developer_guides/chat_cancel
+
+        :param conversation_id: The Conversation ID can be viewed in the 'conversation_id' field of the Response when
+        initiating a conversation through the Chat API.
+        :param chat_id: The Chat ID can be viewed in the 'id' field of the Response when initiating a chat through the
+        Chat API. If it is a streaming response, check the 'id' field in the chat event of the Response.
+        :return:
         """
         url = f"{self._base_url}/v3/chat/cancel"
         params = {

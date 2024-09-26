@@ -4,20 +4,20 @@ from cozepy.request import Requester
 
 
 class File(CozeModel):
-    # The ID of the uploaded file.
     # 已上传的文件 ID。
+    # The ID of the uploaded file.
     id: str
 
-    # 文件的总字节数。
     # The total byte size of the file.
+    # 文件的总字节数。
     bytes: int
 
-    # 文件的上传时间，格式为 10 位的 Unixtime 时间戳，单位为秒（s）。
     # The upload time of the file, in the format of a 10-digit Unix timestamp in seconds (s).
+    # 文件的上传时间，格式为 10 位的 Unixtime 时间戳，单位为秒（s）。
     created_at: int
 
-    # 文件名称。
     # The name of the file.
+    # 文件名称。
     file_name: str
 
 
@@ -41,11 +41,8 @@ class FilesClient(object):
         docs en: https://www.coze.com/docs/developer_guides/upload_files
         docs zh: https://www.coze.cn/docs/developer_guides/upload_files
 
-        Args:
-            file: local file path
-
-        Returns:
-            File: file info
+        :param file: local file path
+        :return: file info
         """
         url = f"{self._base_url}/v1/files/upload"
         files = {"file": open(file, "rb")}
@@ -60,11 +57,8 @@ class FilesClient(object):
         docs en: https://www.coze.com/docs/developer_guides/retrieve_files
         docs cn: https://www.coze.cn/docs/developer_guides/retrieve_files
 
-        Args:
-            file_id: file id of file
-
-        Returns:
-            File: file info
+        :param file_id: file id
+        :return: file info
         """
         url = f"{self._base_url}/v1/files/retrieve"
         params = {"file_id": file_id}

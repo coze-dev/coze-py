@@ -23,6 +23,14 @@ class ConversationsClient(object):
         """
         Create a conversation.
         Conversation is an interaction between a bot and a user, including one or more messages.
+
+        docs en: https://www.coze.com/docs/developer_guides/create_conversation
+        docs zh: https://www.coze.cn/docs/developer_guides/create_conversation
+
+        :param messages: Messages in the conversation. For more information, see EnterMessage object.
+        :param meta_data: Additional information when creating a message, and this additional information will also be
+        returned when retrieving messages.
+        :return: Conversation object
         """
         url = f"{self._base_url}/v1/conversation/create"
         body = {
@@ -34,6 +42,12 @@ class ConversationsClient(object):
     def retrieve(self, *, conversation_id: str) -> Conversation:
         """
         Get the information of specific conversation.
+
+        docs en: https://www.coze.com/docs/developer_guides/retrieve_conversation
+        docs cn: https://www.coze.cn/docs/developer_guides/retrieve_conversation
+
+        :param conversation_id: The ID of the conversation.
+        :return: Conversation object
         """
         url = f"{self._base_url}/v1/conversation/retrieve"
         params = {

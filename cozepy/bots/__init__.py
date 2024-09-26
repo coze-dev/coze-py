@@ -137,6 +137,25 @@ class BotsClient(object):
         prompt_info: BotPromptInfo = None,
         onboarding_info: BotOnboardingInfo = None,
     ) -> None:
+        """
+        Update the configuration of a bot.
+        This API can be used to update all bots created through the Coze platform or via the API.
+        In addition to updating the bot's name and description, avatar, personality and reply logic,
+        and opening remarks, this API also supports binding a knowledge base to the bot.
+
+        docs en: https://www.coze.com/docs/developer_guides/update_bot
+        docs zh: https://www.coze.cn/docs/developer_guides/update_bot
+
+        :param bot_id: The ID of the bot that the API interacts with.
+        :param name: The name of the bot. It should be 1 to 20 characters long.
+        :param description: The description of the Bot. It can be 0 to 500 characters long. The default is empty.
+        :param icon_file_id: The file ID for the Bot's avatar. If no file ID is specified, the Douzhu platform will
+        assign a default avatar for the bot. To use a custom avatar, first upload the local file through the Upload
+        file interface and obtain the file ID from the interface response.
+        :param prompt_info: The personality and reply logic of the bot.
+        :param onboarding_info: The settings related to the bot's opening remarks.
+        :return: None
+        """
         url = f"{self._base_url}/v1/bot/update"
         body = {
             "bot_id": bot_id,
@@ -169,9 +188,15 @@ class BotsClient(object):
         """
         Get the configuration information of the bot, which must have been published
         to the Bot as API channel.
+        获取指定 Bot 的配置信息，此 Bot 必须已发布到 Bot as API 渠道中。
 
-        :docs: https://www.coze.com/docs/developer_guides/get_metadata
-        :calls: `GET /v1/bot/get_online_info`
+        docs en: https://www.coze.com/docs/developer_guides/get_metadata
+        docs zh: https://www.coze.cn/docs/developer_guides/get_metadata
+
+        :param bot_id: The ID of the bot that the API interacts with.
+        要查看的 Bot ID。
+        :return: bot object
+        Bot 的配置信息
         """
         url = f"{self._base_url}/v1/bot/get_online_info"
         params = {"bot_id": bot_id}
@@ -181,9 +206,20 @@ class BotsClient(object):
     def list(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> NumberPaged[SimpleBot]:
         """
         Get the bots published as API service.
+        查看指定空间发布到 Bot as API 渠道的 Bot 列表。
 
-        :docs: https://www.coze.com/docs/developer_guides/published_bots_list
-        :calls: `GET /v1/space/published_bots_list`
+        docs en: https://www.coze.com/docs/developer_guides/published_bots_list
+        docs zh: https://www.coze.cn/docs/developer_guides/published_bots_list
+
+        :param space_id: The ID of the space.
+        Bot 所在的空间的 Space ID。Space ID 是空间的唯一标识。
+        :param page_num: Pagination size. The default is 20, meaning that 20 data entries are returned per page.
+        分页大小。默认为 20，即每页返回 20 条数据。
+        :param page_size: Page number for paginated queries. The default is 1,
+        meaning that the data return starts from the first page.
+        分页查询时的页码。默认为 1，即从第一页数据开始返回。
+        :return: Specify the list of Bots published to the Bot as an API channel in space.
+        指定空间发布到 Bot as API 渠道的 Bot 列表。
         """
         url = f"{self._base_url}/v1/space/published_bots_list"
         params = {

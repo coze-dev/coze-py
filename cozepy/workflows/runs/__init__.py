@@ -162,25 +162,16 @@ class WorkflowsClient(object):
         This API is in non-streaming response mode. For nodes that support streaming output,
         you should run the API Run workflow (streaming response) to obtain streaming responses.
 
-
-        执行已发布的工作流。
-        此接口为非流式响应模式，对于支持流式输出的节点，应使用接口执行工作流（流式响应）获取流式响应。
-
         docs en: https://www.coze.com/docs/developer_guides/workflow_run
         docs cn: https://www.coze.cn/docs/developer_guides/workflow_run
 
         :param workflow_id: The ID of the workflow, which should have been published.
-        待执行的 Workflow ID，此工作流应已发布。
         :param parameters: Input parameters and their values for the starting node of the workflow. You can view the
         list of parameters on the arrangement page of the specified workflow.
-        工作流开始节点的输入参数及取值，你可以在指定工作流的编排页面查看参数列表。
         :param bot_id: The associated Bot ID required for some workflow executions,
         such as workflows with database nodes, variable nodes, etc.
-        需要关联的 Bot ID。 部分工作流执行时需要指定关联的 Bot，例如存在数据库节点、变量节点等节点的工作流。
         :param ext: Used to specify some additional fields in the format of Map[String][String].
-        用于指定一些额外的字段，以 Map[String][String] 格式传入。
         :return: The result of the workflow execution
-        工作流执行结果
         """
         url = f"{self._base_url}/v1/workflow/run"
         body = {"workflow_id": workflow_id, "parameters": parameters, "bot_id": bot_id, "ext": ext}
@@ -196,25 +187,17 @@ class WorkflowsClient(object):
     ) -> WorkflowEventIterator:
         """
         Execute the published workflow with a streaming response method.
-        执行已发布的工作流，响应方式为流式响应。
 
         docs en: https://www.coze.com/docs/developer_guides/workflow_stream_run
         docs zh: https://www.coze.cn/docs/developer_guides/workflow_stream_run
 
         :param workflow_id: The ID of the workflow, which should have been published.
-        待执行的 Workflow ID，此工作流应已发布。
         :param parameters: Input parameters and their values for the starting node of the workflow. You can view the
         list of parameters on the arrangement page of the specified workflow.
-        工作流开始节点的输入参数及取值，你可以在指定工作流的编排页面查看参数列表。
         :param bot_id: The associated Bot ID required for some workflow executions,
         such as workflows with database nodes, variable nodes, etc.
-        需要关联的 Bot ID。 部分工作流执行时需要指定关联的 Bot，例如存在数据库节点、变量节点等节点的工作流。
         :param ext: Used to specify some additional fields in the format of Map[String][String].
-        用于指定一些额外的字段，以 Map[String][String] 格式传入。
         :return: The result of the workflow execution
-        工作流执行结果
-
-
         """
         url = f"{self._base_url}/v1/workflow/stream_run"
         body = {"workflow_id": workflow_id, "parameters": parameters, "bot_id": bot_id, "ext": ext}
@@ -229,17 +212,13 @@ class WorkflowsClient(object):
         interrupt_type: int,
     ) -> WorkflowEventIterator:
         """
-        恢复运行已中断的工作流。
-
         docs zh: https://www.coze.cn/docs/developer_guides/workflow_resume
 
         :param workflow_id: The ID of the workflow, which should have been published.
-        待执行的 Workflow ID，此工作流应已发布。
-        :param event_id: 工作流执行中断事件 ID。
-        :param resume_data:恢复执行时，用户对 Bot 指定问题的回复。回复中应包含问答节点中的必选参数，否则工作流会再次中断并提问。
-        :param interrupt_type: 中断类型，你可以从执行工作流（流式响应）的响应信息中获得中断时间的中断类型。
+        :param event_id:
+        :param resume_data:
+        :param interrupt_type:
         :return: The result of the workflow execution
-        工作流执行结果
         """
         url = f"{self._base_url}/v1/workflow/stream_resume"
         body = {
