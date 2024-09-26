@@ -34,7 +34,7 @@ jobs:
       - name: Build
         run: |
           poetry run ruff check cozepy
-          poetry run format --check
+          poetry run ruff format --check
           poetry build
       - name: Run tests
         run: poetry run pytest

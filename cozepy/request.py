@@ -9,8 +9,8 @@ from typing import (
     Iterator,
 )
 
-import requests
-from requests import Response
+import httpx
+from httpx import Response
 
 if TYPE_CHECKING:
     from cozepy.auth import Auth
@@ -48,7 +48,7 @@ class Requester(object):
         files: dict = None,
         stream: bool = False,
         data_field: str = "data",
-    ) -> Union[T, List[T], Iterator[bytes]]:
+    ) -> Union[T, List[T], Iterator[str]]:
         """
         Send a request to the server.
         """
@@ -56,14 +56,13 @@ class Requester(object):
             headers = {}
         if self._auth:
             self._auth.authentication(headers)
-        r = requests.request(
+        r = httpx.request(
             method,
             url,
             params=params,
             headers=headers,
             json=body,
             files=files,
-            stream=stream,
         )
         if stream:
             return r.iter_lines()
