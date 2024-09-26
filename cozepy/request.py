@@ -1,7 +1,6 @@
-from typing import TYPE_CHECKING, Tuple, Optional, Union, List, get_origin, get_args, Iterator
-
 import requests
 from requests import Response
+from typing import TYPE_CHECKING, Tuple, Optional, Union, List, get_origin, get_args, Iterator
 
 if TYPE_CHECKING:
     from cozepy.auth import Auth
@@ -37,6 +36,7 @@ class Requester(object):
         headers: dict = None,
         body: dict = None,
         stream: bool = False,
+        data_field: str = "data",
     ) -> Union[T, List[T], Iterator[bytes]]:
         """
         Send a request to the server.
@@ -49,7 +49,7 @@ class Requester(object):
         if stream:
             return r.iter_lines()
 
-        code, msg, data = self.__parse_requests_code_msg(r)
+        code, msg, data = self.__parse_requests_code_msg(r, data_field)
 
         if code is not None and code > 0:
             # TODO: Exception 自定义类型
@@ -72,7 +72,9 @@ class Requester(object):
         """
         pass
 
-    def __parse_requests_code_msg(self, r: Response) -> Tuple[Optional[int], str, Optional[T]]:
+    def __parse_requests_code_msg(
+        self, r: Response, data_field: str = "data"
+    ) -> Tuple[Optional[int], str, Optional[T]]:
         try:
             json = r.json()
         except:
@@ -80,9 +82,20 @@ class Requester(object):
             return
 
         if "code" in json and "msg" in json and int(json["code"]) > 0:
-            return int(json["code"]), json["msg"], json.get("data") or None
+            return int(json["code"]), json["msg"], json.get(data_field) or None
         if "error_message" in json and json["error_message"] != "":
             return None, json["error_message"], None
-        if "data" in json:
-            return 0, "", json["data"]
+        if data_field in json:
+            if "first_id" in json:
+                return (
+                    0,
+                    "",
+                    {
+                        "first_id": json["first_id"],
+                        "has_more": json["has_more"],
+                        "last_id": json["last_id"],
+                        "items": json["data"],
+                    },
+                )
+            return 0, "", json[data_field]
         return 0, "", json

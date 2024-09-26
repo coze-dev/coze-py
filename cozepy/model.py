@@ -1,7 +1,6 @@
 from enum import Enum
-from typing import TypeVar, Generic, List, Optional, Dict
-
 from pydantic import BaseModel, ConfigDict
+from typing import TypeVar, Generic, List, Optional, Dict
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -52,6 +51,18 @@ class NumberPaged(PagedBase[T]):
         )
 
 
+class LastIDPaged(PagedBase[T]):
+    def __init__(self, items: List[T], first_id: str = "", last_id: str = "", has_more: bool = None):
+        has_more = has_more if has_more is not None else last_id != ""
+        super().__init__(items, has_more)
+        self.first_id = first_id
+        self.last_id = last_id
+        self.has_more = has_more
+
+    def __repr__(self):
+        return f"LastIDPaged(items={self.items}, first_id={self.first_id}, last_id={self.last_id}, has_more={self.has_more})"
+
+
 class MessageRole(str, Enum):
     # Indicates that the content of the message is sent by the user.
     user = "user"
@@ -81,6 +92,8 @@ class MessageType(str, Enum):
     # In the scenario of multiple answers, the server will return a verbose package, and the corresponding content is in JSON format. content.msg_type = generate_answer_finish represents that all answers have been replied to.
     # 多 answer 场景下，服务端会返回一个 verbose 包，对应的 content 为 JSON 格式，content.msg_type =generate_answer_finish 代表全部 answer 回复完成。不支持在请求中作为入参。
     verbose = "verbose"
+
+    unknown = ""
 
 
 class MessageContentType(str, Enum):
@@ -126,7 +139,7 @@ class Message(CozeModel):
     # The entity that sent this message.
     role: MessageRole
     # The type of message.
-    type: MessageType
+    type: MessageType = ""
     # The content of the message. It supports various types of content, including plain text, multimodal (a mix of text, images, and files), message cards, and more.
     # 消息的内容，支持纯文本、多模态（文本、图片、文件混合输入）、卡片等多种类型的内容。
     content: str

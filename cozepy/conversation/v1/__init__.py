@@ -16,6 +16,15 @@ class ConversationClient(object):
         self._base_url = base_url
         self._auth = auth
         self._requester = requester
+        self._message = None
+
+    @property
+    def message(self):
+        if not self._message:
+            from .message import MessageClient
+
+            self._message = MessageClient(self._base_url, self._auth, self._requester)
+        return self._message
 
     def create(self, *, messages: List[Message] = None, meta_data: Dict[str, str] = None) -> Conversation:
         """
