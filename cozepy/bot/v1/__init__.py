@@ -170,7 +170,7 @@ class BotClient(object):
         Get the configuration information of the bot, which must have been published
         to the Bot as API channel.
 
-        :docs: https://www.coze.com/docs/developer_guides/get_metadata?_lang=en
+        :docs: https://www.coze.com/docs/developer_guides/get_metadata
         :calls: `GET /v1/bot/get_online_info`
         """
         url = f"{self._base_url}/v1/bot/get_online_info"
@@ -182,7 +182,7 @@ class BotClient(object):
         """
         Get the bots published as API service.
 
-        :docs: https://www.coze.com/docs/developer_guides/published_bots_list?_lang=en
+        :docs: https://www.coze.com/docs/developer_guides/published_bots_list
         :calls: `GET /v1/space/published_bots_list`
         """
         url = f"{self._base_url}/v1/space/published_bots_list"

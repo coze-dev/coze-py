@@ -1,6 +1,7 @@
+from typing import TYPE_CHECKING, Tuple, Optional, Union, List, get_origin, get_args, Iterator
+
 import requests
 from requests import Response
-from typing import TYPE_CHECKING, Tuple, Optional, Union, List, get_origin, get_args, Iterator
 
 if TYPE_CHECKING:
     from cozepy.auth import Auth
@@ -35,6 +36,7 @@ class Requester(object):
         params: dict = None,
         headers: dict = None,
         body: dict = None,
+        files: dict = None,
         stream: bool = False,
         data_field: str = "data",
     ) -> Union[T, List[T], Iterator[bytes]]:
@@ -45,7 +47,7 @@ class Requester(object):
             headers = {}
         if self._auth:
             self._auth.authentication(headers)
-        r = requests.request(method, url, params=params, headers=headers, json=body, stream=stream)
+        r = requests.request(method, url, params=params, headers=headers, json=body, files=files, stream=stream)
         if stream:
             return r.iter_lines()
 
