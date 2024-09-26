@@ -6,7 +6,7 @@ authors = ["chyroc <chyroc@bytedance.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7"
 pydantic = "^2.9.2"
 authlib = "^1.3.2"
 httpx = "^0.27.2"
@@ -16,19 +16,6 @@ pytest = "^8.3.3"
 tox = "^4.20.0"
 ruff = "^0.6.7"
 pre-commit = "^3.5.0"
-
-[tool.black]
-line-length = 120
-target-version = ['py38']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  # The following are specific to Black, you probably don't want those.
-  \.git
-  | .venv
-  | dist
-)
-'''
 
 [build-system]
 requires = ["poetry-core"]
