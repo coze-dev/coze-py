@@ -26,9 +26,8 @@ class FilesClient(object):
         self._base_url = base_url
         self._auth = auth
         self._requester = requester
-        self._v1 = None
 
-    def upload(self, file: str) -> File:
+    def upload(self, *, file: str) -> File:
         """
         Upload files to Coze platform.
 
@@ -52,7 +51,7 @@ class FilesClient(object):
         files = {"file": open(file, "rb")}
         return self._requester.request("get", url, File, files=files)
 
-    def retrieve(self, file_id: str):
+    def retrieve(self, *, file_id: str):
         """
         Get the information of the specific file uploaded to Coze platform.
 

@@ -1,8 +1,7 @@
 import os
 
-from cozepy import Coze, COZE_CN_BASE_URL, Message
+from cozepy import Coze, COZE_CN_BASE_URL, Message, ChatIterator, Event
 from cozepy.auth import _random_hex
-from cozepy.chat.v3 import ChatIterator, Event
 from tests.config import fixed_token_auth
 
 
@@ -11,20 +10,19 @@ def test_chat_v3_not_stream():
 
     cli = Coze(auth=fixed_token_auth, base_url=COZE_CN_BASE_URL)
 
-    chat = cli.chat.v3.create(
+    chat = cli.chat.create(
         bot_id=bot_id,
         user_id=_random_hex(10),
         additional_messages=[Message.user_text_message("Hi, how are you?")],
-        stream=False,
     )
     assert chat is not None
     assert chat.id != ""
 
     # while True:
-    #     chat = cli.chat.v3.get(conversation_id=chat.conversation_id, chat_id=chat.id)
+    #     chat = cli.chat.get(conversation_id=chat.conversation_id, chat_id=chat.id)
     #     if chat.status != ChatStatus.in_progress:
     #         break
-    # messages = cli.chat.v3.message.list(conversation_id=chat.conversation_id, chat_id=chat.id)
+    # messages = cli.chat.messages.list(conversation_id=chat.conversation_id, chat_id=chat.id)
     # print(messages)
     # assert len(messages) > 0
 
@@ -34,14 +32,13 @@ def test_chat_v3_stream():
 
     cli = Coze(auth=fixed_token_auth, base_url=COZE_CN_BASE_URL)
 
-    chat_iter: ChatIterator = cli.chat.v3.create(
+    chat_iter: ChatIterator = cli.chat.stream(
         bot_id=bot_id,
         user_id=_random_hex(10),
         additional_messages=[Message.user_text_message("Hi, how are you?")],
-        stream=True,
     )
     for item in chat_iter:
         assert item is not None
         assert item.event != ""
         if item.event == Event.conversation_message_delta:
-            assert item.message.content != ""
+            assert item.messages.content != ""

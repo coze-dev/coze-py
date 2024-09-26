@@ -11,8 +11,7 @@ pip install cozepy
 ### Auth
 
 ```python
-from cozepy import Coze
-from cozepy.auth import TokenAuth, JWTAuth
+from cozepy import Coze, TokenAuth, JWTAuth
 
 # use pat or oauth token as auth
 cli = Coze(auth=TokenAuth("your_token"))
@@ -24,8 +23,7 @@ cli = Coze(auth=JWTAuth("your_client_id", "your_private_key", "your_key_id"))
 ### Bots
 
 ```python
-from cozepy import Coze
-from cozepy.auth import TokenAuth
+from cozepy import Coze, TokenAuth
 
 cli = Coze(auth=TokenAuth("your_token"))
 
@@ -59,10 +57,7 @@ bot = cli.bots.publish(bot_id='bot id')
 ```python
 import time
 
-from cozepy import Coze
-from cozepy.auth import TokenAuth
-from cozepy.chat import Event, ChatStatus
-from cozepy.chat.message import Message
+from cozepy import Coze, TokenAuth, Event, ChatStatus, Message
 
 cli = Coze(auth=TokenAuth("your_token"))
 
@@ -85,7 +80,7 @@ while chat.status == ChatStatus.in_progress:
     time.sleep(1)
     chat = cli.chat.retrieve(conversation_id=chat.conversation_id, chat_id=chat.chat_id)
 
-message_list = cli.chat.message.list(conversation_id=chat.conversation_id, chat_id=chat.chat_id)
+message_list = cli.chat.messages.list(conversation_id=chat.conversation_id, chat_id=chat.chat_id)
 for message in message_list:
     print('got message:', message.content)
 
@@ -100,17 +95,13 @@ chat_iterator = cli.chat.stream(
 )
 for event in chat_iterator:
     if event.event == Event.conversation_message_delta:
-        print('got message delta:', event.message.content)
+        print('got message delta:', event.messages.content)
 ```
 
 ### Conversations
 
 ```python
-from cozepy import Coze
-from cozepy.auth import TokenAuth
-from cozepy.chat import MessageContentType
-from cozepy.chat.message import Message
-from cozepy.conversations.message import MessageContentType 
+from cozepy import Coze, TokenAuth, Message, MessageContentType
 
 cli = Coze(auth=TokenAuth("your_token"))
 
@@ -126,17 +117,17 @@ conversation = cli.conversations.create(
 conversation = cli.conversations.retrieve(conversation_id=conversation.id)
 
 # create message
-message = cli.conversations.message.create(
+message = cli.conversations.messages.create(
     conversation_id=conversation.id,
     content='how are you?',
     content_type=MessageContentType.text,
 )
 
 # retrieve message
-message = cli.conversations.message.retrieve(conversation_id=conversation.id, message_id=message.id)
+message = cli.conversations.messages.retrieve(conversation_id=conversation.id, message_id=message.id)
 
 # update message
-cli.conversations.message.update(
+cli.conversations.messages.update(
     conversation_id=conversation.id,
     message_id=message.id,
     content='hey, how are you?',
@@ -144,22 +135,21 @@ cli.conversations.message.update(
 )
 
 # delete message
-cli.conversations.message.delete(conversation_id=conversation.id, message_id=message.id)
+cli.conversations.messages.delete(conversation_id=conversation.id, message_id=message.id)
 
 # list messages
-message_list = cli.conversations.message.list(conversation_id=conversation.id)
+message_list = cli.conversations.messages.list(conversation_id=conversation.id)
 ```
 
 ### Files
 
 ```python
-from cozepy import Coze
-from cozepy.auth import TokenAuth
+from cozepy import Coze, TokenAuth
 
 cli = Coze(auth=TokenAuth("your_token"))
 
 # upload file
-file = cli.files.upload('/filepath')
+file = cli.files.upload(file='/filepath')
 
 # retrieve file info
 cli.files.retrieve(file_id=file.id)
@@ -168,9 +158,7 @@ cli.files.retrieve(file_id=file.id)
 ### Workflows
 
 ```python
-from cozepy import Coze
-from cozepy.auth import TokenAuth
-from cozepy.workflows.runs import Event,WorkflowEventIterator
+from cozepy import Coze, TokenAuth, Event, WorkflowEventIterator
 
 cli = Coze(auth=TokenAuth("your_token"))
 
@@ -181,6 +169,7 @@ result = cli.workflows.runs.create(
         'input_key': 'input value',
     }
 )
+
 
 # stream workflow run
 def handle_workflow_iterator(iterator: WorkflowEventIterator):
@@ -196,6 +185,7 @@ def handle_workflow_iterator(iterator: WorkflowEventIterator):
                 resume_data='hey',
                 interrupt_type=event.interrupt.interrupt_data.type,
             ))
+
 
 handle_workflow_iterator(cli.workflows.runs.stream(
     workflow_id='workflow id',

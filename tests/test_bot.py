@@ -6,7 +6,7 @@ from tests.config import fixed_token_auth, jwt_auth
 
 
 class TestBotsClient(TestCase):
-    def test_bot_v1_list(self):
+    def test_bots_list(self):
         space_id = os.getenv("SPACE_ID_1").strip()
 
         cli_list = [
@@ -16,12 +16,12 @@ class TestBotsClient(TestCase):
             Coze(auth=jwt_auth, base_url=COZE_CN_BASE_URL),
         ]
         for cli in cli_list:
-            res = cli.bot.v1.list(space_id=space_id, page_size=2)
+            res = cli.bots.list(space_id=space_id, page_size=2)
             assert res.total > 1
             assert res.has_more
             assert len(res.items) > 1
 
-    def test_bot_v1_retrieve(self):
+    def test_bots_retrieve(self):
         bot_id = self.bot_id
 
         cli_list = [
@@ -31,7 +31,7 @@ class TestBotsClient(TestCase):
             Coze(auth=jwt_auth, base_url=COZE_CN_BASE_URL),
         ]
         for cli in cli_list:
-            bot = cli.bot.v1.retrieve(bot_id=bot_id)
+            bot = cli.bots.retrieve(bot_id=bot_id)
             assert bot is not None
             assert bot.bot_id == bot_id
 
@@ -41,5 +41,5 @@ class TestBotsClient(TestCase):
 
         # fixed token
         cli = Coze(auth=fixed_token_auth, base_url=COZE_CN_BASE_URL)
-        res = cli.bot.v1.list(space_id=space_id, page_size=2)
+        res = cli.bots.list(space_id=space_id, page_size=2)
         return res.items[0].bot_id

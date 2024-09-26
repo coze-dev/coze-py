@@ -40,7 +40,7 @@ class Coze(object):
         return self._bots
 
     @property
-    def workspace(self) -> "WorkspacesClient":
+    def workspaces(self) -> "WorkspacesClient":
         if not self._workspaces:
             from .workspaces import WorkspacesClient
 
@@ -48,7 +48,7 @@ class Coze(object):
         return self._workspaces
 
     @property
-    def conversation(self) -> "ConversationsClient":
+    def conversations(self) -> "ConversationsClient":
         if not self._conversations:
             from .conversations import ConversationsClient
 
@@ -64,7 +64,7 @@ class Coze(object):
         return self._chat
 
     @property
-    def file(self) -> "FilesClient":
+    def files(self) -> "FilesClient":
         if not self._files:
             from .files import FilesClient
 

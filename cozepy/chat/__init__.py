@@ -7,7 +7,7 @@ from cozepy.model import CozeModel
 from cozepy.request import Requester
 
 if TYPE_CHECKING:
-    from .message import MessageClient as ChatMessageClient
+    from .message import MessagesClient as ChatMessagesClient
 
 
 class MessageRole(str, Enum):
@@ -270,7 +270,7 @@ class ChatIterator(object):
         ]:
             return ChatEvent(event=event, chat=Chat.model_validate(json.loads(data)))
         else:
-            raise Exception(f"unknown event: {line}")
+            raise Exception(f"unknown event: {event}, data: {data}")
 
 
 class ChatClient(object):
@@ -278,7 +278,7 @@ class ChatClient(object):
         self._base_url = base_url
         self._auth = auth
         self._requester = requester
-        self._message = None
+        self._messages = None
 
     def create(
         self,
@@ -398,11 +398,11 @@ class ChatClient(object):
         return self._requester.request("post", url, Chat, params=params)
 
     @property
-    def message(
+    def messages(
         self,
-    ) -> "ChatMessageClient":
-        if self._message is None:
-            from .message import MessageClient
+    ) -> "ChatMessagesClient":
+        if self._messages is None:
+            from .message import MessagesClient
 
-            self._message = MessageClient(self._base_url, self._auth, self._requester)
-        return self._message
+            self._messages = MessagesClient(self._base_url, self._auth, self._requester)
+        return self._messages

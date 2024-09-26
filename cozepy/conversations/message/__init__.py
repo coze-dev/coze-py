@@ -6,7 +6,7 @@ from cozepy.model import CozeModel, LastIDPaged
 from cozepy.request import Requester
 
 
-class MessageClient(object):
+class MessagesClient(object):
     """
     Message class.
     """

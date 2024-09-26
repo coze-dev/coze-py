@@ -153,7 +153,6 @@ class WorkflowsClient(object):
         self._base_url = base_url
         self._auth = auth
         self._requester = requester
-        self._v1 = None
 
     def create(
         self, *, workflow_id: str, parameters: Dict[str, Any] = None, bot_id: str = None, ext: Dict[str, Any] = None

@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 from cozepy.auth import Auth
-from cozepy.chat.v3 import Message
+from cozepy.chat import Message
 from cozepy.model import CozeModel
 from cozepy.request import Requester
 
@@ -17,15 +17,7 @@ class ConversationsClient(object):
         self._base_url = base_url
         self._auth = auth
         self._requester = requester
-        self._message = None
-
-    @property
-    def message(self):
-        if not self._message:
-            from .message import MessageClient
-
-            self._message = MessageClient(self._base_url, self._auth, self._requester)
-        return self._message
+        self._messages = None
 
     def create(self, *, messages: List[Message] = None, meta_data: Dict[str, str] = None) -> Conversation:
         """
@@ -48,3 +40,11 @@ class ConversationsClient(object):
             "conversation_id": conversation_id,
         }
         return self._requester.request("get", url, Conversation, params=params)
+
+    @property
+    def messages(self):
+        if not self._messages:
+            from .message import MessagesClient
+
+            self._messages = MessagesClient(self._base_url, self._auth, self._requester)
+        return self._messages
