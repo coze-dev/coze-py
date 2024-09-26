@@ -99,5 +99,14 @@ class Requester(object):
                         "items": json["data"],
                     },
                 )
+            if "debug_url" in json:
+                return (
+                    0,
+                    "",
+                    {
+                        "data": json[data_field],
+                        "debug_url": json["debug_url"],
+                    },
+                )
             return 0, "", json[data_field]
         return 0, "", json
