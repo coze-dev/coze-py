@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from .conversation import ConversationClient
     from .chat import ChatClient
     from .file import FileClient
+    from .workflow import WorkflowClient
 
 
 class Coze(object):
@@ -28,6 +29,7 @@ class Coze(object):
         self._conversation = None
         self._chat = None
         self._file = None
+        self._workflow = None
 
     @property
     def bot(self) -> "BotClient":
@@ -68,3 +70,11 @@ class Coze(object):
 
             self._file = FileClient(self._base_url, self._auth, self._requester)
         return self._file
+
+    @property
+    def workflow(self) -> "WorkflowClient":
+        if not self._workflow:
+            from .workflow import WorkflowClient
+
+            self._workflow = WorkflowClient(self._base_url, self._auth, self._requester)
+        return self._workflow
