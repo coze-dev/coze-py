@@ -66,7 +66,7 @@ class Requester(object):
         if stream:
             return r.iter_lines()
 
-        code, msg, data = self.__parse_requests_code_msg(r, data_field)
+        code, msg, data = self._parse_requests_code_msg(r, data_field)
 
         if code is not None and code > 0:
             # TODO: Exception 自定义类型
@@ -89,7 +89,7 @@ class Requester(object):
         """
         pass
 
-    def __parse_requests_code_msg(
+    def _parse_requests_code_msg(
         self, r: Response, data_field: str = "data"
     ) -> Tuple[Optional[int], str, Optional[T]]:
         try:
