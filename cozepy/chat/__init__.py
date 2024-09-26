@@ -228,7 +228,7 @@ class ChatEvent(CozeModel):
 
 
 class ChatChatIterator(object):
-    def __init__(self, iters: Iterator[bytes]):
+    def __init__(self, iters: Iterator[str]):
         self._iters = iters
 
     def __iter__(self):
@@ -241,7 +241,7 @@ class ChatChatIterator(object):
         times = 0
 
         while times < 2:
-            line = next(self._iters).decode("utf-8")
+            line = next(self._iters)
             if line == "":
                 continue
             elif line.startswith("event:"):

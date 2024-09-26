@@ -99,7 +99,7 @@ class WorkflowEvent(CozeModel):
 
 
 class WorkflowEventIterator(object):
-    def __init__(self, iters: Iterator[bytes]):
+    def __init__(self, iters: Iterator[str]):
         self._iters = iters
 
     def __iter__(self):
@@ -113,7 +113,7 @@ class WorkflowEventIterator(object):
         times = 0
 
         while times < 3:
-            line = next(self._iters).decode("utf-8")
+            line = next(self._iters)
             if line == "":
                 continue
             elif line.startswith("id:"):
