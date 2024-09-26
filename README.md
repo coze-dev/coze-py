@@ -10,46 +10,28 @@ pip install cozepy
 
 ### Auth
 
-```python
-from cozepy import Coze, TokenAuth, JWTAuth
+#### Personal Auth Token
 
-# use pat or oauth token as auth
-cli = Coze(auth=TokenAuth("your_token"))
+create Personal Auth Token at [扣子](https://www.coze.cn/open/oauth/pats) or [Coze Platform](https://www.coze.com/open/oauth/pats)
 
-# use application jwt auth flow as auth
-cli = Coze(auth=JWTAuth("your_client_id", "your_private_key", "your_key_id"))
-```
-
-### Bots
+and user `TokenAuth` to init Coze client.
 
 ```python
 from cozepy import Coze, TokenAuth
 
+# use pat or oauth token as auth
 cli = Coze(auth=TokenAuth("your_token"))
+```
 
-# retrieve bot info
-bot = cli.bots.retrieve(bot_id='bot id')
+#### JWT OAuth App
 
-# list bot list
-bots_page = cli.bots.list(space_id='space id', page_num=1)
-bots = bots_page.items
+create JWT OAuth App at [扣子](https://www.coze.cn/open/oauth/apps) or [Coze Platform](https://www.coze.com/open/oauth/apps)
 
-# create bot
-bot = cli.bots.create(
-    space_id='space id',
-    name='bot name',
-    description='bot description',
-)
+```python
+from cozepy import Coze, JWTAuth
 
-# update bot info
-cli.bots.update(
-    bot_id='bot id',
-    name='bot name',
-    description='bot description',
-)
-
-# delete bot
-bot = cli.bots.publish(bot_id='bot id')
+# use application jwt auth flow as auth
+cli = Coze(auth=JWTAuth("your_client_id", "your_private_key", "your_key_id"))
 ```
 
 ### Chat
@@ -57,7 +39,7 @@ bot = cli.bots.publish(bot_id='bot id')
 ```python
 import time
 
-from cozepy import Coze, TokenAuth, Event, ChatStatus, Message
+from cozepy import Coze, TokenAuth, ChatEventType, ChatStatus, Message
 
 cli = Coze(auth=TokenAuth("your_token"))
 
@@ -94,8 +76,40 @@ chat_iterator = cli.chat.stream(
     ],
 )
 for event in chat_iterator:
-    if event.event == Event.conversation_message_delta:
+    if event.event == ChatEventType.conversation_message_delta:
         print('got message delta:', event.messages.content)
+```
+
+### Bots
+
+```python
+from cozepy import Coze, TokenAuth
+
+cli = Coze(auth=TokenAuth("your_token"))
+
+# retrieve bot info
+bot = cli.bots.retrieve(bot_id='bot id')
+
+# list bot list
+bots_page = cli.bots.list(space_id='space id', page_num=1)
+bots = bots_page.items
+
+# create bot
+bot = cli.bots.create(
+    space_id='space id',
+    name='bot name',
+    description='bot description',
+)
+
+# update bot info
+cli.bots.update(
+    bot_id='bot id',
+    name='bot name',
+    description='bot description',
+)
+
+# delete bot
+bot = cli.bots.publish(bot_id='bot id')
 ```
 
 ### Conversations
@@ -158,7 +172,7 @@ cli.files.retrieve(file_id=file.id)
 ### Workflows
 
 ```python
-from cozepy import Coze, TokenAuth, Event, WorkflowEventIterator
+from cozepy import Coze, TokenAuth, WorkflowEventType, WorkflowEventIterator
 
 cli = Coze(auth=TokenAuth("your_token"))
 
@@ -174,11 +188,11 @@ result = cli.workflows.runs.create(
 # stream workflow run
 def handle_workflow_iterator(iterator: WorkflowEventIterator):
     for event in iterator:
-        if event.event == Event.message:
+        if event.event == WorkflowEventType.message:
             print('got message', event.message)
-        elif event.event == Event.error:
+        elif event.event == WorkflowEventType.error:
             print('got error', event.error)
-        elif event.event == Event.interrupt:
+        elif event.event == WorkflowEventType.interrupt:
             handle_workflow_iterator(cli.workflows.runs.resume(
                 workflow_id='workflow id',
                 event_id=event.interrupt.interrupt_data.event_id,

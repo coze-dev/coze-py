@@ -6,12 +6,12 @@ from .chat import (
     MessageContentType,
     MessageObjectStringType,
     ChatStatus,
-    Event,
     MessageObjectString,
     Message,
     Chat,
+    ChatEventType,
     ChatEvent,
-    ChatIterator,
+    ChatChatIterator,
 )
 from .config import COZE_COM_BASE_URL, COZE_CN_BASE_URL
 from .conversations import Conversation
@@ -24,11 +24,11 @@ from .model import (
 )
 from .workflows.runs import (
     WorkflowRunResult,
-    Event,
-    EventMessage,
-    EventInterruptData,
-    EventInterrupt,
-    EventError,
+    WorkflowEventType,
+    WorkflowEventMessage,
+    WorkflowEventInterruptData,
+    WorkflowEventInterrupt,
+    WorkflowEventError,
     WorkflowEvent,
     WorkflowEventIterator,
 )
@@ -56,23 +56,23 @@ __all__ = [
     "MessageContentType",
     "MessageObjectStringType",
     "ChatStatus",
-    "Event",
+    "ChatEventType",
     "MessageObjectString",
     "Message",
     "Chat",
     "ChatEvent",
-    "ChatIterator",
+    "ChatChatIterator",
     # conversations
     "Conversation",
     # files
     "File",
     # workflows.runs
     "WorkflowRunResult",
-    "Event",
-    "EventMessage",
-    "EventInterruptData",
-    "EventInterrupt",
-    "EventError",
+    "WorkflowEventType",
+    "WorkflowEventMessage",
+    "WorkflowEventInterruptData",
+    "WorkflowEventInterrupt",
+    "WorkflowEventError",
     "WorkflowEvent",
     "WorkflowEventIterator",
     # workspaces

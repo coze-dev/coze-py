@@ -11,7 +11,7 @@ class WorkflowRunResult(CozeModel):
     data: str
 
 
-class Event(str, Enum):
+class WorkflowEventType(str, Enum):
     # The output message from the workflow node, such as the output message from
     # the message node or end node. You can view the specific message content in data.
     # 工作流节点输出消息，例如消息节点、结束节点的输出消息。可以在 data 中查看具体的消息内容。
@@ -32,7 +32,7 @@ class Event(str, Enum):
     interrupt = "Interrupt"
 
 
-class EventMessage(CozeModel):
+class WorkflowEventMessage(CozeModel):
     # The content of the streamed output message.
     # 流式输出的消息内容。
     content: str
@@ -54,7 +54,7 @@ class EventMessage(CozeModel):
     ext: Dict[str, Any] = None
 
 
-class EventInterruptData(CozeModel):
+class WorkflowEventInterruptData(CozeModel):
     # The workflow interruption event ID, which should be passed back when resuming the workflow.
     # 工作流中断事件 ID，恢复运行时应回传此字段。
     event_id: str
@@ -64,17 +64,17 @@ class EventInterruptData(CozeModel):
     type: int
 
 
-class EventInterrupt(CozeModel):
+class WorkflowEventInterrupt(CozeModel):
     # The content of interruption event.
     # 中断控制内容。
-    interrupt_data: EventInterruptData
+    interrupt_data: WorkflowEventInterruptData
 
     # The name of the node that outputs the message, such as "Question".
     # 输出消息的节点名称，例如“问答”。
     node_title: str
 
 
-class EventError(CozeModel):
+class WorkflowEventError(CozeModel):
     # Status code. 0 represents a successful API call. Other values indicate that the call has failed. You can determine the detailed reason for the error through the error_message field.
     # 调用状态码。0 表示调用成功。其他值表示调用失败。你可以通过 error_message 字段判断详细的错误原因。
     error_code: int
@@ -89,13 +89,13 @@ class WorkflowEvent(CozeModel):
     id: int
 
     # The current streaming data packet event.
-    event: Event
+    event: WorkflowEventType
 
-    message: EventMessage = None
+    message: WorkflowEventMessage = None
 
-    interrupt: EventInterrupt = None
+    interrupt: WorkflowEventInterrupt = None
 
-    error: EventError = None
+    error: WorkflowEventError = None
 
 
 class WorkflowEventIterator(object):
@@ -136,14 +136,14 @@ class WorkflowEventIterator(object):
 
             times += 1
 
-        if event == Event.done:
+        if event == WorkflowEventType.done:
             raise StopIteration
-        elif event == Event.message:
-            return WorkflowEvent(id=id, event=event, message=EventMessage.model_validate_json(data))
-        elif event == Event.error:
-            return WorkflowEvent(id=id, event=event, error=EventError.model_validate_json(data))
-        elif event == Event.interrupt:
-            return WorkflowEvent(id=id, event=event, interrupt=EventInterrupt.model_validate_json(data))
+        elif event == WorkflowEventType.message:
+            return WorkflowEvent(id=id, event=event, message=WorkflowEventMessage.model_validate_json(data))
+        elif event == WorkflowEventType.error:
+            return WorkflowEvent(id=id, event=event, error=WorkflowEventError.model_validate_json(data))
+        elif event == WorkflowEventType.interrupt:
+            return WorkflowEvent(id=id, event=event, interrupt=WorkflowEventInterrupt.model_validate_json(data))
         else:
             raise Exception(f"unknown event: {line}")
 

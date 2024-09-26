@@ -1,6 +1,6 @@
 import os
 
-from cozepy import Coze, COZE_CN_BASE_URL, Message, ChatIterator, Event
+from cozepy import Coze, COZE_CN_BASE_URL, Message, ChatChatIterator, ChatEventType
 from cozepy.auth import _random_hex
 from tests.config import fixed_token_auth
 
@@ -27,12 +27,12 @@ def test_chat_v3_not_stream():
     # assert len(messages) > 0
 
 
-def test_chat_v3_stream():
+def test_chat_stream():
     bot_id = os.getenv("COZE_BOT_ID_TRANSLATE").strip()
 
     cli = Coze(auth=fixed_token_auth, base_url=COZE_CN_BASE_URL)
 
-    chat_iter: ChatIterator = cli.chat.stream(
+    chat_iter: ChatChatIterator = cli.chat.stream(
         bot_id=bot_id,
         user_id=_random_hex(10),
         additional_messages=[Message.user_text_message("Hi, how are you?")],
@@ -40,5 +40,5 @@ def test_chat_v3_stream():
     for item in chat_iter:
         assert item is not None
         assert item.event != ""
-        if item.event == Event.conversation_message_delta:
-            assert item.messages.content != ""
+        if item.event == ChatEventType.conversation_message_delta:
+            assert item.message.content != ""

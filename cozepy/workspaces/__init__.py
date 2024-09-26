@@ -1,4 +1,4 @@
-from enum import StrEnum
+from enum import Enum
 from typing import List
 
 from cozepy import NumberPaged
@@ -7,13 +7,13 @@ from cozepy.model import CozeModel
 from cozepy.request import Requester
 
 
-class WorkspaceRoleType(StrEnum):
+class WorkspaceRoleType(str, Enum):
     owner = "owner"
     admin = "admin"
     member = "member"
 
 
-class WorkspaceType(StrEnum):
+class WorkspaceType(str, Enum):
     personal = "personal"
     team = "team"
 

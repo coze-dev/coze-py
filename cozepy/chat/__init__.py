@@ -179,7 +179,7 @@ class Chat(CozeModel):
     # Details of the information needed for execution.
 
 
-class Event(str, Enum):
+class ChatEventType(str, Enum):
     # Event for creating a conversation, indicating the start of the conversation.
     # 创建对话的事件，表示对话开始。
     conversation_chat_created = "conversation.chat.created"
@@ -218,12 +218,12 @@ class Event(str, Enum):
 
 
 class ChatEvent(CozeModel):
-    event: Event
+    event: ChatEventType
     chat: Chat = None
     message: Message = None
 
 
-class ChatIterator(object):
+class ChatChatIterator(object):
     def __init__(self, iters: Iterator[bytes]):
         self._iters = iters
 
@@ -255,18 +255,18 @@ class ChatIterator(object):
 
             times += 1
 
-        if event == Event.done:
+        if event == ChatEventType.done:
             raise StopIteration
-        elif event == Event.error:
+        elif event == ChatEventType.error:
             raise Exception(f"error event: {line}")
-        elif event in [Event.conversation_message_delta, Event.conversation_message_completed]:
+        elif event in [ChatEventType.conversation_message_delta, ChatEventType.conversation_message_completed]:
             return ChatEvent(event=event, message=Message.model_validate(json.loads(data)))
         elif event in [
-            Event.conversation_chat_created,
-            Event.conversation_chat_in_progress,
-            Event.conversation_chat_completed,
-            Event.conversation_chat_failed,
-            Event.conversation_chat_requires_action,
+            ChatEventType.conversation_chat_created,
+            ChatEventType.conversation_chat_in_progress,
+            ChatEventType.conversation_chat_completed,
+            ChatEventType.conversation_chat_failed,
+            ChatEventType.conversation_chat_requires_action,
         ]:
             return ChatEvent(event=event, chat=Chat.model_validate(json.loads(data)))
         else:
@@ -316,7 +316,7 @@ class ChatClient(object):
         auto_save_history: bool = True,
         meta_data: Dict[str, str] = None,
         conversation_id: str = None,
-    ) -> ChatIterator:
+    ) -> ChatChatIterator:
         """
         Create a conversation.
         Conversation is an interaction between a bot and a user, including one or more messages.
@@ -343,7 +343,7 @@ class ChatClient(object):
         auto_save_history: bool = True,
         meta_data: Dict[str, str] = None,
         conversation_id: str = None,
-    ) -> Union[Chat, ChatIterator]:
+    ) -> Union[Chat, ChatChatIterator]:
         """
         Create a conversation.
         Conversation is an interaction between a bot and a user, including one or more messages.
@@ -362,7 +362,7 @@ class ChatClient(object):
         if not stream:
             return self._requester.request("post", url, Chat, body=body, stream=stream)
 
-        return ChatIterator(self._requester.request("post", url, Chat, body=body, stream=stream))
+        return ChatChatIterator(self._requester.request("post", url, Chat, body=body, stream=stream))
 
     def retrieve(
         self,
