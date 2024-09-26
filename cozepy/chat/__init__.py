@@ -286,6 +286,58 @@ class ChatClient(object):
         bot_id: str,
         user_id: str,
         additional_messages: List[Message] = None,
+        custom_variables: Dict[str, str] = None,
+        auto_save_history: bool = True,
+        meta_data: Dict[str, str] = None,
+        conversation_id: str = None,
+    ) -> Chat:
+        """
+        Create a conversation.
+        Conversation is an interaction between a bot and a user, including one or more messages.
+        """
+        return self._create(
+            bot_id=bot_id,
+            user_id=user_id,
+            additional_messages=additional_messages,
+            stream=False,
+            custom_variables=custom_variables,
+            auto_save_history=auto_save_history,
+            meta_data=meta_data,
+            conversation_id=conversation_id,
+        )
+
+    def stream(
+        self,
+        *,
+        bot_id: str,
+        user_id: str,
+        additional_messages: List[Message] = None,
+        custom_variables: Dict[str, str] = None,
+        auto_save_history: bool = True,
+        meta_data: Dict[str, str] = None,
+        conversation_id: str = None,
+    ) -> ChatIterator:
+        """
+        Create a conversation.
+        Conversation is an interaction between a bot and a user, including one or more messages.
+        """
+        return self._create(
+            bot_id=bot_id,
+            user_id=user_id,
+            additional_messages=additional_messages,
+            stream=True,
+            custom_variables=custom_variables,
+            auto_save_history=auto_save_history,
+            meta_data=meta_data,
+            conversation_id=conversation_id,
+        )
+
+    def _create(
+        self,
+        *,
+        bot_id: str,
+        user_id: str,
+        additional_messages: List[Message] = None,
         stream: bool = False,
         custom_variables: Dict[str, str] = None,
         auto_save_history: bool = True,
@@ -329,16 +381,6 @@ class ChatClient(object):
         }
         return self._requester.request("post", url, Chat, params=params)
 
-    @property
-    def message(
-        self,
-    ) -> "ChatMessageClient":
-        if self._message is None:
-            from .message import MessageClient
-
-            self._message = MessageClient(self._base_url, self._auth, self._requester)
-        return self._message
-
     def cancel(
         self,
         *,
@@ -354,3 +396,13 @@ class ChatClient(object):
             "chat_id": chat_id,
         }
         return self._requester.request("post", url, Chat, params=params)
+
+    @property
+    def message(
+        self,
+    ) -> "ChatMessageClient":
+        if self._message is None:
+            from .message import MessageClient
+
+            self._message = MessageClient(self._base_url, self._auth, self._requester)
+        return self._message

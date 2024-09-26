@@ -10,7 +10,7 @@ def test_workflow_v1():
     cli = Coze(auth=fixed_token_auth, base_url=COZE_CN_BASE_URL)
 
     # not stream
-    res = cli.workflow.v1.run(
+    res = cli.workflows.v1.run(
         workflow_id="xxxx",
         parameters={
             "biz_param_str": "biz_param_str",
@@ -22,7 +22,7 @@ def test_workflow_v1():
     print(res.debug_url)
 
     # stream
-    iter = cli.workflow.v1.stream_run(
+    iter = cli.workflows.v1.stream_run(
         workflow_id="xxxx",
         parameters={
             "biz_param_str": "biz_param_str",
@@ -40,7 +40,7 @@ def test_workflow_v1():
             elif item.event == Event.interrupt:
                 print("interrupt", item.interrupt)
                 handle_iter(
-                    cli.workflow.v1.stream_resume(
+                    cli.workflows.v1.stream_resume(
                         workflow_id="xxxx",
                         event_id=item.interrupt.interrupt_data.event_id,
                         resume_data="yyyy",

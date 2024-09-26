@@ -136,7 +136,7 @@ class BotsClient(object):
         icon_file_id: str = None,
         prompt_info: BotPromptInfo = None,
         onboarding_info: BotOnboardingInfo = None,
-    ) -> Bot:
+    ) -> None:
         url = f"{self._base_url}/v1/bot/update"
         body = {
             "bot_id": bot_id,

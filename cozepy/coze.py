@@ -25,11 +25,11 @@ class Coze(object):
 
         # service client
         self._bots = None
-        self._workspace = None
-        self._conversation = None
+        self._workspaces = None
+        self._conversations = None
         self._chat = None
-        self._file = None
-        self._workflow = None
+        self._files = None
+        self._workflows = None
 
     @property
     def bots(self) -> "BotsClient":
@@ -41,19 +41,19 @@ class Coze(object):
 
     @property
     def workspace(self) -> "WorkspacesClient":
-        if not self._workspace:
+        if not self._workspaces:
             from .workspaces import WorkspacesClient
 
-            self._workspace = WorkspacesClient(self._base_url, self._auth, self._requester)
-        return self._workspace
+            self._workspaces = WorkspacesClient(self._base_url, self._auth, self._requester)
+        return self._workspaces
 
     @property
     def conversation(self) -> "ConversationsClient":
-        if not self._conversation:
+        if not self._conversations:
             from .conversations import ConversationsClient
 
-            self._conversation = ConversationsClient(self._base_url, self._auth, self._requester)
-        return self._conversation
+            self._conversations = ConversationsClient(self._base_url, self._auth, self._requester)
+        return self._conversations
 
     @property
     def chat(self) -> "ChatClient":
@@ -65,16 +65,16 @@ class Coze(object):
 
     @property
     def file(self) -> "FilesClient":
-        if not self._file:
+        if not self._files:
             from .files import FilesClient
 
-            self._file = FilesClient(self._base_url, self._auth, self._requester)
-        return self._file
+            self._files = FilesClient(self._base_url, self._auth, self._requester)
+        return self._files
 
     @property
-    def workflow(self) -> "WorkflowsClient":
-        if not self._workflow:
-            from .workflow import WorkflowsClient
+    def workflows(self) -> "WorkflowsClient":
+        if not self._workflows:
+            from .workflows import WorkflowsClient
 
-            self._workflow = WorkflowsClient(self._base_url, self._auth, self._requester)
-        return self._workflow
+            self._workflows = WorkflowsClient(self._base_url, self._auth, self._requester)
+        return self._workflows

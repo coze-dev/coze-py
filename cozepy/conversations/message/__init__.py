@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from cozepy.chat.v3 import MessageRole, MessageContentType, Message
+from cozepy.chat import MessageRole, MessageContentType, Message
 from cozepy.auth import Auth
 from cozepy.model import CozeModel, LastIDPaged
 from cozepy.request import Requester
