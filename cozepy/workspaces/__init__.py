@@ -31,7 +31,7 @@ class Workspace(CozeModel):
     workspace_type: WorkspaceType
 
 
-class WorkspaceClient(object):
+class WorkspacesClient(object):
     """
     Bot class.
     """

@@ -95,7 +95,7 @@ class SimpleBot(CozeModel):
     publish_time: str
 
 
-class BotClient(object):
+class BotsClient(object):
     """
     Bot class.
     """

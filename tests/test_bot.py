@@ -5,7 +5,7 @@ from cozepy import Coze, COZE_CN_BASE_URL
 from tests.config import fixed_token_auth, jwt_auth
 
 
-class TestBotClient(TestCase):
+class TestBotsClient(TestCase):
     def test_bot_v1_list(self):
         space_id = os.getenv("SPACE_ID_1").strip()
 

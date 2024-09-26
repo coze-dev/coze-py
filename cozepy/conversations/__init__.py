@@ -12,7 +12,7 @@ class Conversation(CozeModel):
     meta_data: Dict[str, str]
 
 
-class ConversationClient(object):
+class ConversationsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = base_url
         self._auth = auth

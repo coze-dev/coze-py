@@ -148,7 +148,7 @@ class WorkflowEventIterator(object):
             raise Exception(f"unknown event: {line}")
 
 
-class WorkflowClient(object):
+class WorkflowsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = base_url
         self._auth = auth

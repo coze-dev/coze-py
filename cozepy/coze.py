@@ -5,12 +5,12 @@ from cozepy.config import COZE_COM_BASE_URL
 from cozepy.request import Requester
 
 if TYPE_CHECKING:
-    from .bot import BotClient
-    from .workspace import WorkspaceClient
-    from .conversation import ConversationClient
+    from .bots import BotsClient
+    from .workspaces import WorkspacesClient
+    from .conversations import ConversationsClient
     from .chat import ChatClient
-    from .file import FileClient
-    from .workflow import WorkflowClient
+    from .files import FilesClient
+    from .workflows import WorkflowsClient
 
 
 class Coze(object):
@@ -24,7 +24,7 @@ class Coze(object):
         self._requester = Requester(auth=auth)
 
         # service client
-        self._bot = None
+        self._bots = None
         self._workspace = None
         self._conversation = None
         self._chat = None
@@ -32,27 +32,27 @@ class Coze(object):
         self._workflow = None
 
     @property
-    def bot(self) -> "BotClient":
-        if not self._bot:
-            from cozepy.bot import BotClient
+    def bots(self) -> "BotsClient":
+        if not self._bots:
+            from cozepy.bots import BotsClient
 
-            self._bot = BotClient(self._base_url, self._auth, self._requester)
-        return self._bot
+            self._bots = BotsClient(self._base_url, self._auth, self._requester)
+        return self._bots
 
     @property
-    def workspace(self) -> "WorkspaceClient":
+    def workspace(self) -> "WorkspacesClient":
         if not self._workspace:
-            from .workspace import WorkspaceClient
+            from .workspaces import WorkspacesClient
 
-            self._workspace = WorkspaceClient(self._base_url, self._auth, self._requester)
+            self._workspace = WorkspacesClient(self._base_url, self._auth, self._requester)
         return self._workspace
 
     @property
-    def conversation(self) -> "ConversationClient":
+    def conversation(self) -> "ConversationsClient":
         if not self._conversation:
-            from .conversation import ConversationClient
+            from .conversations import ConversationsClient
 
-            self._conversation = ConversationClient(self._base_url, self._auth, self._requester)
+            self._conversation = ConversationsClient(self._base_url, self._auth, self._requester)
         return self._conversation
 
     @property
@@ -64,17 +64,17 @@ class Coze(object):
         return self._chat
 
     @property
-    def file(self) -> "FileClient":
+    def file(self) -> "FilesClient":
         if not self._file:
-            from .file import FileClient
+            from .files import FilesClient
 
-            self._file = FileClient(self._base_url, self._auth, self._requester)
+            self._file = FilesClient(self._base_url, self._auth, self._requester)
         return self._file
 
     @property
-    def workflow(self) -> "WorkflowClient":
+    def workflow(self) -> "WorkflowsClient":
         if not self._workflow:
-            from .workflow import WorkflowClient
+            from .workflow import WorkflowsClient
 
-            self._workflow = WorkflowClient(self._base_url, self._auth, self._requester)
+            self._workflow = WorkflowsClient(self._base_url, self._auth, self._requester)
         return self._workflow
