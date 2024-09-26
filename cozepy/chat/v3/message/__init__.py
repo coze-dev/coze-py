@@ -1,7 +1,7 @@
 from typing import List
 
 from cozepy.auth import Auth
-from cozepy.model import Message
+from cozepy.chat.v3 import Message
 from cozepy.request import Requester
 
 

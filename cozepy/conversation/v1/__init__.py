@@ -1,7 +1,8 @@
 from typing import Dict, List
 
 from cozepy.auth import Auth
-from cozepy.model import CozeModel, Message
+from cozepy.chat.v3 import Message
+from cozepy.model import CozeModel
 from cozepy.request import Requester
 
 

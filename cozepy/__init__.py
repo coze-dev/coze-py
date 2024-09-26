@@ -4,12 +4,6 @@ from .coze import Coze
 from .model import (
     TokenPaged,
     NumberPaged,
-    MessageRole,
-    MessageType,
-    MessageContentType,
-    MessageObjectStringType,
-    MessageObjectString,
-    Message,
 )
 
 __all__ = [
@@ -22,10 +16,4 @@ __all__ = [
     "Coze",
     "TokenPaged",
     "NumberPaged",
-    "MessageRole",
-    "MessageType",
-    "MessageContentType",
-    "MessageObjectStringType",
-    "MessageObjectString",
-    "Message",
 ]
