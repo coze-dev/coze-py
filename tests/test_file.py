@@ -1,7 +1,9 @@
 from cozepy import Coze, COZE_CN_BASE_URL
 from tests.config import fixed_token_auth
+import unittest
 
 
+@unittest.skip("not available in not cn")
 def test_file_v1():
     cli = Coze(auth=fixed_token_auth, base_url=COZE_CN_BASE_URL)
 
