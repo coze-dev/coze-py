@@ -4,7 +4,7 @@ from cozepy import Coze, COZE_CN_BASE_URL, Message
 from tests.config import fixed_token_auth
 
 
-@unittest("not available in not cn")
+@unittest.skip("not available in not cn")
 def test_conversation_message():
     cli = Coze(auth=fixed_token_auth, base_url=COZE_CN_BASE_URL)
 
