@@ -28,7 +28,9 @@ class TokenPaged(PagedBase[T]):
     return is next_page_token + has_more.
     """
 
-    def __init__(self, items: List[T], next_page_token: str = "", has_more: bool = None):
+    def __init__(
+        self, items: List[T], next_page_token: str = "", has_more: bool = None
+    ):
         has_more = has_more if has_more is not None else next_page_token != ""
         super().__init__(items, has_more)
         self.next_page_token = next_page_token
@@ -38,7 +40,9 @@ class TokenPaged(PagedBase[T]):
 
 
 class NumberPaged(PagedBase[T]):
-    def __init__(self, items: List[T], page_num: int, page_size: int, total: int = None):
+    def __init__(
+        self, items: List[T], page_num: int, page_size: int, total: int = None
+    ):
         has_more = len(items) >= page_size
         super().__init__(items, has_more)
         self.page_num = page_num
@@ -46,13 +50,17 @@ class NumberPaged(PagedBase[T]):
         self.total = total
 
     def __repr__(self):
-        return (
-            f"NumberPaged(items={self.items}, page_num={self.page_num}, page_size={self.page_size}, total={self.total})"
-        )
+        return f"NumberPaged(items={self.items}, page_num={self.page_num}, page_size={self.page_size}, total={self.total})"
 
 
 class LastIDPaged(PagedBase[T]):
-    def __init__(self, items: List[T], first_id: str = "", last_id: str = "", has_more: bool = None):
+    def __init__(
+        self,
+        items: List[T],
+        first_id: str = "",
+        last_id: str = "",
+        has_more: bool = None,
+    ):
         has_more = has_more if has_more is not None else last_id != ""
         super().__init__(items, has_more)
         self.first_id = first_id

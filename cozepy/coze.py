@@ -44,7 +44,9 @@ class Coze(object):
         if not self._workspaces:
             from .workspaces import WorkspacesClient
 
-            self._workspaces = WorkspacesClient(self._base_url, self._auth, self._requester)
+            self._workspaces = WorkspacesClient(
+                self._base_url, self._auth, self._requester
+            )
         return self._workspaces
 
     @property
@@ -52,7 +54,9 @@ class Coze(object):
         if not self._conversations:
             from .conversations import ConversationsClient
 
-            self._conversations = ConversationsClient(self._base_url, self._auth, self._requester)
+            self._conversations = ConversationsClient(
+                self._base_url, self._auth, self._requester
+            )
         return self._conversations
 
     @property
@@ -76,5 +80,7 @@ class Coze(object):
         if not self._workflows:
             from .workflows import WorkflowsClient
 
-            self._workflows = WorkflowsClient(self._base_url, self._auth, self._requester)
+            self._workflows = WorkflowsClient(
+                self._base_url, self._auth, self._requester
+            )
         return self._workflows

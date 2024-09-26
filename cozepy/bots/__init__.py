@@ -122,7 +122,9 @@ class BotsClient(object):
             "description": description,
             "icon_file_id": icon_file_id,
             "prompt_info": prompt_info.model_dump() if prompt_info else None,
-            "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
+            "onboarding_info": onboarding_info.model_dump()
+            if onboarding_info
+            else None,
         }
 
         return self._requester.request("post", url, Bot, body=body)
@@ -163,7 +165,9 @@ class BotsClient(object):
             "description": description,
             "icon_file_id": icon_file_id,
             "prompt_info": prompt_info.model_dump() if prompt_info else None,
-            "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
+            "onboarding_info": onboarding_info.model_dump()
+            if onboarding_info
+            else None,
         }
 
         return self._requester.request("post", url, None, body=body)
@@ -203,7 +207,9 @@ class BotsClient(object):
 
         return self._requester.request("get", url, Bot, params=params)
 
-    def list(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> NumberPaged[SimpleBot]:
+    def list(
+        self, *, space_id: str, page_num: int = 1, page_size: int = 20
+    ) -> NumberPaged[SimpleBot]:
         """
         Get the bots published as API service.
         查看指定空间发布到 Bot as API 渠道的 Bot 列表。
@@ -227,7 +233,9 @@ class BotsClient(object):
             "page_size": page_size,
             "page_index": page_num,
         }
-        data = self._requester.request("get", url, self._PrivateListPublishedBotsV1Data, params=params)
+        data = self._requester.request(
+            "get", url, self._PrivateListPublishedBotsV1Data, params=params
+        )
         return NumberPaged(
             items=data.space_bots,
             page_num=page_num,

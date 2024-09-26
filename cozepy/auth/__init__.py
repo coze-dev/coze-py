@@ -48,7 +48,9 @@ class ApplicationOAuth(object):
     App OAuth process to support obtaining token and refreshing token.
     """
 
-    def __init__(self, client_id: str, client_secret: str = "", base_url: str = COZE_COM_BASE_URL):
+    def __init__(
+        self, client_id: str, client_secret: str = "", base_url: str = COZE_COM_BASE_URL
+    ):
         self._client_id = client_id
         self._client_secret = client_secret
         self._base_url = base_url
@@ -60,16 +62,22 @@ class ApplicationOAuth(object):
         """
         Get the token by jwt with jwt auth flow.
         """
-        jwt_token = self._gen_jwt(self._api_endpoint, private_key, self._client_id, kid, 3600)
+        jwt_token = self._gen_jwt(
+            self._api_endpoint, private_key, self._client_id, kid, 3600
+        )
         url = f"{self._base_url}/api/permission/oauth2/token"
         headers = {"Authorization": f"Bearer {jwt_token}"}
         body = {
             "duration_seconds": ttl,
             "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
         }
-        return self._requester.request("post", url, OAuthToken, headers=headers, body=body)
+        return self._requester.request(
+            "post", url, OAuthToken, headers=headers, body=body
+        )
 
-    def _gen_jwt(self, api_endpoint: str, private_key: str, client_id: str, kid: str, ttl: int):
+    def _gen_jwt(
+        self, api_endpoint: str, private_key: str, client_id: str, kid: str, ttl: int
+    ):
         now = int(time.time())
         header = {"alg": "RS256", "typ": "JWT", "kid": kid}
         payload = {
@@ -144,7 +152,14 @@ class JWTAuth(Auth):
     The JWT auth flow.
     """
 
-    def __init__(self, client_id: str, private_key: str, kid: str, ttl: int = 7200, base_url: str = COZE_COM_BASE_URL):
+    def __init__(
+        self,
+        client_id: str,
+        private_key: str,
+        kid: str,
+        ttl: int = 7200,
+        base_url: str = COZE_COM_BASE_URL,
+    ):
         assert isinstance(client_id, str)
         assert isinstance(private_key, str)
         assert isinstance(kid, str)

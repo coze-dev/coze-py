@@ -5,7 +5,10 @@ from cozepy import ApplicationOAuth, COZE_CN_BASE_URL, JWTAuth, TokenAuth
 COZE_JWT_AUTH_CLIENT_ID = os.getenv("COZE_JWT_AUTH_CLIENT_ID").strip()
 COZE_JWT_AUTH_PRIVATE_KEY = os.getenv("COZE_JWT_AUTH_PRIVATE_KEY").strip()
 COZE_JWT_AUTH_KEY_ID = os.getenv("COZE_JWT_AUTH_KEY_ID").strip()
-if COZE_JWT_AUTH_PRIVATE_KEY == "" and os.getenv("COZE_JWT_AUTH_PRIVATE_KEY_FILE").strip() != "":
+if (
+    COZE_JWT_AUTH_PRIVATE_KEY == ""
+    and os.getenv("COZE_JWT_AUTH_PRIVATE_KEY_FILE").strip() != ""
+):
     with open(os.getenv("COZE_JWT_AUTH_PRIVATE_KEY_FILE").strip(), "r") as f:
         COZE_JWT_AUTH_PRIVATE_KEY = f.read()
 
@@ -19,5 +22,9 @@ app_oauth = ApplicationOAuth(
 fixed_token_auth = TokenAuth(COZE_TOKEN)
 
 jwt_auth = JWTAuth(
-    COZE_JWT_AUTH_CLIENT_ID, COZE_JWT_AUTH_PRIVATE_KEY, COZE_JWT_AUTH_KEY_ID, 30, base_url=COZE_CN_BASE_URL
+    COZE_JWT_AUTH_CLIENT_ID,
+    COZE_JWT_AUTH_PRIVATE_KEY,
+    COZE_JWT_AUTH_KEY_ID,
+    30,
+    base_url=COZE_CN_BASE_URL,
 )

@@ -1,4 +1,13 @@
-from typing import TYPE_CHECKING, Tuple, Optional, Union, List, get_origin, get_args, Iterator
+from typing import (
+    TYPE_CHECKING,
+    Tuple,
+    Optional,
+    Union,
+    List,
+    get_origin,
+    get_args,
+    Iterator,
+)
 
 import requests
 from requests import Response
@@ -47,7 +56,15 @@ class Requester(object):
             headers = {}
         if self._auth:
             self._auth.authentication(headers)
-        r = requests.request(method, url, params=params, headers=headers, json=body, files=files, stream=stream)
+        r = requests.request(
+            method,
+            url,
+            params=params,
+            headers=headers,
+            json=body,
+            files=files,
+            stream=stream,
+        )
         if stream:
             return r.iter_lines()
 
@@ -79,7 +96,7 @@ class Requester(object):
     ) -> Tuple[Optional[int], str, Optional[T]]:
         try:
             json = r.json()
-        except:
+        except:  # noqa: E722
             r.raise_for_status()
             return
 

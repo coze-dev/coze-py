@@ -1,5 +1,13 @@
 from .auth import OAuthToken, DeviceAuthCode, ApplicationOAuth, Auth, TokenAuth, JWTAuth
-from .bots import BotPromptInfo, BotOnboardingInfo, BotModelInfo, BotPluginAPIInfo, BotPluginInfo, Bot, SimpleBot
+from .bots import (
+    BotPromptInfo,
+    BotOnboardingInfo,
+    BotModelInfo,
+    BotPluginAPIInfo,
+    BotPluginInfo,
+    Bot,
+    SimpleBot,
+)
 from .chat import (
     MessageRole,
     MessageType,

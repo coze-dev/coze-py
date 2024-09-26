@@ -41,13 +41,21 @@ class WorkspacesClient(object):
         self._auth = auth
         self._requester = requester
 
-    def list(self, *, page_num: int = 1, page_size: int = 20, headers=None) -> NumberPaged[Workspace]:
+    def list(
+        self, *, page_num: int = 1, page_size: int = 20, headers=None
+    ) -> NumberPaged[Workspace]:
         url = f"{self._base_url}/v1/workspaces"
         params = {
             "page_size": page_size,
             "page_num": page_num,
         }
-        data = self._requester.request("get", url, self._PrivateListPublishedBotsV1Data, headers=headers, params=params)
+        data = self._requester.request(
+            "get",
+            url,
+            self._PrivateListPublishedBotsV1Data,
+            headers=headers,
+            params=params,
+        )
         return NumberPaged(
             items=data.workspaces,
             page_num=page_num,

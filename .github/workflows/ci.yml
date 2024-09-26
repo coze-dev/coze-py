@@ -33,7 +33,8 @@ jobs:
           poetry install
       - name: Build
         run: |
-          poetry run black . --check
+          poetry run ruff check cozepy
+          poetry run format --check
           poetry build
       - name: Run tests
         run: poetry run pytest

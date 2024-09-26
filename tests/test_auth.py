@@ -1,6 +1,11 @@
 import time
 
-from tests.config import app_oauth, COZE_JWT_AUTH_KEY_ID, COZE_JWT_AUTH_PRIVATE_KEY, jwt_auth
+from tests.config import (
+    app_oauth,
+    COZE_JWT_AUTH_KEY_ID,
+    COZE_JWT_AUTH_PRIVATE_KEY,
+    jwt_auth,
+)
 
 
 def test_jwt_app_oauth():

@@ -139,11 +139,21 @@ class WorkflowEventIterator(object):
         if event == WorkflowEventType.done:
             raise StopIteration
         elif event == WorkflowEventType.message:
-            return WorkflowEvent(id=id, event=event, message=WorkflowEventMessage.model_validate_json(data))
+            return WorkflowEvent(
+                id=id,
+                event=event,
+                message=WorkflowEventMessage.model_validate_json(data),
+            )
         elif event == WorkflowEventType.error:
-            return WorkflowEvent(id=id, event=event, error=WorkflowEventError.model_validate_json(data))
+            return WorkflowEvent(
+                id=id, event=event, error=WorkflowEventError.model_validate_json(data)
+            )
         elif event == WorkflowEventType.interrupt:
-            return WorkflowEvent(id=id, event=event, interrupt=WorkflowEventInterrupt.model_validate_json(data))
+            return WorkflowEvent(
+                id=id,
+                event=event,
+                interrupt=WorkflowEventInterrupt.model_validate_json(data),
+            )
         else:
             raise Exception(f"unknown event: {line}")
 
@@ -155,7 +165,12 @@ class WorkflowsClient(object):
         self._requester = requester
 
     def create(
-        self, *, workflow_id: str, parameters: Dict[str, Any] = None, bot_id: str = None, ext: Dict[str, Any] = None
+        self,
+        *,
+        workflow_id: str,
+        parameters: Dict[str, Any] = None,
+        bot_id: str = None,
+        ext: Dict[str, Any] = None,
     ) -> WorkflowRunResult:
         """
         Run the published workflow.
@@ -174,7 +189,12 @@ class WorkflowsClient(object):
         :return: The result of the workflow execution
         """
         url = f"{self._base_url}/v1/workflow/run"
-        body = {"workflow_id": workflow_id, "parameters": parameters, "bot_id": bot_id, "ext": ext}
+        body = {
+            "workflow_id": workflow_id,
+            "parameters": parameters,
+            "bot_id": bot_id,
+            "ext": ext,
+        }
         return self._requester.request("post", url, WorkflowRunResult, body=body)
 
     def stream(
@@ -200,8 +220,15 @@ class WorkflowsClient(object):
         :return: The result of the workflow execution
         """
         url = f"{self._base_url}/v1/workflow/stream_run"
-        body = {"workflow_id": workflow_id, "parameters": parameters, "bot_id": bot_id, "ext": ext}
-        return WorkflowEventIterator(self._requester.request("post", url, None, body=body, stream=True))
+        body = {
+            "workflow_id": workflow_id,
+            "parameters": parameters,
+            "bot_id": bot_id,
+            "ext": ext,
+        }
+        return WorkflowEventIterator(
+            self._requester.request("post", url, None, body=body, stream=True)
+        )
 
     def resume(
         self,
@@ -227,4 +254,6 @@ class WorkflowsClient(object):
             "resume_data": resume_data,
             "interrupt_type": interrupt_type,
         }
-        return WorkflowEventIterator(self._requester.request("post", url, None, body=body, stream=True))
+        return WorkflowEventIterator(
+            self._requester.request("post", url, None, body=body, stream=True)
+        )

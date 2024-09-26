@@ -19,7 +19,9 @@ class ConversationsClient(object):
         self._requester = requester
         self._messages = None
 
-    def create(self, *, messages: List[Message] = None, meta_data: Dict[str, str] = None) -> Conversation:
+    def create(
+        self, *, messages: List[Message] = None, meta_data: Dict[str, str] = None
+    ) -> Conversation:
         """
         Create a conversation.
         Conversation is an interaction between a bot and a user, including one or more messages.

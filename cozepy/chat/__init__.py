@@ -107,7 +107,9 @@ class Message(CozeModel):
     updated_at: int = None
 
     @staticmethod
-    def user_text_message(content: str, meta_data: Optional[Dict[str, str]] = None) -> "Message":
+    def user_text_message(
+        content: str, meta_data: Optional[Dict[str, str]] = None
+    ) -> "Message":
         return Message(
             role=MessageRole.user,
             type=MessageType.question,
@@ -117,7 +119,9 @@ class Message(CozeModel):
         )
 
     @staticmethod
-    def assistant_text_message(content: str, meta_data: Optional[Dict[str, str]] = None) -> "Message":
+    def assistant_text_message(
+        content: str, meta_data: Optional[Dict[str, str]] = None
+    ) -> "Message":
         return Message(
             role=MessageRole.assistant,
             type=MessageType.answer,
@@ -259,8 +263,13 @@ class ChatChatIterator(object):
             raise StopIteration
         elif event == ChatEventType.error:
             raise Exception(f"error event: {line}")
-        elif event in [ChatEventType.conversation_message_delta, ChatEventType.conversation_message_completed]:
-            return ChatEvent(event=event, message=Message.model_validate(json.loads(data)))
+        elif event in [
+            ChatEventType.conversation_message_delta,
+            ChatEventType.conversation_message_completed,
+        ]:
+            return ChatEvent(
+                event=event, message=Message.model_validate(json.loads(data))
+            )
         elif event in [
             ChatEventType.conversation_chat_created,
             ChatEventType.conversation_chat_in_progress,
@@ -378,7 +387,9 @@ class ChatClient(object):
         body = {
             "bot_id": bot_id,
             "user_id": user_id,
-            "additional_messages": [i.model_dump() for i in additional_messages] if additional_messages else [],
+            "additional_messages": [i.model_dump() for i in additional_messages]
+            if additional_messages
+            else [],
             "stream": stream,
             "custom_variables": custom_variables,
             "auto_save_history": auto_save_history,
@@ -388,7 +399,9 @@ class ChatClient(object):
         if not stream:
             return self._requester.request("post", url, Chat, body=body, stream=stream)
 
-        return ChatChatIterator(self._requester.request("post", url, Chat, body=body, stream=stream))
+        return ChatChatIterator(
+            self._requester.request("post", url, Chat, body=body, stream=stream)
+        )
 
     def retrieve(
         self,
