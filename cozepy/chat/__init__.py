@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, List, Iterator, Union, TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Dict, Iterator, List, Optional, Union
 
 from cozepy.auth import Auth
 from cozepy.exception import CozeEventError
@@ -12,47 +12,56 @@ if TYPE_CHECKING:
 
 class MessageRole(str, Enum):
     # Indicates that the content of the message is sent by the user.
-    user = "user"
+    USER = "user"
+
     # Indicates that the content of the message is sent by the bot.
-    assistant = "assistant"
+    ASSISTANT = "assistant"
 
 
 class MessageType(str, Enum):
     # User input content.
     # 用户输入内容。
-    question = "question"
+    QUESTION = "question"
+
     # The message content returned by the Bot to the user, supporting incremental return. If the workflow is bound to a message node, there may be multiple answer scenarios, and the end flag of the streaming return can be used to determine that all answers are completed.
     # Bot 返回给用户的消息内容，支持增量返回。如果工作流绑定了消息节点，可能会存在多 answer 场景，此时可以用流式返回的结束标志来判断所有 answer 完成。
-    answer = "answer"
+    ANSWER = "answer"
+
     # Intermediate results of the function (function call) called during the Bot conversation process.
     # Bot 对话过程中调用函数（function call）的中间结果。
-    function_call = "function_call"
+    FUNCTION_CALL = "function_call"
+
     # Results returned after calling the tool (function call).
     # 调用工具 （function call）后返回的结果。
-    tool_output = "tool_output"
+    TOOL_OUTPUT = "tool_output"
+
     # Results returned after calling the tool (function call).
     # 调用工具 （function call）后返回的结果。
-    tool_response = "tool_response"
+    TOOL_RESPONSE = "tool_response"
+
     # If the user question suggestion switch is turned on in the Bot configuration, the reply content related to the recommended questions will be returned.
     # 如果在 Bot 上配置打开了用户问题建议开关，则会返回推荐问题相关的回复内容。不支持在请求中作为入参。
-    follow_up = "follow_up"
+    FOLLOW_UP = "follow_up"
+
     # In the scenario of multiple answers, the server will return a verbose package, and the corresponding content is in JSON format. content.msg_type = generate_answer_finish represents that all answers have been replied to.
     # 多 answer 场景下，服务端会返回一个 verbose 包，对应的 content 为 JSON 格式，content.msg_type =generate_answer_finish 代表全部 answer 回复完成。不支持在请求中作为入参。
-    verbose = "verbose"
+    VERBOSE = "verbose"
 
-    unknown = ""
+    UNKNOWN = ""
 
 
 class MessageContentType(str, Enum):
     # Text.
     # 文本。
-    text = "text"
+    TEXT = "text"
+
     # Multimodal content, that is, a combination of text and files, or a combination of text and images.
     # 多模态内容，即文本和文件的组合、文本和图片的组合。
-    object_string = "object_string"
+    OBJECT_STRING = "object_string"
+
     # message card. This enum value only appears in the interface response and is not supported as an input parameter.
     # 卡片。此枚举值仅在接口响应中出现，不支持作为入参。
-    card = "card"
+    CARD = "card"
 
 
 class MessageObjectStringType(str, Enum):
@@ -60,9 +69,9 @@ class MessageObjectStringType(str, Enum):
     The content type of the multimodal message.
     """
 
-    text = "text"
-    file = "file"
-    image = "image"
+    TEXT = "text"
+    FILE = "file"
+    IMAGE = "image"
 
 
 class MessageObjectString(CozeModel):
@@ -107,26 +116,22 @@ class Message(CozeModel):
     updated_at: int = None
 
     @staticmethod
-    def user_text_message(
-        content: str, meta_data: Optional[Dict[str, str]] = None
-    ) -> "Message":
+    def user_text_message(content: str, meta_data: Optional[Dict[str, str]] = None) -> "Message":
         return Message(
-            role=MessageRole.user,
-            type=MessageType.question,
+            role=MessageRole.USER,
+            type=MessageType.QUESTION,
             content=content,
-            content_type=MessageContentType.text,
+            content_type=MessageContentType.TEXT,
             meta_data=meta_data,
         )
 
     @staticmethod
-    def assistant_text_message(
-        content: str, meta_data: Optional[Dict[str, str]] = None
-    ) -> "Message":
+    def assistant_text_message(content: str, meta_data: Optional[Dict[str, str]] = None) -> "Message":
         return Message(
-            role=MessageRole.assistant,
-            type=MessageType.answer,
+            role=MessageRole.ASSISTANT,
+            type=MessageType.ANSWER,
             content=content,
-            content_type=MessageContentType.text,
+            content_type=MessageContentType.TEXT,
             meta_data=meta_data,
         )
 
@@ -137,19 +142,19 @@ class ChatStatus(str, Enum):
     """
 
     # The session has been created.
-    created = "created"
+    CREATED = "created"
 
     # The Bot is processing.
-    in_progress = "in_progress"
+    IN_PROGRESS = "in_progress"
 
     # The Bot has finished processing, and the session has ended.
-    completed = "completed"
+    COMPLETED = "completed"
 
     # The session has failed.
-    failed = "failed"
+    FAILED = "failed"
 
     # The session is interrupted and requires further processing.
-    requires_action = "requires_action"
+    REQUIRES_ACTION = "requires_action"
 
 
 class Chat(CozeModel):
@@ -183,45 +188,42 @@ class Chat(CozeModel):
     # Details of the information needed for execution.
 
 
-# TODO: 枚举值是否需要大写
-
-
 class ChatEventType(str, Enum):
     # Event for creating a conversation, indicating the start of the conversation.
     # 创建对话的事件，表示对话开始。
-    conversation_chat_created = "conversation.chat.created"
+    CONVERSATION_CHAT_CREATED = "conversation.chat.created"
 
     # The server is processing the conversation.
     # 服务端正在处理对话。
-    conversation_chat_in_progress = "conversation.chat.in_progress"
+    CONVERSATION_CHAT_IN_PROGRESS = "conversation.chat.in_progress"
 
     # Incremental message, usually an incremental message when type=answer.
     # 增量消息，通常是 type=answer 时的增量消息。
-    conversation_message_delta = "conversation.message.delta"
+    CONVERSATION_MESSAGE_DELTA = "conversation.message.delta"
 
     # The message has been completely replied to. At this point, the streaming package contains the spliced results of all message.delta, and each message is in a completed state.
     # message 已回复完成。此时流式包中带有所有 message.delta 的拼接结果，且每个消息均为 completed 状态。
-    conversation_message_completed = "conversation.message.completed"
+    CONVERSATION_MESSAGE_COMPLETED = "conversation.message.completed"
 
     # The conversation is completed.
     # 对话完成。
-    conversation_chat_completed = "conversation.chat.completed"
+    CONVERSATION_CHAT_COMPLETED = "conversation.chat.completed"
 
     # This event is used to mark a failed conversation.
     # 此事件用于标识对话失败。
-    conversation_chat_failed = "conversation.chat.failed"
+    CONVERSATION_CHAT_FAILED = "conversation.chat.failed"
 
     # The conversation is interrupted and requires the user to report the execution results of the tool.
     # 对话中断，需要使用方上报工具的执行结果。
-    conversation_chat_requires_action = "conversation.chat.requires_action"
+    CONVERSATION_CHAT_REQUIRES_ACTION = "conversation.chat.requires_action"
 
     # Error events during the streaming response process. For detailed explanations of code and msg, please refer to Error codes.
     # 流式响应过程中的错误事件。关于 code 和 msg 的详细说明，可参考错误码。
-    error = "error"
+    ERROR = "error"
 
     # The streaming response for this session ended normally.
     # 本次会话的流式返回正常结束。
-    done = "done"
+    DONE = "done"
 
 
 class ChatEvent(CozeModel):
@@ -262,21 +264,21 @@ class ChatChatIterator(object):
 
             times += 1
 
-        if event == ChatEventType.done:
+        if event == ChatEventType.DONE:
             raise StopIteration
-        elif event == ChatEventType.error:
+        elif event == ChatEventType.ERROR:
             raise Exception(f"error event: {line}")  # TODO: error struct format
         elif event in [
-            ChatEventType.conversation_message_delta,
-            ChatEventType.conversation_message_completed,
+            ChatEventType.CONVERSATION_MESSAGE_DELTA,
+            ChatEventType.CONVERSATION_MESSAGE_COMPLETED,
         ]:
             return ChatEvent(event=event, message=Message.model_validate_json(data))
         elif event in [
-            ChatEventType.conversation_chat_created,
-            ChatEventType.conversation_chat_in_progress,
-            ChatEventType.conversation_chat_completed,
-            ChatEventType.conversation_chat_failed,
-            ChatEventType.conversation_chat_requires_action,
+            ChatEventType.CONVERSATION_CHAT_CREATED,
+            ChatEventType.CONVERSATION_CHAT_IN_PROGRESS,
+            ChatEventType.CONVERSATION_CHAT_COMPLETED,
+            ChatEventType.CONVERSATION_CHAT_FAILED,
+            ChatEventType.CONVERSATION_CHAT_REQUIRES_ACTION,
         ]:
             return ChatEvent(event=event, chat=Chat.model_validate_json(data))
         else:
@@ -388,9 +390,7 @@ class ChatClient(object):
         body = {
             "bot_id": bot_id,
             "user_id": user_id,
-            "additional_messages": [i.model_dump() for i in additional_messages]
-            if additional_messages
-            else [],
+            "additional_messages": [i.model_dump() for i in additional_messages] if additional_messages else [],
             "stream": stream,
             "custom_variables": custom_variables,
             "auto_save_history": auto_save_history,
@@ -400,9 +400,7 @@ class ChatClient(object):
         if not stream:
             return self._requester.request("post", url, Chat, body=body, stream=stream)
 
-        return ChatChatIterator(
-            self._requester.request("post", url, Chat, body=body, stream=stream)
-        )
+        return ChatChatIterator(self._requester.request("post", url, Chat, body=body, stream=stream))
 
     def retrieve(
         self,

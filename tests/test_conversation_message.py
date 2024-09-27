@@ -1,6 +1,7 @@
 import time
 import unittest
-from cozepy import Coze, COZE_CN_BASE_URL, Message
+
+from cozepy import COZE_CN_BASE_URL, Coze, Message
 from tests.config import fixed_token_auth
 
 
@@ -35,16 +36,12 @@ def test_conversation_message():
     time.sleep(1)
 
     # retrieve message
-    message_retrieve = cli.conversations.messages.retrieve(
-        conversation_id=conversation.id, message_id=message.id
-    )
+    message_retrieve = cli.conversations.messages.retrieve(conversation_id=conversation.id, message_id=message.id)
     assert message_retrieve is not None
     assert message.id == message_retrieve.id
 
     # list message
-    message_list = cli.conversations.messages.list(
-        conversation_id=conversation.id, message_id=message.id
-    )
+    message_list = cli.conversations.messages.list(conversation_id=conversation.id, message_id=message.id)
     assert len(message_list) > 2
 
     # update message

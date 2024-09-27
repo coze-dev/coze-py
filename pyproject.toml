@@ -19,6 +19,13 @@ pytest-cov = "^4.0.0"
 ruff = "^0.6.0"
 pre-commit = "^2.9.0"
 
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["E501"]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

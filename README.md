@@ -64,7 +64,7 @@ chat = coze.chat.create(
     ],
 )
 start = int(time.time())
-while chat.status == ChatStatus.in_progress:
+while chat.status == ChatStatus.IN_PROGRESS:
     if int(time.time()) - start > 120:
         # too long, cancel chat
         coze.chat.cancel(conversation_id=chat.conversation_id, chat_id=chat.chat_id)
@@ -87,7 +87,7 @@ chat_iterator = coze.chat.stream(
     ],
 )
 for event in chat_iterator:
-    if event.event == ChatEventType.conversation_message_delta:
+    if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
         print('got message delta:', event.message.content)
 ```
 
@@ -145,7 +145,7 @@ conversation = coze.conversations.retrieve(conversation_id=conversation.id)
 message = coze.conversations.messages.create(
     conversation_id=conversation.id,
     content='how are you?',
-    content_type=MessageContentType.text,
+    content_type=MessageContentType.TEXT,
 )
 
 # retrieve message
@@ -156,7 +156,7 @@ coze.conversations.messages.update(
     conversation_id=conversation.id,
     message_id=message.id,
     content='hey, how are you?',
-    content_type=MessageContentType.text,
+    content_type=MessageContentType.TEXT,
 )
 
 # delete message
@@ -199,11 +199,11 @@ result = coze.workflows.runs.create(
 # stream workflow run
 def handle_workflow_iterator(iterator: WorkflowEventIterator):
     for event in iterator:
-        if event.event == WorkflowEventType.message:
+        if event.event == WorkflowEventType.MESSAGE:
             print('got message', event.message)
-        elif event.event == WorkflowEventType.error:
+        elif event.event == WorkflowEventType.ERROR:
             print('got error', event.error)
-        elif event.event == WorkflowEventType.interrupt:
+        elif event.event == WorkflowEventType.INTERRUPT:
             handle_workflow_iterator(coze.workflows.runs.resume(
                 workflow_id='workflow id',
                 event_id=event.interrupt.interrupt_data.event_id,
