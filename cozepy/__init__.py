@@ -21,7 +21,12 @@ from .chat import (
     ChatEvent,
     ChatChatIterator,
 )
-from .config import COZE_COM_BASE_URL, COZE_CN_BASE_URL
+from .config import (
+    COZE_COM_BASE_URL,
+    COZE_CN_BASE_URL,
+    DEFAULT_TIMEOUT,
+    DEFAULT_CONNECTION_LIMITS,
+)
 from .conversations import Conversation
 from .coze import Coze
 from .exception import CozeError, CozeAPIError, CozeEventError
@@ -42,6 +47,7 @@ from .workflows.runs import (
     WorkflowEventIterator,
 )
 from .workspaces import WorkspaceRoleType, WorkspaceType, Workspace
+from .request import HTTPClient
 
 from .version import VERSION
 
@@ -94,6 +100,8 @@ __all__ = [
     # config
     "COZE_COM_BASE_URL",
     "COZE_CN_BASE_URL",
+    "DEFAULT_TIMEOUT",
+    "DEFAULT_CONNECTION_LIMITS",
     # coze
     "Coze",
     # exception
@@ -104,4 +112,6 @@ __all__ = [
     "TokenPaged",
     "NumberPaged",
     "LastIDPaged",
+    # request
+    "HTTPClient",
 ]
