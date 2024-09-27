@@ -24,8 +24,6 @@ And then install dependencies:
 poetry install
 ```
 
- Run the code
-
 ## Pre Commit
 
 ```shell

@@ -1,0 +1,14 @@
+coverage:
+  status:
+    project: #add everything under here, more options at https://docs.codecov.com/docs/commit-status
+      default:
+        target: 70%
+        threshold: 70%
+        base: auto
+comment:                  #this is a top-level key
+  layout: "diff, flags, files"
+  behavior: default
+  require_changes: true  # if true: only post the comment if coverage changes
+  require_base: true     # if true: must have a base report to post
+  require_head: true     # if true: must have a head report to post
+  hide_project_coverage: false # [true :: only show coverage on the git diff aka patch coverage]]

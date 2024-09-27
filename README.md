@@ -1,6 +1,7 @@
 # Coze Python API SDK
 
 [![PyPI version](https://img.shields.io/pypi/v/cozepy.svg)](https://pypi.org/project/cozepy/)
+[![codecov](https://codecov.io/github/coze-dev/coze-py/graph/badge.svg?token=U6OKGQXF0E)](https://codecov.io/github/coze-dev/coze-py)
 
 ## Requirements
 
@@ -13,6 +14,10 @@ pip install cozepy
 ```
 
 ## Usage
+
+### Examples
+
+TODO
 
 ### Auth
 
@@ -60,7 +65,7 @@ chat = coze.chat.create(
 )
 start = int(time.time())
 while chat.status == ChatStatus.in_progress:
-    if int(time.time()) > 120:
+    if int(time.time()) - start > 120:
         # too long, cancel chat
         coze.chat.cancel(conversation_id=chat.conversation_id, chat_id=chat.chat_id)
         break
@@ -83,7 +88,7 @@ chat_iterator = coze.chat.stream(
 )
 for event in chat_iterator:
     if event.event == ChatEventType.conversation_message_delta:
-        print('got message delta:', event.messages.content)
+        print('got message delta:', event.message.content)
 ```
 
 ### Bots
