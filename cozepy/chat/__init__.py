@@ -1,4 +1,3 @@
-import json
 from enum import Enum
 from typing import Dict, List, Iterator, Union, TYPE_CHECKING, Optional
 
@@ -184,6 +183,9 @@ class Chat(CozeModel):
     # Details of the information needed for execution.
 
 
+# TODO: 枚举值是否需要大写
+
+
 class ChatEventType(str, Enum):
     # Event for creating a conversation, indicating the start of the conversation.
     # 创建对话的事件，表示对话开始。
@@ -268,9 +270,7 @@ class ChatChatIterator(object):
             ChatEventType.conversation_message_delta,
             ChatEventType.conversation_message_completed,
         ]:
-            return ChatEvent(
-                event=event, message=Message.model_validate(json.loads(data))
-            )
+            return ChatEvent(event=event, message=Message.model_validate_json(data))
         elif event in [
             ChatEventType.conversation_chat_created,
             ChatEventType.conversation_chat_in_progress,
@@ -278,7 +278,7 @@ class ChatChatIterator(object):
             ChatEventType.conversation_chat_failed,
             ChatEventType.conversation_chat_requires_action,
         ]:
-            return ChatEvent(event=event, chat=Chat.model_validate(json.loads(data)))
+            return ChatEvent(event=event, chat=Chat.model_validate_json(data))
         else:
             raise ValueError(f"invalid chat.event: {event}, {data}")
 

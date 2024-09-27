@@ -37,7 +37,7 @@ jobs:
           poetry run ruff format --check
           poetry build
       - name: Run tests
-        run: poetry run pytest
+        run: poetry run pytest --cov --cov-report=xml
         env:
           COZE_TOKEN: ${{ secrets.COZE_TOKEN }}
           SPACE_ID_1: ${{ secrets.SPACE_ID_1 }}
@@ -47,6 +47,8 @@ jobs:
           COZE_BOT_ID_TRANSLATE: ${{ secrets.COZE_BOT_ID_TRANSLATE }}
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   test_success:
     # this aggregates success state of all jobs listed in `needs`
