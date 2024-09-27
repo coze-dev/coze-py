@@ -6,12 +6,12 @@ from cozepy.request import HTTPClient, Requester
 
 if TYPE_CHECKING:
     from .bots import BotsClient
-    from .workspaces import WorkspacesClient
-    from .conversations import ConversationsClient
     from .chat import ChatClient
+    from .conversations import ConversationsClient
     from .files import FilesClient
-    from .workflows import WorkflowsClient
     from .knowledge import KnowledgeClient
+    from .workflows import WorkflowsClient
+    from .workspaces import WorkspacesClient
 
 
 class Coze(object):
@@ -47,9 +47,7 @@ class Coze(object):
         if not self._workspaces:
             from .workspaces import WorkspacesClient
 
-            self._workspaces = WorkspacesClient(
-                self._base_url, self._auth, self._requester
-            )
+            self._workspaces = WorkspacesClient(self._base_url, self._auth, self._requester)
         return self._workspaces
 
     @property
@@ -57,9 +55,7 @@ class Coze(object):
         if not self._conversations:
             from .conversations import ConversationsClient
 
-            self._conversations = ConversationsClient(
-                self._base_url, self._auth, self._requester
-            )
+            self._conversations = ConversationsClient(self._base_url, self._auth, self._requester)
         return self._conversations
 
     @property
@@ -83,9 +79,7 @@ class Coze(object):
         if not self._workflows:
             from .workflows import WorkflowsClient
 
-            self._workflows = WorkflowsClient(
-                self._base_url, self._auth, self._requester
-            )
+            self._workflows = WorkflowsClient(self._base_url, self._auth, self._requester)
         return self._workflows
 
     @property
@@ -93,7 +87,5 @@ class Coze(object):
         if not self._knowledge:
             from .knowledge import KnowledgeClient
 
-            self._knowledge = KnowledgeClient(
-                self._base_url, self._auth, self._requester
-            )
+            self._knowledge = KnowledgeClient(self._base_url, self._auth, self._requester)
         return self._knowledge

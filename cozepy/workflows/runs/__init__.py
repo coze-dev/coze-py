@@ -1,8 +1,8 @@
 from enum import Enum
-from typing import Dict, Any, Iterator
+from typing import Any, Dict, Iterator
 
-from cozepy.exception import CozeEventError
 from cozepy.auth import Auth
+from cozepy.exception import CozeEventError
 from cozepy.model import CozeModel
 from cozepy.request import Requester
 
@@ -16,21 +16,21 @@ class WorkflowEventType(str, Enum):
     # The output message from the workflow node, such as the output message from
     # the message node or end node. You can view the specific message content in data.
     # 工作流节点输出消息，例如消息节点、结束节点的输出消息。可以在 data 中查看具体的消息内容。
-    message = "Message"
+    MESSAGE = "Message"
 
     # An error has occurred. You can view the error_code and error_message in data to
     # troubleshoot the issue.
     # 报错。可以在 data 中查看 error_code 和 error_message，排查问题。
-    error = "Error"
+    ERROR = "Error"
 
     # End. Indicates the end of the workflow execution, where data is empty.
     # 结束。表示工作流执行结束，此时 data 为空。
-    done = "Done"
+    DONE = "Done"
 
     # Interruption. Indicates the workflow has been interrupted, where the data field
     # contains specific interruption information.
     # 中断。表示工作流中断，此时 data 字段中包含具体的中断信息。
-    interrupt = "Interrupt"
+    INTERRUPT = "Interrupt"
 
 
 class WorkflowEventMessage(CozeModel):
@@ -76,7 +76,8 @@ class WorkflowEventInterrupt(CozeModel):
 
 
 class WorkflowEventError(CozeModel):
-    # Status code. 0 represents a successful API call. Other values indicate that the call has failed. You can determine the detailed reason for the error through the error_message field.
+    # Status code. 0 represents a successful API call. Other values indicate that the call has failed. You can
+    # determine the detailed reason for the error through the error_message field.
     # 调用状态码。0 表示调用成功。其他值表示调用失败。你可以通过 error_message 字段判断详细的错误原因。
     error_code: int
 
@@ -110,7 +111,6 @@ class WorkflowEventIterator(object):
         id = ""
         event = ""
         data = ""
-        line = ""
         times = 0
 
         while times < 3:
@@ -119,7 +119,7 @@ class WorkflowEventIterator(object):
                 continue
             elif line.startswith("id:"):
                 if event == "":
-                    id = line[3:]
+                    id = line[3:].strip()
                 else:
                     raise CozeEventError("id", line)
             elif line.startswith("event:"):
@@ -129,7 +129,7 @@ class WorkflowEventIterator(object):
                     raise CozeEventError("event", line)
             elif line.startswith("data:"):
                 if data == "":
-                    data = line[5:]
+                    data = line[5:].strip()
                 else:
                     raise CozeEventError("data", line)
             else:
@@ -137,19 +137,17 @@ class WorkflowEventIterator(object):
 
             times += 1
 
-        if event == WorkflowEventType.done:
+        if event == WorkflowEventType.DONE:
             raise StopIteration
-        elif event == WorkflowEventType.message:
+        elif event == WorkflowEventType.MESSAGE:
             return WorkflowEvent(
                 id=id,
                 event=event,
                 message=WorkflowEventMessage.model_validate_json(data),
             )
-        elif event == WorkflowEventType.error:
-            return WorkflowEvent(
-                id=id, event=event, error=WorkflowEventError.model_validate_json(data)
-            )
-        elif event == WorkflowEventType.interrupt:
+        elif event == WorkflowEventType.ERROR:
+            return WorkflowEvent(id=id, event=event, error=WorkflowEventError.model_validate_json(data))
+        elif event == WorkflowEventType.INTERRUPT:
             return WorkflowEvent(
                 id=id,
                 event=event,
@@ -227,9 +225,7 @@ class WorkflowsClient(object):
             "bot_id": bot_id,
             "ext": ext,
         }
-        return WorkflowEventIterator(
-            self._requester.request("post", url, None, body=body, stream=True)
-        )
+        return WorkflowEventIterator(self._requester.request("post", url, None, body=body, stream=True))
 
     def resume(
         self,
@@ -255,6 +251,4 @@ class WorkflowsClient(object):
             "resume_data": resume_data,
             "interrupt_type": interrupt_type,
         }
-        return WorkflowEventIterator(
-            self._requester.request("post", url, None, body=body, stream=True)
-        )
+        return WorkflowEventIterator(self._requester.request("post", url, None, body=body, stream=True))

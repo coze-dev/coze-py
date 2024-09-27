@@ -8,14 +8,14 @@ from cozepy.request import Requester
 
 
 class WorkspaceRoleType(str, Enum):
-    owner = "owner"
-    admin = "admin"
-    member = "member"
+    OWNER = "owner"
+    ADMIN = "admin"
+    MEMBER = "member"
 
 
 class WorkspaceType(str, Enum):
-    personal = "personal"
-    team = "team"
+    PERSONAL = "personal"
+    TEAM = "team"
 
 
 class Workspace(CozeModel):
@@ -41,9 +41,7 @@ class WorkspacesClient(object):
         self._auth = auth
         self._requester = requester
 
-    def list(
-        self, *, page_num: int = 1, page_size: int = 20, headers=None
-    ) -> NumberPaged[Workspace]:
+    def list(self, *, page_num: int = 1, page_size: int = 20, headers=None) -> NumberPaged[Workspace]:
         url = f"{self._base_url}/v1/workspaces"
         params = {
             "page_size": page_size,

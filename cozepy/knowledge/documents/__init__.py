@@ -36,39 +36,39 @@ class DocumentChunkStrategy(CozeModel):
 class DocumentFormatType(IntEnum):
     # Document type, such as txt, pdf, online web pages, etc.
     # 文档类型，例如 txt 、pdf 、在线网页等格式均属于文档类型。
-    document = 0
+    DOCUMENT = 0
 
     # 表格类型，例如 xls 表格等格式属于表格类型。
     # Spreadsheet type, such as xls spreadsheets, etc.
-    spreadsheet = 1
+    SPREADSHEET = 1
 
     # 照片类型，例如 png 图片等格式属于照片类型。
     # Photo type, such as png images, etc.
-    image = 2
+    IMAGE = 2
 
 
 class DocumentSourceType(IntEnum):
     # Upload local files.
     # 上传本地文件。
-    local_file = 0
+    LOCAL_FILE = 0
 
     # Upload online web pages.
     # 上传在线网页。
-    online_web = 1
+    ONLINE_WEB = 1
 
 
 class DocumentStatus(IntEnum):
     # Processing
     # 处理中
-    processing = 0
+    PROCESSING = 0
 
     # Completed
     # 处理完毕
-    completed = 1
+    COMPLETED = 1
 
     # Processing failed, it is recommended to re-upload
     # 处理失败，建议重新上传
-    failed = 9
+    FAILED = 9
 
 
 class DocumentUpdateType(IntEnum):
@@ -196,9 +196,7 @@ class DocumentsClient(object):
             "page": page_num,
             "size": page_size,
         }
-        res = self._requester.request(
-            "get", url, self._PrivateListDocumentsV1Data, params=params
-        )
+        res = self._requester.request("get", url, self._PrivateListDocumentsV1Data, params=params)
         return NumberPaged(
             items=res.document_infos,
             page_num=page_num,

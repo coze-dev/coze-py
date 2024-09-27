@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 from cozepy.auth import Auth
-from cozepy.chat import MessageRole, MessageContentType, Message
+from cozepy.chat import Message, MessageContentType, MessageRole
 from cozepy.model import CozeModel, LastIDPaged
 from cozepy.request import Requester
 
@@ -89,9 +89,7 @@ class MessagesClient(object):
             "limit": limit,
         }
 
-        res = self._requester.request(
-            "post", url, self._PrivateListMessageResp, params=params, body=body
-        )
+        res = self._requester.request("post", url, self._PrivateListMessageResp, params=params, body=body)
         return LastIDPaged(res.items, res.first_id, res.last_id, res.has_more)
 
     def retrieve(
@@ -152,9 +150,7 @@ class MessagesClient(object):
             "meta_data": meta_data,
         }
 
-        return self._requester.request(
-            "post", url, Message, params=params, body=body, data_field="message"
-        )
+        return self._requester.request("post", url, Message, params=params, body=body, data_field="message")
 
     def delete(
         self,

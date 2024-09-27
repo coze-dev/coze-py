@@ -1,6 +1,6 @@
 import os
 
-from cozepy import Coze, COZE_CN_BASE_URL, Message, ChatChatIterator, ChatEventType
+from cozepy import COZE_CN_BASE_URL, ChatChatIterator, ChatEventType, Coze, Message
 from cozepy.auth import _random_hex
 from tests.config import fixed_token_auth
 
@@ -40,5 +40,5 @@ def test_chat_stream():
     for item in chat_iter:
         assert item is not None
         assert item.event != ""
-        if item.event == ChatEventType.conversation_message_delta:
+        if item.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
             assert item.message.content != ""

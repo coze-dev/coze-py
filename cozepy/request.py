@@ -1,13 +1,13 @@
 from typing import (
     TYPE_CHECKING,
-    Tuple,
-    Optional,
-    Union,
-    List,
+    Any,
     Iterator,
+    List,
+    Optional,
+    Tuple,
     Type,
     TypeVar,
-    Any,
+    Union,
 )
 
 import httpx
@@ -15,7 +15,7 @@ from httpx import Response
 from pydantic import BaseModel
 from typing_extensions import get_args, get_origin  # compatibility with python 3.7
 
-from cozepy.config import DEFAULT_TIMEOUT, DEFAULT_CONNECTION_LIMITS
+from cozepy.config import DEFAULT_CONNECTION_LIMITS, DEFAULT_TIMEOUT
 from cozepy.exception import CozeAPIError
 from cozepy.version import user_agent
 
@@ -48,7 +48,7 @@ class Requester(object):
         self,
         method: str,
         url: str,
-        model: Union[Type[T], List[Type[T]]],
+        model: Union[Type[T], List[Type[T]], None],
         params: dict = None,
         headers: dict = None,
         body: dict = None,
@@ -115,9 +115,7 @@ class Requester(object):
             files=files,
         )
 
-    def _parse_requests_code_msg(
-        self, response: Response, data_field: str = "data"
-    ) -> Tuple[Optional[int], str, Any]:
+    def _parse_requests_code_msg(self, response: Response, data_field: str = "data") -> Tuple[Optional[int], str, Any]:
         try:
             json = response.json()
         except Exception as e:  # noqa: E722
