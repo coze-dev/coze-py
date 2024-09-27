@@ -1,22 +1,14 @@
-from typing import (
-    TYPE_CHECKING,
-    Tuple,
-    Optional,
-    Union,
-    List,
-    Iterator,
-)
-from typing_extensions import get_args, get_origin  # compatibility with python 3.7
-
+from typing import TYPE_CHECKING, Tuple, Optional, Union, List, Iterator, Type, TypeVar
+from pydantic import BaseModel
 import httpx
 from httpx import Response
+from typing_extensions import get_args, get_origin  # compatibility with python 3.7
+
+from cozepy.exception import CozeAPIError
 
 if TYPE_CHECKING:
     from cozepy.auth import Auth
 
-from typing import Type, TypeVar
-
-from pydantic import BaseModel
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -63,18 +55,16 @@ class Requester(object):
             json=body,
             files=files,
         )
+        logid = r.headers.get("x-tt-logid")
         if stream:
             return r.iter_lines()
 
         code, msg, data = self._parse_requests_code_msg(r, data_field)
 
         if code is not None and code > 0:
-            # TODO: Exception 自定义类型
-            logid = r.headers.get("x-tt-logid")
-            raise Exception(f"{code}: {msg}, logid:{logid}")
+            raise CozeAPIError(code, msg, logid)
         elif code is None and msg != "":
-            logid = r.headers.get("x-tt-logid")
-            raise Exception(f"{msg}, logid:{logid}")
+            raise CozeAPIError(code, msg, logid)
         if get_origin(model) is list:
             item_model = get_args(model)[0]
             return [item_model.model_validate(item) for item in data]

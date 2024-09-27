@@ -3,6 +3,7 @@ from enum import Enum
 from typing import Dict, List, Iterator, Union, TYPE_CHECKING, Optional
 
 from cozepy.auth import Auth
+from cozepy.exception import CozeEventError
 from cozepy.model import CozeModel
 from cozepy.request import Requester
 
@@ -248,21 +249,21 @@ class ChatChatIterator(object):
                 if event == "":
                     event = line[6:]
                 else:
-                    raise Exception(f"invalid event: {line}")
+                    raise CozeEventError("event", line)
             elif line.startswith("data:"):
                 if data == "":
                     data = line[5:]
                 else:
-                    raise Exception(f"invalid event: {line}")
+                    raise CozeEventError("data", line)
             else:
-                raise Exception(f"invalid event: {line}")
+                raise CozeEventError("", line)
 
             times += 1
 
         if event == ChatEventType.done:
             raise StopIteration
         elif event == ChatEventType.error:
-            raise Exception(f"error event: {line}")
+            raise Exception(f"error event: {line}")  # TODO: error struct format
         elif event in [
             ChatEventType.conversation_message_delta,
             ChatEventType.conversation_message_completed,
@@ -279,7 +280,7 @@ class ChatChatIterator(object):
         ]:
             return ChatEvent(event=event, chat=Chat.model_validate(json.loads(data)))
         else:
-            raise Exception(f"unknown event: {event}, data: {data}")
+            raise ValueError(f"invalid chat.event: {event}, {data}")
 
 
 class ChatClient(object):

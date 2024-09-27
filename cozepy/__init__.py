@@ -24,6 +24,7 @@ from .chat import (
 from .config import COZE_COM_BASE_URL, COZE_CN_BASE_URL
 from .conversations import Conversation
 from .coze import Coze
+from .exception import CozeError, CozeAPIError, CozeEventError
 from .files import File
 from .model import (
     TokenPaged,
@@ -92,6 +93,10 @@ __all__ = [
     "COZE_CN_BASE_URL",
     # coze
     "Coze",
+    # exception
+    "CozeError",
+    "CozeAPIError",
+    "CozeEventError",
     # model
     "TokenPaged",
     "NumberPaged",

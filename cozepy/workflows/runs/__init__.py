@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Dict, Any, Iterator
 
+from cozepy.exception import CozeEventError
 from cozepy.auth import Auth
 from cozepy.model import CozeModel
 from cozepy.request import Requester
@@ -120,19 +121,19 @@ class WorkflowEventIterator(object):
                 if event == "":
                     id = line[3:]
                 else:
-                    raise Exception(f"invalid event: {line}")
+                    raise CozeEventError("id", line)
             elif line.startswith("event:"):
                 if event == "":
                     event = line[6:].strip()
                 else:
-                    raise Exception(f"invalid event: {line}")
+                    raise CozeEventError("event", line)
             elif line.startswith("data:"):
                 if data == "":
                     data = line[5:]
                 else:
-                    raise Exception(f"invalid event: {line}")
+                    raise CozeEventError("data", line)
             else:
-                raise Exception(f"invalid event: {line}")
+                raise CozeEventError("", line)
 
             times += 1
 
@@ -155,7 +156,7 @@ class WorkflowEventIterator(object):
                 interrupt=WorkflowEventInterrupt.model_validate_json(data),
             )
         else:
-            raise Exception(f"unknown event: {line}")
+            raise ValueError(f"invalid workflows.event: {event}, {data}")
 
 
 class WorkflowsClient(object):
