@@ -43,7 +43,10 @@ from .workflows.runs import (
 )
 from .workspaces import WorkspaceRoleType, WorkspaceType, Workspace
 
+from .version import VERSION
+
 __all__ = [
+    "VERSION",
     # auth
     "OAuthToken",
     "DeviceAuthCode",

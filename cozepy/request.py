@@ -4,6 +4,7 @@ import httpx
 from httpx import Response
 from typing_extensions import get_args, get_origin  # compatibility with python 3.7
 
+from cozepy.version import user_agent
 from cozepy.exception import CozeAPIError
 
 if TYPE_CHECKING:
@@ -45,6 +46,7 @@ class Requester(object):
         """
         if headers is None:
             headers = {}
+        headers["User-Agent"] = user_agent()
         if self._auth:
             self._auth.authentication(headers)
         r = httpx.request(

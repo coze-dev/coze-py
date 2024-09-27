@@ -11,6 +11,7 @@ pydantic = "^2.5.0"
 authlib = "^1.2.0"
 httpx = "^0.24.0"
 typing-extensions = "^4.3.0"
+distro = "^1.9.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.0.0"
