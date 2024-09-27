@@ -7,7 +7,6 @@ VERSION = "0.1.1"
 
 @lru_cache(maxsize=1)
 def user_agent():
-    print("调用了")
     python_version = ".".join(map(str, sys.version_info[:2]))
 
     os_name = platform.system().lower()
