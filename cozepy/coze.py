@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from .chat import ChatClient
     from .files import FilesClient
     from .workflows import WorkflowsClient
+    from .knowledge import KnowledgeClient
 
 
 class Coze(object):
@@ -31,6 +32,7 @@ class Coze(object):
         self._chat = None
         self._files = None
         self._workflows = None
+        self._knowledge = None
 
     @property
     def bots(self) -> "BotsClient":
@@ -85,3 +87,13 @@ class Coze(object):
                 self._base_url, self._auth, self._requester
             )
         return self._workflows
+
+    @property
+    def knowledge(self) -> "KnowledgeClient":
+        if not self._knowledge:
+            from .knowledge import KnowledgeClient
+
+            self._knowledge = KnowledgeClient(
+                self._base_url, self._auth, self._requester
+            )
+        return self._knowledge
