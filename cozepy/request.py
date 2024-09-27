@@ -1,24 +1,36 @@
-from typing import TYPE_CHECKING, Tuple, Optional, Union, List, Iterator, Type, TypeVar
-from pydantic import BaseModel
+from typing import (
+    TYPE_CHECKING,
+    Tuple,
+    Optional,
+    Union,
+    List,
+    Iterator,
+    Type,
+    TypeVar,
+    Any,
+)
+
 import httpx
 from httpx import Response
+from pydantic import BaseModel
 from typing_extensions import get_args, get_origin  # compatibility with python 3.7
 
-from cozepy.version import user_agent
+from cozepy.config import DEFAULT_TIMEOUT, DEFAULT_CONNECTION_LIMITS
 from cozepy.exception import CozeAPIError
+from cozepy.version import user_agent
 
 if TYPE_CHECKING:
     from cozepy.auth import Auth
 
-
 T = TypeVar("T", bound=BaseModel)
 
 
-def json_obj_to_pydantic(json_obj: dict, model: Type[T]) -> T:
-    """
-    将 JSON 字符串转换为指定的 Pydantic 模型对象。
-    """
-    return model.model_validate(json_obj)
+class HTTPClient(httpx.Client):
+    def __init__(self, **kwargs):
+        kwargs.setdefault("timeout", DEFAULT_TIMEOUT)
+        kwargs.setdefault("limits", DEFAULT_CONNECTION_LIMITS)
+        kwargs.setdefault("follow_redirects", True)
+        super().__init__(**kwargs)
 
 
 class Requester(object):
@@ -26,8 +38,11 @@ class Requester(object):
     http request helper class.
     """
 
-    def __init__(self, auth: "Auth" = None):
+    def __init__(self, auth: "Auth" = None, client: HTTPClient = None):
         self._auth = auth
+        if client is None:
+            client = HTTPClient()
+        self._client = client
 
     def request(
         self,
@@ -40,16 +55,11 @@ class Requester(object):
         files: dict = None,
         stream: bool = False,
         data_field: str = "data",
-    ) -> Union[T, List[T], Iterator[str]]:
+    ) -> Union[T, List[T], Iterator[str], None]:
         """
         Send a request to the server.
         """
-        if headers is None:
-            headers = {}
-        headers["User-Agent"] = user_agent()
-        if self._auth:
-            self._auth.authentication(headers)
-        r = httpx.request(
+        request = self._make_request(
             method,
             url,
             params=params,
@@ -57,11 +67,12 @@ class Requester(object):
             json=body,
             files=files,
         )
-        logid = r.headers.get("x-tt-logid")
+        response = self._client.send(request, stream=stream)
         if stream:
-            return r.iter_lines()
+            return response.iter_lines()
 
-        code, msg, data = self._parse_requests_code_msg(r, data_field)
+        logid = response.headers.get("x-tt-logid")
+        code, msg, data = self._parse_requests_code_msg(response, data_field)
 
         if code is not None and code > 0:
             raise CozeAPIError(code, msg, logid)
@@ -81,14 +92,40 @@ class Requester(object):
         """
         pass
 
+    def _make_request(
+        self,
+        method: str,
+        url: str,
+        params: dict = None,
+        headers: dict = None,
+        json: dict = None,
+        files: dict = None,
+    ) -> httpx.Request:
+        if headers is None:
+            headers = {}
+        headers["User-Agent"] = user_agent()
+        if self._auth:
+            self._auth.authentication(headers)
+        return httpx.Request(
+            method,
+            url,
+            params=params,
+            headers=headers,
+            json=json,
+            files=files,
+        )
+
     def _parse_requests_code_msg(
-        self, r: Response, data_field: str = "data"
-    ) -> Tuple[Optional[int], str, Optional[T]]:
+        self, response: Response, data_field: str = "data"
+    ) -> Tuple[Optional[int], str, Any]:
         try:
-            json = r.json()
-        except:  # noqa: E722
-            r.raise_for_status()
-            return
+            json = response.json()
+        except Exception as e:  # noqa: E722
+            raise CozeAPIError(
+                response.status_code,
+                response.text,
+                response.headers.get("x-tt-logid"),
+            ) from e
 
         if "code" in json and "msg" in json and int(json["code"]) > 0:
             return int(json["code"]), json["msg"], json.get(data_field) or None
