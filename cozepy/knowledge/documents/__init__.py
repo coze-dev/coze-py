@@ -303,6 +303,34 @@ class DocumentsClient(object):
             body=body,
         )
 
+    def delete(
+        self,
+        *,
+        document_ids: List[str],
+    ) -> None:
+        """
+        Delete text, images, sheets, and other files in the knowledge base, supporting batch deletion.
+
+        docs en: https://www.coze.com/docs/developer_guides/delete_knowledge_files
+        docs zh: https://www.coze.cn/docs/developer_guides/delete_knowledge_files
+
+        :param document_ids: The list of knowledge base files to be deleted. The maximum length of the array is 100,
+        meaning a maximum of 100 files can be deleted at one time.
+        :return: None
+        """
+        url = f"{self._base_url}/open_api/knowledge/document/delete"
+        headers = {"Agw-Js-Conv": "str"}
+        body = {
+            "document_ids": document_ids,
+        }
+        return self._requester.request(
+            "post",
+            url,
+            None,
+            headers=headers,
+            body=body,
+        )
+
     def list(
         self,
         *,
