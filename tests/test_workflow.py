@@ -1,6 +1,6 @@
 import unittest
 
-from cozepy import Coze, COZE_CN_BASE_URL, WorkflowEventType, WorkflowEventIterator
+from cozepy import COZE_CN_BASE_URL, Coze, Stream, WorkflowEvent, WorkflowEventType
 from tests.config import fixed_token_auth
 
 
@@ -30,13 +30,13 @@ def test_workflows():
         },
     )
 
-    def handle_iter(iter: WorkflowEventIterator):
+    def handle_iter(iter: Stream[WorkflowEvent]):
         for item in iter:
-            if item.event == WorkflowEventType.message:
+            if item.event == WorkflowEventType.MESSAGE:
                 print("msg", item.message)
-            elif item.event == WorkflowEventType.error:
+            elif item.event == WorkflowEventType.ERROR:
                 print("error", item.error)
-            elif item.event == WorkflowEventType.interrupt:
+            elif item.event == WorkflowEventType.INTERRUPT:
                 print("interrupt", item.interrupt)
                 handle_iter(
                     cli.workflows.runs.resume(
