@@ -1,9 +1,8 @@
 from enum import IntEnum
 from typing import List
 
-from cozepy import NumberPaged
 from cozepy.auth import Auth
-from cozepy.model import CozeModel
+from cozepy.model import CozeModel, NumberPaged
 from cozepy.request import Requester
 from cozepy.util import base64_encode_string
 
@@ -48,6 +47,22 @@ class DocumentChunkStrategy(CozeModel):
     # 分段标识符。
     # 在 chunk_type=1 时必选。
     separator: str = None
+
+    @staticmethod
+    def auto() -> "DocumentChunkStrategy":
+        return DocumentChunkStrategy(chunk_type=0)
+
+    @staticmethod
+    def custom(
+        max_tokens: int, separator: str, remove_extra_spaces: bool = False, remove_urls_emails: bool = False
+    ) -> "DocumentChunkStrategy":
+        return DocumentChunkStrategy(
+            chunk_type=1,
+            max_tokens=max_tokens,
+            remove_extra_spaces=remove_extra_spaces,
+            remove_urls_emails=remove_urls_emails,
+            separator=separator,
+        )
 
 
 class DocumentFormatType(IntEnum):
@@ -204,7 +219,7 @@ class DocumentSourceInfo(CozeModel):
         return DocumentSourceInfo(file_base64=base64_encode_string(content), file_type=file_type)
 
     @staticmethod
-    def from_web(url: str) -> "DocumentSourceInfo":
+    def from_web_page(url: str) -> "DocumentSourceInfo":
         return DocumentSourceInfo(web_url=url, document_source=1)
 
 
@@ -216,6 +231,14 @@ class DocumentUpdateRule(CozeModel):
 
     # 在线网页自动更新的频率。单位为小时，最小值为 24。
     update_interval: int
+
+    @staticmethod
+    def no_auto_update() -> "DocumentUpdateRule":
+        return DocumentUpdateRule(update_type=DocumentUpdateType.NO_AUTO_UPDATE, update_interval=24)
+
+    @staticmethod
+    def auto_update(interval: int) -> "DocumentUpdateRule":
+        return DocumentUpdateRule(update_type=DocumentUpdateType.AUTO_UPDATE, update_interval=interval)
 
 
 class DocumentBase(CozeModel):
@@ -367,5 +390,5 @@ class DocumentsClient(object):
         )
 
     class _PrivateListDocumentsV1Data(CozeModel):
-        document_infos: list[Document]
+        document_infos: List[Document]
         total: int

@@ -1,9 +1,8 @@
 from enum import Enum
 from typing import List
 
-from cozepy import NumberPaged
 from cozepy.auth import Auth
-from cozepy.model import CozeModel
+from cozepy.model import CozeModel, NumberPaged
 from cozepy.request import Requester
 
 

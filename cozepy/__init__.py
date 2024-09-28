@@ -31,6 +31,17 @@ from .conversations import Conversation
 from .coze import Coze
 from .exception import CozeAPIError, CozeError, CozeEventError
 from .files import File
+from .knowledge.documents import (
+    Document,
+    DocumentBase,
+    DocumentChunkStrategy,
+    DocumentFormatType,
+    DocumentSourceInfo,
+    DocumentSourceType,
+    DocumentStatus,
+    DocumentUpdateRule,
+    DocumentUpdateType,
+)
 from .model import (
     LastIDPaged,
     NumberPaged,
@@ -83,6 +94,16 @@ __all__ = [
     "Conversation",
     # files
     "File",
+    # knowledge.documents
+    "DocumentChunkStrategy",
+    "DocumentFormatType",
+    "DocumentSourceType",
+    "DocumentStatus",
+    "DocumentUpdateType",
+    "Document",
+    "DocumentSourceInfo",
+    "DocumentUpdateRule",
+    "DocumentBase",
     # workflows.runs
     "WorkflowRunResult",
     "WorkflowEventType",
