@@ -17,6 +17,7 @@ from typing_extensions import get_args, get_origin  # compatibility with python 
 
 from cozepy.config import DEFAULT_CONNECTION_LIMITS, DEFAULT_TIMEOUT
 from cozepy.exception import CozeAPIError
+from cozepy.log import log_debug, log_warning
 from cozepy.version import user_agent
 
 if TYPE_CHECKING:
@@ -59,6 +60,7 @@ class Requester(object):
         """
         Send a request to the server.
         """
+        method = method.upper()
         request = self._make_request(
             method,
             url,
@@ -67,6 +69,7 @@ class Requester(object):
             json=body,
             files=files,
         )
+        log_debug("request %s#%s sending, params=%s, json=%s, stream=%s", method, url, params, body, stream)
         response = self._client.send(request, stream=stream)
         if stream:
             return response.iter_lines()
@@ -75,9 +78,14 @@ class Requester(object):
         code, msg, data = self._parse_requests_code_msg(response, data_field)
 
         if code is not None and code > 0:
+            log_warning("request %s#%s failed, logid=%s, code=%s, msg=%s", method, url, logid, code, msg)
             raise CozeAPIError(code, msg, logid)
         elif code is None and msg != "":
+            log_warning("request %s#%s failed, logid=%s, msg=%s", method, url, logid, msg)
             raise CozeAPIError(code, msg, logid)
+        else:
+            log_debug("request %s#%s responding, logid=%s, data=%s", method, url, logid, data)
+
         if get_origin(model) is list:
             item_model = get_args(model)[0]
             return [item_model.model_validate(item) for item in data]

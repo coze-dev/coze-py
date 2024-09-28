@@ -42,6 +42,7 @@ from .knowledge.documents import (
     DocumentUpdateRule,
     DocumentUpdateType,
 )
+from .log import setup_logging
 from .model import (
     LastIDPaged,
     NumberPaged,
@@ -117,6 +118,8 @@ __all__ = [
     "WorkspaceRoleType",
     "WorkspaceType",
     "Workspace",
+    # log
+    "setup_logging",
     # config
     "COZE_COM_BASE_URL",
     "COZE_CN_BASE_URL",
