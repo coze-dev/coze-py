@@ -20,6 +20,7 @@ from .chat import (
     MessageObjectStringType,
     MessageRole,
     MessageType,
+    ToolOutput,
 )
 from .config import (
     COZE_CN_BASE_URL,
@@ -91,6 +92,7 @@ __all__ = [
     "Chat",
     "ChatEvent",
     "ChatChatIterator",
+    "ToolOutput",
     # conversations
     "Conversation",
     # files

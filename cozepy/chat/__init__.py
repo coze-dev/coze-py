@@ -285,6 +285,15 @@ class ChatChatIterator(object):
             raise ValueError(f"invalid chat.event: {event}, {data}")
 
 
+class ToolOutput(CozeModel):
+    # The ID for reporting the running results. You can get this ID under the tool_calls field in response of the Chat
+    # API.
+    tool_call_id: str
+
+    # The execution result of the tool.
+    output: str
+
+
 class ChatClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = base_url
@@ -424,6 +433,40 @@ class ChatClient(object):
             "chat_id": chat_id,
         }
         return self._requester.request("post", url, Chat, params=params)
+
+    def submit_tool_outputs(
+        self, *, conversation_id: str, chat_id: str, tool_outputs: List[ToolOutput], stream: bool
+    ) -> Union[Chat, ChatChatIterator]:
+        """
+        Call this API to submit the results of tool execution.
+
+        docs en: https://www.coze.com/docs/developer_guides/chat_submit_tool_outputs
+        docs zh: https://www.coze.cn/docs/developer_guides/chat_submit_tool_outputs
+
+        :param conversation_id: The Conversation ID can be viewed in the 'conversation_id' field of the Response when
+        initiating a conversation through the Chat API.
+        :param chat_id: The Chat ID can be viewed in the 'id' field of the Response when initiating a chat through the
+        Chat API. If it is a streaming response, check the 'id' field in the chat event of the Response.
+        :param tool_outputs: The execution result of the tool. For detailed instructions, refer to the ToolOutput Object
+        :param stream: Whether to enable streaming response.
+        true: Fill in the context of the previous conversation and continue with streaming response.
+        false: (Default) Non-streaming response, only reply with basic information of the conversation.
+        :return:
+        """
+        url = f"{self._base_url}/v3/chat/submit_tool_outputs"
+        params = {
+            "conversation_id": conversation_id,
+            "chat_id": chat_id,
+        }
+        body = {
+            "tool_outputs": [i.model_dump() for i in tool_outputs],
+            "stream": stream,
+        }
+
+        if not stream:
+            return self._requester.request("post", url, Chat, params=params, body=body, stream=stream)
+
+        return ChatChatIterator(self._requester.request("post", url, Chat, params=params, body=body, stream=stream))
 
     def cancel(
         self,
