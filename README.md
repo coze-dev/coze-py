@@ -219,3 +219,52 @@ handle_workflow_iterator(coze.workflows.runs.stream(
     }
 ))
 ```
+
+### Knowledge
+
+```python
+from cozepy import Coze, TokenAuth, DocumentBase, DocumentSourceInfo, DocumentChunkStrategy, DocumentUpdateRule
+
+coze = Coze(auth=TokenAuth("your_token"))
+
+# create knowledge documents by local_file
+documents = coze.knowledge.documents.create(
+    dataset_id='dataset id',
+    document_bases=[
+        DocumentBase(
+            name='document name',
+            source_info=DocumentSourceInfo.from_local_file('local file content')
+        )
+    ],
+    chunk_strategy=DocumentChunkStrategy.auto()
+)
+
+# create knowledge documents by web_page
+documents = coze.knowledge.documents.create(
+    dataset_id='dataset id',
+    document_bases=[
+        DocumentBase(
+            name='document name',
+            source_info=DocumentSourceInfo.from_web_page('https://example.com')
+        )
+    ],
+    chunk_strategy=DocumentChunkStrategy.auto()
+)
+
+# update knowledge document
+coze.knowledge.documents.update(
+    document_id='document id',
+    document_name='name',
+    update_rule=DocumentUpdateRule.no_auto_update()
+)
+
+# delete knowledge document
+coze.knowledge.documents.delete(document_ids=['document id'])
+
+# list knowledge documents
+paged_documents = coze.knowledge.documents.list(
+    dataset_id='dataset id',
+    page_num=1,
+    page_size=10
+)
+```
