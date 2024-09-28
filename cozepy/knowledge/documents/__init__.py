@@ -1,9 +1,11 @@
 from enum import IntEnum
+from typing import List
 
 from cozepy import NumberPaged
 from cozepy.auth import Auth
 from cozepy.model import CozeModel
 from cozepy.request import Requester
+from cozepy.util import base64_encode_string
 
 
 class DocumentChunkStrategy(CozeModel):
@@ -11,26 +13,41 @@ class DocumentChunkStrategy(CozeModel):
     # 0: Automatic segmentation and cleaning. Use preset rules for data segmentation and processing.
     # 1: Custom. At this time, you need to specify segmentation rule details through separator, max_tokens,
     # remove_extra_spaces, and remove_urls_emails.
-    chunk_type: int
+    # 分段设置。取值包括：
+    # 0：自动分段与清洗。采用扣子预置规则进行数据分段与处理。
+    # 1：自定义。此时需要通过 separator、max_tokens、remove_extra_spaces 和 remove_urls_emails 分段规则细节。
+    chunk_type: int = None
 
     # Maximum segment length, with a range of 100 to 2000.
     # Required when chunk_type=1.
-    max_tokens: int
+    # 最大分段长度，取值范围为 100~2000。
+    # 在 chunk_type=1 时必选。
+    max_tokens: int = None
 
     # Whether to automatically filter continuous spaces, line breaks, and tabs. Values include:
     # true: Automatically filter
     # false: (Default) Do not automatically filter<br>Effective when chunk_type=1.
-    remove_extra_spaces: bool
+    # 是否自动过滤连续的空格、换行符和制表符。取值包括：
+    # true：自动过滤
+    # false：（默认）不自动过滤
+    # 在 chunk_type=1 时生效。
+    remove_extra_spaces: bool = None
 
     # Whether to automatically filter all URLs and email addresses. Values include:
     # true: Automatically filter
     # false: (Default) Do not automatically filter
     # Effective when chunk_type=1.
-    remove_urls_emails: bool
+    # 是否自动过滤所有 URL 和电子邮箱地址。取值包括：
+    # true：自动过滤
+    # false：（默认）不自动过滤
+    # 在 chunk_type=1 时生效。
+    remove_urls_emails: bool = None
 
     # Segmentation identifier.
     # Required when chunk_type=1.
-    separator: str
+    # 分段标识符。
+    # 在 chunk_type=1 时必选。
+    separator: str = None
 
 
 class DocumentFormatType(IntEnum):
@@ -84,7 +101,7 @@ class DocumentUpdateType(IntEnum):
 class Document(CozeModel):
     # The ID of the file.
     # 文件的 ID。
-    document_id: int  # TODO: fixme
+    document_id: str
 
     # The total character count of the file content.
     # 文件内容的总字符数量。
@@ -92,7 +109,7 @@ class Document(CozeModel):
 
     # The chunking rules. For detailed instructions, refer to the ChunkStrategy object.
     # 分段规则。详细说明可参考 chunk_strategy object。
-    chunk_strategy: DocumentChunkStrategy
+    chunk_strategy: DocumentChunkStrategy = None
 
     # The upload time of the file, in the format of a 10-digit Unix timestamp.
     # 文件的上传时间，格式为 10 位的 Unixtime 时间戳。
@@ -164,11 +181,93 @@ class Document(CozeModel):
     update_type: DocumentUpdateType
 
 
+class DocumentSourceInfo(CozeModel):
+    # 本地文件的 Base64 编码。
+    # 上传本地文件时必选
+    file_base64: str = None
+
+    # 本地文件格式，即文件后缀，例如 txt。格式支持 pdf、txt、doc、docx 类型。
+    # 上传的文件类型应与知识库类型匹配，例如 txt 文件只能上传到文档类型的知识库中。
+    # 上传本地文件时必选
+    file_type: str = None
+
+    # 网页的 URL 地址。
+    # 上传在线网页时必选
+    web_url: str = None
+
+    # 文件的上传方式。支持设置为 1，表示上传在线网页。
+    # 上传在线网页时必选
+    document_source: int = None
+
+    @staticmethod
+    def from_local_file(content: str, file_type: str = "txt") -> "DocumentSourceInfo":
+        return DocumentSourceInfo(file_base64=base64_encode_string(content), file_type=file_type)
+
+    @staticmethod
+    def from_web(url: str) -> "DocumentSourceInfo":
+        return DocumentSourceInfo(web_url=url, document_source=1)
+
+
+class DocumentUpdateRule(CozeModel):
+    # 在线网页是否自动更新。取值包括：
+    # 0：不自动更新
+    # 1：自动更新
+    update_type: DocumentUpdateType
+
+    # 在线网页自动更新的频率。单位为小时，最小值为 24。
+    update_interval: int
+
+
+class DocumentBase(CozeModel):
+    # 文件名称。
+    name: str
+
+    # 文件的元数据信息。详细信息可参考 DocumentSourceInfo object。
+    source_info: DocumentSourceInfo
+
+    # 在线网页的更新策略。默认不自动更新。
+    update_rule: DocumentUpdateRule = None
+
+
 class DocumentsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = base_url
         self._auth = auth
         self._requester = requester
+
+    def create(
+        self,
+        *,
+        dataset_id: str,
+        document_bases: List[DocumentBase],
+        chunk_strategy: DocumentChunkStrategy = None,
+    ) -> List[Document]:
+        """
+        Upload files to the specific knowledge.
+
+        docs en: https://www.coze.com/docs/developer_guides/create_knowledge_files
+        docs zh: https://www.coze.cn/docs/developer_guides/create_knowledge_files
+
+        :param dataset_id: The ID of the knowledge base.
+        :param document_bases: The metadata information of the files awaiting upload. The array has a maximum length of
+        10, meaning up to 10 files can be uploaded at a time. For detailed instructions, refer to the DocumentBase
+        object.
+        :param chunk_strategy: Chunk strategy. These rules must be set only when uploading a file to a new knowledge
+        for the first time. For subsequent file uploads to this knowledge, it is not necessary to pass these rules; the
+        default is to continue using the initial settings, and modifications are not supported.
+        For detailed instructions, refer to the ChunkStrategy object.
+        :return: list of Document
+        """
+        url = f"{self._base_url}/open_api/knowledge/document/create"
+        headers = {"Agw-Js-Conv": "str"}
+        body = {
+            "dataset_id": dataset_id,
+            "document_bases": [i.model_dump() for i in document_bases],
+            "chunk_strategy": chunk_strategy.model_dump() if chunk_strategy else None,
+        }
+        return self._requester.request(
+            "post", url, List[Document], headers=headers, body=body, data_field="document_infos"
+        )
 
     def list(
         self,
@@ -196,7 +295,8 @@ class DocumentsClient(object):
             "page": page_num,
             "size": page_size,
         }
-        res = self._requester.request("get", url, self._PrivateListDocumentsV1Data, params=params)
+        headers = {"Agw-Js-Conv": "str"}
+        res = self._requester.request("get", url, self._PrivateListDocumentsV1Data, params=params, headers=headers)
         return NumberPaged(
             items=res.document_infos,
             page_num=page_num,
