@@ -269,6 +269,40 @@ class DocumentsClient(object):
             "post", url, List[Document], headers=headers, body=body, data_field="document_infos"
         )
 
+    def update(
+        self,
+        *,
+        document_id: str,
+        document_name: str = None,
+        update_rule: DocumentUpdateRule = None,
+    ) -> None:
+        """
+        Modify the knowledge base file name and update strategy.
+
+        docs en: https://www.coze.com/docs/developer_guides/modify_knowledge_files
+        docs zh: https://www.coze.cn/docs/developer_guides/modify_knowledge_files
+
+        :param document_id: The ID of the knowledge base file.
+        :param document_name: The new name of the knowledge base file.
+        :param update_rule: The update strategy for online web pages. Defaults to no automatic updates.
+        For detailed information, refer to the UpdateRule object.
+        :return: None
+        """
+        url = f"{self._base_url}/open_api/knowledge/document/update"
+        headers = {"Agw-Js-Conv": "str"}
+        body = {
+            "document_id": document_id,
+            "document_name": document_name,
+            "update_rule": update_rule,
+        }
+        return self._requester.request(
+            "post",
+            url,
+            None,
+            headers=headers,
+            body=body,
+        )
+
     def list(
         self,
         *,
