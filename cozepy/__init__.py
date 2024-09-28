@@ -10,7 +10,6 @@ from .bots import (
 )
 from .chat import (
     Chat,
-    ChatChatIterator,
     ChatEvent,
     ChatEventType,
     ChatStatus,
@@ -47,6 +46,7 @@ from .log import setup_logging
 from .model import (
     LastIDPaged,
     NumberPaged,
+    Stream,
     TokenPaged,
 )
 from .request import HTTPClient
@@ -56,7 +56,6 @@ from .workflows.runs import (
     WorkflowEventError,
     WorkflowEventInterrupt,
     WorkflowEventInterruptData,
-    WorkflowEventIterator,
     WorkflowEventMessage,
     WorkflowEventType,
     WorkflowRunResult,
@@ -91,7 +90,6 @@ __all__ = [
     "Message",
     "Chat",
     "ChatEvent",
-    "ChatChatIterator",
     "ToolOutput",
     # conversations
     "Conversation",
@@ -115,7 +113,6 @@ __all__ = [
     "WorkflowEventInterrupt",
     "WorkflowEventError",
     "WorkflowEvent",
-    "WorkflowEventIterator",
     # workspaces
     "WorkspaceRoleType",
     "WorkspaceType",
@@ -137,6 +134,7 @@ __all__ = [
     "TokenPaged",
     "NumberPaged",
     "LastIDPaged",
+    "Stream",
     # request
     "HTTPClient",
 ]

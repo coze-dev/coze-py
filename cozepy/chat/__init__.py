@@ -1,9 +1,8 @@
 from enum import Enum
-from typing import TYPE_CHECKING, Dict, Iterator, List, Optional, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
 from cozepy.auth import Auth
-from cozepy.exception import CozeEventError
-from cozepy.model import CozeModel
+from cozepy.model import CozeModel, Stream
 from cozepy.request import Requester
 
 if TYPE_CHECKING:
@@ -232,57 +231,28 @@ class ChatEvent(CozeModel):
     message: Message = None
 
 
-class ChatChatIterator(object):
-    def __init__(self, iters: Iterator[str]):
-        self._iters = iters
-
-    def __iter__(self):
-        return self
-
-    def __next__(self) -> ChatEvent:
-        event = ""
-        data = ""
-        line = ""
-        times = 0
-
-        while times < 2:
-            line = next(self._iters)
-            if line == "":
-                continue
-            elif line.startswith("event:"):
-                if event == "":
-                    event = line[6:]
-                else:
-                    raise CozeEventError("event", line)
-            elif line.startswith("data:"):
-                if data == "":
-                    data = line[5:]
-                else:
-                    raise CozeEventError("data", line)
-            else:
-                raise CozeEventError("", line)
-
-            times += 1
-
-        if event == ChatEventType.DONE:
-            raise StopIteration
-        elif event == ChatEventType.ERROR:
-            raise Exception(f"error event: {line}")  # TODO: error struct format
-        elif event in [
-            ChatEventType.CONVERSATION_MESSAGE_DELTA,
-            ChatEventType.CONVERSATION_MESSAGE_COMPLETED,
-        ]:
-            return ChatEvent(event=event, message=Message.model_validate_json(data))
-        elif event in [
-            ChatEventType.CONVERSATION_CHAT_CREATED,
-            ChatEventType.CONVERSATION_CHAT_IN_PROGRESS,
-            ChatEventType.CONVERSATION_CHAT_COMPLETED,
-            ChatEventType.CONVERSATION_CHAT_FAILED,
-            ChatEventType.CONVERSATION_CHAT_REQUIRES_ACTION,
-        ]:
-            return ChatEvent(event=event, chat=Chat.model_validate_json(data))
-        else:
-            raise ValueError(f"invalid chat.event: {event}, {data}")
+def _chat_stream_handler(data: Dict) -> ChatEvent:
+    event = data["event"]
+    data = data["data"]
+    if event == ChatEventType.DONE:
+        raise StopIteration
+    elif event == ChatEventType.ERROR:
+        raise Exception(f"error event: {data}")  # TODO: error struct format
+    elif event in [
+        ChatEventType.CONVERSATION_MESSAGE_DELTA,
+        ChatEventType.CONVERSATION_MESSAGE_COMPLETED,
+    ]:
+        return ChatEvent(event=event, message=Message.model_validate_json(data))
+    elif event in [
+        ChatEventType.CONVERSATION_CHAT_CREATED,
+        ChatEventType.CONVERSATION_CHAT_IN_PROGRESS,
+        ChatEventType.CONVERSATION_CHAT_COMPLETED,
+        ChatEventType.CONVERSATION_CHAT_FAILED,
+        ChatEventType.CONVERSATION_CHAT_REQUIRES_ACTION,
+    ]:
+        return ChatEvent(event=event, chat=Chat.model_validate_json(data))
+    else:
+        raise ValueError(f"invalid chat.event: {event}, {data}")
 
 
 class ToolOutput(CozeModel):
@@ -350,7 +320,7 @@ class ChatClient(object):
         auto_save_history: bool = True,
         meta_data: Dict[str, str] = None,
         conversation_id: str = None,
-    ) -> ChatChatIterator:
+    ) -> Stream[ChatEvent]:
         """
         Call the Chat API with streaming to send messages to a published Coze bot.
 
@@ -390,7 +360,7 @@ class ChatClient(object):
         auto_save_history: bool = True,
         meta_data: Dict[str, str] = None,
         conversation_id: str = None,
-    ) -> Union[Chat, ChatChatIterator]:
+    ) -> Union[Chat, Stream[ChatEvent]]:
         """
         Create a conversation.
         Conversation is an interaction between a bot and a user, including one or more messages.
@@ -409,7 +379,11 @@ class ChatClient(object):
         if not stream:
             return self._requester.request("post", url, Chat, body=body, stream=stream)
 
-        return ChatChatIterator(self._requester.request("post", url, Chat, body=body, stream=stream))
+        return Stream(
+            self._requester.request("post", url, Chat, body=body, stream=stream),
+            fields=["event", "data"],
+            handler=_chat_stream_handler,
+        )
 
     def retrieve(
         self,
@@ -436,7 +410,7 @@ class ChatClient(object):
 
     def submit_tool_outputs(
         self, *, conversation_id: str, chat_id: str, tool_outputs: List[ToolOutput], stream: bool
-    ) -> Union[Chat, ChatChatIterator]:
+    ) -> Union[Chat, Stream[ChatEvent]]:
         """
         Call this API to submit the results of tool execution.
 
@@ -466,7 +440,11 @@ class ChatClient(object):
         if not stream:
             return self._requester.request("post", url, Chat, params=params, body=body, stream=stream)
 
-        return ChatChatIterator(self._requester.request("post", url, Chat, params=params, body=body, stream=stream))
+        return Stream(
+            self._requester.request("post", url, Chat, params=params, body=body, stream=stream),
+            fields=["event", "data"],
+            handler=_chat_stream_handler,
+        )
 
     def cancel(
         self,

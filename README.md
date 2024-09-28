@@ -183,7 +183,7 @@ coze.files.retrieve(file_id=file.id)
 ### Workflows
 
 ```python
-from cozepy import Coze, TokenAuth, WorkflowEventType, WorkflowEventIterator
+from cozepy import Coze, TokenAuth, Stream, WorkflowEvent, WorkflowEventType
 
 coze = Coze(auth=TokenAuth("your_token"))
 
@@ -197,7 +197,7 @@ result = coze.workflows.runs.create(
 
 
 # stream workflow run
-def handle_workflow_iterator(iterator: WorkflowEventIterator):
+def handle_workflow_iterator(iterator: Stream[WorkflowEvent]):
     for event in iterator:
         if event.event == WorkflowEventType.MESSAGE:
             print('got message', event.message)

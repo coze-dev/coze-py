@@ -1,6 +1,6 @@
 import os
 
-from cozepy import COZE_CN_BASE_URL, ChatChatIterator, ChatEventType, Coze, Message
+from cozepy import COZE_CN_BASE_URL, ChatEventType, Coze, Message
 from cozepy.auth import _random_hex
 from tests.config import fixed_token_auth
 
@@ -32,7 +32,7 @@ def test_chat_stream():
 
     cli = Coze(auth=fixed_token_auth, base_url=COZE_CN_BASE_URL)
 
-    chat_iter: ChatChatIterator = cli.chat.stream(
+    chat_iter = cli.chat.stream(
         bot_id=bot_id,
         user_id=_random_hex(10),
         additional_messages=[Message.user_text_message("Hi, how are you?")],
