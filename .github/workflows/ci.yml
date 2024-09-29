@@ -3,7 +3,8 @@ on:
   push:
     branches:
       - main
-  pull_request:
+  pull_request_target:
+    types: [ opened, synchronize, reopened ]
   merge_group:
 
 permissions: write-all
