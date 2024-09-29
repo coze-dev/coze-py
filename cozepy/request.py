@@ -14,6 +14,7 @@ from typing import (
 import httpx
 from httpx import Response
 from pydantic import BaseModel
+from typing_extensions import get_args
 
 from cozepy.config import DEFAULT_CONNECTION_LIMITS, DEFAULT_TIMEOUT
 from cozepy.exception import CozeAPIError
@@ -87,11 +88,12 @@ class Requester(object):
             log_debug("request %s#%s responding, logid=%s, data=%s", method, url, logid, data)
 
         if isinstance(model, Iterable):
-            return [T.model_validate(item) for item in data]
+            item_model = get_args(model)[0]
+            return [item_model.model_validate(item) for item in data]
         else:
             if model is None:
                 return None
-            return T.model_validate(data)
+            return model.model_validate(data)
 
     async def arequest(self, method: str, path: str, **kwargs) -> dict:
         """
