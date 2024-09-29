@@ -1,9 +1,9 @@
 import time
 
 from tests.config import (
-    app_oauth,
     COZE_JWT_AUTH_KEY_ID,
     COZE_JWT_AUTH_PRIVATE_KEY,
+    app_oauth,
     jwt_auth,
 )
 

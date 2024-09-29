@@ -1,13 +1,14 @@
 from typing import (
     TYPE_CHECKING,
     Any,
+    Iterable,
     Iterator,
     List,
     Optional,
     Tuple,
     Type,
     TypeVar,
-    Union, Iterable,
+    Union,
 )
 
 import httpx
