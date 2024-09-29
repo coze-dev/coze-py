@@ -125,7 +125,7 @@ class Requester(object):
 
     def _parse_requests_code_msg(self, response: Response, data_field: str = "data") -> Tuple[Optional[int], str, Any]:
         try:
-            json = response.json()
+            body = response.json()
         except Exception as e:  # noqa: E722
             raise CozeAPIError(
                 response.status_code,
@@ -133,30 +133,30 @@ class Requester(object):
                 response.headers.get("x-tt-logid"),
             ) from e
 
-        if "code" in json and "msg" in json and int(json["code"]) > 0:
-            return int(json["code"]), json["msg"], json.get(data_field) or None
-        if "error_message" in json and json["error_message"] != "":
-            return None, json["error_message"], None
-        if data_field in json:
-            if "first_id" in json:
+        if "code" in body and "msg" in body and int(body["code"]) > 0:
+            return int(body["code"]), body["msg"], body.get(data_field)
+        if "error_message" in body and body["error_message"] != "":
+            return None, body["error_message"], None
+        if data_field in body:
+            if "first_id" in body:
                 return (
                     0,
                     "",
                     {
-                        "first_id": json["first_id"],
-                        "has_more": json["has_more"],
-                        "last_id": json["last_id"],
-                        "items": json["data"],
+                        "first_id": body["first_id"],
+                        "has_more": body["has_more"],
+                        "last_id": body["last_id"],
+                        "items": body["data"],
                     },
                 )
-            if "debug_url" in json:
+            if "debug_url" in body:
                 return (
                     0,
                     "",
                     {
-                        "data": json[data_field],
-                        "debug_url": json["debug_url"],
+                        "data": body[data_field],
+                        "debug_url": body["debug_url"],
                     },
                 )
-            return 0, "", json[data_field]
-        return 0, "", json
+            return 0, "", body[data_field]
+        return 0, "", body
