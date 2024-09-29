@@ -375,13 +375,13 @@ class DocumentsClient(object):
         :return: list of Document
         """
         url = f"{self._base_url}/open_api/knowledge/document/list"
-        params = {
+        body = {
             "dataset_id": dataset_id,
             "page": page_num,
             "size": page_size,
         }
         headers = {"Agw-Js-Conv": "str"}
-        res = self._requester.request("get", url, self._PrivateListDocumentsV1Data, params=params, headers=headers)
+        res = self._requester.request("post", url, self._PrivateListDocumentsV1Data, body=body, headers=headers)
         return NumberPaged(
             items=res.document_infos,
             page_num=page_num,
