@@ -46,16 +46,16 @@ class Requester(object):
         self._client = client
 
     def request(
-            self,
-            method: str,
-            url: str,
-            model: Union[Type[T], Iterable[Type[T]], None],
-            params: dict = None,
-            headers: dict = None,
-            body: dict = None,
-            files: dict = None,
-            stream: bool = False,
-            data_field: str = "data",
+        self,
+        method: str,
+        url: str,
+        model: Union[Type[T], Iterable[Type[T]], None],
+        params: dict = None,
+        headers: dict = None,
+        body: dict = None,
+        files: dict = None,
+        stream: bool = False,
+        data_field: str = "data",
     ) -> Union[T, List[T], Iterator[str], None]:
         """
         Send a request to the server.
@@ -100,13 +100,13 @@ class Requester(object):
         pass
 
     def _make_request(
-            self,
-            method: str,
-            url: str,
-            params: dict = None,
-            headers: dict = None,
-            json: dict = None,
-            files: dict = None,
+        self,
+        method: str,
+        url: str,
+        params: dict = None,
+        headers: dict = None,
+        json: dict = None,
+        files: dict = None,
     ) -> httpx.Request:
         if headers is None:
             headers = {}
