@@ -1,5 +1,4 @@
 import abc
-import random
 import time
 from urllib.parse import urlparse
 
@@ -8,11 +7,7 @@ from authlib.jose import jwt
 from cozepy.config import COZE_COM_BASE_URL
 from cozepy.model import CozeModel
 from cozepy.request import Requester
-
-
-def _random_hex(length):
-    hex_characters = "0123456789abcdef"
-    return "".join(random.choice(hex_characters) for _ in range(length))
+from cozepy.util import random_hex
 
 
 class OAuthToken(CozeModel):
@@ -77,7 +72,7 @@ class ApplicationOAuth(object):
             "aud": api_endpoint,
             "iat": now,
             "exp": now + ttl,
-            "jti": _random_hex(16),
+            "jti": random_hex(16),
         }
         s = jwt.encode(header, payload, private_key)
         return s.decode("utf-8")

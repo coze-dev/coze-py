@@ -1,7 +1,7 @@
 import os
 
 from cozepy import COZE_CN_BASE_URL, ChatEventType, Coze, Message
-from cozepy.auth import _random_hex
+from cozepy.util import random_hex
 from tests.config import fixed_token_auth
 
 
@@ -12,7 +12,7 @@ def test_chat_v3_not_stream():
 
     chat = cli.chat.create(
         bot_id=bot_id,
-        user_id=_random_hex(10),
+        user_id=random_hex(10),
         additional_messages=[Message.user_text_message("Hi, how are you?")],
     )
     assert chat is not None
@@ -34,7 +34,7 @@ def test_chat_stream():
 
     chat_iter = cli.chat.stream(
         bot_id=bot_id,
-        user_id=_random_hex(10),
+        user_id=random_hex(10),
         additional_messages=[Message.user_text_message("Hi, how are you?")],
     )
     for item in chat_iter:
