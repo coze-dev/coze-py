@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase
 
-from cozepy import Coze, COZE_CN_BASE_URL
+from cozepy import COZE_CN_BASE_URL, Coze
 from tests.config import fixed_token_auth, jwt_auth
 
 

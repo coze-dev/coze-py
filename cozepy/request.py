@@ -1,6 +1,7 @@
 from typing import (
     TYPE_CHECKING,
     Any,
+    Iterable,
     Iterator,
     List,
     Optional,
@@ -13,7 +14,6 @@ from typing import (
 import httpx
 from httpx import Response
 from pydantic import BaseModel
-from typing_extensions import get_args, get_origin  # compatibility with python 3.7
 
 from cozepy.config import DEFAULT_CONNECTION_LIMITS, DEFAULT_TIMEOUT
 from cozepy.exception import CozeAPIError
@@ -49,7 +49,7 @@ class Requester(object):
         self,
         method: str,
         url: str,
-        model: Union[Type[T], List[Type[T]], None],
+        model: Union[Type[T], Iterable[Type[T]], None],
         params: dict = None,
         headers: dict = None,
         body: dict = None,
@@ -86,13 +86,12 @@ class Requester(object):
         else:
             log_debug("request %s#%s responding, logid=%s, data=%s", method, url, logid, data)
 
-        if get_origin(model) is list:
-            item_model = get_args(model)[0]
-            return [item_model.model_validate(item) for item in data]
+        if isinstance(model, Iterable):
+            return [T.model_validate(item) for item in data]
         else:
             if model is None:
                 return None
-            return model.model_validate(data)
+            return T.model_validate(data)
 
     async def arequest(self, method: str, path: str, **kwargs) -> dict:
         """
