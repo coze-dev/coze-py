@@ -6,6 +6,7 @@ from authlib.jose import jwt
 from typing_extensions import Literal
 
 from cozepy.config import COZE_CN_BASE_URL, COZE_COM_BASE_URL
+from cozepy.exception import CozePKCEAuthError
 from cozepy.model import CozeModel
 from cozepy.request import Requester
 from cozepy.util import gen_s256_code_challenge, random_hex
@@ -33,10 +34,7 @@ class DeviceAuthCode(CozeModel):
     interval: int = 5
     # The expiration time of the device code
     expires_in: int
-
-    @property
-    def verification_url(self):
-        return f"{self.verification_uri}?user_code={self.user_code}"
+    verification_url: str = None
 
 
 class OAuthApp(object):
@@ -194,6 +192,97 @@ class PKCEOAuthApp(OAuthApp):
             "client_id": self._client_id,
             "redirect_uri": redirect_uri,
             "code_verifier": code_verifier,
+        }
+        return self._requester.request("post", url, OAuthToken, body=body)
+
+    def refresh_access_token(self, refresh_token: str) -> OAuthToken:
+        return self._refresh_access_token(refresh_token)
+
+
+class DeviceOAuthApp(OAuthApp):
+    """
+    Device OAuth App.
+    """
+
+    def __init__(self, client_id: str, base_url: str = COZE_COM_BASE_URL, www_base_url: str = ""):
+        self._token = ""
+        self._requester = Requester()
+        super().__init__(
+            client_id,
+            base_url,
+            www_base_url,
+        )
+
+    def get_device_code(
+        self,
+        workspace_id: str = None,
+    ) -> DeviceAuthCode:
+        """
+        Get the pkce flow authorized url.
+
+        :param redirect_uri: The redirect_uri of your app, where authentication responses can be sent and received by
+        your app. It must exactly match one of the redirect URIs you registered in the OAuth Apps.
+        :param state: A value included in the request that is also returned in the token response. It can be a string
+        of any hash value.
+        :param code_verifier:
+        :param code_challenge_method:
+        :param workspace_id:
+        :return:
+        """
+
+        uri = f"{self._base_url}/api/permission/oauth2/device/code"
+        if workspace_id:
+            uri = f"{self._base_url}/api/permission/oauth2/workspace_id/{workspace_id}/device/code"
+        body = {
+            "client_id": self._client_id,
+        }
+        headers = {
+            "Content-Type": "application/json",
+        }
+        res = self._requester.request("post", uri, DeviceAuthCode, headers=headers, body=body)
+        res.verification_url = f"{res.verification_uri}?user_code={res.user_code}"
+        return res
+
+    def get_access_token(self, device_code: str, poll: bool = False) -> OAuthToken:
+        """
+        Get the token with pkce auth flow.
+
+        :param device_code:
+        :param poll: whether to poll for the token
+        :return:
+        """
+        if not poll:
+            return self._get_access_token(device_code)
+
+        interval = 5
+        while True:
+            try:
+                return self._get_access_token(device_code)
+            except CozePKCEAuthError as e:
+                if e.error == "authorization_pending":
+                    time.sleep(interval)
+                    continue
+                elif e.error == "slow_down":
+                    if interval < 30:
+                        interval += 5
+                    time.sleep(interval)
+                    continue
+                else:
+                    raise
+
+    def _get_access_token(self, device_code: str, poll: bool = False) -> OAuthToken:
+        """
+        Get the token with pkce auth flow.
+
+        :param device_code:
+        :param poll: whether to poll for the token
+        :return:
+        """
+        url = f"{self._base_url}/api/permission/oauth2/token"
+        body = {
+            "client_id": self._client_id,
+            "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
+            "device_code": device_code,
         }
         return self._requester.request("post", url, OAuthToken, body=body)
 

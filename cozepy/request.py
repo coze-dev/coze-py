@@ -17,7 +17,7 @@ from pydantic import BaseModel
 from typing_extensions import get_args
 
 from cozepy.config import DEFAULT_CONNECTION_LIMITS, DEFAULT_TIMEOUT
-from cozepy.exception import CozeAPIError
+from cozepy.exception import CozeAPIError, CozePKCEAuthError
 from cozepy.log import log_debug, log_warning
 from cozepy.version import user_agent
 
@@ -76,17 +76,16 @@ class Requester(object):
             return response.iter_lines()
 
         logid = response.headers.get("x-tt-logid")
-        code, msg, data = self._parse_requests_code_msg(response, data_field)
+        code, msg, data = self._parse_requests_code_msg(method, url, response, data_field)
 
         if code is not None and code > 0:
             log_warning("request %s#%s failed, logid=%s, code=%s, msg=%s", method, url, logid, code, msg)
             raise CozeAPIError(code, msg, logid)
         elif code is None and msg != "":
             log_warning("request %s#%s failed, logid=%s, msg=%s", method, url, logid, msg)
+            if msg in ["authorization_pending", "slow_down", "access_denied", "expired_token"]:
+                raise CozePKCEAuthError(msg, logid)
             raise CozeAPIError(code, msg, logid)
-        else:
-            log_debug("request %s#%s responding, logid=%s, data=%s", method, url, logid, data)
-
         if isinstance(model, Iterable):
             item_model = get_args(model)[0]
             return [item_model.model_validate(item) for item in data]
@@ -124,9 +123,13 @@ class Requester(object):
             files=files,
         )
 
-    def _parse_requests_code_msg(self, response: Response, data_field: str = "data") -> Tuple[Optional[int], str, Any]:
+    def _parse_requests_code_msg(
+        self, method: str, url: str, response: Response, data_field: str = "data"
+    ) -> Tuple[Optional[int], str, Any]:
         try:
             body = response.json()
+            logid = response.headers.get("x-tt-logid")
+            log_debug("request %s#%s responding, logid=%s, data=%s", method, url, logid, body)
         except Exception as e:  # noqa: E722
             raise CozeAPIError(
                 response.status_code,
@@ -136,6 +139,13 @@ class Requester(object):
 
         if "code" in body and "msg" in body and int(body["code"]) > 0:
             return int(body["code"]), body["msg"], body.get(data_field)
+        if "error_code" in body and body["error_code"] in [
+            "authorization_pending",
+            "slow_down",
+            "access_denied",
+            "expired_token",
+        ]:
+            return None, body["error_code"], None
         if "error_message" in body and body["error_message"] != "":
             return None, body["error_message"], None
         if data_field in body:

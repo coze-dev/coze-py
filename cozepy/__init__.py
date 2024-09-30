@@ -1,4 +1,14 @@
-from .auth import Auth, DeviceAuthCode, JWTAuth, JWTOAuthApp, OAuthApp, OAuthToken, PKCEOAuthApp, TokenAuth
+from .auth import (
+    Auth,
+    DeviceAuthCode,
+    DeviceOAuthApp,
+    JWTAuth,
+    JWTOAuthApp,
+    OAuthApp,
+    OAuthToken,
+    PKCEOAuthApp,
+    TokenAuth,
+)
 from .bots import (
     Bot,
     BotModelInfo,
@@ -29,7 +39,7 @@ from .config import (
 )
 from .conversations import Conversation
 from .coze import Coze
-from .exception import CozeAPIError, CozeError, CozeEventError
+from .exception import CozeAPIError, CozeError, CozeEventError, CozePKCEAuthError
 from .files import File
 from .knowledge.documents import (
     Document,
@@ -70,6 +80,7 @@ __all__ = [
     "OAuthApp",
     "JWTOAuthApp",
     "PKCEOAuthApp",
+    "DeviceOAuthApp",
     "Auth",
     "TokenAuth",
     "JWTAuth",
@@ -132,6 +143,7 @@ __all__ = [
     "CozeError",
     "CozeAPIError",
     "CozeEventError",
+    "CozePKCEAuthError",
     # model
     "TokenPaged",
     "NumberPaged",
