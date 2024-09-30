@@ -1,4 +1,4 @@
-from .auth import ApplicationOAuth, Auth, DeviceAuthCode, JWTAuth, OAuthToken, TokenAuth
+from .auth import Auth, DeviceAuthCode, JWTAuth, JWTOAuthApp, OAuthApp, OAuthToken, PKCEOAuthApp, TokenAuth
 from .bots import (
     Bot,
     BotModelInfo,
@@ -67,7 +67,9 @@ __all__ = [
     # auth
     "OAuthToken",
     "DeviceAuthCode",
-    "ApplicationOAuth",
+    "OAuthApp",
+    "JWTOAuthApp",
+    "PKCEOAuthApp",
     "Auth",
     "TokenAuth",
     "JWTAuth",

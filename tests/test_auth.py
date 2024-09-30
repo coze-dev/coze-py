@@ -1,15 +1,13 @@
 import time
 
 from tests.config import (
-    COZE_JWT_AUTH_KEY_ID,
-    COZE_JWT_AUTH_PRIVATE_KEY,
-    app_oauth,
     jwt_auth,
+    jwt_oauth_app,
 )
 
 
-def test_jwt_app_oauth():
-    token = app_oauth.jwt_auth(COZE_JWT_AUTH_PRIVATE_KEY, COZE_JWT_AUTH_KEY_ID, 30)
+def test_jwt_oauth_app():
+    token = jwt_oauth_app.get_access_token(30)
     assert token.access_token != ""
     assert token.token_type == "Bearer"
     assert token.expires_in - int(time.time()) <= 31
