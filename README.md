@@ -15,13 +15,9 @@ pip install cozepy
 
 ## Usage
 
-### Examples
+### Initialize the coze client
 
-TODO
-
-### Auth
-
-#### Personal Auth Token
+#### Fixed Auth Token
 
 create Personal Auth Token at [扣子](https://www.coze.cn/open/oauth/pats) or [Coze Platform](https://www.coze.com/open/oauth/pats)
 
@@ -267,4 +263,103 @@ paged_documents = coze.knowledge.documents.list(
     page_num=1,
     page_size=10
 )
+```
+
+### OAuth App
+
+#### Web OAuth App
+
+```pycon
+from cozepy import Coze, TokenAuth, WebOAuthApp
+
+web_oauth_app = WebOAuthApp(
+    client_id='client id',
+    client_secret='client secret',
+)
+
+url = web_oauth_app.get_oauth_url(redirect_uri='http://127.0.0.1:8080', state='mock')
+
+# open url
+
+# Open the authorization link in your browser and authorize this OAuth App
+# After authorization, you will be redirected to the redirect_uri with a code and state
+# You can use the code to get the access token
+code = 'mock code'
+
+oauth_token = web_oauth_app.get_access_token(redirect_uri='http://127.0.0.1:8080', code=code)
+
+# use the access token to init Coze client
+coze = Coze(auth=TokenAuth(oauth_token.access_token))
+
+# When the token expires, you can also refresh and re-obtain the token
+oauth_token = web_oauth_app.refresh_access_token(oauth_token.refresh_token)
+```
+
+#### JWT OAuth App
+
+```pycon
+from cozepy import Coze, TokenAuth, JWTOAuthApp
+
+jwt_oauth_app = JWTOAuthApp(
+    client_id='client id',
+    private_key='private key',
+    public_key_id='public key id'
+)
+
+# The jwt process does not require any other operations, you can directly apply for a token
+oauth_token = jwt_oauth_app.get_access_token(ttl=3600)
+
+# And it does not support refresh. If you want to get a new token, you can call the get_access_token interface again.
+```
+
+#### PKCE OAuth App
+
+```pycon
+from cozepy import Coze, TokenAuth, PKCEOAuthApp
+
+pkce_oauth_app = PKCEOAuthApp(
+    client_id='client id',
+)
+code_verifier = 'mock code_verifier'
+url = pkce_oauth_app.get_oauth_url(redirect_uri='http://127.0.0.1:8080', state='mock', code_verifier=code_verifier)
+
+# open url
+
+# Open the authorization link in your browser and authorize this OAuth App
+# After authorization, you can exchange code_verifier for access token
+code = 'mock code'
+
+oauth_token = pkce_oauth_app.get_access_token(redirect_uri='http://127.0.0.1:8080', code=code, code_verifier=code_verifier)
+
+# use the access token to init Coze client
+coze = Coze(auth=TokenAuth(oauth_token.access_token))
+
+# When the token expires, you can also refresh and re-obtain the token
+oauth_token = pkce_oauth_app.refresh_access_token(oauth_token.refresh_token)
+```
+
+#### Device OAuth App
+
+```pycon
+from cozepy import Coze, TokenAuth, DeviceOAuthApp
+
+device_oauth_app = DeviceOAuthApp(
+    client_id='client id',
+)
+
+# First, you need to request the server to obtain the device code required in the device auth flow
+device_code = device_oauth_app.get_device_code()
+
+# open device_code.verification_url
+
+# Open the authorization link in your browser and authorize this OAuth App
+# After authorization, you can exchange the device code for an access token
+
+oauth_token = device_oauth_app.get_access_token(device_code.device_code, poll=True)
+
+# use the access token to init Coze client
+coze = Coze(auth=TokenAuth(oauth_token.access_token))
+
+# When the token expires, you can also refresh and re-obtain the token
+oauth_token = device_oauth_app.refresh_access_token(oauth_token.refresh_token)
 ```
