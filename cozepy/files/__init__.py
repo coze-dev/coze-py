@@ -46,7 +46,7 @@ class FilesClient(object):
         """
         url = f"{self._base_url}/v1/files/upload"
         files = {"file": open(file, "rb")}
-        return self._requester.request("get", url, File, files=files)
+        return self._requester.request("post", url, File, files=files)
 
     def retrieve(self, *, file_id: str):
         """

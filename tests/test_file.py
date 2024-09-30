@@ -1,17 +1,32 @@
-import unittest
+from unittest.mock import mock_open, patch
 
-from cozepy import COZE_CN_BASE_URL, Coze
-from tests.config import fixed_token_auth
+import httpx
+import pytest
+
+from cozepy import Coze, File, TokenAuth
 
 
-@unittest.skip("not available in not cn")
-def test_files():
-    cli = Coze(auth=fixed_token_auth, base_url=COZE_CN_BASE_URL)
+@pytest.mark.respx(base_url="https://api.coze.com")
+class TestFile:
+    def test_create(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
 
-    file = cli.files.upload(file="./tests/test_file.py")
-    assert file is not None
-    assert file.id != ""
+        with patch("builtins.open", mock_open(read_data="data")):
+            respx_mock.post("/v1/files/upload").mock(
+                httpx.Response(200, json={"data": File(id="1", bytes=2, created_at=3, file_name="name").model_dump()})
+            )
 
-    file_retrieve = cli.files.retrieve(file_id=file.id)
-    assert file_retrieve is not None
-    assert file_retrieve.id == file.id
+            file = coze.files.upload(file="/path")
+            assert file
+            assert "name" == file.file_name
+
+    def test_retrieve(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        respx_mock.get("/v1/files/retrieve").mock(
+            httpx.Response(200, json={"data": File(id="1", bytes=2, created_at=3, file_name="name").model_dump()})
+        )
+
+        file = coze.files.retrieve(file_id="id")
+        assert file
+        assert "name" == file.file_name

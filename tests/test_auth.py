@@ -1,18 +1,200 @@
 import time
 
-from tests.config import (
-    jwt_auth,
-    jwt_oauth_app,
+import httpx
+import pytest
+
+from cozepy import (
+    COZE_COM_BASE_URL,
+    DeviceAuthCode,
+    DeviceOAuthApp,
+    JWTOAuthApp,
+    OAuthToken,
+    PKCEOAuthApp,
+    Scope,
+    WebOAuthApp,
 )
+from cozepy.util import random_hex
+from tests.config import read_file
 
 
-def test_jwt_oauth_app():
-    token = jwt_oauth_app.get_access_token(30)
-    assert token.access_token != ""
-    assert token.token_type == "Bearer"
-    assert token.expires_in - int(time.time()) <= 31
-    assert token.refresh_token == ""
+@pytest.mark.respx(base_url="https://api.coze.com")
+class TestWebOAuthApp:
+    def test_get_oauth_url(self, respx_mock):
+        app = WebOAuthApp("client id", "client secret")
+
+        url = app.get_oauth_url("https://example.com", "state")
+        assert (
+            "https://www.coze.com/api/permission/oauth2/authorize"
+            "?response_type=code&"
+            "client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&"
+            "state=state"
+        ) == url
+
+        url = app.get_oauth_url("https://example.com", "state", workspace_id="this_is_id")
+        assert (
+            "https://www.coze.com/api/permission/oauth2/workspace_id/this_is_id/authorize"
+            "?response_type=code&"
+            "client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&"
+            "state=state"
+        ) == url
+
+    def test_get_access_token(self, respx_mock):
+        app = WebOAuthApp("client id", "client secret")
+        mock_token = random_hex(20)
+
+        respx_mock.post("/api/permission/oauth2/token").mock(
+            httpx.Response(
+                200, content=OAuthToken(access_token=mock_token, expires_in=int(time.time())).model_dump_json()
+            )
+        )
+
+        token = app.get_access_token("https://example.com", "code")
+
+        assert token.access_token == mock_token
+
+    def test_refresh_token(self, respx_mock):
+        app = WebOAuthApp("client id", "client secret")
+        mock_token = random_hex(20)
+        respx_mock.post("/api/permission/oauth2/token").mock(
+            httpx.Response(
+                200, content=OAuthToken(access_token=mock_token, expires_in=int(time.time())).model_dump_json()
+            )
+        )
+
+        token = app.refresh_access_token("refresh token")
+        assert token.access_token == mock_token
 
 
-def test_jwt_auth():
-    assert jwt_auth.token != ""
+@pytest.mark.respx(base_url="https://api.coze.com")
+class TestJWTOAuthApp:
+    def test_get_access_token(self, respx_mock):
+        private_key = read_file("testdata/private_key.pem")
+        app = JWTOAuthApp("client id", private_key, "public key id")
+        mock_token = random_hex(20)
+        respx_mock.post("/api/permission/oauth2/token").mock(
+            httpx.Response(
+                200, content=OAuthToken(access_token=mock_token, expires_in=int(time.time())).model_dump_json()
+            )
+        )
+
+        token = app.get_access_token(100, scope=Scope.from_bot_chat(["bot id"]))
+        assert token.access_token == mock_token
+
+
+@pytest.mark.respx(base_url="https://api.coze.com")
+class TestPKCEOAuthApp:
+    def test_get_oauth_url(self, respx_mock):
+        app = PKCEOAuthApp("client id")
+
+        url = app.get_oauth_url("https://example.com", "state", "code_verifier", "S256")
+        assert (
+            "https://www.coze.com/api/permission/oauth2/authorize?"
+            "response_type=code&client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&state=state&"
+            "code_challenge=73oehA2tBul5grZPhXUGQwNAjxh69zNES8bu2bVD0EM&code_challenge_method=S256"
+        ) == url
+
+        url = app.get_oauth_url("https://example.com", "state", "code_verifier", "S256", workspace_id="this_is_id")
+        assert (
+            "https://www.coze.com/api/permission/oauth2/workspace_id/this_is_id/authorize?"
+            "response_type=code&client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&state=state&"
+            "code_challenge=73oehA2tBul5grZPhXUGQwNAjxh69zNES8bu2bVD0EM&code_challenge_method=S256"
+        ) == url
+
+    def test_get_access_token(self, respx_mock):
+        app = PKCEOAuthApp("client id")
+        mock_token = random_hex(20)
+
+        respx_mock.post("/api/permission/oauth2/token").mock(
+            httpx.Response(
+                200, content=OAuthToken(access_token=mock_token, expires_in=int(time.time())).model_dump_json()
+            )
+        )
+
+        token = app.get_access_token("https://example.com", "code", "code_verifier")
+
+        assert token.access_token == mock_token
+
+    def test_refresh_token(self, respx_mock):
+        app = PKCEOAuthApp("client id")
+        mock_token = random_hex(20)
+        respx_mock.post("/api/permission/oauth2/token").mock(
+            httpx.Response(
+                200, content=OAuthToken(access_token=mock_token, expires_in=int(time.time())).model_dump_json()
+            )
+        )
+
+        token = app.refresh_access_token("refresh token")
+        assert token.access_token == mock_token
+
+
+@pytest.mark.respx(base_url="https://api.coze.com")
+class TestDeviceOAuthApp:
+    def test_get_device_code(self, respx_mock):
+        app = DeviceOAuthApp("client id")
+        mock_code = random_hex(20)
+
+        respx_mock.post("/api/permission/oauth2/device/code").mock(
+            httpx.Response(
+                200,
+                content=DeviceAuthCode(
+                    device_code=mock_code,
+                    user_code="user_code",
+                    verification_uri=COZE_COM_BASE_URL,
+                    interval=5,
+                    expires_in=int(time.time()),
+                ).model_dump_json(),
+            )
+        )
+
+        device_code = app.get_device_code()
+        assert device_code.device_code == mock_code
+
+    def test_workspace_get_device_code(self, respx_mock):
+        app = DeviceOAuthApp("client id")
+        mock_code = random_hex(20)
+
+        respx_mock.post("/api/permission/oauth2/workspace_id/this_is_id/device/code").mock(
+            httpx.Response(
+                200,
+                content=DeviceAuthCode(
+                    device_code=mock_code,
+                    user_code="user_code",
+                    verification_uri=COZE_COM_BASE_URL,
+                    interval=5,
+                    expires_in=int(time.time()),
+                ).model_dump_json(),
+            )
+        )
+
+        device_code = app.get_device_code(workspace_id="this_is_id")
+        assert device_code.device_code == mock_code
+
+    def test_get_access_token(self, respx_mock):
+        app = DeviceOAuthApp("client id")
+        mock_token = random_hex(20)
+
+        respx_mock.post("/api/permission/oauth2/token").mock(
+            httpx.Response(
+                200, content=OAuthToken(access_token=mock_token, expires_in=int(time.time())).model_dump_json()
+            )
+        )
+
+        token = app.get_access_token("https://example.com", False)
+
+        assert token.access_token == mock_token
+
+    def test_refresh_token(self, respx_mock):
+        app = DeviceOAuthApp("client id")
+        mock_token = random_hex(20)
+        respx_mock.post("/api/permission/oauth2/token").mock(
+            httpx.Response(
+                200, content=OAuthToken(access_token=mock_token, expires_in=int(time.time())).model_dump_json()
+            )
+        )
+
+        token = app.refresh_access_token("refresh token")
+        assert token.access_token == mock_token

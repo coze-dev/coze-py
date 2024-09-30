@@ -35,7 +35,7 @@ class DeviceAuthCode(CozeModel):
     interval: int = 5
     # The expiration time of the device code
     expires_in: int
-    verification_url: str = None
+    verification_url: Optional[str] = None
 
 
 class ScopeAccountPermission(CozeModel):
@@ -315,12 +315,6 @@ class DeviceOAuthApp(OAuthApp):
         """
         Get the pkce flow authorized url.
 
-        :param redirect_uri: The redirect_uri of your app, where authentication responses can be sent and received by
-        your app. It must exactly match one of the redirect URIs you registered in the OAuth Apps.
-        :param state: A value included in the request that is also returned in the token response. It can be a string
-        of any hash value.
-        :param code_verifier:
-        :param code_challenge_method:
         :param workspace_id:
         :return:
         """

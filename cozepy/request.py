@@ -14,7 +14,7 @@ from typing import (
 import httpx
 from httpx import Response
 from pydantic import BaseModel
-from typing_extensions import get_args
+from typing_extensions import get_args, get_origin
 
 from cozepy.config import DEFAULT_CONNECTION_LIMITS, DEFAULT_TIMEOUT
 from cozepy.exception import CozeAPIError, CozePKCEAuthError
@@ -86,7 +86,7 @@ class Requester(object):
             if msg in ["authorization_pending", "slow_down", "access_denied", "expired_token"]:
                 raise CozePKCEAuthError(msg, logid)
             raise CozeAPIError(code, msg, logid)
-        if isinstance(model, Iterable):
+        if get_origin(model) is list:
             item_model = get_args(model)[0]
             return [item_model.model_validate(item) for item in data]
         else:

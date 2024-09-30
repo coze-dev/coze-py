@@ -1,59 +1,63 @@
-import time
-import unittest
+import httpx
+import pytest
 
-from cozepy import COZE_CN_BASE_URL, Coze, Message
-from tests.config import fixed_token_auth
+from cozepy import Coze, Message, TokenAuth
 
 
-@unittest.skip("not available in not cn")
-def test_conversation_message():
-    cli = Coze(auth=fixed_token_auth, base_url=COZE_CN_BASE_URL)
+@pytest.mark.respx(base_url="https://api.coze.com")
+class TestConversationMessage:
+    def test_create(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
 
-    # create conversation
-    conversation = cli.conversations.create(
-        messages=[
-            Message.user_text_message("who are you?"),
-            Message.assistant_text_message("i am your friend bob."),
-        ]
-    )
-    assert conversation is not None
+        msg = Message.user_text_message("hi")
+        respx_mock.post("/v1/conversation/message/create").mock(httpx.Response(200, json={"data": msg.model_dump()}))
 
-    # retrieve conversation
-    conversation_retrieve = cli.conversations.retrieve(conversation_id=conversation.id)
-    assert conversation.id == conversation_retrieve.id
+        message = coze.conversations.messages.create(
+            conversation_id="conversation id", role=msg.role, content=msg.content, content_type=msg.content_type
+        )
+        assert message
+        assert message.content == msg.content
 
-    # create message
-    user_input = Message.user_text_message("nice to meet you.")
-    message = cli.conversations.messages.create(
-        conversation_id=conversation.id,
-        role=user_input.role,
-        content=user_input.content,
-        content_type=user_input.content_type,
-    )
-    assert message is not None
-    assert message.id != ""
+    def test_list(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
 
-    time.sleep(1)
+        msg = Message.user_text_message("hi")
+        respx_mock.post("/v1/conversation/message/list").mock(
+            httpx.Response(
+                200, json={"first_id": "first_id", "has_more": False, "last_id": "last_id", "data": [msg.model_dump()]}
+            )
+        )
 
-    # retrieve message
-    message_retrieve = cli.conversations.messages.retrieve(conversation_id=conversation.id, message_id=message.id)
-    assert message_retrieve is not None
-    assert message.id == message_retrieve.id
+        message_list = coze.conversations.messages.list(conversation_id="conversation id")
+        assert message_list
+        assert len(message_list.items) == 1
 
-    # list message
-    message_list = cli.conversations.messages.list(conversation_id=conversation.id, message_id=message.id)
-    assert len(message_list) > 2
+    def test_retrieve(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
 
-    # update message
-    cli.conversations.messages.update(
-        conversation_id=conversation.id,
-        message_id=message.id,
-        content="wow, nice to meet you",
-        content_type=message.content_type,
-    )
+        msg = Message.user_text_message("hi")
+        respx_mock.get("/v1/conversation/message/retrieve").mock(httpx.Response(200, json=msg.model_dump()))
 
-    # delete message
-    cli.conversations.messages.delete(
-        conversation_id=conversation.id,
-        message_id=message.id,
-    )
+        message = coze.conversations.messages.retrieve(conversation_id="conversation id", message_id="message id")
+        assert message
+        assert message.content == msg.content
+
+    def test_update(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        msg = Message.user_text_message("hi")
+        respx_mock.post("/v1/conversation/message/modify").mock(httpx.Response(200, json=msg.model_dump()))
+
+        message = coze.conversations.messages.update(conversation_id="conversation id", message_id="message id")
+        assert message
+        assert message.content == msg.content
+
+    def test_delete(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        msg = Message.user_text_message("hi")
+        respx_mock.post("/v1/conversation/message/delete").mock(httpx.Response(200, json=msg.model_dump()))
+
+        message = coze.conversations.messages.delete(conversation_id="conversation id", message_id="message id")
+        assert message
+        assert message.content == msg.content
