@@ -269,7 +269,7 @@ paged_documents = coze.knowledge.documents.list(
 
 #### Web OAuth App
 
-```pycon
+```python
 from cozepy import Coze, TokenAuth, WebOAuthApp
 
 web_oauth_app = WebOAuthApp(
@@ -297,7 +297,7 @@ oauth_token = web_oauth_app.refresh_access_token(oauth_token.refresh_token)
 
 #### JWT OAuth App
 
-```pycon
+```python
 from cozepy import Coze, TokenAuth, JWTOAuthApp
 
 jwt_oauth_app = JWTOAuthApp(
@@ -314,7 +314,7 @@ oauth_token = jwt_oauth_app.get_access_token(ttl=3600)
 
 #### PKCE OAuth App
 
-```pycon
+```python
 from cozepy import Coze, TokenAuth, PKCEOAuthApp
 
 pkce_oauth_app = PKCEOAuthApp(
@@ -340,7 +340,7 @@ oauth_token = pkce_oauth_app.refresh_access_token(oauth_token.refresh_token)
 
 #### Device OAuth App
 
-```pycon
+```python
 from cozepy import Coze, TokenAuth, DeviceOAuthApp
 
 device_oauth_app = DeviceOAuthApp(
