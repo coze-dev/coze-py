@@ -136,7 +136,7 @@ class JWTOAuthApp(OAuthApp):
         self._public_key_id = public_key_id
         super().__init__(client_id, base_url, www_base_url="")
 
-    def get_access_token(self, ttl: int, scope: List[Scope] = None) -> OAuthToken:
+    def get_access_token(self, ttl: int, scope: Scope = None) -> OAuthToken:
         """
         Get the token by jwt with jwt auth flow.
         """
@@ -146,7 +146,7 @@ class JWTOAuthApp(OAuthApp):
         body = {
             "duration_seconds": ttl,
             "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
-            "scope": [i.model_dump() for i in scope] if scope else None,
+            "scope": scope.model_dump() if scope else None,
         }
         return self._requester.request("post", url, OAuthToken, headers=headers, body=body)
 
