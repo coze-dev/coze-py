@@ -1,3 +1,6 @@
+from typing_extensions import Literal
+
+
 class CozeError(Exception):
     """
     base class for all coze errors
@@ -19,6 +22,18 @@ class CozeAPIError(CozeError):
             super().__init__(f"code: {code}, msg: {msg}, logid: {logid}")
         else:
             super().__init__(f"msg: {msg}, logid: {logid}")
+
+
+class CozePKCEAuthError(CozeAPIError):
+    """
+    base class for all pkce auth errors
+    """
+
+    def __init__(
+        self, error: Literal["authorization_pending", "slow_down", "access_denied", "expired_token"], logid: str = None
+    ):
+        super().__init__(code=None, msg=error, logid=logid)
+        self.error = error
 
 
 class CozeEventError(CozeError):
