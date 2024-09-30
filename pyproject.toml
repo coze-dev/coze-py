@@ -18,6 +18,7 @@ pytest = "^7.0.0"
 pytest-cov = "^4.0.0"
 ruff = "^0.6.0"
 pre-commit = "^2.9.0"
+respx = "^0.21.1"
 
 [tool.ruff]
 line-length = 120

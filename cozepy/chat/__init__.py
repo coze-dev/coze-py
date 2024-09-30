@@ -107,12 +107,12 @@ class Message(CozeModel):
     # 自定义键值对，应指定为 Map 对象格式。长度为 16 对键值对，其中键（key）的长度范围为 1～64 个字符，值（value）的长度范围为 1～512 个字符。
     meta_data: Optional[Dict[str, str]] = None
 
-    id: str = None
-    conversation_id: str = None
-    bot_id: str = None
-    chat_id: str = None
-    created_at: int = None
-    updated_at: int = None
+    id: Optional[str] = None
+    conversation_id: Optional[str] = None
+    bot_id: Optional[str] = None
+    chat_id: Optional[str] = None
+    created_at: Optional[int] = None
+    updated_at: Optional[int] = None
 
     @staticmethod
     def user_text_message(content: str, meta_data: Optional[Dict[str, str]] = None) -> "Message":

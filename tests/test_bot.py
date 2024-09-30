@@ -1,45 +1,114 @@
-import os
-from unittest import TestCase
+import httpx
+import pytest
 
-from cozepy import COZE_CN_BASE_URL, Coze
-from tests.config import fixed_token_auth, jwt_auth
+from cozepy import Bot, Coze, SimpleBot, TokenAuth
 
 
-class TestBotsClient(TestCase):
-    def test_bots_list(self):
-        space_id = os.getenv("SPACE_ID_1").strip()
+@pytest.mark.respx(base_url="https://api.coze.com")
+class TestBot:
+    def test_create(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
 
-        cli_list = [
-            # fixed token
-            Coze(auth=fixed_token_auth, base_url=COZE_CN_BASE_URL),
-            # jwt auth
-            Coze(auth=jwt_auth, base_url=COZE_CN_BASE_URL),
-        ]
-        for cli in cli_list:
-            res = cli.bots.list(space_id=space_id, page_size=2)
-            assert res.total > 1
-            assert res.has_more
-            assert len(res.items) > 1
+        respx_mock.post("/v1/bot/create").mock(
+            httpx.Response(
+                200,
+                json={
+                    "data": Bot(
+                        bot_id="bot_id",
+                        name="name",
+                        description="description",
+                        icon_url="icon_url",
+                        create_time=0,
+                        update_time=0,
+                        version="version",
+                    ).model_dump()
+                },
+            )
+        )
 
-    def test_bots_retrieve(self):
-        bot_id = self.bot_id
+        bot = coze.bots.create(space_id="space id", name="name")
+        assert bot
+        assert bot.bot_id == "bot_id"
 
-        cli_list = [
-            # fixed token
-            Coze(auth=fixed_token_auth, base_url=COZE_CN_BASE_URL),
-            # jwt auth
-            Coze(auth=jwt_auth, base_url=COZE_CN_BASE_URL),
-        ]
-        for cli in cli_list:
-            bot = cli.bots.retrieve(bot_id=bot_id)
-            assert bot is not None
-            assert bot.bot_id == bot_id
+    def test_update(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
 
-    @property
-    def bot_id(self) -> str:
-        space_id = os.getenv("SPACE_ID_1").strip()
+        respx_mock.post("/v1/bot/update").mock(httpx.Response(200, json={"data": None}))
 
-        # fixed token
-        cli = Coze(auth=fixed_token_auth, base_url=COZE_CN_BASE_URL)
-        res = cli.bots.list(space_id=space_id, page_size=2)
-        return res.items[0].bot_id
+        coze.bots.update(bot_id="bot id", name="name")
+
+    def test_publish(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        respx_mock.post("/v1/bot/publish").mock(
+            httpx.Response(
+                200,
+                json={
+                    "data": Bot(
+                        bot_id="bot_id",
+                        name="name",
+                        description="description",
+                        icon_url="icon_url",
+                        create_time=0,
+                        update_time=0,
+                        version="version",
+                    ).model_dump()
+                },
+            )
+        )
+
+        bot = coze.bots.publish(bot_id="bot id")
+        assert bot
+        assert bot.bot_id == "bot_id"
+
+    def test_retrieve(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        respx_mock.get("/v1/bot/get_online_info").mock(
+            httpx.Response(
+                200,
+                json={
+                    "data": Bot(
+                        bot_id="bot_id",
+                        name="name",
+                        description="description",
+                        icon_url="icon_url",
+                        create_time=0,
+                        update_time=0,
+                        version="version",
+                    ).model_dump()
+                },
+            )
+        )
+
+        bot = coze.bots.retrieve(bot_id="bot id")
+        assert bot
+        assert bot.bot_id == "bot_id"
+
+    def test_list(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        respx_mock.get("/v1/space/published_bots_list").mock(
+            httpx.Response(
+                200,
+                json={
+                    "data": {
+                        "space_bots": [
+                            SimpleBot(
+                                bot_id="bot_id",
+                                bot_name="bot_name",
+                                description="description",
+                                icon_url="icon_url",
+                                publish_time="publish_time",
+                            ).model_dump()
+                        ],
+                        "total": 1,
+                    }
+                },
+            )
+        )
+
+        resp = coze.bots.list(space_id="space id")
+        assert resp
+        assert resp.total == 1
+        assert len(resp.items) == 1

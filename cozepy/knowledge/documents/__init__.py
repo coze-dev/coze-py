@@ -1,5 +1,5 @@
 from enum import IntEnum
-from typing import List
+from typing import List, Optional
 
 from cozepy.auth import Auth
 from cozepy.model import CozeModel, NumberPaged
@@ -124,7 +124,7 @@ class Document(CozeModel):
 
     # The chunking rules. For detailed instructions, refer to the ChunkStrategy object.
     # 分段规则。详细说明可参考 chunk_strategy object。
-    chunk_strategy: DocumentChunkStrategy = None
+    chunk_strategy: Optional[DocumentChunkStrategy] = None
 
     # The upload time of the file, in the format of a 10-digit Unix timestamp.
     # 文件的上传时间，格式为 10 位的 Unixtime 时间戳。
@@ -381,7 +381,7 @@ class DocumentsClient(object):
             "size": page_size,
         }
         headers = {"Agw-Js-Conv": "str"}
-        res = self._requester.request("post", url, self._PrivateListDocumentsV1Data, body=body, headers=headers)
+        res = self._requester.request("post", url, self._PrivateListDocumentsData, body=body, headers=headers)
         return NumberPaged(
             items=res.document_infos,
             page_num=page_num,
@@ -389,6 +389,6 @@ class DocumentsClient(object):
             total=res.total,
         )
 
-    class _PrivateListDocumentsV1Data(CozeModel):
+    class _PrivateListDocumentsData(CozeModel):
         document_infos: List[Document]
         total: int

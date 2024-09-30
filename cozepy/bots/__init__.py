@@ -1,5 +1,5 @@
 from enum import IntEnum
-from typing import List
+from typing import List, Optional
 
 from cozepy.auth import Auth
 from cozepy.model import CozeModel, NumberPaged
@@ -70,15 +70,15 @@ class Bot(CozeModel):
     # The latest version of the bot.
     version: str = None
     # The prompt configuration for the bot. For more information, see Prompt object.
-    prompt_info: BotPromptInfo = None
+    prompt_info: Optional[BotPromptInfo] = None
     # The onboarding message configuration for the bot. For more information, see Onboarding object.
-    onboarding_info: BotOnboardingInfo = None
+    onboarding_info: Optional[BotOnboardingInfo] = None
     # The mode of the Bot, values: 0: Single Agent mode, 1: Multi Agent mode, 3: Single Agent Workflow mode.
-    bot_mode: BotMode = None
+    bot_mode: Optional[BotMode] = None
     # The plugins configured for the bot. For more information, see  Plugin object.
-    plugin_info_list: List[BotPluginInfo] = None
+    plugin_info_list: Optional[List[BotPluginInfo]] = None
     # The model configured for the bot. For more information, see Model object.
-    model_info: BotModelInfo = None
+    model_info: Optional[BotModelInfo] = None
 
 
 class SimpleBot(CozeModel):
