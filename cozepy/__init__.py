@@ -7,6 +7,7 @@ from .auth import (
     OAuthApp,
     OAuthToken,
     PKCEOAuthApp,
+    Scope,
     TokenAuth,
 )
 from .bots import (
@@ -84,6 +85,7 @@ __all__ = [
     "Auth",
     "TokenAuth",
     "JWTAuth",
+    "Scope",
     # bots
     "BotPromptInfo",
     "BotOnboardingInfo",

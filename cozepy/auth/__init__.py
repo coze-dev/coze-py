@@ -1,5 +1,6 @@
 import abc
 import time
+from typing import List, Optional
 from urllib.parse import quote_plus, urlparse
 
 from authlib.jose import jwt
@@ -35,6 +36,36 @@ class DeviceAuthCode(CozeModel):
     # The expiration time of the device code
     expires_in: int
     verification_url: str = None
+
+
+class ScopeAccountPermission(CozeModel):
+    permission_list: List[str]
+
+
+class ScopeAttributeConstraintConnectorBotChatAttribute(CozeModel):
+    bot_id_list: List[str]
+
+
+class ScopeAttributeConstraint(CozeModel):
+    connector_bot_chat_attribute: ScopeAttributeConstraintConnectorBotChatAttribute
+
+
+class Scope(CozeModel):
+    account_permission: Optional[ScopeAccountPermission] = None
+    attribute_constraint: Optional[ScopeAttributeConstraint] = None
+
+    @staticmethod
+    def from_bot_chat(bot_id_list: List[str], permission_list: List[str] = None) -> "Scope":
+        if not permission_list:
+            permission_list = ["Connector.botChat"]
+        return Scope(
+            account_permission=ScopeAccountPermission(permission_list=permission_list),
+            attribute_constraint=ScopeAttributeConstraint(
+                connector_bot_chat_attribute=ScopeAttributeConstraintConnectorBotChatAttribute(bot_id_list=bot_id_list)
+            )
+            if bot_id_list
+            else None,
+        )
 
 
 class OAuthApp(object):
@@ -105,30 +136,31 @@ class JWTOAuthApp(OAuthApp):
         self._public_key_id = public_key_id
         super().__init__(client_id, base_url, www_base_url="")
 
-    def get_access_token(self, ttl: int) -> OAuthToken:
+    def get_access_token(self, ttl: int, scope: List[Scope] = None) -> OAuthToken:
         """
         Get the token by jwt with jwt auth flow.
         """
-        jwt_token = self._gen_jwt(self._api_endpoint, self._private_key, self._client_id, self._public_key_id, 3600)
+        jwt_token = self._gen_jwt(3600)
         url = f"{self._base_url}/api/permission/oauth2/token"
         headers = {"Authorization": f"Bearer {jwt_token}"}
         body = {
             "duration_seconds": ttl,
             "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+            "scope": [i.model_dump() for i in scope] if scope else None,
         }
         return self._requester.request("post", url, OAuthToken, headers=headers, body=body)
 
-    def _gen_jwt(self, api_endpoint: str, private_key: str, client_id: str, kid: str, ttl: int):
+    def _gen_jwt(self, ttl: int):
         now = int(time.time())
-        header = {"alg": "RS256", "typ": "JWT", "kid": kid}
+        header = {"alg": "RS256", "typ": "JWT", "kid": self._public_key_id}
         payload = {
-            "iss": client_id,
-            "aud": api_endpoint,
+            "iss": self._client_id,
+            "aud": self._api_endpoint,
             "iat": now,
             "exp": now + ttl,
             "jti": random_hex(16),
         }
-        s = jwt.encode(header, payload, private_key)
+        s = jwt.encode(header, payload, self._private_key)
         return s.decode("utf-8")
 
 
