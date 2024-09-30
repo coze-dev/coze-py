@@ -98,14 +98,15 @@ class OAuthApp(object):
             uri = f"{self._get_www_base_url}/api/permission/oauth2/workspace_id/{workspace_id}/authorize"
         return uri + "?" + "&".join([f"{k}={quote_plus(v)}" for k, v in params.items()])
 
-    def _refresh_access_token(self, refresh_token: str) -> OAuthToken:
+    def _refresh_access_token(self, refresh_token: str, secret: str = "") -> OAuthToken:
         url = f"{self._base_url}/api/permission/oauth2/token"
+        headers = {"Authorization": f"Bearer {secret}"} if secret else {}
         body = {
             "grant_type": "refresh_token",
             "client_id": self._client_id,
             "refresh_token": refresh_token,
         }
-        return self._requester.request("post", url, OAuthToken, body=body)
+        return self._requester.request("post", url, OAuthToken, headers=headers, body=body)
 
     @property
     def _get_www_base_url(self) -> str:
@@ -114,6 +115,68 @@ class OAuthApp(object):
         if self._base_url in [COZE_CN_BASE_URL, COZE_COM_BASE_URL]:
             return self._base_url.replace("api", "www")
         return self._base_url
+
+
+class WebOAuthApp(OAuthApp):
+    """
+    Normal OAuth App.
+    """
+
+    def __init__(self, client_id: str, client_secret: str, base_url: str = COZE_COM_BASE_URL):
+        """
+        :param client_id:
+        :param client_secret:
+        :param base_url:
+        """
+        self._client_id = client_id
+        self._client_secret = client_secret
+        self._base_url = base_url
+        self._api_endpoint = urlparse(base_url).netloc
+        self._token = ""
+        super().__init__(client_id, base_url, www_base_url="")
+
+    def get_oauth_url(
+        self,
+        redirect_uri: str,
+        state: str,
+        workspace_id: str = None,
+    ):
+        """
+        Get the pkce flow authorized url.
+
+        :param redirect_uri: The redirect_uri of your app, where authentication responses can be sent and received by
+        your app. It must exactly match one of the redirect URIs you registered in the OAuth Apps.
+        :param state: A value included in the request that is also returned in the token response. It can be a string
+        of any hash value.
+        :param workspace_id:
+        :return:
+        """
+        return self._get_oauth_url(
+            redirect_uri,
+            state,
+            workspace_id=workspace_id,
+        )
+
+    def get_access_token(
+        self,
+        redirect_uri: str,
+        code: str,
+    ) -> OAuthToken:
+        """
+        Get the token by jwt with jwt auth flow.
+        """
+        url = f"{self._base_url}/api/permission/oauth2/token"
+        headers = {"Authorization": f"Bearer {self._client_secret}"}
+        body = {
+            "client_id": self._client_id,
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": redirect_uri,
+        }
+        return self._requester.request("post", url, OAuthToken, headers=headers, body=body)
+
+    def refresh_access_token(self, refresh_token: str) -> OAuthToken:
+        return self._refresh_access_token(refresh_token, self._client_secret)
 
 
 class JWTOAuthApp(OAuthApp):
