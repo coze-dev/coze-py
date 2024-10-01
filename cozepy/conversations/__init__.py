@@ -34,7 +34,7 @@ class ConversationsClient(object):
         """
         url = f"{self._base_url}/v1/conversation/create"
         body = {
-            "messages": [i.model_dump() for i in messages] if len(messages) > 0 else [],
+            "messages": [i.model_dump() for i in messages] if messages and len(messages) > 0 else [],
             "meta_data": meta_data,
         }
         return self._requester.request("post", url, Conversation, body=body)

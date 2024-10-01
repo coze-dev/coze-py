@@ -94,12 +94,6 @@ class Requester(object):
                 return None
             return model.model_validate(data)
 
-    async def arequest(self, method: str, path: str, **kwargs) -> dict:
-        """
-        Send a request to the server with asyncio.
-        """
-        pass
-
     def _make_request(
         self,
         method: str,

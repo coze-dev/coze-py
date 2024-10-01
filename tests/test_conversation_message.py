@@ -9,7 +9,7 @@ class TestConversationMessage:
     def test_create(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        msg = Message.user_text_message("hi")
+        msg = Message.assistant_text_message("hi")
         respx_mock.post("/v1/conversation/message/create").mock(httpx.Response(200, json={"data": msg.model_dump()}))
 
         message = coze.conversations.messages.create(
