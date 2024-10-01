@@ -7,6 +7,7 @@ from cozepy import (
     COZE_COM_BASE_URL,
     DeviceAuthCode,
     DeviceOAuthApp,
+    JWTAuth,
     JWTOAuthApp,
     OAuthToken,
     PKCEOAuthApp,
@@ -69,6 +70,21 @@ class TestWebOAuthApp:
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 class TestJWTOAuthApp:
+    def test_jwt_auth(self, respx_mock):
+        private_key = read_file("testdata/private_key.pem")
+        mock_token = random_hex(20)
+        respx_mock.post("/api/permission/oauth2/token").mock(
+            httpx.Response(
+                200, content=OAuthToken(access_token=mock_token, expires_in=int(time.time()) + 100).model_dump_json()
+            )
+        )
+
+        auth = JWTAuth("client id", private_key, "public key id")
+
+        assert "Bearer" == auth.token_type
+        assert mock_token == auth.token
+        assert mock_token == auth.token  # get from cache
+
     def test_get_access_token(self, respx_mock):
         private_key = read_file("testdata/private_key.pem")
         app = JWTOAuthApp("client id", private_key, "public key id")
@@ -184,6 +200,21 @@ class TestDeviceOAuthApp:
         )
 
         token = app.get_access_token("https://example.com", False)
+
+        assert token.access_token == mock_token
+
+    def test_get_access_token_poll(self, respx_mock):
+        app = DeviceOAuthApp("client id")
+        mock_token = random_hex(20)
+
+        respx_mock.post("/api/permission/oauth2/token").mock(
+            httpx.Response(200, json={"error_code": "authorization_pending"})
+        ).mock(
+            httpx.Response(
+                200, content=OAuthToken(access_token=mock_token, expires_in=int(time.time())).model_dump_json()
+            )
+        )
+        token = app.get_access_token("https://example.com", True)
 
         assert token.access_token == mock_token
 
