@@ -17,8 +17,8 @@ def test_coze_error():
     err = CozePKCEAuthError("authorization_pending")
     assert err.error == "authorization_pending"
 
-    err = CozeEventError("event", "xxx")
-    assert str(err) == "invalid event, field: event, data: xxx"
+    err = CozeEventError("event", "xxx", "logid")
+    assert str(err) == "invalid event, field: event, data: xxx, logid: logid"
 
-    err = CozeEventError("", "xxx")
-    assert str(err) == "invalid event, data: xxx"
+    err = CozeEventError("", "xxx", "logid")
+    assert str(err) == "invalid event, data: xxx, logid: logid"

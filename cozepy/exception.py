@@ -42,10 +42,11 @@ class CozeEventError(CozeError):
     base class for all event errors
     """
 
-    def __init__(self, field: str = "", data: str = ""):
+    def __init__(self, field: str = "", data: str = "", logid: str = ""):
         self.field = field
         self.data = data
+        self.logid = logid
         if field:
-            super().__init__(f"invalid event, field: {field}, data: {data}")
+            super().__init__(f"invalid event, field: {field}, data: {data}, logid: {logid}")
         else:
-            super().__init__(f"invalid event, data: {data}")
+            super().__init__(f"invalid event, data: {data}, logid: {logid}")

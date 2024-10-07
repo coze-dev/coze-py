@@ -379,11 +379,8 @@ class ChatClient(object):
         if not stream:
             return self._requester.request("post", url, Chat, body=body, stream=stream)
 
-        return Stream(
-            self._requester.request("post", url, Chat, body=body, stream=stream),
-            fields=["event", "data"],
-            handler=_chat_stream_handler,
-        )
+        steam_iters, logid = self._requester.request("post", url, Chat, body=body, stream=stream)
+        return Stream(steam_iters, fields=["event", "data"], handler=_chat_stream_handler, logid=logid)
 
     def retrieve(
         self,
@@ -440,11 +437,8 @@ class ChatClient(object):
         if not stream:
             return self._requester.request("post", url, Chat, params=params, body=body, stream=stream)
 
-        return Stream(
-            self._requester.request("post", url, Chat, params=params, body=body, stream=stream),
-            fields=["event", "data"],
-            handler=_chat_stream_handler,
-        )
+        steam_iters, logid = self._requester.request("post", url, Chat, params=params, body=body, stream=stream)
+        return Stream(steam_iters, fields=["event", "data"], handler=_chat_stream_handler, logid=logid)
 
     def cancel(
         self,
