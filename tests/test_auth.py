@@ -41,6 +41,30 @@ class TestWebOAuthApp:
             "state=state"
         ) == url
 
+    def test_get_oauth_url_config_www_url(self, respx_mock):
+        app = WebOAuthApp("client id", "client secret", www_base_url="https://example.com")
+
+        url = app.get_oauth_url("https://example.com", "state")
+        assert (
+            "https://example.com/api/permission/oauth2/authorize"
+            "?response_type=code&"
+            "client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&"
+            "state=state"
+        ) == url
+
+    def test_get_oauth_url_config_custom_api_base_url(self, respx_mock):
+        app = WebOAuthApp("client id", "client secret", base_url="https://api.example.com")
+
+        url = app.get_oauth_url("https://example.com", "state")
+        assert (
+            "https://api.example.com/api/permission/oauth2/authorize"
+            "?response_type=code&"
+            "client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&"
+            "state=state"
+        ) == url
+
     def test_get_access_token(self, respx_mock):
         app = WebOAuthApp("client id", "client secret")
         mock_token = random_hex(20)

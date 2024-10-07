@@ -86,3 +86,26 @@ class TestWorkflowsRuns:
 
         assert events
         assert len(events) == 9
+
+    def test_stream_invalid_event(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        respx_mock.post("/v1/workflow/stream_resume").mock(
+            httpx.Response(
+                200,
+                content="""
+id:0
+event:invalid
+data:{}""",
+            )
+        )
+
+        with pytest.raises(Exception, match="invalid workflows.event: invalid"):
+            list(
+                coze.workflows.runs.resume(
+                    workflow_id="id",
+                    event_id="event_id",
+                    resume_data="resume_data",
+                    interrupt_type=123,
+                )
+            )

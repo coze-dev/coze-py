@@ -122,7 +122,7 @@ class WebOAuthApp(OAuthApp):
     Normal OAuth App.
     """
 
-    def __init__(self, client_id: str, client_secret: str, base_url: str = COZE_COM_BASE_URL):
+    def __init__(self, client_id: str, client_secret: str, base_url: str = COZE_COM_BASE_URL, www_base_url: str = ""):
         """
         :param client_id:
         :param client_secret:
@@ -133,7 +133,7 @@ class WebOAuthApp(OAuthApp):
         self._base_url = base_url
         self._api_endpoint = urlparse(base_url).netloc
         self._token = ""
-        super().__init__(client_id, base_url, www_base_url="")
+        super().__init__(client_id, base_url, www_base_url=www_base_url)
 
     def get_oauth_url(
         self,

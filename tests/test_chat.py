@@ -81,6 +81,36 @@ class TestConversationMessage:
         )
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
 
+    def test_stream_error(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        respx_mock.post("/v3/chat").mock(
+            httpx.Response(
+                200,
+                content="""
+event:error
+data:{}
+        """,
+            )
+        )
+        with pytest.raises(Exception, match="error event"):
+            list(coze.chat.stream(bot_id="bot", user_id="user"))
+
+    def test_stream_invalid_event(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        respx_mock.post("/v3/chat").mock(
+            httpx.Response(
+                200,
+                content="""
+event:invalid
+data:{}
+        """,
+            )
+        )
+        with pytest.raises(Exception, match="invalid chat.event: invalid"):
+            list(coze.chat.stream(bot_id="bot", user_id="user"))
+
     def test_retrieve(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 

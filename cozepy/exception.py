@@ -24,7 +24,7 @@ class CozeAPIError(CozeError):
             super().__init__(f"msg: {msg}, logid: {logid}")
 
 
-class CozePKCEAuthError(CozeAPIError):
+class CozePKCEAuthError(CozeError):
     """
     base class for all pkce auth errors
     """
@@ -32,8 +32,9 @@ class CozePKCEAuthError(CozeAPIError):
     def __init__(
         self, error: Literal["authorization_pending", "slow_down", "access_denied", "expired_token"], logid: str = None
     ):
-        super().__init__(code=None, msg=error, logid=logid)
+        super().__init__(f"pkce auth error: {error}")
         self.error = error
+        self.logid = logid
 
 
 class CozeEventError(CozeError):
