@@ -20,9 +20,6 @@ class PagedBase(Generic[T]):
         self.items = items
         self.has_more = has_more
 
-    def __repr__(self):
-        return f"PagedBase(items={self.items}, has_more={self.has_more})"
-
 
 class TokenPaged(PagedBase[T]):
     """

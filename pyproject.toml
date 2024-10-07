@@ -27,6 +27,15 @@ line-length = 120
 select = ["E", "F", "I"]
 ignore = ["E501"]
 
+[tool.coverage.report]
+precision = 1
+skip_covered = true
+exclude_lines = [
+    "abc.abstractmethod",
+    "if TYPE_CHECKING.*:",
+    "raise NotImplementedError",
+]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
