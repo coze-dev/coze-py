@@ -16,6 +16,7 @@ distro = "^1.9.0"
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.0.0"
 pytest-cov = "^4.0.0"
+pytest-asyncio = "^0.21.0"
 ruff = "^0.6.0"
 pre-commit = "^2.9.0"
 respx = "^0.21.1"

@@ -2,8 +2,8 @@ coverage:
   status:
     project: #add everything under here, more options at https://docs.codecov.com/docs/commit-status
       default:
-        target: 70%
-        threshold: 70%
+        target: 95%
+        threshold: 95%
         base: auto
         paths:
           - cozepy
