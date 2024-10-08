@@ -69,10 +69,11 @@ class LastIDPaged(PagedBase[T]):
 
 
 class Stream(Generic[T]):
-    def __init__(self, iters: Iterator[str], fields: List[str], handler: Callable[[Dict[str, str]], T]):
+    def __init__(self, iters: Iterator[str], fields: List[str], handler: Callable[[Dict[str, str]], T], logid: str):
         self._iters = iters
         self._fields = fields
         self._handler = handler
+        self._logid = logid
 
     def __iter__(self):
         return self
@@ -100,5 +101,5 @@ class Stream(Generic[T]):
                 if data[field] == "":
                     return field, line[len(field) + 1 :].strip()
                 else:
-                    raise CozeEventError(field, line)
-        raise CozeEventError("", line)
+                    raise CozeEventError(field, line, self._logid)
+        raise CozeEventError("", line, self._logid)

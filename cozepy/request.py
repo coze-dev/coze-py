@@ -57,7 +57,7 @@ class Requester(object):
         files: dict = None,
         stream: bool = False,
         data_field: str = "data",
-    ) -> Union[T, List[T], Iterator[str], None]:
+    ) -> Union[T, List[T], Tuple[Iterator[str], str], None]:
         """
         Send a request to the server.
         """
@@ -72,10 +72,10 @@ class Requester(object):
         )
         log_debug("request %s#%s sending, params=%s, json=%s, stream=%s", method, url, params, body, stream)
         response = self._client.send(request, stream=stream)
-        if stream:
-            return response.iter_lines()
-
         logid = response.headers.get("x-tt-logid")
+        if stream:
+            return response.iter_lines(), logid
+
         code, msg, data = self._parse_requests_code_msg(method, url, response, data_field)
 
         if code is not None and code > 0:

@@ -22,15 +22,15 @@ def mock_handler(d: Dict[str, str]):
 
 def test_stream_invalid_event():
     items = ["event:x"]
-    s = Stream(iter(items), ["field"], mock_handler)
+    s = Stream(iter(items), ["field"], mock_handler, "mocked-logid")
 
-    with pytest.raises(CozeEventError, match="invalid event, data: event:x"):
+    with pytest.raises(CozeEventError, match="invalid event, data: event:x, logid: mocked-logid"):
         next(s)
 
 
 def test_stream_invalid_field():
     items = ["event:x1", "event:x2"]
-    s = Stream(iter(items), ["event", "second"], mock_handler)
+    s = Stream(iter(items), ["event", "second"], mock_handler, "mocked-logid")
 
-    with pytest.raises(CozeEventError, match="invalid event, field: event, data: event:x2"):
+    with pytest.raises(CozeEventError, match="invalid event, field: event, data: event:x2, logid: mocked-logid"):
         next(s)

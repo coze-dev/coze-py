@@ -191,11 +191,8 @@ class WorkflowsClient(object):
             "bot_id": bot_id,
             "ext": ext,
         }
-        return Stream(
-            self._requester.request("post", url, None, body=body, stream=True),
-            fields=["id", "event", "data"],
-            handler=_workflow_stream_handler,
-        )
+        steam_iters, logid = self._requester.request("post", url, None, body=body, stream=True)
+        return Stream(steam_iters, fields=["id", "event", "data"], handler=_workflow_stream_handler, logid=logid)
 
     def resume(
         self,
@@ -221,8 +218,5 @@ class WorkflowsClient(object):
             "resume_data": resume_data,
             "interrupt_type": interrupt_type,
         }
-        return Stream(
-            self._requester.request("post", url, None, body=body, stream=True),
-            fields=["id", "event", "data"],
-            handler=_workflow_stream_handler,
-        )
+        steam_iters, logid = self._requester.request("post", url, None, body=body, stream=True)
+        return Stream(steam_iters, fields=["id", "event", "data"], handler=_workflow_stream_handler, logid=logid)
