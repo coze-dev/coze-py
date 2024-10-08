@@ -1,0 +1,25 @@
+name: Required Labels
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize]
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: mheap/github-action-required-labels@v5
+        with:
+          mode: minimum
+          count: 1
+          labels: |
+            feature
+            enhancement
+            fix
+            bugfix
+            bug
+            chore
+            documentation
+          add_comment: true
+          message: "Requires label: feature, enhancement, fix, bugfix, bug, chore, documentation."
