@@ -18,7 +18,7 @@ from pydantic import BaseModel
 from typing_extensions import get_args, get_origin
 
 from cozepy.config import DEFAULT_CONNECTION_LIMITS, DEFAULT_TIMEOUT
-from cozepy.exception import CozeAPIError, CozePKCEAuthError
+from cozepy.exception import COZE_PKCE_AUTH_ERROR_TYPE_ENUMS, CozeAPIError, CozePKCEAuthError, CozePKCEAuthErrorType
 from cozepy.log import log_debug, log_warning
 from cozepy.version import user_agent
 
@@ -174,8 +174,8 @@ class Requester(object):
             raise CozeAPIError(code, msg, logid)
         elif code is None and msg != "":
             log_warning("request %s#%s failed, logid=%s, msg=%s", method, url, logid, msg)
-            if msg in ["authorization_pending", "slow_down", "access_denied", "expired_token"]:
-                raise CozePKCEAuthError(msg, logid)
+            if msg in COZE_PKCE_AUTH_ERROR_TYPE_ENUMS:
+                raise CozePKCEAuthError(CozePKCEAuthErrorType(msg), logid)
             raise CozeAPIError(code, msg, logid)
         if get_origin(model) is list:
             item_model = get_args(model)[0]
@@ -201,12 +201,7 @@ class Requester(object):
 
         if "code" in body and "msg" in body and int(body["code"]) > 0:
             return int(body["code"]), body["msg"], body.get(data_field)
-        if "error_code" in body and body["error_code"] in [
-            "authorization_pending",
-            "slow_down",
-            "access_denied",
-            "expired_token",
-        ]:
+        if "error_code" in body and body["error_code"] in COZE_PKCE_AUTH_ERROR_TYPE_ENUMS:
             return None, body["error_code"], None
         if "error_message" in body and body["error_message"] != "":
             return None, body["error_message"], None
