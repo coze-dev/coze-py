@@ -19,6 +19,7 @@ pytest-cov = "^4.0.0"
 ruff = "^0.6.0"
 pre-commit = "^2.9.0"
 respx = "^0.21.1"
+mypy = { version = "^1.11.2", python = "^3.8" }
 
 [tool.ruff]
 line-length = 120
