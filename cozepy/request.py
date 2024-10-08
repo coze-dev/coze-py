@@ -1,6 +1,7 @@
 from typing import (
     TYPE_CHECKING,
     Any,
+    AsyncIterator,
     Iterable,
     Iterator,
     List,
@@ -77,8 +78,9 @@ class Requester(object):
             headers=headers,
             json=body,
             files=files,
-            stream=stream,
         )
+        log_debug("request %s#%s sending, params=%s, json=%s, stream=%s", method, url, params, body, stream)
+
         response = self.sync_client.send(request, stream=stream)
         return self._parse_response(method, url, response=response, model=model, stream=stream, data_field=data_field)
 
@@ -93,7 +95,7 @@ class Requester(object):
         files: dict = None,
         stream: bool = False,
         data_field: str = "data",
-    ) -> Union[T, List[T], Tuple[Iterator[str], str], None]:
+    ) -> Union[T, List[T], Tuple[AsyncIterator[str], str], None]:
         """
         Send a request to the server.
         """
@@ -105,12 +107,13 @@ class Requester(object):
             headers=headers,
             json=body,
             files=files,
-            stream=stream,
         )
+        log_debug("arequest %s#%s sending, params=%s, json=%s, stream=%s", method, url, params, body, stream)
 
-        log_debug("request %s#%s sending, params=%s, json=%s, stream=%s", method, url, params, body, stream)
         response = await self.async_client.send(request, stream=stream)
-        return self._parse_response(method, url, response=response, model=model, stream=stream, data_field=data_field)
+        return self._parse_response(
+            method, url, response=response, model=model, stream=stream, data_field=data_field, is_async=True
+        )
 
     @property
     def sync_client(self) -> "SyncHTTPClient":
@@ -132,7 +135,6 @@ class Requester(object):
         headers: dict = None,
         json: dict = None,
         files: dict = None,
-        stream: bool = None,
     ) -> httpx.Request:
         if headers is None:
             headers = {}
@@ -140,7 +142,6 @@ class Requester(object):
         if self._auth:
             self._auth.authentication(headers)
 
-        log_debug("request %s#%s sending, params=%s, json=%s, stream=%s", method, url, params, json, stream)
         return httpx.Request(
             method,
             url,
@@ -158,9 +159,12 @@ class Requester(object):
         model: Union[Type[T], Iterable[Type[T]], None],
         stream: bool = False,
         data_field: str = "data",
-    ) -> Union[T, List[T], Tuple[Iterator[str], str], None]:
+        is_async: bool = False,
+    ) -> Union[T, List[T], Tuple[Iterator[str], str], Tuple[AsyncIterator[str], str], None]:
         logid = response.headers.get("x-tt-logid")
         if stream:
+            if is_async:
+                return response.aiter_lines(), logid
             return response.iter_lines(), logid
 
         code, msg, data = self._parse_requests_code_msg(method, url, response, data_field)

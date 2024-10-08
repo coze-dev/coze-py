@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from cozepy import Chat, ChatEvent, ChatEventType, ChatStatus, Coze, TokenAuth
+from cozepy import AsyncCoze, Chat, ChatEvent, ChatEventType, ChatStatus, Coze, TokenAuth
 
 chat_testdata = Chat(
     id="id",
@@ -163,6 +163,133 @@ data:{}
 
         respx_mock.post("/v3/chat/cancel").mock(httpx.Response(200, json={"data": chat_testdata.model_dump()}))
         res = coze.chat.cancel(conversation_id="conversation", chat_id="chat")
+
+        assert res
+        assert res.conversation_id == chat_testdata.conversation_id
+
+
+@pytest.mark.respx(base_url="https://api.coze.com")
+@pytest.mark.asyncio
+class TestAsyncChatConversationMessage:
+    async def test_create(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        respx_mock.post("/v3/chat").mock(httpx.Response(200, json={"data": chat_testdata.model_dump()}))
+        res = await coze.chat.create(bot_id="bot", user_id="user")
+
+        assert res
+        assert res.conversation_id == chat_testdata.conversation_id
+
+    async def test_stream(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        respx_mock.post("/v3/chat").mock(httpx.Response(200, content=chat_stream_testdata))
+        events = [event async for event in await coze.chat.stream(bot_id="bot", user_id="user")]
+
+        assert events
+        assert len(events) == 9
+        assert events[0] == ChatEvent(
+            event=ChatEventType.CONVERSATION_CHAT_CREATED,
+            chat=Chat(
+                id="7382159487131697202",
+                conversation_id="7381473525342978089",
+                bot_id="7379462189365198898",
+                created_at=None,
+                completed_at=1718792949,
+                failed_at=None,
+                meta_data=None,
+                status=ChatStatus.CREATED,
+            ),
+        )
+        assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
+
+    async def test_stream_error(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        respx_mock.post("/v3/chat").mock(
+            httpx.Response(
+                200,
+                content="""
+event:error
+data:{}
+        """,
+            )
+        )
+        with pytest.raises(Exception, match="error event"):
+            async for event in await coze.chat.stream(bot_id="bot", user_id="user"):
+                pass
+
+    async def test_stream_invalid_event(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        respx_mock.post("/v3/chat").mock(
+            httpx.Response(
+                200,
+                content="""
+event:invalid
+data:{}
+        """,
+            )
+        )
+        with pytest.raises(Exception, match="invalid chat.event: invalid"):
+            async for event in await coze.chat.stream(bot_id="bot", user_id="user"):
+                pass
+
+    async def test_retrieve(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        respx_mock.post("/v3/chat/retrieve").mock(httpx.Response(200, json={"data": chat_testdata.model_dump()}))
+        res = await coze.chat.retrieve(conversation_id="conversation", chat_id="chat")
+
+        assert res
+        assert res.conversation_id == chat_testdata.conversation_id
+
+    async def test_submit_tool_outputs_not_stream(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        respx_mock.post("/v3/chat/submit_tool_outputs").mock(
+            httpx.Response(200, json={"data": chat_testdata.model_dump()})
+        )
+        res = await coze.chat.submit_tool_outputs(
+            conversation_id="conversation", chat_id="chat", tool_outputs=[], stream=False
+        )
+
+        assert res
+        assert res.conversation_id == chat_testdata.conversation_id
+
+    async def test_submit_tool_outputs_stream(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        respx_mock.post("/v3/chat/submit_tool_outputs").mock(httpx.Response(200, content=chat_stream_testdata))
+        events = [
+            i
+            async for i in await coze.chat.submit_tool_outputs(
+                conversation_id="conversation", chat_id="chat", tool_outputs=[], stream=True
+            )
+        ]
+
+        assert events
+        assert len(events) == 9
+        assert events[0] == ChatEvent(
+            event=ChatEventType.CONVERSATION_CHAT_CREATED,
+            chat=Chat(
+                id="7382159487131697202",
+                conversation_id="7381473525342978089",
+                bot_id="7379462189365198898",
+                created_at=None,
+                completed_at=1718792949,
+                failed_at=None,
+                meta_data=None,
+                status=ChatStatus.CREATED,
+            ),
+        )
+        assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
+
+    async def test_cancel(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        respx_mock.post("/v3/chat/cancel").mock(httpx.Response(200, json={"data": chat_testdata.model_dump()}))
+        res = await coze.chat.cancel(conversation_id="conversation", chat_id="chat")
 
         assert res
         assert res.conversation_id == chat_testdata.conversation_id

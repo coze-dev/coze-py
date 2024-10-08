@@ -1,11 +1,13 @@
 from enum import Enum
+from functools import partial
 from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
 from cozepy.auth import Auth
-from cozepy.model import CozeModel, Stream
+from cozepy.model import AsyncStream, CozeModel, Stream
 from cozepy.request import Requester
 
 if TYPE_CHECKING:
+    from .message import AsyncMessagesClient as AsyncChatMessagesClient
     from .message import MessagesClient as ChatMessagesClient
 
 
@@ -231,10 +233,12 @@ class ChatEvent(CozeModel):
     message: Message = None
 
 
-def _chat_stream_handler(data: Dict) -> ChatEvent:
+def _chat_stream_handler(data: Dict, is_async: bool = False) -> ChatEvent:
     event = data["event"]
     data = data["data"]
     if event == ChatEventType.DONE:
+        if is_async:
+            raise StopAsyncIteration
         raise StopIteration
     elif event == ChatEventType.ERROR:
         raise Exception(f"error event: {data}")  # TODO: error struct format
@@ -253,6 +257,10 @@ def _chat_stream_handler(data: Dict) -> ChatEvent:
         return ChatEvent(event=event, chat=Chat.model_validate_json(data))
     else:
         raise ValueError(f"invalid chat.event: {event}, {data}")
+
+
+_sync_chat_stream_handler = partial(_chat_stream_handler, is_async=False)
+_async_chat_stream_handler = partial(_chat_stream_handler, is_async=True)
 
 
 class ToolOutput(CozeModel):
@@ -380,7 +388,7 @@ class ChatClient(object):
             return self._requester.request("post", url, Chat, body=body, stream=stream)
 
         steam_iters, logid = self._requester.request("post", url, Chat, body=body, stream=stream)
-        return Stream(steam_iters, fields=["event", "data"], handler=_chat_stream_handler, logid=logid)
+        return Stream(steam_iters, fields=["event", "data"], handler=_sync_chat_stream_handler, logid=logid)
 
     def retrieve(
         self,
@@ -438,7 +446,7 @@ class ChatClient(object):
             return self._requester.request("post", url, Chat, params=params, body=body, stream=stream)
 
         steam_iters, logid = self._requester.request("post", url, Chat, params=params, body=body, stream=stream)
-        return Stream(steam_iters, fields=["event", "data"], handler=_chat_stream_handler, logid=logid)
+        return Stream(steam_iters, fields=["event", "data"], handler=_sync_chat_stream_handler, logid=logid)
 
     def cancel(
         self,
@@ -473,4 +481,216 @@ class ChatClient(object):
             from .message import MessagesClient
 
             self._messages = MessagesClient(self._base_url, self._auth, self._requester)
+        return self._messages
+
+
+class AsyncChatClient(object):
+    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+        self._base_url = base_url
+        self._auth = auth
+        self._requester = requester
+        self._messages = None
+
+    async def create(
+        self,
+        *,
+        bot_id: str,
+        user_id: str,
+        conversation_id: str = None,
+        additional_messages: List[Message] = None,
+        custom_variables: Dict[str, str] = None,
+        auto_save_history: bool = True,
+        meta_data: Dict[str, str] = None,
+    ) -> Chat:
+        """
+        Call the Chat API with non-streaming to send messages to a published Coze bot.
+
+        docs en: https://www.coze.com/docs/developer_guides/chat_v3
+        docs zh: https://www.coze.cn/docs/developer_guides/chat_v3
+
+        :param bot_id: The ID of the bot that the API interacts with.
+        :param user_id: The user who calls the API to chat with the bot.
+        This parameter is defined, generated, and maintained by the user within their business system.
+        :param conversation_id: Indicate which conversation the chat is taking place in.
+        :param additional_messages: Additional information for the conversation. You can pass the user's query for this
+        conversation through this field. The array length is limited to 100, meaning up to 100 messages can be input.
+        :param custom_variables: The customized variable in a key-value pair.
+        :param auto_save_history: Whether to automatically save the history of conversation records.
+        :param meta_data: Additional information, typically used to encapsulate some business-related fields.
+        :return: chat object
+        """
+        return await self._create(
+            bot_id=bot_id,
+            user_id=user_id,
+            additional_messages=additional_messages,
+            stream=False,
+            custom_variables=custom_variables,
+            auto_save_history=auto_save_history,
+            meta_data=meta_data,
+            conversation_id=conversation_id,
+        )
+
+    async def stream(
+        self,
+        *,
+        bot_id: str,
+        user_id: str,
+        additional_messages: List[Message] = None,
+        custom_variables: Dict[str, str] = None,
+        auto_save_history: bool = True,
+        meta_data: Dict[str, str] = None,
+        conversation_id: str = None,
+    ) -> AsyncStream[ChatEvent]:
+        """
+        Call the Chat API with streaming to send messages to a published Coze bot.
+
+        docs en: https://www.coze.com/docs/developer_guides/chat_v3
+        docs zh: https://www.coze.cn/docs/developer_guides/chat_v3
+
+        :param bot_id: The ID of the bot that the API interacts with.
+        :param user_id: The user who calls the API to chat with the bot.
+        This parameter is defined, generated, and maintained by the user within their business system.
+        :param conversation_id: Indicate which conversation the chat is taking place in.
+        :param additional_messages: Additional information for the conversation. You can pass the user's query for this
+        conversation through this field. The array length is limited to 100, meaning up to 100 messages can be input.
+        :param custom_variables: The customized variable in a key-value pair.
+        :param auto_save_history: Whether to automatically save the history of conversation records.
+        :param meta_data: Additional information, typically used to encapsulate some business-related fields.
+        :return: iterator of ChatEvent
+        """
+        return await self._create(
+            bot_id=bot_id,
+            user_id=user_id,
+            additional_messages=additional_messages,
+            stream=True,
+            custom_variables=custom_variables,
+            auto_save_history=auto_save_history,
+            meta_data=meta_data,
+            conversation_id=conversation_id,
+        )
+
+    async def _create(
+        self,
+        *,
+        bot_id: str,
+        user_id: str,
+        additional_messages: List[Message] = None,
+        stream: bool = False,
+        custom_variables: Dict[str, str] = None,
+        auto_save_history: bool = True,
+        meta_data: Dict[str, str] = None,
+        conversation_id: str = None,
+    ) -> Union[Chat, AsyncStream[ChatEvent]]:
+        """
+        Create a conversation.
+        Conversation is an interaction between a bot and a user, including one or more messages.
+        """
+        url = f"{self._base_url}/v3/chat"
+        body = {
+            "bot_id": bot_id,
+            "user_id": user_id,
+            "additional_messages": [i.model_dump() for i in additional_messages] if additional_messages else [],
+            "stream": stream,
+            "custom_variables": custom_variables,
+            "auto_save_history": auto_save_history,
+            "conversation_id": conversation_id if conversation_id else None,
+            "meta_data": meta_data,
+        }
+        if not stream:
+            return await self._requester.arequest("post", url, Chat, body=body, stream=stream)
+
+        steam_iters, logid = await self._requester.arequest("post", url, Chat, body=body, stream=stream)
+        return AsyncStream(steam_iters, fields=["event", "data"], handler=_async_chat_stream_handler, logid=logid)
+
+    async def retrieve(
+        self,
+        *,
+        conversation_id: str,
+        chat_id: str,
+    ) -> Chat:
+        """
+        Get the detailed information of the chat.
+
+        docs en: https://www.coze.com/docs/developer_guides/retrieve_chat
+        docs zh: https://www.coze.cn/docs/developer_guides/retrieve_chat
+
+        :param conversation_id: The ID of the conversation.
+        :param chat_id: The ID of the chat.
+        :return: chat object
+        """
+        url = f"{self._base_url}/v3/chat/retrieve"
+        params = {
+            "conversation_id": conversation_id,
+            "chat_id": chat_id,
+        }
+        return await self._requester.arequest("post", url, Chat, params=params)
+
+    async def submit_tool_outputs(
+        self, *, conversation_id: str, chat_id: str, tool_outputs: List[ToolOutput], stream: bool
+    ) -> Union[Chat, AsyncStream[ChatEvent]]:
+        """
+        Call this API to submit the results of tool execution.
+
+        docs en: https://www.coze.com/docs/developer_guides/chat_submit_tool_outputs
+        docs zh: https://www.coze.cn/docs/developer_guides/chat_submit_tool_outputs
+
+        :param conversation_id: The Conversation ID can be viewed in the 'conversation_id' field of the Response when
+        initiating a conversation through the Chat API.
+        :param chat_id: The Chat ID can be viewed in the 'id' field of the Response when initiating a chat through the
+        Chat API. If it is a streaming response, check the 'id' field in the chat event of the Response.
+        :param tool_outputs: The execution result of the tool. For detailed instructions, refer to the ToolOutput Object
+        :param stream: Whether to enable streaming response.
+        true: Fill in the context of the previous conversation and continue with streaming response.
+        false: (Default) Non-streaming response, only reply with basic information of the conversation.
+        :return:
+        """
+        url = f"{self._base_url}/v3/chat/submit_tool_outputs"
+        params = {
+            "conversation_id": conversation_id,
+            "chat_id": chat_id,
+        }
+        body = {
+            "tool_outputs": [i.model_dump() for i in tool_outputs],
+            "stream": stream,
+        }
+
+        if not stream:
+            return await self._requester.arequest("post", url, Chat, params=params, body=body, stream=stream)
+
+        steam_iters, logid = await self._requester.arequest("post", url, Chat, params=params, body=body, stream=stream)
+        return AsyncStream(steam_iters, fields=["event", "data"], handler=_async_chat_stream_handler, logid=logid)
+
+    async def cancel(
+        self,
+        *,
+        conversation_id: str,
+        chat_id: str,
+    ) -> Chat:
+        """
+        Call this API to cancel an ongoing chat.
+
+        docs en: https://www.coze.com/docs/developer_guides/chat_cancel
+        docs zh: https://www.coze.cn/docs/developer_guides/chat_cancel
+
+        :param conversation_id: The Conversation ID can be viewed in the 'conversation_id' field of the Response when
+        initiating a conversation through the Chat API.
+        :param chat_id: The Chat ID can be viewed in the 'id' field of the Response when initiating a chat through the
+        Chat API. If it is a streaming response, check the 'id' field in the chat event of the Response.
+        :return:
+        """
+        url = f"{self._base_url}/v3/chat/cancel"
+        params = {
+            "conversation_id": conversation_id,
+            "chat_id": chat_id,
+        }
+        return await self._requester.arequest("post", url, Chat, params=params)
+
+    @property
+    def messages(
+        self,
+    ) -> "AsyncChatMessagesClient":
+        if self._messages is None:
+            from .message import AsyncMessagesClient
+
+            self._messages = AsyncMessagesClient(self._base_url, self._auth, self._requester)
         return self._messages

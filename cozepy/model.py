@@ -1,8 +1,9 @@
-from typing import Callable, Dict, Generic, Iterator, List, Tuple, TypeVar
+from typing import AsyncIterator, Awaitable, Callable, Dict, Generic, Iterator, List, Tuple, TypeVar
 
 from pydantic import BaseModel, ConfigDict
 
 from cozepy.exception import CozeEventError
+from cozepy.util import anext
 
 T = TypeVar("T")
 
@@ -87,6 +88,49 @@ class Stream(Generic[T]):
 
         while times < len(data):
             line = next(self._iters)
+            if line == "":
+                continue
+
+            field, value = self._extra_field_data(line, data)
+            data[field] = value
+            times += 1
+        return data
+
+    def _extra_field_data(self, line: str, data: Dict[str, str]) -> Tuple[str, str]:
+        for field in self._fields:
+            if line.startswith(field + ":"):
+                if data[field] == "":
+                    return field, line[len(field) + 1 :].strip()
+                else:
+                    raise CozeEventError(field, line, self._logid)
+        raise CozeEventError("", line, self._logid)
+
+
+class AsyncStream(Generic[T]):
+    def __init__(
+        self,
+        iters: AsyncIterator[str],
+        fields: List[str],
+        handler: Callable[[Dict[str, str]], Awaitable[T]],
+        logid: str,
+    ):
+        self._iters = iters
+        self._fields = fields
+        self._handler = handler
+        self._logid = logid
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self) -> T:
+        return self._handler(await self._extra_event())
+
+    async def _extra_event(self) -> Dict[str, str]:
+        data = dict(map(lambda x: (x, ""), self._fields))
+        times = 0
+
+        while times < len(data):
+            line = await anext(self._iters)
             if line == "":
                 continue
 

@@ -238,3 +238,148 @@ class BotsClient(object):
     class _PrivateListPublishedBotsV1Data(CozeModel):
         space_bots: List[SimpleBot]
         total: int
+
+
+class AsyncBotsClient(object):
+    """
+    Bot class.
+    """
+
+    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+        self._base_url = base_url
+        self._auth = auth
+        self._requester = requester
+
+    async def create(
+        self,
+        *,
+        space_id: str,
+        name: str,
+        description: str = None,
+        icon_file_id: str = None,
+        prompt_info: BotPromptInfo = None,
+        onboarding_info: BotOnboardingInfo = None,
+    ) -> Bot:
+        url = f"{self._base_url}/v1/bot/create"
+        body = {
+            "space_id": space_id,
+            "name": name,
+            "description": description,
+            "icon_file_id": icon_file_id,
+            "prompt_info": prompt_info.model_dump() if prompt_info else None,
+            "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
+        }
+
+        return await self._requester.arequest("post", url, Bot, body=body)
+
+    async def update(
+        self,
+        *,
+        bot_id: str,
+        name: str = None,
+        description: str = None,
+        icon_file_id: str = None,
+        prompt_info: BotPromptInfo = None,
+        onboarding_info: BotOnboardingInfo = None,
+    ) -> None:
+        """
+        Update the configuration of a bot.
+        This API can be used to update all bots created through the Coze platform or via the API.
+        In addition to updating the bot's name and description, avatar, personality and reply logic,
+        and opening remarks, this API also supports binding a knowledge base to the bot.
+
+        docs en: https://www.coze.com/docs/developer_guides/update_bot
+        docs zh: https://www.coze.cn/docs/developer_guides/update_bot
+
+        :param bot_id: The ID of the bot that the API interacts with.
+        :param name: The name of the bot. It should be 1 to 20 characters long.
+        :param description: The description of the Bot. It can be 0 to 500 characters long. The default is empty.
+        :param icon_file_id: The file ID for the Bot's avatar. If no file ID is specified, the Douzhu platform will
+        assign a default avatar for the bot. To use a custom avatar, first upload the local file through the Upload
+        file interface and obtain the file ID from the interface response.
+        :param prompt_info: The personality and reply logic of the bot.
+        :param onboarding_info: The settings related to the bot's opening remarks.
+        :return: None
+        """
+        url = f"{self._base_url}/v1/bot/update"
+        body = {
+            "bot_id": bot_id,
+            "name": name,
+            "description": description,
+            "icon_file_id": icon_file_id,
+            "prompt_info": prompt_info.model_dump() if prompt_info else None,
+            "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
+        }
+
+        return await self._requester.arequest("post", url, None, body=body)
+
+    async def publish(
+        self,
+        *,
+        bot_id: str,
+        connector_ids: List[str] = None,
+    ) -> Bot:
+        url = f"{self._base_url}/v1/bot/publish"
+        if not connector_ids:
+            connector_ids = ["API"]
+        body = {
+            "bot_id": bot_id,
+            "connector_ids": connector_ids,
+        }
+
+        return await self._requester.arequest("post", url, Bot, body=body)
+
+    async def retrieve(self, *, bot_id: str) -> Bot:
+        """
+        Get the configuration information of the bot, which must have been published
+        to the Bot as API channel.
+        获取指定 Bot 的配置信息，此 Bot 必须已发布到 Bot as API 渠道中。
+
+        docs en: https://www.coze.com/docs/developer_guides/get_metadata
+        docs zh: https://www.coze.cn/docs/developer_guides/get_metadata
+
+        :param bot_id: The ID of the bot that the API interacts with.
+        要查看的 Bot ID。
+        :return: bot object
+        Bot 的配置信息
+        """
+        url = f"{self._base_url}/v1/bot/get_online_info"
+        params = {"bot_id": bot_id}
+
+        return await self._requester.arequest("get", url, Bot, params=params)
+
+    async def list(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> NumberPaged[SimpleBot]:
+        """
+        Get the bots published as API service.
+        查看指定空间发布到 Bot as API 渠道的 Bot 列表。
+
+        docs en: https://www.coze.com/docs/developer_guides/published_bots_list
+        docs zh: https://www.coze.cn/docs/developer_guides/published_bots_list
+
+        :param space_id: The ID of the space.
+        Bot 所在的空间的 Space ID。Space ID 是空间的唯一标识。
+        :param page_num: Pagination size. The default is 20, meaning that 20 data entries are returned per page.
+        分页大小。默认为 20，即每页返回 20 条数据。
+        :param page_size: Page number for paginated queries. The default is 1,
+        meaning that the data return starts from the first page.
+        分页查询时的页码。默认为 1，即从第一页数据开始返回。
+        :return: Specify the list of Bots published to the Bot as an API channel in space.
+        指定空间发布到 Bot as API 渠道的 Bot 列表。
+        """
+        url = f"{self._base_url}/v1/space/published_bots_list"
+        params = {
+            "space_id": space_id,
+            "page_size": page_size,
+            "page_index": page_num,
+        }
+        data = await self._requester.arequest("get", url, self._PrivateListPublishedBotsV1Data, params=params)
+        return NumberPaged(
+            items=data.space_bots,
+            page_num=page_num,
+            page_size=page_size,
+            total=data.total,
+        )
+
+    class _PrivateListPublishedBotsV1Data(CozeModel):
+        space_bots: List[SimpleBot]
+        total: int

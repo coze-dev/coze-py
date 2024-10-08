@@ -108,6 +108,16 @@ class OAuthApp(object):
         }
         return self._requester.request("post", url, OAuthToken, headers=headers, body=body)
 
+    async def _arefresh_access_token(self, refresh_token: str, secret: str = "") -> OAuthToken:
+        url = f"{self._base_url}/api/permission/oauth2/token"
+        headers = {"Authorization": f"Bearer {secret}"} if secret else {}
+        body = {
+            "grant_type": "refresh_token",
+            "client_id": self._client_id,
+            "refresh_token": refresh_token,
+        }
+        return await self._requester.arequest("post", url, OAuthToken, headers=headers, body=body)
+
     @property
     def _get_www_base_url(self) -> str:
         if self._www_base_url:
@@ -179,6 +189,46 @@ class WebOAuthApp(OAuthApp):
         return self._refresh_access_token(refresh_token, self._client_secret)
 
 
+class AsyncWebOAuthApp(WebOAuthApp):
+    """
+    Normal OAuth App.
+    """
+
+    def __init__(self, client_id: str, client_secret: str, base_url: str = COZE_COM_BASE_URL, www_base_url: str = ""):
+        """
+        :param client_id:
+        :param client_secret:
+        :param base_url:
+        """
+        self._client_id = client_id
+        self._client_secret = client_secret
+        self._base_url = base_url
+        self._api_endpoint = urlparse(base_url).netloc
+        self._token = ""
+        super().__init__(client_id, client_secret, base_url, www_base_url=www_base_url)
+
+    async def get_access_token(
+        self,
+        redirect_uri: str,
+        code: str,
+    ) -> OAuthToken:
+        """
+        Get the token by jwt with jwt auth flow.
+        """
+        url = f"{self._base_url}/api/permission/oauth2/token"
+        headers = {"Authorization": f"Bearer {self._client_secret}"}
+        body = {
+            "client_id": self._client_id,
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": redirect_uri,
+        }
+        return await self._requester.arequest("post", url, OAuthToken, headers=headers, body=body)
+
+    async def refresh_access_token(self, refresh_token: str) -> OAuthToken:
+        return await self._arefresh_access_token(refresh_token, self._client_secret)
+
+
 class JWTOAuthApp(OAuthApp):
     """
     JWT OAuth App.
@@ -212,6 +262,54 @@ class JWTOAuthApp(OAuthApp):
             "scope": scope.model_dump() if scope else None,
         }
         return self._requester.request("post", url, OAuthToken, headers=headers, body=body)
+
+    def _gen_jwt(self, ttl: int):
+        now = int(time.time())
+        header = {"alg": "RS256", "typ": "JWT", "kid": self._public_key_id}
+        payload = {
+            "iss": self._client_id,
+            "aud": self._api_endpoint,
+            "iat": now,
+            "exp": now + ttl,
+            "jti": random_hex(16),
+        }
+        s = jwt.encode(header, payload, self._private_key)
+        return s.decode("utf-8")
+
+
+class AsyncJWTOAuthApp(OAuthApp):
+    """
+    JWT OAuth App.
+    """
+
+    def __init__(self, client_id: str, private_key: str, public_key_id: str, base_url: str = COZE_COM_BASE_URL):
+        """
+        :param client_id:
+        :param private_key:
+        :param public_key_id:
+        :param base_url:
+        """
+        self._client_id = client_id
+        self._base_url = base_url
+        self._api_endpoint = urlparse(base_url).netloc
+        self._token = ""
+        self._private_key = private_key
+        self._public_key_id = public_key_id
+        super().__init__(client_id, base_url, www_base_url="")
+
+    async def get_access_token(self, ttl: int, scope: Scope = None) -> OAuthToken:
+        """
+        Get the token by jwt with jwt auth flow.
+        """
+        jwt_token = self._gen_jwt(3600)
+        url = f"{self._base_url}/api/permission/oauth2/token"
+        headers = {"Authorization": f"Bearer {jwt_token}"}
+        body = {
+            "duration_seconds": ttl,
+            "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+            "scope": scope.model_dump() if scope else None,
+        }
+        return await self._requester.arequest("post", url, OAuthToken, headers=headers, body=body)
 
     def _gen_jwt(self, ttl: int):
         now = int(time.time())
@@ -292,6 +390,43 @@ class PKCEOAuthApp(OAuthApp):
 
     def refresh_access_token(self, refresh_token: str) -> OAuthToken:
         return self._refresh_access_token(refresh_token)
+
+
+class AsyncPKCEOAuthApp(PKCEOAuthApp):
+    """
+    PKCE OAuth App.
+    """
+
+    def __init__(self, client_id: str, base_url: str = COZE_COM_BASE_URL, www_base_url: str = ""):
+        self._token = ""
+        self._requester = Requester()
+        super().__init__(
+            client_id,
+            base_url,
+            www_base_url,
+        )
+
+    async def get_access_token(self, redirect_uri: str, code: str, code_verifier: str) -> OAuthToken:
+        """
+        Get the token with pkce auth flow.
+
+        :param redirect_uri:
+        :param code_verifier:
+        :param code:
+        :return:
+        """
+        url = f"{self._base_url}/api/permission/oauth2/token"
+        body = {
+            "grant_type": "authorization_code",
+            "code": code,
+            "client_id": self._client_id,
+            "redirect_uri": redirect_uri,
+            "code_verifier": code_verifier,
+        }
+        return await self._requester.arequest("post", url, OAuthToken, body=body)
+
+    async def refresh_access_token(self, refresh_token: str) -> OAuthToken:
+        return await self._arefresh_access_token(refresh_token)
 
 
 class DeviceOAuthApp(OAuthApp):
@@ -377,6 +512,88 @@ class DeviceOAuthApp(OAuthApp):
 
     def refresh_access_token(self, refresh_token: str) -> OAuthToken:
         return self._refresh_access_token(refresh_token)
+
+
+class AsyncDeviceOAuthApp(DeviceOAuthApp):
+    """
+    Device OAuth App.
+    """
+
+    def __init__(self, client_id: str, base_url: str = COZE_COM_BASE_URL, www_base_url: str = ""):
+        self._token = ""
+        self._requester = Requester()
+        super().__init__(
+            client_id,
+            base_url,
+            www_base_url,
+        )
+
+    async def get_device_code(self, workspace_id: str = None) -> DeviceAuthCode:
+        """
+        Get the pkce flow authorized url.
+
+        :param workspace_id:
+        :return:
+        """
+
+        uri = f"{self._base_url}/api/permission/oauth2/device/code"
+        if workspace_id:
+            uri = f"{self._base_url}/api/permission/oauth2/workspace_id/{workspace_id}/device/code"
+        body = {
+            "client_id": self._client_id,
+        }
+        headers = {
+            "Content-Type": "application/json",
+        }
+        res = await self._requester.arequest("post", uri, DeviceAuthCode, headers=headers, body=body)
+        res.verification_url = f"{res.verification_uri}?user_code={res.user_code}"
+        return res
+
+    async def get_access_token(self, device_code: str, poll: bool = False) -> OAuthToken:
+        """
+        Get the token with pkce auth flow.
+
+        :param device_code:
+        :param poll: whether to poll for the token
+        :return:
+        """
+        if not poll:
+            return await self._get_access_token(device_code)
+
+        interval = 5
+        while True:
+            try:
+                return await self._get_access_token(device_code)
+            except CozePKCEAuthError as e:
+                if e.error == "authorization_pending":
+                    time.sleep(interval)
+                    continue
+                elif e.error == "slow_down":
+                    if interval < 30:
+                        interval += 5
+                    time.sleep(interval)
+                    continue
+                else:
+                    raise
+
+    async def _get_access_token(self, device_code: str, poll: bool = False) -> OAuthToken:
+        """
+        Get the token with pkce auth flow.
+
+        :param device_code:
+        :param poll: whether to poll for the token
+        :return:
+        """
+        url = f"{self._base_url}/api/permission/oauth2/token"
+        body = {
+            "client_id": self._client_id,
+            "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
+            "device_code": device_code,
+        }
+        return await self._requester.arequest("post", url, OAuthToken, body=body)
+
+    async def refresh_access_token(self, refresh_token: str) -> OAuthToken:
+        return await self._arefresh_access_token(refresh_token)
 
 
 class Auth(abc.ABC):

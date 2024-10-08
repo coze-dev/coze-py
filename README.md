@@ -3,6 +3,11 @@
 [![PyPI version](https://img.shields.io/pypi/v/cozepy.svg)](https://pypi.org/project/cozepy/)
 [![codecov](https://codecov.io/github/coze-dev/coze-py/graph/badge.svg?token=U6OKGQXF0E)](https://codecov.io/github/coze-dev/coze-py)
 
+- Supports all Coze open APIs and authentication methods
+- Supports both synchronous and asynchronous function calls
+- Optimized for streaming interfaces, returning Stream and AsyncStream objects
+- Features a simple and user-friendly API design for ease of use
+
 ## Requirements
 
 Python 3.7 or higher.

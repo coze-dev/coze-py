@@ -1,6 +1,21 @@
 import base64
 import hashlib
 import random
+import sys
+
+if sys.version_info < (3, 10):
+
+    async def anext(iterator, default=None):
+        try:
+            return await iterator.__anext__()
+        except StopAsyncIteration:
+            if default is not None:
+                return default
+            raise
+else:
+    from builtins import anext
+
+    _ = anext
 
 
 def base64_encode_string(s: str) -> str:
