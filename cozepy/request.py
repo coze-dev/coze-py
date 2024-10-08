@@ -27,7 +27,15 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound=BaseModel)
 
 
-class HTTPClient(httpx.Client):
+class SyncHTTPClient(httpx.Client):
+    def __init__(self, **kwargs):
+        kwargs.setdefault("timeout", DEFAULT_TIMEOUT)
+        kwargs.setdefault("limits", DEFAULT_CONNECTION_LIMITS)
+        kwargs.setdefault("follow_redirects", True)
+        super().__init__(**kwargs)
+
+
+class AsyncHTTPClient(httpx.AsyncClient):
     def __init__(self, **kwargs):
         kwargs.setdefault("timeout", DEFAULT_TIMEOUT)
         kwargs.setdefault("limits", DEFAULT_CONNECTION_LIMITS)
@@ -40,13 +48,41 @@ class Requester(object):
     http request helper class.
     """
 
-    def __init__(self, auth: "Auth" = None, client: HTTPClient = None):
+    def __init__(self, auth: "Auth" = None, sync_client: SyncHTTPClient = None, async_client: AsyncHTTPClient = None):
         self._auth = auth
-        if client is None:
-            client = HTTPClient()
-        self._client = client
+        self._sync_client = sync_client
+        self._async_client = async_client
 
     def request(
+        self,
+        method: str,
+        url: str,
+        model: Union[Type[T], Iterable[Type[T]], None],
+        params: dict = None,
+        headers: dict = None,
+        body: dict = None,
+        files: dict = None,
+        stream: bool = False,
+        data_field: str = "data",
+    ) -> Union[T, List[T], Tuple[Iterator[str], str], None]:
+        """
+        Send a request to the server.
+        """
+        method = method.upper()
+
+        request = self._make_request(
+            method,
+            url,
+            params=params,
+            headers=headers,
+            json=body,
+            files=files,
+            stream=stream,
+        )
+        response = self.sync_client.send(request, stream=stream)
+        return self._parse_response(method, url, response=response, model=model, stream=stream, data_field=data_field)
+
+    async def arequest(
         self,
         method: str,
         url: str,
@@ -69,9 +105,60 @@ class Requester(object):
             headers=headers,
             json=body,
             files=files,
+            stream=stream,
         )
+
         log_debug("request %s#%s sending, params=%s, json=%s, stream=%s", method, url, params, body, stream)
-        response = self._client.send(request, stream=stream)
+        response = await self.async_client.send(request, stream=stream)
+        return self._parse_response(method, url, response=response, model=model, stream=stream, data_field=data_field)
+
+    @property
+    def sync_client(self) -> "SyncHTTPClient":
+        if self._sync_client is None:
+            self._sync_client = SyncHTTPClient()
+        return self._sync_client
+
+    @property
+    def async_client(self) -> "AsyncHTTPClient":
+        if self._async_client is None:
+            self._async_client = AsyncHTTPClient()
+        return self._async_client
+
+    def _make_request(
+        self,
+        method: str,
+        url: str,
+        params: dict = None,
+        headers: dict = None,
+        json: dict = None,
+        files: dict = None,
+        stream: bool = None,
+    ) -> httpx.Request:
+        if headers is None:
+            headers = {}
+        headers["User-Agent"] = user_agent()
+        if self._auth:
+            self._auth.authentication(headers)
+
+        log_debug("request %s#%s sending, params=%s, json=%s, stream=%s", method, url, params, json, stream)
+        return httpx.Request(
+            method,
+            url,
+            params=params,
+            headers=headers,
+            json=json,
+            files=files,
+        )
+
+    def _parse_response(
+        self,
+        method: str,
+        url: str,
+        response: httpx.Response,
+        model: Union[Type[T], Iterable[Type[T]], None],
+        stream: bool = False,
+        data_field: str = "data",
+    ) -> Union[T, List[T], Tuple[Iterator[str], str], None]:
         logid = response.headers.get("x-tt-logid")
         if stream:
             return response.iter_lines(), logid
@@ -93,29 +180,6 @@ class Requester(object):
             if model is None:
                 return None
             return model.model_validate(data)
-
-    def _make_request(
-        self,
-        method: str,
-        url: str,
-        params: dict = None,
-        headers: dict = None,
-        json: dict = None,
-        files: dict = None,
-    ) -> httpx.Request:
-        if headers is None:
-            headers = {}
-        headers["User-Agent"] = user_agent()
-        if self._auth:
-            self._auth.authentication(headers)
-        return httpx.Request(
-            method,
-            url,
-            params=params,
-            headers=headers,
-            json=json,
-            files=files,
-        )
 
     def _parse_requests_code_msg(
         self, method: str, url: str, response: Response, data_field: str = "data"

@@ -3,7 +3,7 @@
 .DS_Store
 __pycache__/
 dist/
-debug.*
+*debug*
 .env
 .env_private
 scripts/

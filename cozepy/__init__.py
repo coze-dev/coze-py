@@ -61,7 +61,7 @@ from .model import (
     Stream,
     TokenPaged,
 )
-from .request import HTTPClient
+from .request import AsyncHTTPClient, SyncHTTPClient
 from .version import VERSION
 from .workflows.runs import (
     WorkflowEvent,
@@ -154,5 +154,6 @@ __all__ = [
     "LastIDPaged",
     "Stream",
     # request
-    "HTTPClient",
+    "SyncHTTPClient",
+    "AsyncHTTPClient",
 ]

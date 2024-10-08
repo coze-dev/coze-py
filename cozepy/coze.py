@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from cozepy.auth import Auth
 from cozepy.config import COZE_COM_BASE_URL
-from cozepy.request import HTTPClient, Requester
+from cozepy.request import Requester, SyncHTTPClient
 
 if TYPE_CHECKING:
     from .bots import BotsClient
@@ -19,11 +19,11 @@ class Coze(object):
         self,
         auth: Auth,
         base_url: str = COZE_COM_BASE_URL,
-        http_client: HTTPClient = None,
+        http_client: SyncHTTPClient = None,
     ):
         self._auth = auth
         self._base_url = base_url
-        self._requester = Requester(auth=auth, client=http_client)
+        self._requester = Requester(auth=auth, sync_client=http_client)
 
         # service client
         self._bots = None
