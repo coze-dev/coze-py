@@ -1,8 +1,9 @@
 from enum import Enum
+from functools import partial
 from typing import Any, Dict
 
 from cozepy.auth import Auth
-from cozepy.model import CozeModel, Stream
+from cozepy.model import AsyncStream, CozeModel, Stream
 from cozepy.request import Requester
 
 
@@ -99,11 +100,13 @@ class WorkflowEvent(CozeModel):
     error: WorkflowEventError = None
 
 
-def _workflow_stream_handler(data: Dict[str, str]) -> WorkflowEvent:
+def _workflow_stream_handler(data: Dict[str, str], is_async: bool = False) -> WorkflowEvent:
     id = data["id"]
     event = data["event"]
     data = data["data"]
     if event == WorkflowEventType.DONE:
+        if is_async:
+            raise StopAsyncIteration
         raise StopIteration
     elif event == WorkflowEventType.MESSAGE:
         return WorkflowEvent(
@@ -121,6 +124,10 @@ def _workflow_stream_handler(data: Dict[str, str]) -> WorkflowEvent:
         )
     else:
         raise ValueError(f"invalid workflows.event: {event}, {data}")
+
+
+_sync_workflow_stream_handler = partial(_workflow_stream_handler, is_async=False)
+_async_workflow_stream_handler = partial(_workflow_stream_handler, is_async=True)
 
 
 class WorkflowsClient(object):
@@ -192,7 +199,7 @@ class WorkflowsClient(object):
             "ext": ext,
         }
         steam_iters, logid = self._requester.request("post", url, None, body=body, stream=True)
-        return Stream(steam_iters, fields=["id", "event", "data"], handler=_workflow_stream_handler, logid=logid)
+        return Stream(steam_iters, fields=["id", "event", "data"], handler=_sync_workflow_stream_handler, logid=logid)
 
     def resume(
         self,
@@ -219,4 +226,107 @@ class WorkflowsClient(object):
             "interrupt_type": interrupt_type,
         }
         steam_iters, logid = self._requester.request("post", url, None, body=body, stream=True)
-        return Stream(steam_iters, fields=["id", "event", "data"], handler=_workflow_stream_handler, logid=logid)
+        return Stream(steam_iters, fields=["id", "event", "data"], handler=_sync_workflow_stream_handler, logid=logid)
+
+
+class AsyncWorkflowsClient(object):
+    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+        self._base_url = base_url
+        self._auth = auth
+        self._requester = requester
+
+    async def create(
+        self,
+        *,
+        workflow_id: str,
+        parameters: Dict[str, Any] = None,
+        bot_id: str = None,
+        ext: Dict[str, Any] = None,
+    ) -> WorkflowRunResult:
+        """
+        Run the published workflow.
+        This API is in non-streaming response mode. For nodes that support streaming output,
+        you should run the API Run workflow (streaming response) to obtain streaming responses.
+
+        docs en: https://www.coze.com/docs/developer_guides/workflow_run
+        docs cn: https://www.coze.cn/docs/developer_guides/workflow_run
+
+        :param workflow_id: The ID of the workflow, which should have been published.
+        :param parameters: Input parameters and their values for the starting node of the workflow. You can view the
+        list of parameters on the arrangement page of the specified workflow.
+        :param bot_id: The associated Bot ID required for some workflow executions,
+        such as workflows with database nodes, variable nodes, etc.
+        :param ext: Used to specify some additional fields in the format of Map[String][String].
+        :return: The result of the workflow execution
+        """
+        url = f"{self._base_url}/v1/workflow/run"
+        body = {
+            "workflow_id": workflow_id,
+            "parameters": parameters,
+            "bot_id": bot_id,
+            "ext": ext,
+        }
+        return await self._requester.arequest("post", url, WorkflowRunResult, body=body)
+
+    async def stream(
+        self,
+        *,
+        workflow_id: str,
+        parameters: Dict[str, Any] = None,
+        bot_id: str = None,
+        ext: Dict[str, Any] = None,
+    ) -> AsyncStream[WorkflowEvent]:
+        """
+        Execute the published workflow with a streaming response method.
+
+        docs en: https://www.coze.com/docs/developer_guides/workflow_stream_run
+        docs zh: https://www.coze.cn/docs/developer_guides/workflow_stream_run
+
+        :param workflow_id: The ID of the workflow, which should have been published.
+        :param parameters: Input parameters and their values for the starting node of the workflow. You can view the
+        list of parameters on the arrangement page of the specified workflow.
+        :param bot_id: The associated Bot ID required for some workflow executions,
+        such as workflows with database nodes, variable nodes, etc.
+        :param ext: Used to specify some additional fields in the format of Map[String][String].
+        :return: The result of the workflow execution
+        """
+        url = f"{self._base_url}/v1/workflow/stream_run"
+        body = {
+            "workflow_id": workflow_id,
+            "parameters": parameters,
+            "bot_id": bot_id,
+            "ext": ext,
+        }
+        steam_iters, logid = await self._requester.arequest("post", url, None, body=body, stream=True)
+        return AsyncStream(
+            steam_iters, fields=["id", "event", "data"], handler=_async_workflow_stream_handler, logid=logid
+        )
+
+    async def resume(
+        self,
+        *,
+        workflow_id: str,
+        event_id: str,
+        resume_data: str,
+        interrupt_type: int,
+    ) -> AsyncStream[WorkflowEvent]:
+        """
+        docs zh: https://www.coze.cn/docs/developer_guides/workflow_resume
+
+        :param workflow_id: The ID of the workflow, which should have been published.
+        :param event_id:
+        :param resume_data:
+        :param interrupt_type:
+        :return: The result of the workflow execution
+        """
+        url = f"{self._base_url}/v1/workflow/stream_resume"
+        body = {
+            "workflow_id": workflow_id,
+            "event_id": event_id,
+            "resume_data": resume_data,
+            "interrupt_type": interrupt_type,
+        }
+        steam_iters, logid = await self._requester.arequest("post", url, None, body=body, stream=True)
+        return AsyncStream(
+            steam_iters, fields=["id", "event", "data"], handler=_async_workflow_stream_handler, logid=logid
+        )

@@ -2,16 +2,16 @@ from typing import TYPE_CHECKING
 
 from cozepy.auth import Auth
 from cozepy.config import COZE_COM_BASE_URL
-from cozepy.request import Requester, SyncHTTPClient
+from cozepy.request import AsyncHTTPClient, Requester, SyncHTTPClient
 
 if TYPE_CHECKING:
-    from .bots import BotsClient
-    from .chat import ChatClient
-    from .conversations import ConversationsClient
-    from .files import FilesClient
-    from .knowledge import KnowledgeClient
-    from .workflows import WorkflowsClient
-    from .workspaces import WorkspacesClient
+    from .bots import AsyncBotsClient, BotsClient
+    from .chat import AsyncChatClient, ChatClient
+    from .conversations import AsyncConversationsClient, ConversationsClient
+    from .files import AsyncFilesClient, FilesClient
+    from .knowledge import AsyncKnowledgeClient, KnowledgeClient
+    from .workflows import AsyncWorkflowsClient, WorkflowsClient
+    from .workspaces import AsyncWorkspacesClient, WorkspacesClient
 
 
 class Coze(object):
@@ -89,3 +89,80 @@ class Coze(object):
 
             self._knowledge = KnowledgeClient(self._base_url, self._auth, self._requester)
         return self._knowledge
+
+
+class AsyncCoze(object):
+    def __init__(
+        self,
+        auth: Auth,
+        base_url: str = COZE_COM_BASE_URL,
+        http_client: AsyncHTTPClient = None,
+    ):
+        self._auth = auth
+        self._base_url = base_url
+        self._requester = Requester(auth=auth, async_client=http_client)
+
+        # service client
+        self._bots = None
+        self._chat = None
+        self._conversations = None
+        self._files = None
+        self._knowledge = None
+        self._workflows = None
+        self._workspaces = None
+
+    @property
+    def bots(self) -> "AsyncBotsClient":
+        if not self._bots:
+            from cozepy.bots import AsyncBotsClient
+
+            self._bots = AsyncBotsClient(self._base_url, self._auth, self._requester)
+        return self._bots
+
+    @property
+    def chat(self) -> "AsyncChatClient":
+        if not self._chat:
+            from cozepy.chat import AsyncChatClient
+
+            self._chat = AsyncChatClient(self._base_url, self._auth, self._requester)
+        return self._chat
+
+    @property
+    def conversations(self) -> "AsyncConversationsClient":
+        if not self._conversations:
+            from .conversations import AsyncConversationsClient
+
+            self._conversations = AsyncConversationsClient(self._base_url, self._auth, self._requester)
+        return self._conversations
+
+    @property
+    def files(self) -> "AsyncFilesClient":
+        if not self._files:
+            from .files import AsyncFilesClient
+
+            self._files = AsyncFilesClient(self._base_url, self._auth, self._requester)
+        return self._files
+
+    @property
+    def knowledge(self) -> "AsyncKnowledgeClient":
+        if not self._knowledge:
+            from .knowledge import AsyncKnowledgeClient
+
+            self._knowledge = AsyncKnowledgeClient(self._base_url, self._auth, self._requester)
+        return self._knowledge
+
+    @property
+    def workflows(self) -> "AsyncWorkflowsClient":
+        if not self._workflows:
+            from .workflows import AsyncWorkflowsClient
+
+            self._workflows = AsyncWorkflowsClient(self._base_url, self._auth, self._requester)
+        return self._workflows
+
+    @property
+    def workspaces(self) -> "AsyncWorkspacesClient":
+        if not self._workspaces:
+            from .workspaces import AsyncWorkspacesClient
+
+            self._workspaces = AsyncWorkspacesClient(self._base_url, self._auth, self._requester)
+        return self._workspaces

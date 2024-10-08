@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from cozepy import Coze, TokenAuth, WorkflowRunResult
+from cozepy import AsyncCoze, Coze, TokenAuth, WorkflowRunResult
 
 stream_testdata = """
 id: 0
@@ -109,3 +109,68 @@ data:{}""",
                     interrupt_type=123,
                 )
             )
+
+
+@pytest.mark.respx(base_url="https://api.coze.com")
+@pytest.mark.asyncio
+class TestAsyncWorkflowsRuns:
+    async def test_create(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        respx_mock.post("/v1/workflow/run").mock(
+            httpx.Response(200, json={"data": WorkflowRunResult(debug_url="debug_url", data="data").model_dump()})
+        )
+
+        res = await coze.workflows.runs.create(workflow_id="id")
+        assert res
+        assert res.data == "data"
+
+    async def test_stream(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        respx_mock.post("/v1/workflow/stream_run").mock(httpx.Response(200, content=stream_testdata))
+
+        events = [event async for event in await coze.workflows.runs.stream(workflow_id="id")]
+
+        assert events
+        assert len(events) == 9
+
+    async def test_resume(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        respx_mock.post("/v1/workflow/stream_resume").mock(httpx.Response(200, content=stream_testdata))
+
+        events = [
+            event
+            async for event in await coze.workflows.runs.resume(
+                workflow_id="id",
+                event_id="event_id",
+                resume_data="resume_data",
+                interrupt_type=123,
+            )
+        ]
+
+        assert events
+        assert len(events) == 9
+
+    async def test_stream_invalid_event(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        respx_mock.post("/v1/workflow/stream_resume").mock(
+            httpx.Response(
+                200,
+                content="""
+id:0
+event:invalid
+data:{}""",
+            )
+        )
+
+        with pytest.raises(Exception, match="invalid workflows.event: invalid"):
+            async for event in await coze.workflows.runs.resume(
+                workflow_id="id",
+                event_id="event_id",
+                resume_data="resume_data",
+                interrupt_type=123,
+            ):
+                pass

@@ -1,4 +1,8 @@
 from .auth import (
+    AsyncDeviceOAuthApp,
+    AsyncJWTOAuthApp,
+    AsyncPKCEOAuthApp,
+    AsyncWebOAuthApp,
     Auth,
     DeviceAuthCode,
     DeviceOAuthApp,
@@ -40,7 +44,7 @@ from .config import (
     DEFAULT_TIMEOUT,
 )
 from .conversations import Conversation
-from .coze import Coze
+from .coze import AsyncCoze, Coze
 from .exception import CozeAPIError, CozeError, CozeEventError, CozePKCEAuthError
 from .files import File
 from .knowledge.documents import (
@@ -56,6 +60,7 @@ from .knowledge.documents import (
 )
 from .log import setup_logging
 from .model import (
+    AsyncStream,
     LastIDPaged,
     NumberPaged,
     Stream,
@@ -77,17 +82,21 @@ from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
 __all__ = [
     "VERSION",
     # auth
-    "OAuthToken",
-    "DeviceAuthCode",
-    "OAuthApp",
-    "WebOAuthApp",
-    "JWTOAuthApp",
-    "PKCEOAuthApp",
-    "DeviceOAuthApp",
+    "AsyncDeviceOAuthApp",
+    "AsyncJWTOAuthApp",
+    "AsyncPKCEOAuthApp",
+    "AsyncWebOAuthApp",
     "Auth",
-    "TokenAuth",
+    "DeviceAuthCode",
+    "DeviceOAuthApp",
     "JWTAuth",
+    "JWTOAuthApp",
+    "OAuthApp",
+    "OAuthToken",
+    "PKCEOAuthApp",
     "Scope",
+    "TokenAuth",
+    "WebOAuthApp",
     # bots
     "BotPromptInfo",
     "BotOnboardingInfo",
@@ -142,6 +151,7 @@ __all__ = [
     "DEFAULT_TIMEOUT",
     "DEFAULT_CONNECTION_LIMITS",
     # coze
+    "AsyncCoze",
     "Coze",
     # exception
     "CozeError",
@@ -149,10 +159,11 @@ __all__ = [
     "CozeEventError",
     "CozePKCEAuthError",
     # model
-    "TokenPaged",
-    "NumberPaged",
+    "AsyncStream",
     "LastIDPaged",
+    "NumberPaged",
     "Stream",
+    "TokenPaged",
     # request
     "SyncHTTPClient",
     "AsyncHTTPClient",

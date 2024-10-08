@@ -392,3 +392,145 @@ class DocumentsClient(object):
     class _PrivateListDocumentsData(CozeModel):
         document_infos: List[Document]
         total: int
+
+
+class AsyncDocumentsClient(object):
+    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+        self._base_url = base_url
+        self._auth = auth
+        self._requester = requester
+
+    async def create(
+        self,
+        *,
+        dataset_id: str,
+        document_bases: List[DocumentBase],
+        chunk_strategy: DocumentChunkStrategy = None,
+    ) -> List[Document]:
+        """
+        Upload files to the specific knowledge.
+
+        docs en: https://www.coze.com/docs/developer_guides/create_knowledge_files
+        docs zh: https://www.coze.cn/docs/developer_guides/create_knowledge_files
+
+        :param dataset_id: The ID of the knowledge base.
+        :param document_bases: The metadata information of the files awaiting upload. The array has a maximum length of
+        10, meaning up to 10 files can be uploaded at a time. For detailed instructions, refer to the DocumentBase
+        object.
+        :param chunk_strategy: Chunk strategy. These rules must be set only when uploading a file to a new knowledge
+        for the first time. For subsequent file uploads to this knowledge, it is not necessary to pass these rules; the
+        default is to continue using the initial settings, and modifications are not supported.
+        For detailed instructions, refer to the ChunkStrategy object.
+        :return: list of Document
+        """
+        url = f"{self._base_url}/open_api/knowledge/document/create"
+        headers = {"Agw-Js-Conv": "str"}
+        body = {
+            "dataset_id": dataset_id,
+            "document_bases": [i.model_dump() for i in document_bases],
+            "chunk_strategy": chunk_strategy.model_dump() if chunk_strategy else None,
+        }
+        return await self._requester.arequest(
+            "post", url, List[Document], headers=headers, body=body, data_field="document_infos"
+        )
+
+    async def update(
+        self,
+        *,
+        document_id: str,
+        document_name: str = None,
+        update_rule: DocumentUpdateRule = None,
+    ) -> None:
+        """
+        Modify the knowledge base file name and update strategy.
+
+        docs en: https://www.coze.com/docs/developer_guides/modify_knowledge_files
+        docs zh: https://www.coze.cn/docs/developer_guides/modify_knowledge_files
+
+        :param document_id: The ID of the knowledge base file.
+        :param document_name: The new name of the knowledge base file.
+        :param update_rule: The update strategy for online web pages. Defaults to no automatic updates.
+        For detailed information, refer to the UpdateRule object.
+        :return: None
+        """
+        url = f"{self._base_url}/open_api/knowledge/document/update"
+        headers = {"Agw-Js-Conv": "str"}
+        body = {
+            "document_id": document_id,
+            "document_name": document_name,
+            "update_rule": update_rule,
+        }
+        return await self._requester.arequest(
+            "post",
+            url,
+            None,
+            headers=headers,
+            body=body,
+        )
+
+    async def delete(
+        self,
+        *,
+        document_ids: List[str],
+    ) -> None:
+        """
+        Delete text, images, sheets, and other files in the knowledge base, supporting batch deletion.
+
+        docs en: https://www.coze.com/docs/developer_guides/delete_knowledge_files
+        docs zh: https://www.coze.cn/docs/developer_guides/delete_knowledge_files
+
+        :param document_ids: The list of knowledge base files to be deleted. The maximum length of the array is 100,
+        meaning a maximum of 100 files can be deleted at one time.
+        :return: None
+        """
+        url = f"{self._base_url}/open_api/knowledge/document/delete"
+        headers = {"Agw-Js-Conv": "str"}
+        body = {
+            "document_ids": document_ids,
+        }
+        return await self._requester.arequest(
+            "post",
+            url,
+            None,
+            headers=headers,
+            body=body,
+        )
+
+    async def list(
+        self,
+        *,
+        dataset_id: str,
+        page_num: int = 1,
+        page_size: int = 10,
+    ) -> NumberPaged[Document]:
+        """
+        View the file list of a specified knowledge base, which includes lists of documents, spreadsheets, or images.
+
+        docs en: https://www.coze.com/docs/developer_guides/list_knowledge_files
+        docs zh: https://www.coze.cn/docs/developer_guides/list_knowledge_files
+
+
+        :param dataset_id: The ID of the knowledge base.
+        :param page_num: The page number for paginated queries. Default is 1, meaning the data return starts from the
+        first page.
+        :param page_size: The size of pagination. Default is 10, meaning that 10 data entries are returned per page.
+        :return: list of Document
+        """
+        url = f"{self._base_url}/open_api/knowledge/document/list"
+        body = {
+            "dataset_id": dataset_id,
+            "page": page_num,
+            "size": page_size,
+        }
+        headers = {"Agw-Js-Conv": "str"}
+        res = await self._requester.arequest("post", url, self._PrivateListDocumentsData, body=body, headers=headers)
+        return NumberPaged(
+            items=res.document_infos,
+            page_num=page_num,
+            page_size=page_size,
+            total=res.total,
+        )
+
+    class _PrivateListDocumentsData(CozeModel):
+        document_infos: List[Document]
+        total: int
