@@ -7,7 +7,7 @@ from authlib.jose import jwt
 from typing_extensions import Literal
 
 from cozepy.config import COZE_CN_BASE_URL, COZE_COM_BASE_URL
-from cozepy.exception import CozePKCEAuthError
+from cozepy.exception import CozePKCEAuthError, CozePKCEAuthErrorType
 from cozepy.model import CozeModel
 from cozepy.request import Requester
 from cozepy.util import gen_s256_code_challenge, random_hex
@@ -483,10 +483,10 @@ class DeviceOAuthApp(OAuthApp):
             try:
                 return self._get_access_token(device_code)
             except CozePKCEAuthError as e:
-                if e.error == "authorization_pending":
+                if e.error == CozePKCEAuthErrorType.AUTHORIZATION_PENDING:
                     time.sleep(interval)
                     continue
-                elif e.error == "slow_down":
+                elif e.error == CozePKCEAuthErrorType.SLOW_DOWN:
                     if interval < 30:
                         interval += 5
                     time.sleep(interval)
@@ -565,10 +565,10 @@ class AsyncDeviceOAuthApp(DeviceOAuthApp):
             try:
                 return await self._get_access_token(device_code)
             except CozePKCEAuthError as e:
-                if e.error == "authorization_pending":
+                if e.error == CozePKCEAuthErrorType.AUTHORIZATION_PENDING:
                     time.sleep(interval)
                     continue
-                elif e.error == "slow_down":
+                elif e.error == CozePKCEAuthErrorType.SLOW_DOWN:
                     if interval < 30:
                         interval += 5
                     time.sleep(interval)

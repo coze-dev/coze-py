@@ -45,7 +45,7 @@ from .config import (
 )
 from .conversations import Conversation
 from .coze import AsyncCoze, Coze
-from .exception import CozeAPIError, CozeError, CozeEventError, CozePKCEAuthError
+from .exception import CozeAPIError, CozeError, CozeEventError, CozePKCEAuthError, CozePKCEAuthErrorType
 from .files import File
 from .knowledge.documents import (
     Document,
@@ -158,6 +158,7 @@ __all__ = [
     "CozeAPIError",
     "CozeEventError",
     "CozePKCEAuthError",
+    "CozePKCEAuthErrorType",
     # model
     "AsyncStream",
     "LastIDPaged",

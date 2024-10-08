@@ -1,4 +1,4 @@
-from typing_extensions import Literal
+from enum import Enum
 
 
 class CozeError(Exception):
@@ -24,15 +24,23 @@ class CozeAPIError(CozeError):
             super().__init__(f"msg: {msg}, logid: {logid}")
 
 
+class CozePKCEAuthErrorType(str, Enum):
+    AUTHORIZATION_PENDING = "authorization_pending"
+    SLOW_DOWN = "slow_down"
+    ACCESS_DENIED = "access_denied"
+    EXPIRED_TOKEN = "expired_token"
+
+
+COZE_PKCE_AUTH_ERROR_TYPE_ENUMS = set(e.value for e in CozePKCEAuthErrorType)
+
+
 class CozePKCEAuthError(CozeError):
     """
     base class for all pkce auth errors
     """
 
-    def __init__(
-        self, error: Literal["authorization_pending", "slow_down", "access_denied", "expired_token"], logid: str = None
-    ):
-        super().__init__(f"pkce auth error: {error}")
+    def __init__(self, error: CozePKCEAuthErrorType, logid: str = None):
+        super().__init__(f"pkce auth error: {error.value}")
         self.error = error
         self.logid = logid
 

@@ -9,6 +9,7 @@ from cozepy import (
     AsyncJWTOAuthApp,
     AsyncPKCEOAuthApp,
     AsyncWebOAuthApp,
+    CozePKCEAuthErrorType,
     DeviceAuthCode,
     DeviceOAuthApp,
     JWTAuth,
@@ -377,7 +378,7 @@ class TestDeviceOAuthApp:
         mock_token = random_hex(20)
 
         respx_mock.post("/api/permission/oauth2/token").mock(
-            httpx.Response(200, json={"error_code": "authorization_pending"})
+            httpx.Response(200, json={"error_code": CozePKCEAuthErrorType.AUTHORIZATION_PENDING})
         ).mock(
             httpx.Response(
                 200, content=OAuthToken(access_token=mock_token, expires_in=int(time.time())).model_dump_json()
@@ -462,7 +463,7 @@ class TestAsyncDeviceOAuthApp:
         mock_token = random_hex(20)
 
         respx_mock.post("/api/permission/oauth2/token").mock(
-            httpx.Response(200, json={"error_code": "authorization_pending"})
+            httpx.Response(200, json={"error_code": CozePKCEAuthErrorType.AUTHORIZATION_PENDING})
         ).mock(
             httpx.Response(
                 200, content=OAuthToken(access_token=mock_token, expires_in=int(time.time())).model_dump_json()
