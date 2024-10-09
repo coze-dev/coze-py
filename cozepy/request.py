@@ -2,7 +2,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     AsyncIterator,
-    Iterable,
     Iterator,
     List,
     Optional,
@@ -15,7 +14,6 @@ from typing import (
 import httpx
 from httpx import Response
 from pydantic import BaseModel
-from typing_extensions import get_args, get_origin
 
 from cozepy.config import DEFAULT_CONNECTION_LIMITS, DEFAULT_TIMEOUT
 from cozepy.exception import COZE_PKCE_AUTH_ERROR_TYPE_ENUMS, CozeAPIError, CozePKCEAuthError, CozePKCEAuthErrorType
@@ -58,7 +56,7 @@ class Requester(object):
         self,
         method: str,
         url: str,
-        model: Union[Type[T], Type[Iterable[T]], None],
+        model: Union[Type[T], List[Type[T]], None],
         params: dict = None,
         headers: dict = None,
         body: dict = None,
@@ -88,7 +86,7 @@ class Requester(object):
         self,
         method: str,
         url: str,
-        model: Union[Type[T], Type[Iterable[T]], None],
+        model: Union[Type[T], List[Type[T]], None],
         params: dict = None,
         headers: dict = None,
         body: dict = None,
@@ -156,7 +154,7 @@ class Requester(object):
         method: str,
         url: str,
         response: httpx.Response,
-        model: Union[Type[T], Iterable[Type[T]], None],
+        model: Union[Type[T], List[Type[T]], None],
         stream: bool = False,
         data_field: str = "data",
         is_async: bool = False,
@@ -177,8 +175,8 @@ class Requester(object):
             if msg in COZE_PKCE_AUTH_ERROR_TYPE_ENUMS:
                 raise CozePKCEAuthError(CozePKCEAuthErrorType(msg), logid)
             raise CozeAPIError(code, msg, logid)
-        if get_origin(model) is list:
-            item_model = get_args(model)[0]
+        if isinstance(model, List):
+            item_model = model[0]
             return [item_model.model_validate(item) for item in data]
         else:
             if model is None:
