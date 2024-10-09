@@ -1,3 +1,5 @@
+from typing import Optional
+
 from cozepy.auth import Auth
 from cozepy.request import Requester
 
@@ -9,7 +11,7 @@ class KnowledgeClient(object):
         self._base_url = base_url
         self._auth = auth
         self._requester = requester
-        self._documents = None
+        self._documents: Optional[DocumentsClient] = None
 
     @property
     def documents(self) -> DocumentsClient:
@@ -23,7 +25,7 @@ class AsyncKnowledgeClient(object):
         self._base_url = base_url
         self._auth = auth
         self._requester = requester
-        self._documents = None
+        self._documents: Optional[AsyncDocumentsClient] = None
 
     @property
     def documents(self) -> AsyncDocumentsClient:

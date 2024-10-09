@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from cozepy.auth import Auth
 from cozepy.chat import Message, MessageContentType, MessageRole
@@ -23,7 +23,7 @@ class MessagesClient(object):
         role: MessageRole,
         content: str,
         content_type: MessageContentType,
-        meta_data: Dict[str, str] = None,
+        meta_data: Optional[Dict[str, str]] = None,
     ) -> Message:
         """
         Create a message and add it to the specified conversation.
@@ -51,16 +51,16 @@ class MessagesClient(object):
             "meta_data": meta_data,
         }
 
-        return self._requester.request("post", url, Message, params=params, body=body)
+        return self._requester.request("post", url, False, Message, params=params, body=body)
 
     def list(
         self,
         *,
         conversation_id: str,
         order: str = "desc",
-        chat_id: str = None,
-        before_id: str = None,
-        after_id: str = None,
+        chat_id: Optional[str] = None,
+        before_id: Optional[str] = None,
+        after_id: Optional[str] = None,
         limit: int = 50,
     ) -> LastIDPaged[Message]:
         """
@@ -89,7 +89,7 @@ class MessagesClient(object):
             "limit": limit,
         }
 
-        res = self._requester.request("post", url, self._PrivateListMessageResp, params=params, body=body)
+        res = self._requester.request("post", url, False, self._PrivateListMessageResp, params=params, body=body)
         return LastIDPaged(res.items, res.first_id, res.last_id, res.has_more)
 
     def retrieve(
@@ -114,16 +114,16 @@ class MessagesClient(object):
             "message_id": message_id,
         }
 
-        return self._requester.request("get", url, Message, params=params)
+        return self._requester.request("get", url, False, Message, params=params)
 
     def update(
         self,
         *,
         conversation_id: str,
         message_id: str,
-        content: str = None,
-        content_type: MessageContentType = None,
-        meta_data: Dict[str, str] = None,
+        content: Optional[str] = None,
+        content_type: Optional[MessageContentType] = None,
+        meta_data: Optional[Dict[str, str]] = None,
     ) -> Message:
         """
         Modify a message, supporting the modification of message content, additional content, and message type.
@@ -150,7 +150,7 @@ class MessagesClient(object):
             "meta_data": meta_data,
         }
 
-        return self._requester.request("post", url, Message, params=params, body=body, data_field="message")
+        return self._requester.request("post", url, False, Message, params=params, body=body, data_field="message")
 
     def delete(
         self,
@@ -174,7 +174,7 @@ class MessagesClient(object):
             "message_id": message_id,
         }
 
-        return self._requester.request("post", url, Message, params=params)
+        return self._requester.request("post", url, False, Message, params=params)
 
     class _PrivateListMessageResp(CozeModel):
         first_id: str
@@ -200,7 +200,7 @@ class AsyncMessagesClient(object):
         role: MessageRole,
         content: str,
         content_type: MessageContentType,
-        meta_data: Dict[str, str] = None,
+        meta_data: Optional[Dict[str, str]] = None,
     ) -> Message:
         """
         Create a message and add it to the specified conversation.
@@ -228,16 +228,16 @@ class AsyncMessagesClient(object):
             "meta_data": meta_data,
         }
 
-        return await self._requester.arequest("post", url, Message, params=params, body=body)
+        return await self._requester.arequest("post", url, False, Message, params=params, body=body)
 
     async def list(
         self,
         *,
         conversation_id: str,
         order: str = "desc",
-        chat_id: str = None,
-        before_id: str = None,
-        after_id: str = None,
+        chat_id: Optional[str] = None,
+        before_id: Optional[str] = None,
+        after_id: Optional[str] = None,
         limit: int = 50,
     ) -> LastIDPaged[Message]:
         """
@@ -266,7 +266,7 @@ class AsyncMessagesClient(object):
             "limit": limit,
         }
 
-        res = await self._requester.arequest("post", url, self._PrivateListMessageResp, params=params, body=body)
+        res = await self._requester.arequest("post", url, False, self._PrivateListMessageResp, params=params, body=body)
         return LastIDPaged(res.items, res.first_id, res.last_id, res.has_more)
 
     async def retrieve(
@@ -291,16 +291,16 @@ class AsyncMessagesClient(object):
             "message_id": message_id,
         }
 
-        return await self._requester.arequest("get", url, Message, params=params)
+        return await self._requester.arequest("get", url, False, Message, params=params)
 
     async def update(
         self,
         *,
         conversation_id: str,
         message_id: str,
-        content: str = None,
-        content_type: MessageContentType = None,
-        meta_data: Dict[str, str] = None,
+        content: Optional[str] = None,
+        content_type: Optional[MessageContentType] = None,
+        meta_data: Optional[Dict[str, str]] = None,
     ) -> Message:
         """
         Modify a message, supporting the modification of message content, additional content, and message type.
@@ -327,7 +327,9 @@ class AsyncMessagesClient(object):
             "meta_data": meta_data,
         }
 
-        return await self._requester.arequest("post", url, Message, params=params, body=body, data_field="message")
+        return await self._requester.arequest(
+            "post", url, False, Message, params=params, body=body, data_field="message"
+        )
 
     async def delete(
         self,
@@ -351,7 +353,7 @@ class AsyncMessagesClient(object):
             "message_id": message_id,
         }
 
-        return await self._requester.arequest("post", url, Message, params=params)
+        return await self._requester.arequest("post", url, False, Message, params=params)
 
     class _PrivateListMessageResp(CozeModel):
         first_id: str

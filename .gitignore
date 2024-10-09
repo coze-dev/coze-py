@@ -1,5 +1,5 @@
 .idea/
-.venv/
+.venv*/
 .DS_Store
 __pycache__/
 dist/

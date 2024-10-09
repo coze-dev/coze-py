@@ -1,6 +1,5 @@
 from enum import Enum
-from functools import partial
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from cozepy.auth import Auth
 from cozepy.model import AsyncStream, CozeModel, Stream
@@ -52,7 +51,7 @@ class WorkflowEventMessage(CozeModel):
 
     # Additional fields.
     # 额外字段。
-    ext: Dict[str, Any] = None
+    ext: Optional[Dict[str, Any]] = None
 
 
 class WorkflowEventInterruptData(CozeModel):
@@ -93,17 +92,17 @@ class WorkflowEvent(CozeModel):
     # The current streaming data packet event.
     event: WorkflowEventType
 
-    message: WorkflowEventMessage = None
+    message: Optional[WorkflowEventMessage] = None
 
-    interrupt: WorkflowEventInterrupt = None
+    interrupt: Optional[WorkflowEventInterrupt] = None
 
-    error: WorkflowEventError = None
+    error: Optional[WorkflowEventError] = None
 
 
 def _workflow_stream_handler(data: Dict[str, str], is_async: bool = False) -> WorkflowEvent:
-    id = data["id"]
+    id = int(data["id"])
     event = data["event"]
-    data = data["data"]
+    event_data = data["data"]  # type: str
     if event == WorkflowEventType.DONE:
         if is_async:
             raise StopAsyncIteration
@@ -112,25 +111,29 @@ def _workflow_stream_handler(data: Dict[str, str], is_async: bool = False) -> Wo
         return WorkflowEvent(
             id=id,
             event=event,
-            message=WorkflowEventMessage.model_validate_json(data),
+            message=WorkflowEventMessage.model_validate_json(event_data),
         )
     elif event == WorkflowEventType.ERROR:
-        return WorkflowEvent(id=id, event=event, error=WorkflowEventError.model_validate_json(data))
+        return WorkflowEvent(id=id, event=event, error=WorkflowEventError.model_validate_json(event_data))
     elif event == WorkflowEventType.INTERRUPT:
         return WorkflowEvent(
             id=id,
             event=event,
-            interrupt=WorkflowEventInterrupt.model_validate_json(data),
+            interrupt=WorkflowEventInterrupt.model_validate_json(event_data),
         )
     else:
-        raise ValueError(f"invalid workflows.event: {event}, {data}")
+        raise ValueError(f"invalid workflows.event: {event}, {event_data}")
 
 
-_sync_workflow_stream_handler = partial(_workflow_stream_handler, is_async=False)
-_async_workflow_stream_handler = partial(_workflow_stream_handler, is_async=True)
+def _sync_workflow_stream_handler(data: Dict[str, str]) -> WorkflowEvent:
+    return _workflow_stream_handler(data, is_async=False)
 
 
-class WorkflowsClient(object):
+async def _async_workflow_stream_handler(data: Dict[str, str]) -> WorkflowEvent:
+    return _workflow_stream_handler(data, is_async=True)
+
+
+class WorkflowsRunsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = base_url
         self._auth = auth
@@ -140,9 +143,9 @@ class WorkflowsClient(object):
         self,
         *,
         workflow_id: str,
-        parameters: Dict[str, Any] = None,
-        bot_id: str = None,
-        ext: Dict[str, Any] = None,
+        parameters: Optional[Dict[str, Any]] = None,
+        bot_id: Optional[str] = None,
+        ext: Optional[Dict[str, Any]] = None,
     ) -> WorkflowRunResult:
         """
         Run the published workflow.
@@ -167,15 +170,15 @@ class WorkflowsClient(object):
             "bot_id": bot_id,
             "ext": ext,
         }
-        return self._requester.request("post", url, WorkflowRunResult, body=body)
+        return self._requester.request("post", url, False, WorkflowRunResult, body=body)
 
     def stream(
         self,
         *,
         workflow_id: str,
-        parameters: Dict[str, Any] = None,
-        bot_id: str = None,
-        ext: Dict[str, Any] = None,
+        parameters: Optional[Dict[str, Any]] = None,
+        bot_id: Optional[str] = None,
+        ext: Optional[Dict[str, Any]] = None,
     ) -> Stream[WorkflowEvent]:
         """
         Execute the published workflow with a streaming response method.
@@ -198,7 +201,13 @@ class WorkflowsClient(object):
             "bot_id": bot_id,
             "ext": ext,
         }
-        steam_iters, logid = self._requester.request("post", url, None, body=body, stream=True)
+        steam_iters, logid = self._requester.request(
+            "post",
+            url,
+            True,
+            None,
+            body=body,
+        )
         return Stream(steam_iters, fields=["id", "event", "data"], handler=_sync_workflow_stream_handler, logid=logid)
 
     def resume(
@@ -225,11 +234,17 @@ class WorkflowsClient(object):
             "resume_data": resume_data,
             "interrupt_type": interrupt_type,
         }
-        steam_iters, logid = self._requester.request("post", url, None, body=body, stream=True)
+        steam_iters, logid = self._requester.request(
+            "post",
+            url,
+            True,
+            None,
+            body=body,
+        )
         return Stream(steam_iters, fields=["id", "event", "data"], handler=_sync_workflow_stream_handler, logid=logid)
 
 
-class AsyncWorkflowsClient(object):
+class AsyncWorkflowsRunsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = base_url
         self._auth = auth
@@ -239,9 +254,9 @@ class AsyncWorkflowsClient(object):
         self,
         *,
         workflow_id: str,
-        parameters: Dict[str, Any] = None,
-        bot_id: str = None,
-        ext: Dict[str, Any] = None,
+        parameters: Optional[Dict[str, Any]] = None,
+        bot_id: Optional[str] = None,
+        ext: Optional[Dict[str, Any]] = None,
     ) -> WorkflowRunResult:
         """
         Run the published workflow.
@@ -266,15 +281,15 @@ class AsyncWorkflowsClient(object):
             "bot_id": bot_id,
             "ext": ext,
         }
-        return await self._requester.arequest("post", url, WorkflowRunResult, body=body)
+        return await self._requester.arequest("post", url, False, WorkflowRunResult, body=body)
 
     async def stream(
         self,
         *,
         workflow_id: str,
-        parameters: Dict[str, Any] = None,
-        bot_id: str = None,
-        ext: Dict[str, Any] = None,
+        parameters: Optional[Dict[str, Any]] = None,
+        bot_id: Optional[str] = None,
+        ext: Optional[Dict[str, Any]] = None,
     ) -> AsyncStream[WorkflowEvent]:
         """
         Execute the published workflow with a streaming response method.
@@ -297,7 +312,13 @@ class AsyncWorkflowsClient(object):
             "bot_id": bot_id,
             "ext": ext,
         }
-        steam_iters, logid = await self._requester.arequest("post", url, None, body=body, stream=True)
+        steam_iters, logid = await self._requester.arequest(
+            "post",
+            url,
+            True,
+            None,
+            body=body,
+        )
         return AsyncStream(
             steam_iters, fields=["id", "event", "data"], handler=_async_workflow_stream_handler, logid=logid
         )
@@ -326,7 +347,13 @@ class AsyncWorkflowsClient(object):
             "resume_data": resume_data,
             "interrupt_type": interrupt_type,
         }
-        steam_iters, logid = await self._requester.arequest("post", url, None, body=body, stream=True)
+        steam_iters, logid = await self._requester.arequest(
+            "post",
+            url,
+            True,
+            None,
+            body=body,
+        )
         return AsyncStream(
             steam_iters, fields=["id", "event", "data"], handler=_async_workflow_stream_handler, logid=logid
         )

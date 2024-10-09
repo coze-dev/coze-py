@@ -5,7 +5,7 @@ from cozepy.chat import Message
 from cozepy.request import Requester
 
 
-class MessagesClient(object):
+class ChatMessagesClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = base_url
         self._auth = auth
@@ -33,10 +33,10 @@ class MessagesClient(object):
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return self._requester.request("post", url, [Message], params=params)
+        return self._requester.request("post", url, False, [Message], params=params)
 
 
-class AsyncMessagesClient(object):
+class AsyncChatMessagesClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = base_url
         self._auth = auth
@@ -64,4 +64,4 @@ class AsyncMessagesClient(object):
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return await self._requester.arequest("post", url, [Message], params=params)
+        return await self._requester.arequest("post", url, False, [Message], params=params)

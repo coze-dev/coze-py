@@ -33,9 +33,12 @@ jobs:
           poetry install
       - name: Build
         run: |
+          poetry build
+      - name: Check
+        run: |
           poetry run ruff check cozepy
           poetry run ruff format --check
-          poetry build
+          poetry run mypy .
       - name: Run tests
         run: poetry run pytest --cov --cov-report=xml
       - name: Upload coverage to Codecov

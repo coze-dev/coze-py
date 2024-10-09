@@ -58,17 +58,17 @@ class Bot(CozeModel):
     # The ID for the bot.
     bot_id: str
     # The name of the bot.
-    name: str = None
+    name: Optional[str] = None
     # The description of the bot.
-    description: str = None
+    description: Optional[str] = None
     # The URL address for the bot's avatar.
-    icon_url: str = None
+    icon_url: Optional[str] = None
     # The creation time, in the format of a 10-digit Unix timestamp in seconds (s).
-    create_time: int = None
+    create_time: Optional[int] = None
     # The update time, in the format of a 10-digit Unix timestamp in seconds (s).
-    update_time: int = None
+    update_time: Optional[int] = None
     # The latest version of the bot.
-    version: str = None
+    version: Optional[str] = None
     # The prompt configuration for the bot. For more information, see Prompt object.
     prompt_info: Optional[BotPromptInfo] = None
     # The onboarding message configuration for the bot. For more information, see Onboarding object.
@@ -110,10 +110,10 @@ class BotsClient(object):
         *,
         space_id: str,
         name: str,
-        description: str = None,
-        icon_file_id: str = None,
-        prompt_info: BotPromptInfo = None,
-        onboarding_info: BotOnboardingInfo = None,
+        description: Optional[str] = None,
+        icon_file_id: Optional[str] = None,
+        prompt_info: Optional[BotPromptInfo] = None,
+        onboarding_info: Optional[BotOnboardingInfo] = None,
     ) -> Bot:
         url = f"{self._base_url}/v1/bot/create"
         body = {
@@ -125,17 +125,17 @@ class BotsClient(object):
             "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
         }
 
-        return self._requester.request("post", url, Bot, body=body)
+        return self._requester.request("post", url, False, Bot, body=body)
 
     def update(
         self,
         *,
         bot_id: str,
-        name: str = None,
-        description: str = None,
-        icon_file_id: str = None,
-        prompt_info: BotPromptInfo = None,
-        onboarding_info: BotOnboardingInfo = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        icon_file_id: Optional[str] = None,
+        prompt_info: Optional[BotPromptInfo] = None,
+        onboarding_info: Optional[BotOnboardingInfo] = None,
     ) -> None:
         """
         Update the configuration of a bot.
@@ -166,13 +166,19 @@ class BotsClient(object):
             "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
         }
 
-        return self._requester.request("post", url, None, body=body)
+        return self._requester.request(
+            "post",
+            url,
+            False,
+            None,
+            body=body,
+        )
 
     def publish(
         self,
         *,
         bot_id: str,
-        connector_ids: List[str] = None,
+        connector_ids: Optional[List[str]] = None,
     ) -> Bot:
         url = f"{self._base_url}/v1/bot/publish"
         if not connector_ids:
@@ -182,7 +188,7 @@ class BotsClient(object):
             "connector_ids": connector_ids,
         }
 
-        return self._requester.request("post", url, Bot, body=body)
+        return self._requester.request("post", url, False, Bot, body=body)
 
     def retrieve(self, *, bot_id: str) -> Bot:
         """
@@ -201,7 +207,7 @@ class BotsClient(object):
         url = f"{self._base_url}/v1/bot/get_online_info"
         params = {"bot_id": bot_id}
 
-        return self._requester.request("get", url, Bot, params=params)
+        return self._requester.request("get", url, False, Bot, params=params)
 
     def list(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> NumberPaged[SimpleBot]:
         """
@@ -227,7 +233,7 @@ class BotsClient(object):
             "page_size": page_size,
             "page_index": page_num,
         }
-        data = self._requester.request("get", url, self._PrivateListPublishedBotsV1Data, params=params)
+        data = self._requester.request("get", url, False, self._PrivateListPublishedBotsV1Data, params=params)
         return NumberPaged(
             items=data.space_bots,
             page_num=page_num,
@@ -255,10 +261,10 @@ class AsyncBotsClient(object):
         *,
         space_id: str,
         name: str,
-        description: str = None,
-        icon_file_id: str = None,
-        prompt_info: BotPromptInfo = None,
-        onboarding_info: BotOnboardingInfo = None,
+        description: Optional[str] = None,
+        icon_file_id: Optional[str] = None,
+        prompt_info: Optional[BotPromptInfo] = None,
+        onboarding_info: Optional[BotOnboardingInfo] = None,
     ) -> Bot:
         url = f"{self._base_url}/v1/bot/create"
         body = {
@@ -270,17 +276,17 @@ class AsyncBotsClient(object):
             "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
         }
 
-        return await self._requester.arequest("post", url, Bot, body=body)
+        return await self._requester.arequest("post", url, False, Bot, body=body)
 
     async def update(
         self,
         *,
         bot_id: str,
-        name: str = None,
-        description: str = None,
-        icon_file_id: str = None,
-        prompt_info: BotPromptInfo = None,
-        onboarding_info: BotOnboardingInfo = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        icon_file_id: Optional[str] = None,
+        prompt_info: Optional[BotPromptInfo] = None,
+        onboarding_info: Optional[BotOnboardingInfo] = None,
     ) -> None:
         """
         Update the configuration of a bot.
@@ -311,13 +317,13 @@ class AsyncBotsClient(object):
             "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
         }
 
-        return await self._requester.arequest("post", url, None, body=body)
+        return await self._requester.arequest("post", url, False, None, body=body)
 
     async def publish(
         self,
         *,
         bot_id: str,
-        connector_ids: List[str] = None,
+        connector_ids: Optional[List[str]] = None,
     ) -> Bot:
         url = f"{self._base_url}/v1/bot/publish"
         if not connector_ids:
@@ -327,7 +333,7 @@ class AsyncBotsClient(object):
             "connector_ids": connector_ids,
         }
 
-        return await self._requester.arequest("post", url, Bot, body=body)
+        return await self._requester.arequest("post", url, False, Bot, body=body)
 
     async def retrieve(self, *, bot_id: str) -> Bot:
         """
@@ -346,7 +352,7 @@ class AsyncBotsClient(object):
         url = f"{self._base_url}/v1/bot/get_online_info"
         params = {"bot_id": bot_id}
 
-        return await self._requester.arequest("get", url, Bot, params=params)
+        return await self._requester.arequest("get", url, False, Bot, params=params)
 
     async def list(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> NumberPaged[SimpleBot]:
         """
@@ -372,7 +378,7 @@ class AsyncBotsClient(object):
             "page_size": page_size,
             "page_index": page_num,
         }
-        data = await self._requester.arequest("get", url, self._PrivateListPublishedBotsV1Data, params=params)
+        data = await self._requester.arequest("get", url, False, self._PrivateListPublishedBotsV1Data, params=params)
         return NumberPaged(
             items=data.space_bots,
             page_num=page_num,

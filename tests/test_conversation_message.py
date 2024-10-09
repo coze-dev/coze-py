@@ -6,7 +6,7 @@ from cozepy import AsyncCoze, Coze, Message, TokenAuth
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 class TestConversationMessage:
-    def test_create(self, respx_mock):
+    def test_conversations_messages_create(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         msg = Message.assistant_text_message("hi")
@@ -18,7 +18,7 @@ class TestConversationMessage:
         assert message
         assert message.content == msg.content
 
-    def test_list(self, respx_mock):
+    def test_conversations_messages_list(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         msg = Message.user_text_message("hi")
@@ -32,7 +32,7 @@ class TestConversationMessage:
         assert message_list
         assert len(message_list.items) == 1
 
-    def test_retrieve(self, respx_mock):
+    def test_conversations_messages_retrieve(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         msg = Message.user_text_message("hi")
@@ -42,7 +42,7 @@ class TestConversationMessage:
         assert message
         assert message.content == msg.content
 
-    def test_update(self, respx_mock):
+    def test_conversations_messages_update(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         msg = Message.user_text_message("hi")
@@ -52,7 +52,7 @@ class TestConversationMessage:
         assert message
         assert message.content == msg.content
 
-    def test_delete(self, respx_mock):
+    def test_conversations_messages_delete(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         msg = Message.user_text_message("hi")

@@ -1,14 +1,14 @@
 from enum import Enum
-from functools import partial
-from typing import TYPE_CHECKING, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Union, overload
+
+from typing_extensions import Literal
 
 from cozepy.auth import Auth
 from cozepy.model import AsyncStream, CozeModel, Stream
 from cozepy.request import Requester
 
 if TYPE_CHECKING:
-    from .message import AsyncMessagesClient as AsyncChatMessagesClient
-    from .message import MessagesClient as ChatMessagesClient
+    from .message import AsyncChatMessagesClient, ChatMessagesClient
 
 
 class MessageRole(str, Enum):
@@ -96,7 +96,7 @@ class Message(CozeModel):
     # The entity that sent this message.
     role: MessageRole
     # The type of message.
-    type: MessageType = ""
+    type: MessageType = MessageType.UNKNOWN
     # The content of the message. It supports various types of content, including plain text, multimodal (a mix of text, images, and files), message cards, and more.
     # 消息的内容，支持纯文本、多模态（文本、图片、文件混合输入）、卡片等多种类型的内容。
     content: str
@@ -229,24 +229,24 @@ class ChatEventType(str, Enum):
 
 class ChatEvent(CozeModel):
     event: ChatEventType
-    chat: Chat = None
-    message: Message = None
+    chat: Optional[Chat] = None
+    message: Optional[Message] = None
 
 
 def _chat_stream_handler(data: Dict, is_async: bool = False) -> ChatEvent:
     event = data["event"]
-    data = data["data"]
+    event_data = data["data"]  # type: str
     if event == ChatEventType.DONE:
         if is_async:
             raise StopAsyncIteration
         raise StopIteration
     elif event == ChatEventType.ERROR:
-        raise Exception(f"error event: {data}")  # TODO: error struct format
+        raise Exception(f"error event: {event_data}")  # TODO: error struct format
     elif event in [
         ChatEventType.CONVERSATION_MESSAGE_DELTA,
         ChatEventType.CONVERSATION_MESSAGE_COMPLETED,
     ]:
-        return ChatEvent(event=event, message=Message.model_validate_json(data))
+        return ChatEvent(event=event, message=Message.model_validate_json(event_data))
     elif event in [
         ChatEventType.CONVERSATION_CHAT_CREATED,
         ChatEventType.CONVERSATION_CHAT_IN_PROGRESS,
@@ -254,13 +254,21 @@ def _chat_stream_handler(data: Dict, is_async: bool = False) -> ChatEvent:
         ChatEventType.CONVERSATION_CHAT_FAILED,
         ChatEventType.CONVERSATION_CHAT_REQUIRES_ACTION,
     ]:
-        return ChatEvent(event=event, chat=Chat.model_validate_json(data))
+        return ChatEvent(event=event, chat=Chat.model_validate_json(event_data))
     else:
         raise ValueError(f"invalid chat.event: {event}, {data}")
 
 
-_sync_chat_stream_handler = partial(_chat_stream_handler, is_async=False)
-_async_chat_stream_handler = partial(_chat_stream_handler, is_async=True)
+def _sync_chat_stream_handler(
+    data: Dict,
+) -> ChatEvent:
+    return _chat_stream_handler(data, is_async=False)
+
+
+async def _async_chat_stream_handler(
+    data: Dict,
+) -> ChatEvent:
+    return _chat_stream_handler(data, is_async=True)
 
 
 class ToolOutput(CozeModel):
@@ -277,18 +285,18 @@ class ChatClient(object):
         self._base_url = base_url
         self._auth = auth
         self._requester = requester
-        self._messages = None
+        self._messages: Optional[ChatMessagesClient] = None
 
     def create(
         self,
         *,
         bot_id: str,
         user_id: str,
-        conversation_id: str = None,
-        additional_messages: List[Message] = None,
-        custom_variables: Dict[str, str] = None,
+        conversation_id: Optional[str] = None,
+        additional_messages: Optional[List[Message]] = None,
+        custom_variables: Optional[Dict[str, str]] = None,
         auto_save_history: bool = True,
-        meta_data: Dict[str, str] = None,
+        meta_data: Optional[Dict[str, str]] = None,
     ) -> Chat:
         """
         Call the Chat API with non-streaming to send messages to a published Coze bot.
@@ -310,8 +318,8 @@ class ChatClient(object):
         return self._create(
             bot_id=bot_id,
             user_id=user_id,
-            additional_messages=additional_messages,
             stream=False,
+            additional_messages=additional_messages,
             custom_variables=custom_variables,
             auto_save_history=auto_save_history,
             meta_data=meta_data,
@@ -323,11 +331,11 @@ class ChatClient(object):
         *,
         bot_id: str,
         user_id: str,
-        additional_messages: List[Message] = None,
-        custom_variables: Dict[str, str] = None,
+        additional_messages: Optional[List[Message]] = None,
+        custom_variables: Optional[Dict[str, str]] = None,
         auto_save_history: bool = True,
-        meta_data: Dict[str, str] = None,
-        conversation_id: str = None,
+        meta_data: Optional[Dict[str, str]] = None,
+        conversation_id: Optional[str] = None,
     ) -> Stream[ChatEvent]:
         """
         Call the Chat API with streaming to send messages to a published Coze bot.
@@ -349,25 +357,53 @@ class ChatClient(object):
         return self._create(
             bot_id=bot_id,
             user_id=user_id,
-            additional_messages=additional_messages,
             stream=True,
+            additional_messages=additional_messages,
             custom_variables=custom_variables,
             auto_save_history=auto_save_history,
             meta_data=meta_data,
             conversation_id=conversation_id,
         )
 
+    @overload
     def _create(
         self,
         *,
         bot_id: str,
         user_id: str,
-        additional_messages: List[Message] = None,
-        stream: bool = False,
-        custom_variables: Dict[str, str] = None,
+        stream: Literal[True],
+        additional_messages: Optional[List[Message]] = ...,
+        custom_variables: Optional[Dict[str, str]] = ...,
+        auto_save_history: bool = ...,
+        meta_data: Optional[Dict[str, str]] = ...,
+        conversation_id: Optional[str] = ...,
+    ) -> Stream[ChatEvent]: ...
+
+    @overload
+    def _create(
+        self,
+        *,
+        bot_id: str,
+        user_id: str,
+        stream: Literal[False],
+        additional_messages: Optional[List[Message]] = ...,
+        custom_variables: Optional[Dict[str, str]] = ...,
+        auto_save_history: bool = ...,
+        meta_data: Optional[Dict[str, str]] = ...,
+        conversation_id: Optional[str] = ...,
+    ) -> Chat: ...
+
+    def _create(
+        self,
+        *,
+        bot_id: str,
+        user_id: str,
+        stream: Literal[True, False],
+        additional_messages: Optional[List[Message]] = None,
+        custom_variables: Optional[Dict[str, str]] = None,
         auto_save_history: bool = True,
-        meta_data: Dict[str, str] = None,
-        conversation_id: str = None,
+        meta_data: Optional[Dict[str, str]] = None,
+        conversation_id: Optional[str] = None,
     ) -> Union[Chat, Stream[ChatEvent]]:
         """
         Create a conversation.
@@ -385,9 +421,21 @@ class ChatClient(object):
             "meta_data": meta_data,
         }
         if not stream:
-            return self._requester.request("post", url, Chat, body=body, stream=stream)
+            return self._requester.request(
+                "post",
+                url,
+                False,
+                Chat,
+                body=body,
+            )
 
-        steam_iters, logid = self._requester.request("post", url, Chat, body=body, stream=stream)
+        steam_iters, logid = self._requester.request(
+            "post",
+            url,
+            True,
+            None,
+            body=body,
+        )
         return Stream(steam_iters, fields=["event", "data"], handler=_sync_chat_stream_handler, logid=logid)
 
     def retrieve(
@@ -411,7 +459,7 @@ class ChatClient(object):
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return self._requester.request("post", url, Chat, params=params)
+        return self._requester.request("post", url, False, Chat, params=params)
 
     def submit_tool_outputs(
         self, *, conversation_id: str, chat_id: str, tool_outputs: List[ToolOutput], stream: bool
@@ -443,9 +491,23 @@ class ChatClient(object):
         }
 
         if not stream:
-            return self._requester.request("post", url, Chat, params=params, body=body, stream=stream)
+            return self._requester.request(
+                "post",
+                url,
+                False,
+                Chat,
+                params=params,
+                body=body,
+            )
 
-        steam_iters, logid = self._requester.request("post", url, Chat, params=params, body=body, stream=stream)
+        steam_iters, logid = self._requester.request(
+            "post",
+            url,
+            True,
+            None,
+            params=params,
+            body=body,
+        )
         return Stream(steam_iters, fields=["event", "data"], handler=_sync_chat_stream_handler, logid=logid)
 
     def cancel(
@@ -471,16 +533,16 @@ class ChatClient(object):
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return self._requester.request("post", url, Chat, params=params)
+        return self._requester.request("post", url, False, Chat, params=params)
 
     @property
     def messages(
         self,
     ) -> "ChatMessagesClient":
         if self._messages is None:
-            from .message import MessagesClient
+            from .message import ChatMessagesClient
 
-            self._messages = MessagesClient(self._base_url, self._auth, self._requester)
+            self._messages = ChatMessagesClient(self._base_url, self._auth, self._requester)
         return self._messages
 
 
@@ -489,18 +551,18 @@ class AsyncChatClient(object):
         self._base_url = base_url
         self._auth = auth
         self._requester = requester
-        self._messages = None
+        self._messages: Optional[AsyncChatMessagesClient] = None
 
     async def create(
         self,
         *,
         bot_id: str,
         user_id: str,
-        conversation_id: str = None,
-        additional_messages: List[Message] = None,
-        custom_variables: Dict[str, str] = None,
+        conversation_id: Optional[str] = None,
+        additional_messages: Optional[List[Message]] = None,
+        custom_variables: Optional[Dict[str, str]] = None,
         auto_save_history: bool = True,
-        meta_data: Dict[str, str] = None,
+        meta_data: Optional[Dict[str, str]] = None,
     ) -> Chat:
         """
         Call the Chat API with non-streaming to send messages to a published Coze bot.
@@ -535,11 +597,11 @@ class AsyncChatClient(object):
         *,
         bot_id: str,
         user_id: str,
-        additional_messages: List[Message] = None,
-        custom_variables: Dict[str, str] = None,
+        additional_messages: Optional[List[Message]] = None,
+        custom_variables: Optional[Dict[str, str]] = None,
         auto_save_history: bool = True,
-        meta_data: Dict[str, str] = None,
-        conversation_id: str = None,
+        meta_data: Optional[Dict[str, str]] = None,
+        conversation_id: Optional[str] = None,
     ) -> AsyncStream[ChatEvent]:
         """
         Call the Chat API with streaming to send messages to a published Coze bot.
@@ -569,17 +631,45 @@ class AsyncChatClient(object):
             conversation_id=conversation_id,
         )
 
+    @overload
     async def _create(
         self,
         *,
         bot_id: str,
         user_id: str,
-        additional_messages: List[Message] = None,
-        stream: bool = False,
-        custom_variables: Dict[str, str] = None,
+        stream: Literal[True],
+        additional_messages: Optional[List[Message]] = ...,
+        custom_variables: Optional[Dict[str, str]] = ...,
+        auto_save_history: bool = ...,
+        meta_data: Optional[Dict[str, str]] = ...,
+        conversation_id: Optional[str] = ...,
+    ) -> AsyncStream[ChatEvent]: ...
+
+    @overload
+    async def _create(
+        self,
+        *,
+        bot_id: str,
+        user_id: str,
+        stream: Literal[False],
+        additional_messages: Optional[List[Message]] = ...,
+        custom_variables: Optional[Dict[str, str]] = ...,
+        auto_save_history: bool = ...,
+        meta_data: Optional[Dict[str, str]] = ...,
+        conversation_id: Optional[str] = ...,
+    ) -> Chat: ...
+
+    async def _create(
+        self,
+        *,
+        bot_id: str,
+        user_id: str,
+        stream: Literal[True, False],
+        additional_messages: Optional[List[Message]] = None,
+        custom_variables: Optional[Dict[str, str]] = None,
         auto_save_history: bool = True,
-        meta_data: Dict[str, str] = None,
-        conversation_id: str = None,
+        meta_data: Optional[Dict[str, str]] = None,
+        conversation_id: Optional[str] = None,
     ) -> Union[Chat, AsyncStream[ChatEvent]]:
         """
         Create a conversation.
@@ -597,9 +687,21 @@ class AsyncChatClient(object):
             "meta_data": meta_data,
         }
         if not stream:
-            return await self._requester.arequest("post", url, Chat, body=body, stream=stream)
+            return await self._requester.arequest(
+                "post",
+                url,
+                False,
+                Chat,
+                body=body,
+            )
 
-        steam_iters, logid = await self._requester.arequest("post", url, Chat, body=body, stream=stream)
+        steam_iters, logid = await self._requester.arequest(
+            "post",
+            url,
+            True,
+            None,
+            body=body,
+        )
         return AsyncStream(steam_iters, fields=["event", "data"], handler=_async_chat_stream_handler, logid=logid)
 
     async def retrieve(
@@ -623,7 +725,7 @@ class AsyncChatClient(object):
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return await self._requester.arequest("post", url, Chat, params=params)
+        return await self._requester.arequest("post", url, False, Chat, params=params)
 
     async def submit_tool_outputs(
         self, *, conversation_id: str, chat_id: str, tool_outputs: List[ToolOutput], stream: bool
@@ -655,9 +757,9 @@ class AsyncChatClient(object):
         }
 
         if not stream:
-            return await self._requester.arequest("post", url, Chat, params=params, body=body, stream=stream)
+            return await self._requester.arequest("post", url, False, Chat, params=params, body=body)
 
-        steam_iters, logid = await self._requester.arequest("post", url, Chat, params=params, body=body, stream=stream)
+        steam_iters, logid = await self._requester.arequest("post", url, True, None, params=params, body=body)
         return AsyncStream(steam_iters, fields=["event", "data"], handler=_async_chat_stream_handler, logid=logid)
 
     async def cancel(
@@ -683,14 +785,14 @@ class AsyncChatClient(object):
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return await self._requester.arequest("post", url, Chat, params=params)
+        return await self._requester.arequest("post", url, False, Chat, params=params)
 
     @property
     def messages(
         self,
     ) -> "AsyncChatMessagesClient":
         if self._messages is None:
-            from .message import AsyncMessagesClient
+            from .message import AsyncChatMessagesClient
 
-            self._messages = AsyncMessagesClient(self._base_url, self._auth, self._requester)
+            self._messages = AsyncChatMessagesClient(self._base_url, self._auth, self._requester)
         return self._messages

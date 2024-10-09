@@ -6,7 +6,7 @@ from cozepy import AsyncCoze, Bot, Coze, SimpleBot, TokenAuth
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 class TestBot:
-    def test_create(self, respx_mock):
+    def test_bot_create(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/v1/bot/create").mock(
@@ -30,14 +30,14 @@ class TestBot:
         assert bot
         assert bot.bot_id == "bot_id"
 
-    def test_update(self, respx_mock):
+    def test_bot_update(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/v1/bot/update").mock(httpx.Response(200, json={"data": None}))
 
         coze.bots.update(bot_id="bot id", name="name")
 
-    def test_publish(self, respx_mock):
+    def test_bot_publish(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/v1/bot/publish").mock(
@@ -117,7 +117,7 @@ class TestBot:
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
 class TestAsyncBot:
-    async def test_create(self, respx_mock):
+    async def test_bot_create(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/v1/bot/create").mock(
@@ -141,7 +141,7 @@ class TestAsyncBot:
         assert bot
         assert bot.bot_id == "bot_id"
 
-    async def test_update(self, respx_mock):
+    async def test_bot_update(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/v1/bot/update").mock(httpx.Response(200, json={"data": None}))

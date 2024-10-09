@@ -49,6 +49,7 @@ class WorkspacesClient(object):
         data = self._requester.request(
             "get",
             url,
+            False,
             self._PrivateListPublishedBotsV1Data,
             headers=headers,
             params=params,
@@ -84,6 +85,7 @@ class AsyncWorkspacesClient(object):
         data = await self._requester.arequest(
             "get",
             url,
+            False,
             self._PrivateListPublishedBotsV1Data,
             headers=headers,
             params=params,

@@ -23,7 +23,7 @@ class TestRequester:
         )
 
         with pytest.raises(CozeAPIError, match="code: 100, msg: request failed, logid: mock-logid"):
-            Requester().request("post", "https://api.coze.com/api/test", ModelForTest)
+            Requester().request("post", "https://api.coze.com/api/test", False, ModelForTest)
 
     def test_auth_slow_down(self, respx_mock):
         respx_mock.post("/api/test").mock(
@@ -37,7 +37,7 @@ class TestRequester:
         )
 
         with pytest.raises(CozePKCEAuthError, match="pkce auth error: slow_down"):
-            Requester().request("post", "https://api.coze.com/api/test", ModelForTest)
+            Requester().request("post", "https://api.coze.com/api/test", False, ModelForTest)
 
     def test_error_message(self, respx_mock):
         respx_mock.post("/api/test").mock(
@@ -51,7 +51,7 @@ class TestRequester:
         )
 
         with pytest.raises(CozeAPIError, match="msg: error_message, logid: mock-logid"):
-            Requester().request("post", "https://api.coze.com/api/test", ModelForTest)
+            Requester().request("post", "https://api.coze.com/api/test", False, ModelForTest)
 
     def test_debug_url(self, respx_mock):
         respx_mock.post("/api/test").mock(
@@ -65,7 +65,7 @@ class TestRequester:
             )
         )
 
-        Requester().request("post", "https://api.coze.com/api/test", DebugModelForTest)
+        Requester().request("post", "https://api.coze.com/api/test", False, DebugModelForTest)
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -77,7 +77,7 @@ class TestAsyncRequester:
         )
 
         with pytest.raises(CozeAPIError, match="code: 100, msg: request failed, logid: mock-logid"):
-            await Requester().arequest("post", "https://api.coze.com/api/test", ModelForTest)
+            await Requester().arequest("post", "https://api.coze.com/api/test", False, ModelForTest)
 
     async def test_auth_slow_down(self, respx_mock):
         respx_mock.post("/api/test").mock(
@@ -91,7 +91,7 @@ class TestAsyncRequester:
         )
 
         with pytest.raises(CozePKCEAuthError, match="pkce auth error: slow_down"):
-            await Requester().arequest("post", "https://api.coze.com/api/test", ModelForTest)
+            await Requester().arequest("post", "https://api.coze.com/api/test", False, ModelForTest)
 
     async def test_error_message(self, respx_mock):
         respx_mock.post("/api/test").mock(
@@ -105,7 +105,7 @@ class TestAsyncRequester:
         )
 
         with pytest.raises(CozeAPIError, match="msg: error_message, logid: mock-logid"):
-            await Requester().arequest("post", "https://api.coze.com/api/test", ModelForTest)
+            await Requester().arequest("post", "https://api.coze.com/api/test", False, ModelForTest)
 
     async def test_debug_url(self, respx_mock):
         respx_mock.post("/api/test").mock(
@@ -119,4 +119,4 @@ class TestAsyncRequester:
             )
         )
 
-        await Requester().arequest("post", "https://api.coze.com/api/test", DebugModelForTest)
+        await Requester().arequest("post", "https://api.coze.com/api/test", False, DebugModelForTest)

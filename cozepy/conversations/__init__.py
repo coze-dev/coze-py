@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from cozepy.auth import Auth
 from cozepy.chat import Message
@@ -19,7 +19,9 @@ class ConversationsClient(object):
         self._requester = requester
         self._messages = None
 
-    def create(self, *, messages: List[Message] = None, meta_data: Dict[str, str] = None) -> Conversation:
+    def create(
+        self, *, messages: Optional[List[Message]] = None, meta_data: Optional[Dict[str, str]] = None
+    ) -> Conversation:
         """
         Create a conversation.
         Conversation is an interaction between a bot and a user, including one or more messages.
@@ -37,7 +39,7 @@ class ConversationsClient(object):
             "messages": [i.model_dump() for i in messages] if messages and len(messages) > 0 else [],
             "meta_data": meta_data,
         }
-        return self._requester.request("post", url, Conversation, body=body)
+        return self._requester.request("post", url, False, Conversation, body=body)
 
     def retrieve(self, *, conversation_id: str) -> Conversation:
         """
@@ -53,7 +55,7 @@ class ConversationsClient(object):
         params = {
             "conversation_id": conversation_id,
         }
-        return self._requester.request("get", url, Conversation, params=params)
+        return self._requester.request("get", url, False, Conversation, params=params)
 
     @property
     def messages(self):
@@ -71,7 +73,9 @@ class AsyncConversationsClient(object):
         self._requester = requester
         self._messages = None
 
-    async def create(self, *, messages: List[Message] = None, meta_data: Dict[str, str] = None) -> Conversation:
+    async def create(
+        self, *, messages: Optional[List[Message]] = None, meta_data: Optional[Dict[str, str]] = None
+    ) -> Conversation:
         """
         Create a conversation.
         Conversation is an interaction between a bot and a user, including one or more messages.
@@ -89,7 +93,7 @@ class AsyncConversationsClient(object):
             "messages": [i.model_dump() for i in messages] if messages and len(messages) > 0 else [],
             "meta_data": meta_data,
         }
-        return await self._requester.arequest("post", url, Conversation, body=body)
+        return await self._requester.arequest("post", url, False, Conversation, body=body)
 
     async def retrieve(self, *, conversation_id: str) -> Conversation:
         """
@@ -105,7 +109,7 @@ class AsyncConversationsClient(object):
         params = {
             "conversation_id": conversation_id,
         }
-        return await self._requester.arequest("get", url, Conversation, params=params)
+        return await self._requester.arequest("get", url, False, Conversation, params=params)
 
     @property
     def messages(self):
