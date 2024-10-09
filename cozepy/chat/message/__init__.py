@@ -33,7 +33,7 @@ class MessagesClient(object):
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return self._requester.request("post", url, List[Message], params=params)
+        return self._requester.request("post", url, [Message], params=params)
 
 
 class AsyncMessagesClient(object):
@@ -64,4 +64,4 @@ class AsyncMessagesClient(object):
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return await self._requester.arequest("post", url, List[Message], params=params)
+        return await self._requester.arequest("post", url, [Message], params=params)

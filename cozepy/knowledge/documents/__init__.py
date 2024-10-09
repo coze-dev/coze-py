@@ -288,9 +288,7 @@ class DocumentsClient(object):
             "document_bases": [i.model_dump() for i in document_bases],
             "chunk_strategy": chunk_strategy.model_dump() if chunk_strategy else None,
         }
-        return self._requester.request(
-            "post", url, List[Document], headers=headers, body=body, data_field="document_infos"
-        )
+        return self._requester.request("post", url, [Document], headers=headers, body=body, data_field="document_infos")
 
     def update(
         self,
@@ -431,7 +429,7 @@ class AsyncDocumentsClient(object):
             "chunk_strategy": chunk_strategy.model_dump() if chunk_strategy else None,
         }
         return await self._requester.arequest(
-            "post", url, List[Document], headers=headers, body=body, data_field="document_infos"
+            "post", url, [Document], headers=headers, body=body, data_field="document_infos"
         )
 
     async def update(
