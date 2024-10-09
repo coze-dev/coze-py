@@ -149,7 +149,7 @@ class BotsClient(object):
         :param bot_id: The ID of the bot that the API interacts with.
         :param name: The name of the bot. It should be 1 to 20 characters long.
         :param description: The description of the Bot. It can be 0 to 500 characters long. The default is empty.
-        :param icon_file_id: The file ID for the Bot's avatar. If no file ID is specified, the Douzhu platform will
+        :param icon_file_id: The file ID for the Bot's avatar. If no file ID is specified, the Coze platform will
         assign a default avatar for the bot. To use a custom avatar, first upload the local file through the Upload
         file interface and obtain the file ID from the interface response.
         :param prompt_info: The personality and reply logic of the bot.
@@ -300,7 +300,7 @@ class AsyncBotsClient(object):
         :param bot_id: The ID of the bot that the API interacts with.
         :param name: The name of the bot. It should be 1 to 20 characters long.
         :param description: The description of the Bot. It can be 0 to 500 characters long. The default is empty.
-        :param icon_file_id: The file ID for the Bot's avatar. If no file ID is specified, the Douzhu platform will
+        :param icon_file_id: The file ID for the Bot's avatar. If no file ID is specified, the Coze platform will
         assign a default avatar for the bot. To use a custom avatar, first upload the local file through the Upload
         file interface and obtain the file ID from the interface response.
         :param prompt_info: The personality and reply logic of the bot.

@@ -79,7 +79,7 @@ for message in message_list:
     print('got message:', message.content)
 
 # stream chat
-chat_iterator = coze.chat.stream(
+stream = coze.chat.stream(
     bot_id='bot id',
     user_id='user id',
     additional_messages=[
@@ -87,7 +87,7 @@ chat_iterator = coze.chat.stream(
         Message.assistant_text_message('I am fine, thank you.')
     ],
 )
-for event in chat_iterator:
+for event in stream:
     if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
         print('got message delta:', event.message.content)
 ```
@@ -198,8 +198,8 @@ result = coze.workflows.runs.create(
 
 
 # stream workflow run
-def handle_workflow_iterator(iterator: Stream[WorkflowEvent]):
-    for event in iterator:
+def handle_workflow_iterator(stream: Stream[WorkflowEvent]):
+    for event in stream:
         if event.event == WorkflowEventType.MESSAGE:
             print('got message', event.message)
         elif event.event == WorkflowEventType.ERROR:
@@ -315,6 +315,9 @@ jwt_oauth_app = JWTOAuthApp(
 oauth_token = jwt_oauth_app.get_access_token(ttl=3600)
 
 # And it does not support refresh. If you want to get a new token, you can call the get_access_token interface again.
+
+# use the access token to init Coze client
+coze = Coze(auth=TokenAuth(oauth_token.access_token))
 ```
 
 #### PKCE OAuth App
@@ -367,4 +370,114 @@ coze = Coze(auth=TokenAuth(oauth_token.access_token))
 
 # When the token expires, you can also refresh and re-obtain the token
 oauth_token = device_oauth_app.refresh_access_token(oauth_token.refresh_token)
+```
+
+### Async usage
+
+cozepy supports asynchronous calls through httpx.AsyncClient.
+
+Just replace the `Coze` client with the `AsyncCoze` client to use all the asynchronous calls of the Coze OpenAPI.
+
+```python
+import asyncio
+
+from cozepy import TokenAuth, Message, AsyncCoze
+
+coze = AsyncCoze(auth=TokenAuth("your_token"))
+
+
+async def main() -> None:
+    chat = await coze.chat.create(
+        bot_id='bot id',
+        user_id='user id',
+        additional_messages=[
+            Message.user_text_message('how are you?'),
+            Message.assistant_text_message('I am fine, thank you.')
+        ],
+    )
+    print('chat', chat)
+
+
+asyncio.run(main())
+```
+
+### Streaming usage
+
+Bot chat and workflow run support running in streaming mode.
+
+chat streaming example:
+
+```python
+from cozepy import Coze, TokenAuth, ChatEventType, Message
+
+coze = Coze(auth=TokenAuth("your_token"))
+
+stream = coze.chat.stream(
+    bot_id='bot id',
+    user_id='user id',
+    additional_messages=[
+        Message.user_text_message('how are you?'),
+        Message.assistant_text_message('I am fine, thank you.')
+    ],
+)
+for event in stream:
+    if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
+        print('got message delta:', event.message.content)
+```
+
+workflow streaming example:
+
+```python
+from cozepy import Coze, TokenAuth, Stream, WorkflowEvent, WorkflowEventType
+
+coze = Coze(auth=TokenAuth("your_token"))
+
+def handle_workflow_iterator(stream: Stream[WorkflowEvent]):
+    for event in stream:
+        if event.event == WorkflowEventType.MESSAGE:
+            print('got message', event.message)
+        elif event.event == WorkflowEventType.ERROR:
+            print('got error', event.error)
+        elif event.event == WorkflowEventType.INTERRUPT:
+            handle_workflow_iterator(coze.workflows.runs.resume(
+                workflow_id='workflow id',
+                event_id=event.interrupt.interrupt_data.event_id,
+                resume_data='hey',
+                interrupt_type=event.interrupt.interrupt_data.type,
+            ))
+
+
+handle_workflow_iterator(coze.workflows.runs.stream(
+    workflow_id='workflow id',
+    parameters={
+        'input_key': 'input value',
+    }
+))
+```
+
+Asynchronous calls also support streaming mode:
+
+```python
+import asyncio
+
+from cozepy import TokenAuth, ChatEventType, Message, AsyncCoze
+
+coze = AsyncCoze(auth=TokenAuth("your_token"))
+
+
+async def main():
+    stream = await coze.chat.stream(
+        bot_id='bot id',
+        user_id='user id',
+        additional_messages=[
+            Message.user_text_message('how are you?'),
+            Message.assistant_text_message('I am fine, thank you.')
+        ],
+    )
+    async for event in stream:
+        if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
+            print('got message delta:', event.message.content)
+
+
+asyncio.run(main())
 ```
