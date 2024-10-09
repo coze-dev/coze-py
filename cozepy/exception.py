@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Optional
 
 
 class CozeError(Exception):
@@ -14,7 +15,7 @@ class CozeAPIError(CozeError):
     base class for all api errors
     """
 
-    def __init__(self, code: int = None, msg: str = "", logid: str = None):
+    def __init__(self, code: Optional[int] = None, msg: str = "", logid: Optional[str] = None):
         self.code = code
         self.msg = msg
         self.logid = logid
@@ -39,7 +40,7 @@ class CozePKCEAuthError(CozeError):
     base class for all pkce auth errors
     """
 
-    def __init__(self, error: CozePKCEAuthErrorType, logid: str = None):
+    def __init__(self, error: CozePKCEAuthErrorType, logid: Optional[str] = None):
         super().__init__(f"pkce auth error: {error.value}")
         self.error = error
         self.logid = logid

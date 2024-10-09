@@ -1,11 +1,10 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from cozepy.auth import Auth
 from cozepy.request import Requester
 
 if TYPE_CHECKING:
-    from .runs import AsyncWorkflowsClient as AsyncWorkflowsRunsClient
-    from .runs import WorkflowsClient as WorkflowsRunsClient
+    from .runs import AsyncWorkflowsRunsClient, WorkflowsRunsClient
 
 
 class WorkflowsClient(object):
@@ -13,14 +12,14 @@ class WorkflowsClient(object):
         self._base_url = base_url
         self._auth = auth
         self._requester = requester
-        self._runs = None
+        self._runs: Optional[WorkflowsRunsClient] = None
 
     @property
     def runs(self) -> "WorkflowsRunsClient":
         if not self._runs:
-            from .runs import WorkflowsClient
+            from .runs import WorkflowsRunsClient
 
-            self._runs = WorkflowsClient(self._base_url, self._auth, self._requester)
+            self._runs = WorkflowsRunsClient(self._base_url, self._auth, self._requester)
         return self._runs
 
 
@@ -29,12 +28,12 @@ class AsyncWorkflowsClient(object):
         self._base_url = base_url
         self._auth = auth
         self._requester = requester
-        self._runs = None
+        self._runs: Optional[AsyncWorkflowsRunsClient] = None
 
     @property
     def runs(self) -> "AsyncWorkflowsRunsClient":
         if not self._runs:
-            from .runs import AsyncWorkflowsClient
+            from .runs import AsyncWorkflowsRunsClient
 
-            self._runs = AsyncWorkflowsClient(self._base_url, self._auth, self._requester)
+            self._runs = AsyncWorkflowsRunsClient(self._base_url, self._auth, self._requester)
         return self._runs

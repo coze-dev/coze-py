@@ -15,13 +15,13 @@ class DocumentChunkStrategy(CozeModel):
     # 分段设置。取值包括：
     # 0：自动分段与清洗。采用扣子预置规则进行数据分段与处理。
     # 1：自定义。此时需要通过 separator、max_tokens、remove_extra_spaces 和 remove_urls_emails 分段规则细节。
-    chunk_type: int = None
+    chunk_type: Optional[int] = None
 
     # Maximum segment length, with a range of 100 to 2000.
     # Required when chunk_type=1.
     # 最大分段长度，取值范围为 100~2000。
     # 在 chunk_type=1 时必选。
-    max_tokens: int = None
+    max_tokens: Optional[int] = None
 
     # Whether to automatically filter continuous spaces, line breaks, and tabs. Values include:
     # true: Automatically filter
@@ -30,7 +30,7 @@ class DocumentChunkStrategy(CozeModel):
     # true：自动过滤
     # false：（默认）不自动过滤
     # 在 chunk_type=1 时生效。
-    remove_extra_spaces: bool = None
+    remove_extra_spaces: Optional[bool] = None
 
     # Whether to automatically filter all URLs and email addresses. Values include:
     # true: Automatically filter
@@ -40,13 +40,13 @@ class DocumentChunkStrategy(CozeModel):
     # true：自动过滤
     # false：（默认）不自动过滤
     # 在 chunk_type=1 时生效。
-    remove_urls_emails: bool = None
+    remove_urls_emails: Optional[bool] = None
 
     # Segmentation identifier.
     # Required when chunk_type=1.
     # 分段标识符。
     # 在 chunk_type=1 时必选。
-    separator: str = None
+    separator: Optional[str] = None
 
     @staticmethod
     def auto() -> "DocumentChunkStrategy":
@@ -199,20 +199,20 @@ class Document(CozeModel):
 class DocumentSourceInfo(CozeModel):
     # 本地文件的 Base64 编码。
     # 上传本地文件时必选
-    file_base64: str = None
+    file_base64: Optional[str] = None
 
     # 本地文件格式，即文件后缀，例如 txt。格式支持 pdf、txt、doc、docx 类型。
     # 上传的文件类型应与知识库类型匹配，例如 txt 文件只能上传到文档类型的知识库中。
     # 上传本地文件时必选
-    file_type: str = None
+    file_type: Optional[str] = None
 
     # 网页的 URL 地址。
     # 上传在线网页时必选
-    web_url: str = None
+    web_url: Optional[str] = None
 
     # 文件的上传方式。支持设置为 1，表示上传在线网页。
     # 上传在线网页时必选
-    document_source: int = None
+    document_source: Optional[int] = None
 
     @staticmethod
     def from_local_file(content: str, file_type: str = "txt") -> "DocumentSourceInfo":
@@ -249,7 +249,7 @@ class DocumentBase(CozeModel):
     source_info: DocumentSourceInfo
 
     # 在线网页的更新策略。默认不自动更新。
-    update_rule: DocumentUpdateRule = None
+    update_rule: Optional[DocumentUpdateRule] = None
 
 
 class DocumentsClient(object):
@@ -263,7 +263,7 @@ class DocumentsClient(object):
         *,
         dataset_id: str,
         document_bases: List[DocumentBase],
-        chunk_strategy: DocumentChunkStrategy = None,
+        chunk_strategy: Optional[DocumentChunkStrategy] = None,
     ) -> List[Document]:
         """
         Upload files to the specific knowledge.
@@ -288,14 +288,16 @@ class DocumentsClient(object):
             "document_bases": [i.model_dump() for i in document_bases],
             "chunk_strategy": chunk_strategy.model_dump() if chunk_strategy else None,
         }
-        return self._requester.request("post", url, [Document], headers=headers, body=body, data_field="document_infos")
+        return self._requester.request(
+            "post", url, False, [Document], headers=headers, body=body, data_field="document_infos"
+        )
 
     def update(
         self,
         *,
         document_id: str,
-        document_name: str = None,
-        update_rule: DocumentUpdateRule = None,
+        document_name: Optional[str] = None,
+        update_rule: Optional[DocumentUpdateRule] = None,
     ) -> None:
         """
         Modify the knowledge base file name and update strategy.
@@ -319,6 +321,7 @@ class DocumentsClient(object):
         return self._requester.request(
             "post",
             url,
+            False,
             None,
             headers=headers,
             body=body,
@@ -347,6 +350,7 @@ class DocumentsClient(object):
         return self._requester.request(
             "post",
             url,
+            False,
             None,
             headers=headers,
             body=body,
@@ -379,7 +383,7 @@ class DocumentsClient(object):
             "size": page_size,
         }
         headers = {"Agw-Js-Conv": "str"}
-        res = self._requester.request("post", url, self._PrivateListDocumentsData, body=body, headers=headers)
+        res = self._requester.request("post", url, False, self._PrivateListDocumentsData, body=body, headers=headers)
         return NumberPaged(
             items=res.document_infos,
             page_num=page_num,
@@ -403,7 +407,7 @@ class AsyncDocumentsClient(object):
         *,
         dataset_id: str,
         document_bases: List[DocumentBase],
-        chunk_strategy: DocumentChunkStrategy = None,
+        chunk_strategy: Optional[DocumentChunkStrategy] = None,
     ) -> List[Document]:
         """
         Upload files to the specific knowledge.
@@ -429,15 +433,15 @@ class AsyncDocumentsClient(object):
             "chunk_strategy": chunk_strategy.model_dump() if chunk_strategy else None,
         }
         return await self._requester.arequest(
-            "post", url, [Document], headers=headers, body=body, data_field="document_infos"
+            "post", url, False, [Document], headers=headers, body=body, data_field="document_infos"
         )
 
     async def update(
         self,
         *,
         document_id: str,
-        document_name: str = None,
-        update_rule: DocumentUpdateRule = None,
+        document_name: Optional[str] = None,
+        update_rule: Optional[DocumentUpdateRule] = None,
     ) -> None:
         """
         Modify the knowledge base file name and update strategy.
@@ -461,7 +465,8 @@ class AsyncDocumentsClient(object):
         return await self._requester.arequest(
             "post",
             url,
-            None,
+            False,
+            model=None,
             headers=headers,
             body=body,
         )
@@ -489,7 +494,8 @@ class AsyncDocumentsClient(object):
         return await self._requester.arequest(
             "post",
             url,
-            None,
+            False,
+            model=None,
             headers=headers,
             body=body,
         )
@@ -521,7 +527,9 @@ class AsyncDocumentsClient(object):
             "size": page_size,
         }
         headers = {"Agw-Js-Conv": "str"}
-        res = await self._requester.arequest("post", url, self._PrivateListDocumentsData, body=body, headers=headers)
+        res = await self._requester.arequest(
+            "post", url, False, self._PrivateListDocumentsData, body=body, headers=headers
+        )
         return NumberPaged(
             items=res.document_infos,
             page_num=page_num,

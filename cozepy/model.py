@@ -1,4 +1,4 @@
-from typing import AsyncIterator, Awaitable, Callable, Dict, Generic, Iterator, List, Tuple, TypeVar
+from typing import AsyncIterator, Awaitable, Callable, Dict, Generic, Iterator, List, Optional, Tuple, TypeVar
 
 from pydantic import BaseModel, ConfigDict
 
@@ -28,7 +28,7 @@ class TokenPaged(PagedBase[T]):
     return is next_page_token + has_more.
     """
 
-    def __init__(self, items: List[T], next_page_token: str = "", has_more: bool = None):
+    def __init__(self, items: List[T], next_page_token: str = "", has_more: Optional[bool] = None):
         has_more = has_more if has_more is not None else next_page_token != ""
         super().__init__(items, has_more)
         self.next_page_token = next_page_token
@@ -38,7 +38,7 @@ class TokenPaged(PagedBase[T]):
 
 
 class NumberPaged(PagedBase[T]):
-    def __init__(self, items: List[T], page_num: int, page_size: int, total: int = None):
+    def __init__(self, items: List[T], page_num: int, page_size: int, total: Optional[int] = None):
         has_more = len(items) >= page_size
         super().__init__(items, has_more)
         self.page_num = page_num
@@ -57,7 +57,7 @@ class LastIDPaged(PagedBase[T]):
         items: List[T],
         first_id: str = "",
         last_id: str = "",
-        has_more: bool = None,
+        has_more: Optional[bool] = None,
     ):
         has_more = has_more if has_more is not None else last_id != ""
         super().__init__(items, has_more)
@@ -123,7 +123,7 @@ class AsyncStream(Generic[T]):
         return self
 
     async def __anext__(self) -> T:
-        return self._handler(await self._extra_event())
+        return await self._handler(await self._extra_event())
 
     async def _extra_event(self) -> Dict[str, str]:
         data = dict(map(lambda x: (x, ""), self._fields))

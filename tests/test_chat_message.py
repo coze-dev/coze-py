@@ -26,7 +26,7 @@ class TestChatMessage:
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
 class TestAsyncChatMessage:
-    async def test_create(self, respx_mock):
+    async def test_chat_message_list(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         msg = Message.user_text_message("hi")

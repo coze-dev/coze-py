@@ -20,6 +20,7 @@ pytest-asyncio = "^0.21.0"
 ruff = "^0.6.0"
 pre-commit = "^2.9.0"
 respx = "^0.21.1"
+mypy = "^1.0.0"
 
 [tool.ruff]
 line-length = 120

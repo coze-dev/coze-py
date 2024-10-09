@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from cozepy.auth import Auth
 from cozepy.config import COZE_COM_BASE_URL
@@ -19,20 +19,20 @@ class Coze(object):
         self,
         auth: Auth,
         base_url: str = COZE_COM_BASE_URL,
-        http_client: SyncHTTPClient = None,
+        http_client: Optional[SyncHTTPClient] = None,
     ):
         self._auth = auth
         self._base_url = base_url
         self._requester = Requester(auth=auth, sync_client=http_client)
 
         # service client
-        self._bots = None
-        self._workspaces = None
-        self._conversations = None
-        self._chat = None
-        self._files = None
-        self._workflows = None
-        self._knowledge = None
+        self._bots: Optional[BotsClient] = None
+        self._workspaces: Optional[WorkspacesClient] = None
+        self._conversations: Optional[ConversationsClient] = None
+        self._chat: Optional[ChatClient] = None
+        self._files: Optional[FilesClient] = None
+        self._workflows: Optional[WorkflowsClient] = None
+        self._knowledge: Optional[KnowledgeClient] = None
 
     @property
     def bots(self) -> "BotsClient":
@@ -96,20 +96,20 @@ class AsyncCoze(object):
         self,
         auth: Auth,
         base_url: str = COZE_COM_BASE_URL,
-        http_client: AsyncHTTPClient = None,
+        http_client: Optional[AsyncHTTPClient] = None,
     ):
         self._auth = auth
         self._base_url = base_url
         self._requester = Requester(auth=auth, async_client=http_client)
 
         # service client
-        self._bots = None
-        self._chat = None
-        self._conversations = None
-        self._files = None
-        self._knowledge = None
-        self._workflows = None
-        self._workspaces = None
+        self._bots: Optional[AsyncBotsClient] = None
+        self._chat: Optional[AsyncChatClient] = None
+        self._conversations: Optional[AsyncConversationsClient] = None
+        self._files: Optional[AsyncFilesClient] = None
+        self._knowledge: Optional[AsyncKnowledgeClient] = None
+        self._workflows: Optional[AsyncWorkflowsClient] = None
+        self._workspaces: Optional[AsyncWorkspacesClient] = None
 
     @property
     def bots(self) -> "AsyncBotsClient":

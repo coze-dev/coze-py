@@ -8,7 +8,7 @@ from cozepy import AsyncCoze, Coze, File, TokenAuth
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 class TestFile:
-    def test_create(self, respx_mock):
+    def test_file_create(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         with patch("builtins.open", mock_open(read_data="data")):
@@ -20,7 +20,7 @@ class TestFile:
             assert file
             assert "name" == file.file_name
 
-    def test_retrieve(self, respx_mock):
+    def test_file_retrieve(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         respx_mock.get("/v1/files/retrieve").mock(

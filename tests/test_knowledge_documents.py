@@ -93,14 +93,14 @@ class TestKnowledgeDocuments:
 
         coze.knowledge.documents.update(document_id="id", document_name="name")
 
-    def test_delete(self, respx_mock):
+    def test_knowledge_documents_delete(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/open_api/knowledge/document/delete").mock(httpx.Response(200, json={"data": None}))
 
         coze.knowledge.documents.delete(document_ids=["id"])
 
-    def test_list(self, respx_mock):
+    def test_knowledge_documents_list(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/open_api/knowledge/document/list").mock(

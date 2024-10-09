@@ -46,7 +46,7 @@ class FilesClient(object):
         """
         url = f"{self._base_url}/v1/files/upload"
         files = {"file": open(file, "rb")}
-        return self._requester.request("post", url, File, files=files)
+        return self._requester.request("post", url, False, File, files=files)
 
     def retrieve(self, *, file_id: str):
         """
@@ -62,7 +62,7 @@ class FilesClient(object):
         """
         url = f"{self._base_url}/v1/files/retrieve"
         params = {"file_id": file_id}
-        return self._requester.request("get", url, File, params=params)
+        return self._requester.request("get", url, False, File, params=params)
 
 
 class AsyncFilesClient(object):
@@ -90,7 +90,7 @@ class AsyncFilesClient(object):
         """
         url = f"{self._base_url}/v1/files/upload"
         files = {"file": open(file, "rb")}
-        return await self._requester.arequest("post", url, File, files=files)
+        return await self._requester.arequest("post", url, False, File, files=files)
 
     async def retrieve(self, *, file_id: str):
         """
@@ -106,4 +106,4 @@ class AsyncFilesClient(object):
         """
         url = f"{self._base_url}/v1/files/retrieve"
         params = {"file_id": file_id}
-        return await self._requester.arequest("get", url, File, params=params)
+        return await self._requester.arequest("get", url, False, File, params=params)
