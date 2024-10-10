@@ -466,7 +466,7 @@ coze = AsyncCoze(auth=TokenAuth("your_token"))
 
 
 async def main():
-    stream = await coze.chat.stream(
+    stream = coze.chat.stream(
         bot_id='bot id',
         user_id='user id',
         additional_messages=[

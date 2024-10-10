@@ -184,7 +184,7 @@ class TestAsyncChatConversationMessage:
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/v3/chat").mock(httpx.Response(200, content=chat_stream_testdata))
-        events = [event async for event in await coze.chat.stream(bot_id="bot", user_id="user")]
+        events = [event async for event in coze.chat.stream(bot_id="bot", user_id="user")]
 
         assert events
         assert len(events) == 9
@@ -216,8 +216,8 @@ data:{}
             )
         )
         with pytest.raises(Exception, match="error event"):
-            async for event in await coze.chat.stream(bot_id="bot", user_id="user"):
-                pass
+            async for event in coze.chat.stream(bot_id="bot", user_id="user"):
+                assert event
 
     async def test_stream_invalid_event(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
@@ -232,8 +232,8 @@ data:{}
             )
         )
         with pytest.raises(Exception, match="invalid chat.event: invalid"):
-            async for event in await coze.chat.stream(bot_id="bot", user_id="user"):
-                pass
+            async for event in coze.chat.stream(bot_id="bot", user_id="user"):
+                assert event
 
     async def test_retrieve(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
@@ -250,9 +250,7 @@ data:{}
         respx_mock.post("/v3/chat/submit_tool_outputs").mock(
             httpx.Response(200, json={"data": chat_testdata.model_dump()})
         )
-        res = await coze.chat.submit_tool_outputs(
-            conversation_id="conversation", chat_id="chat", tool_outputs=[], stream=False
-        )
+        res = await coze.chat.submit_tool_outputs(conversation_id="conversation", chat_id="chat", tool_outputs=[])
 
         assert res
         assert res.conversation_id == chat_testdata.conversation_id
@@ -263,8 +261,10 @@ data:{}
         respx_mock.post("/v3/chat/submit_tool_outputs").mock(httpx.Response(200, content=chat_stream_testdata))
         events = [
             i
-            async for i in await coze.chat.submit_tool_outputs(
-                conversation_id="conversation", chat_id="chat", tool_outputs=[], stream=True
+            async for i in coze.chat.submit_tool_outputs_stream(
+                conversation_id="conversation",
+                chat_id="chat",
+                tool_outputs=[],
             )
         ]
 

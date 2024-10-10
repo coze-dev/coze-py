@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import TYPE_CHECKING, Dict, List, Optional, Union, overload
+from typing import TYPE_CHECKING, AsyncIterator, Dict, List, Optional, Union, overload
 
 from typing_extensions import Literal
 
@@ -259,15 +259,11 @@ def _chat_stream_handler(data: Dict, is_async: bool = False) -> ChatEvent:
         raise ValueError(f"invalid chat.event: {event}, {data}")
 
 
-def _sync_chat_stream_handler(
-    data: Dict,
-) -> ChatEvent:
+def _sync_chat_stream_handler(data: Dict) -> ChatEvent:
     return _chat_stream_handler(data, is_async=False)
 
 
-async def _async_chat_stream_handler(
-    data: Dict,
-) -> ChatEvent:
+def _async_chat_stream_handler(data: Dict) -> ChatEvent:
     return _chat_stream_handler(data, is_async=True)
 
 
@@ -602,7 +598,7 @@ class AsyncChatClient(object):
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
         conversation_id: Optional[str] = None,
-    ) -> AsyncStream[ChatEvent]:
+    ) -> AsyncIterator[ChatEvent]:
         """
         Call the Chat API with streaming to send messages to a published Coze bot.
 
@@ -620,7 +616,7 @@ class AsyncChatClient(object):
         :param meta_data: Additional information, typically used to encapsulate some business-related fields.
         :return: iterator of ChatEvent
         """
-        return await self._create(
+        async for item in await self._create(
             bot_id=bot_id,
             user_id=user_id,
             additional_messages=additional_messages,
@@ -629,7 +625,8 @@ class AsyncChatClient(object):
             auto_save_history=auto_save_history,
             meta_data=meta_data,
             conversation_id=conversation_id,
-        )
+        ):
+            yield item
 
     @overload
     async def _create(
@@ -727,9 +724,7 @@ class AsyncChatClient(object):
         }
         return await self._requester.arequest("post", url, False, Chat, params=params)
 
-    async def submit_tool_outputs(
-        self, *, conversation_id: str, chat_id: str, tool_outputs: List[ToolOutput], stream: bool
-    ) -> Union[Chat, AsyncStream[ChatEvent]]:
+    async def submit_tool_outputs(self, *, conversation_id: str, chat_id: str, tool_outputs: List[ToolOutput]) -> Chat:
         """
         Call this API to submit the results of tool execution.
 
@@ -741,11 +736,56 @@ class AsyncChatClient(object):
         :param chat_id: The Chat ID can be viewed in the 'id' field of the Response when initiating a chat through the
         Chat API. If it is a streaming response, check the 'id' field in the chat event of the Response.
         :param tool_outputs: The execution result of the tool. For detailed instructions, refer to the ToolOutput Object
-        :param stream: Whether to enable streaming response.
         true: Fill in the context of the previous conversation and continue with streaming response.
         false: (Default) Non-streaming response, only reply with basic information of the conversation.
         :return:
         """
+
+        return await self._submit_tool_outputs(
+            conversation_id=conversation_id, chat_id=chat_id, stream=False, tool_outputs=tool_outputs
+        )
+
+    async def submit_tool_outputs_stream(
+        self,
+        *,
+        conversation_id: str,
+        chat_id: str,
+        tool_outputs: List[ToolOutput],
+    ) -> AsyncIterator[ChatEvent]:
+        """
+        Call this API to submit the results of tool execution.
+
+        docs en: https://www.coze.com/docs/developer_guides/chat_submit_tool_outputs
+        docs zh: https://www.coze.cn/docs/developer_guides/chat_submit_tool_outputs
+
+        :param conversation_id: The Conversation ID can be viewed in the 'conversation_id' field of the Response when
+        initiating a conversation through the Chat API.
+        :param chat_id: The Chat ID can be viewed in the 'id' field of the Response when initiating a chat through the
+        Chat API. If it is a streaming response, check the 'id' field in the chat event of the Response.
+        :param tool_outputs: The execution result of the tool. For detailed instructions, refer to the ToolOutput Object
+        true: Fill in the context of the previous conversation and continue with streaming response.
+        false: (Default) Non-streaming response, only reply with basic information of the conversation.
+        :return:
+        """
+
+        async for item in await self._submit_tool_outputs(
+            conversation_id=conversation_id, chat_id=chat_id, stream=True, tool_outputs=tool_outputs
+        ):
+            yield item
+
+    @overload
+    async def _submit_tool_outputs(
+        self, *, conversation_id: str, chat_id: str, stream: Literal[True], tool_outputs: List[ToolOutput]
+    ) -> AsyncStream[ChatEvent]: ...
+
+    @overload
+    async def _submit_tool_outputs(
+        self, *, conversation_id: str, chat_id: str, stream: Literal[False], tool_outputs: List[ToolOutput]
+    ) -> Chat: ...
+
+    async def _submit_tool_outputs(
+        self, *, conversation_id: str, chat_id: str, stream: Literal[True, False], tool_outputs: List[ToolOutput]
+    ) -> Union[Chat, AsyncStream[ChatEvent]]:
         url = f"{self._base_url}/v3/chat/submit_tool_outputs"
         params = {
             "conversation_id": conversation_id,

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any, AsyncIterator, Dict, Optional
 
 from cozepy.auth import Auth
 from cozepy.model import AsyncStream, CozeModel, Stream
@@ -129,7 +129,7 @@ def _sync_workflow_stream_handler(data: Dict[str, str]) -> WorkflowEvent:
     return _workflow_stream_handler(data, is_async=False)
 
 
-async def _async_workflow_stream_handler(data: Dict[str, str]) -> WorkflowEvent:
+def _async_workflow_stream_handler(data: Dict[str, str]) -> WorkflowEvent:
     return _workflow_stream_handler(data, is_async=True)
 
 
@@ -290,7 +290,7 @@ class AsyncWorkflowsRunsClient(object):
         parameters: Optional[Dict[str, Any]] = None,
         bot_id: Optional[str] = None,
         ext: Optional[Dict[str, Any]] = None,
-    ) -> AsyncStream[WorkflowEvent]:
+    ) -> AsyncIterator[WorkflowEvent]:
         """
         Execute the published workflow with a streaming response method.
 
@@ -319,9 +319,10 @@ class AsyncWorkflowsRunsClient(object):
             None,
             body=body,
         )
-        return AsyncStream(
+        async for item in AsyncStream(
             steam_iters, fields=["id", "event", "data"], handler=_async_workflow_stream_handler, logid=logid
-        )
+        ):
+            yield item
 
     async def resume(
         self,
@@ -330,7 +331,7 @@ class AsyncWorkflowsRunsClient(object):
         event_id: str,
         resume_data: str,
         interrupt_type: int,
-    ) -> AsyncStream[WorkflowEvent]:
+    ) -> AsyncIterator[WorkflowEvent]:
         """
         docs zh: https://www.coze.cn/docs/developer_guides/workflow_resume
 
@@ -354,6 +355,7 @@ class AsyncWorkflowsRunsClient(object):
             None,
             body=body,
         )
-        return AsyncStream(
+        async for item in AsyncStream(
             steam_iters, fields=["id", "event", "data"], handler=_async_workflow_stream_handler, logid=logid
-        )
+        ):
+            yield item

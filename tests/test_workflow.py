@@ -125,24 +125,24 @@ class TestAsyncWorkflowsRuns:
         assert res
         assert res.data == "data"
 
-    async def test_workflows_runs_stream(self, respx_mock):
+    async def test_async_workflows_runs_stream(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/v1/workflow/stream_run").mock(httpx.Response(200, content=stream_testdata))
 
-        events = [event async for event in await coze.workflows.runs.stream(workflow_id="id")]
+        events = [event async for event in coze.workflows.runs.stream(workflow_id="id")]
 
         assert events
         assert len(events) == 9
 
-    async def test_workflows_runs_resume(self, respx_mock):
+    async def test_async_workflows_runs_resume(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/v1/workflow/stream_resume").mock(httpx.Response(200, content=stream_testdata))
 
         events = [
             event
-            async for event in await coze.workflows.runs.resume(
+            async for event in coze.workflows.runs.resume(
                 workflow_id="id",
                 event_id="event_id",
                 resume_data="resume_data",
@@ -167,10 +167,10 @@ data:{}""",
         )
 
         with pytest.raises(Exception, match="invalid workflows.event: invalid"):
-            async for event in await coze.workflows.runs.resume(
+            async for event in coze.workflows.runs.resume(
                 workflow_id="id",
                 event_id="event_id",
                 resume_data="resume_data",
                 interrupt_type=123,
             ):
-                pass
+                assert event
