@@ -2,22 +2,11 @@ from typing import Dict
 
 import pytest
 
-from cozepy import CozeEventError, LastIDPaged, NumberPaged, Stream, TokenPaged
+from cozepy import CozeEventError, Stream
 from cozepy.model import AsyncStream
 from cozepy.util import anext
 
 from .test_util import to_async_iterator
-
-
-def test_page_mode():
-    page = TokenPaged(["a", "b", "c"], "next_page", True)
-    assert f"{page}" == "TokenPaged(items=['a', 'b', 'c'], next_page_token=next_page)"
-
-    page = NumberPaged(["a", "b", "c"], 1, 3, 100)
-    assert f"{page}" == "NumberPaged(items=['a', 'b', 'c'], page_num=1, page_size=3, total=100)"
-
-    page = LastIDPaged(["a", "b", "c"], 1, 3, True)
-    assert f"{page}" == "LastIDPaged(items=['a', 'b', 'c'], first_id=1, last_id=3, has_more=True)"
 
 
 def mock_sync_handler(d: Dict[str, str]):

@@ -2,8 +2,8 @@ from enum import IntEnum
 from typing import List, Optional
 
 from cozepy.auth import Auth
-from cozepy.model import CozeModel, NumberPaged
-from cozepy.request import Requester
+from cozepy.model import AsyncNumberPaged, CozeModel, NumberPaged, NumberPagedResponse
+from cozepy.request import HTTPRequest, Requester
 
 
 class BotPromptInfo(CozeModel):
@@ -93,6 +93,17 @@ class SimpleBot(CozeModel):
     # The latest publish time of the bot, in the format of a 10-digit Unix timestamp in seconds (s).
     # This API returns the list of bots sorted in descending order by this field.
     publish_time: str
+
+
+class _PrivateListBotsData(CozeModel, NumberPagedResponse[SimpleBot]):
+    space_bots: List[SimpleBot]
+    total: int
+
+    def get_total(self) -> int:
+        return self.total
+
+    def get_items(self) -> List[SimpleBot]:
+        return self.space_bots
 
 
 class BotsClient(object):
@@ -228,22 +239,27 @@ class BotsClient(object):
         指定空间发布到 Bot as API 渠道的 Bot 列表。
         """
         url = f"{self._base_url}/v1/space/published_bots_list"
-        params = {
-            "space_id": space_id,
-            "page_size": page_size,
-            "page_index": page_num,
-        }
-        data = self._requester.request("get", url, False, self._PrivateListPublishedBotsV1Data, params=params)
+
+        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return self._requester.make_request(
+                "GET",
+                url,
+                params={
+                    "space_id": space_id,
+                    "page_size": i_page_size,
+                    "page_index": i_page_num,
+                },
+                cast=_PrivateListBotsData,
+                is_async=False,
+                stream=False,
+            )
+
         return NumberPaged(
-            items=data.space_bots,
             page_num=page_num,
             page_size=page_size,
-            total=data.total,
+            requestor=self._requester,
+            request_maker=request_maker,
         )
-
-    class _PrivateListPublishedBotsV1Data(CozeModel):
-        space_bots: List[SimpleBot]
-        total: int
 
 
 class AsyncBotsClient(object):
@@ -354,7 +370,7 @@ class AsyncBotsClient(object):
 
         return await self._requester.arequest("get", url, False, Bot, params=params)
 
-    async def list(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> NumberPaged[SimpleBot]:
+    async def list(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> AsyncNumberPaged[SimpleBot]:
         """
         Get the bots published as API service.
         查看指定空间发布到 Bot as API 渠道的 Bot 列表。
@@ -373,19 +389,24 @@ class AsyncBotsClient(object):
         指定空间发布到 Bot as API 渠道的 Bot 列表。
         """
         url = f"{self._base_url}/v1/space/published_bots_list"
-        params = {
-            "space_id": space_id,
-            "page_size": page_size,
-            "page_index": page_num,
-        }
-        data = await self._requester.arequest("get", url, False, self._PrivateListPublishedBotsV1Data, params=params)
-        return NumberPaged(
-            items=data.space_bots,
+
+        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return self._requester.make_request(
+                "GET",
+                url,
+                params={
+                    "space_id": space_id,
+                    "page_size": i_page_size,
+                    "page_index": i_page_num,
+                },
+                cast=_PrivateListBotsData,
+                is_async=False,
+                stream=False,
+            )
+
+        return await AsyncNumberPaged.build(
             page_num=page_num,
             page_size=page_size,
-            total=data.total,
+            requestor=self._requester,
+            request_maker=request_maker,
         )
-
-    class _PrivateListPublishedBotsV1Data(CozeModel):
-        space_bots: List[SimpleBot]
-        total: int

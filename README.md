@@ -24,7 +24,8 @@ pip install cozepy
 
 #### Fixed Auth Token
 
-create Personal Auth Token at [扣子](https://www.coze.cn/open/oauth/pats) or [Coze Platform](https://www.coze.com/open/oauth/pats)
+create Personal Auth Token at [扣子](https://www.coze.cn/open/oauth/pats)
+or [Coze Platform](https://www.coze.com/open/oauth/pats)
 
 and use `TokenAuth` to init Coze client.
 
@@ -37,7 +38,8 @@ coze = Coze(auth=TokenAuth("your_token"))
 
 #### JWT OAuth App
 
-create JWT OAuth App at [扣子](https://www.coze.cn/open/oauth/apps) or [Coze Platform](https://www.coze.com/open/oauth/apps)
+create JWT OAuth App at [扣子](https://www.coze.cn/open/oauth/apps)
+or [Coze Platform](https://www.coze.com/open/oauth/apps)
 
 ```python
 from cozepy import Coze, JWTAuth
@@ -337,7 +339,8 @@ url = pkce_oauth_app.get_oauth_url(redirect_uri='http://127.0.0.1:8080', state='
 # After authorization, you can exchange code_verifier for access token
 code = 'mock code'
 
-oauth_token = pkce_oauth_app.get_access_token(redirect_uri='http://127.0.0.1:8080', code=code, code_verifier=code_verifier)
+oauth_token = pkce_oauth_app.get_access_token(redirect_uri='http://127.0.0.1:8080', code=code,
+                                              code_verifier=code_verifier)
 
 # use the access token to init Coze client
 coze = Coze(auth=TokenAuth(oauth_token.access_token))
@@ -432,6 +435,7 @@ from cozepy import Coze, TokenAuth, Stream, WorkflowEvent, WorkflowEventType
 
 coze = Coze(auth=TokenAuth("your_token"))
 
+
 def handle_workflow_iterator(stream: Stream[WorkflowEvent]):
     for event in stream:
         if event.event == WorkflowEventType.MESSAGE:
@@ -477,6 +481,91 @@ async def main():
     async for event in stream:
         if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
             print('got message delta:', event.message.content)
+
+
+asyncio.run(main())
+```
+
+### Paginator Iterator
+
+The result returned by all list interfaces (both synchronous and asynchronous) is a paginator, which supports iteration.
+
+Take the example of listing the bots in a space to explain the three ways to use the paginator iterator:
+
+#### 1. Not using iterators
+
+```python
+from cozepy import Coze, TokenAuth
+
+coze = Coze(auth=TokenAuth("your_token"))
+
+bots_page = coze.bots.list(space_id='space id', page_size=10)
+bots = bots_page.items
+total = bots_page.total
+has_more = bots_page.has_more
+```
+
+#### 2. Iterate over the paginator, getting T
+
+```python
+from cozepy import Coze, TokenAuth
+
+coze = Coze(auth=TokenAuth("your_token"))
+
+bots_page = coze.bots.list(space_id='space id', page_size=10)
+for bot in bots_page:
+    print('got bot:', bot)
+```
+
+Asynchronous methods also support:
+
+```python
+import asyncio
+
+from cozepy import TokenAuth, AsyncCoze
+
+coze = AsyncCoze(auth=TokenAuth("your_token"))
+
+
+async def main():
+    bots_page = await coze.bots.list(space_id='space id', page_size=10)
+    async for bot in bots_page:
+        print('got bot:', bot)
+
+
+asyncio.run(main())
+```
+
+#### 3. Iterate over the paginator iter_pages to get the next page paginator
+
+```python
+from cozepy import Coze, TokenAuth
+
+coze = Coze(auth=TokenAuth("your_token"))
+
+bots_page = coze.bots.list(space_id='space id', page_size=10)
+for page in bots_page.iter_pages():
+    print('got page:', page.page_num)
+    for bot in page.items:
+        print('got bot:', bot)
+```
+
+Asynchronous methods also support:
+
+```python
+import asyncio
+
+from cozepy import TokenAuth, AsyncCoze
+
+coze = AsyncCoze(auth=TokenAuth("your_token"))
+
+
+async def main():
+    bots_page = await coze.bots.list(space_id='space id', page_size=10)
+    async for page in bots_page.iter_pages():
+        print('got page:', page.page_num)
+        for bot in page.items:
+            print('got bot:', bot)
 
 
 asyncio.run(main())

@@ -20,6 +20,7 @@ from typing_extensions import Literal
 from cozepy.config import DEFAULT_CONNECTION_LIMITS, DEFAULT_TIMEOUT
 from cozepy.exception import COZE_PKCE_AUTH_ERROR_TYPE_ENUMS, CozeAPIError, CozePKCEAuthError, CozePKCEAuthErrorType
 from cozepy.log import log_debug, log_warning
+from cozepy.model import HTTPRequest
 from cozepy.version import user_agent
 
 if TYPE_CHECKING:
@@ -58,6 +59,48 @@ class Requester(object):
         self._auth = auth
         self._sync_client = sync_client
         self._async_client = async_client
+
+    def make_request(
+        self,
+        method: str,
+        url: str,
+        params: Optional[dict] = None,
+        headers: Optional[dict] = None,
+        json: Optional[dict] = None,
+        files: Optional[dict] = None,
+        cast: Union[Type[T], List[Type[T]], None] = None,
+        data_field: str = "data",
+        is_async: Optional[bool] = None,
+        stream: bool = False,
+    ) -> HTTPRequest:
+        if headers is None:
+            headers = {}
+        headers["User-Agent"] = user_agent()
+        if self._auth:
+            self._auth.authentication(headers)
+
+        log_debug(
+            "request %s#%s sending, params=%s, json=%s, stream=%s, async=%s",
+            method,
+            url,
+            params,
+            json,
+            stream,
+            is_async,
+        )
+
+        return HTTPRequest(
+            method=method,
+            url=url,
+            params=params,
+            headers=headers,
+            json_body=json,
+            files=files,
+            is_async=is_async,
+            stream=stream,
+            data_field=data_field,
+            cast=cast,
+        )
 
     @overload
     def request(
@@ -132,19 +175,36 @@ class Requester(object):
         """
         method = method.upper()
 
-        request = self._make_request(
+        request = self.make_request(
             method,
             url,
             params=params,
             headers=headers,
             json=body,
             files=files,
+            cast=model,
+            data_field=data_field,
+            stream=stream,
+            is_async=False,
         )
-        log_debug("request %s#%s sending, params=%s, json=%s, stream=%s", method, url, params, body, stream)
 
-        response = self.sync_client.send(request, stream=stream)
+        return self.send(request)
+
+    def send(
+        self,
+        request: HTTPRequest,
+    ) -> Union[T, List[T], Tuple[Iterator[str], str], None]:
+        """
+        Send a request to the server.
+        """
         return self._parse_response(
-            method, url, False, response=response, model=model, stream=stream, data_field=data_field
+            method=request.method,
+            url=request.url,
+            is_async=False,
+            response=self.sync_client.send(request.as_httpx, stream=False),
+            model=request.cast,
+            stream=request.stream,
+            data_field=request.data_field,
         )
 
     @overload
@@ -219,19 +279,27 @@ class Requester(object):
         Send a request to the server.
         """
         method = method.upper()
-        request = self._make_request(
-            method,
-            url,
-            params=params,
-            headers=headers,
-            json=body,
-            files=files,
+        request = self.make_request(
+            method, url, params=params, headers=headers, json=body, files=files, stream=stream, is_async=True
         )
-        log_debug("arequest %s#%s sending, params=%s, json=%s, stream=%s", method, url, params, body, stream)
 
-        response = await self.async_client.send(request, stream=stream)
+        response = await self.async_client.send(request.as_httpx, stream=stream)
         return self._parse_response(
             method, url, True, response=response, model=model, stream=stream, data_field=data_field
+        )
+
+    async def asend(
+        self,
+        request: HTTPRequest,
+    ) -> Union[T, List[T], Tuple[AsyncIterator[str], str], None]:
+        return self._parse_response(
+            method=request.method,
+            url=request.url,
+            is_async=True,
+            response=await self.async_client.send(request.as_httpx, stream=request.stream),
+            model=request.cast,
+            stream=request.stream,
+            data_field=request.data_field,
         )
 
     @property
@@ -245,30 +313,6 @@ class Requester(object):
         if self._async_client is None:
             self._async_client = AsyncHTTPClient()
         return self._async_client
-
-    def _make_request(
-        self,
-        method: str,
-        url: str,
-        params: Optional[dict] = None,
-        headers: Optional[dict] = None,
-        json: Optional[dict] = None,
-        files: Optional[dict] = None,
-    ) -> httpx.Request:
-        if headers is None:
-            headers = {}
-        headers["User-Agent"] = user_agent()
-        if self._auth:
-            self._auth.authentication(headers)
-
-        return httpx.Request(
-            method,
-            url,
-            params=params,
-            headers=headers,
-            json=json,
-            files=files,
-        )
 
     @overload
     def _parse_response(

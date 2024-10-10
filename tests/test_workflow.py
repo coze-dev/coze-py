@@ -49,7 +49,7 @@ data: {}
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 class TestWorkflowsRuns:
-    def test_create(self, respx_mock):
+    def test_sync_workflows_runs_create(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/v1/workflow/run").mock(
@@ -60,7 +60,7 @@ class TestWorkflowsRuns:
         assert res
         assert res.data == "data"
 
-    def test_stream(self, respx_mock):
+    def test_sync_workflows_runs_stream(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/v1/workflow/stream_run").mock(httpx.Response(200, content=stream_testdata))
@@ -70,7 +70,7 @@ class TestWorkflowsRuns:
         assert events
         assert len(events) == 9
 
-    def test_resume(self, respx_mock):
+    def test_sync_workflows_runs_resume(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/v1/workflow/stream_resume").mock(httpx.Response(200, content=stream_testdata))
@@ -87,7 +87,7 @@ class TestWorkflowsRuns:
         assert events
         assert len(events) == 9
 
-    def test_stream_invalid_event(self, respx_mock):
+    def test_sync_workflows_runs_invalid_stream_event(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/v1/workflow/stream_resume").mock(
@@ -114,7 +114,7 @@ data:{}""",
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
 class TestAsyncWorkflowsRuns:
-    async def test_workflows_runs_create(self, respx_mock):
+    async def test_async_workflows_runs_create(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/v1/workflow/run").mock(
@@ -153,7 +153,7 @@ class TestAsyncWorkflowsRuns:
         assert events
         assert len(events) == 9
 
-    async def test_workflows_runs_stream_invalid_event(self, respx_mock):
+    async def test_async_workflows_runs_invalid_stream_event(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/v1/workflow/stream_resume").mock(

@@ -60,11 +60,15 @@ from .knowledge.documents import (
 )
 from .log import setup_logging
 from .model import (
+    AsyncLastIDPaged,
+    AsyncNumberPaged,
+    AsyncPagedBase,
     AsyncStream,
     LastIDPaged,
+    LastIDPagedResponse,
     NumberPaged,
+    NumberPagedResponse,
     Stream,
-    TokenPaged,
 )
 from .request import AsyncHTTPClient, SyncHTTPClient
 from .version import VERSION
@@ -160,11 +164,15 @@ __all__ = [
     "CozePKCEAuthError",
     "CozePKCEAuthErrorType",
     # model
+    "AsyncLastIDPaged",
+    "AsyncNumberPaged",
+    "AsyncPagedBase",
     "AsyncStream",
     "LastIDPaged",
+    "LastIDPagedResponse",
     "NumberPaged",
+    "NumberPagedResponse",
     "Stream",
-    "TokenPaged",
     # request
     "SyncHTTPClient",
     "AsyncHTTPClient",

@@ -2,7 +2,7 @@ from enum import Enum
 from typing import List
 
 from cozepy.auth import Auth
-from cozepy.model import CozeModel, NumberPaged
+from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
 
 
@@ -30,6 +30,17 @@ class Workspace(CozeModel):
     workspace_type: WorkspaceType
 
 
+class _PrivateListWorkspacesData(CozeModel, NumberPagedResponse[Workspace]):
+    total_count: int
+    workspaces: List[Workspace]
+
+    def get_total(self) -> int:
+        return self.total_count
+
+    def get_items(self) -> List[Workspace]:
+        return self.workspaces
+
+
 class WorkspacesClient(object):
     """
     Bot class.
@@ -42,28 +53,27 @@ class WorkspacesClient(object):
 
     def list(self, *, page_num: int = 1, page_size: int = 20, headers=None) -> NumberPaged[Workspace]:
         url = f"{self._base_url}/v1/workspaces"
-        params = {
-            "page_size": page_size,
-            "page_num": page_num,
-        }
-        data = self._requester.request(
-            "get",
-            url,
-            False,
-            self._PrivateListPublishedBotsV1Data,
-            headers=headers,
-            params=params,
-        )
+
+        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return self._requester.make_request(
+                "GET",
+                url,
+                headers=headers,
+                params={
+                    "page_size": i_page_size,
+                    "page_num": i_page_num,
+                },
+                cast=_PrivateListWorkspacesData,
+                is_async=False,
+                stream=False,
+            )
+
         return NumberPaged(
-            items=data.workspaces,
             page_num=page_num,
             page_size=page_size,
-            total=data.total_count,
+            requestor=self._requester,
+            request_maker=request_maker,
         )
-
-    class _PrivateListPublishedBotsV1Data(CozeModel):
-        total_count: int
-        workspaces: List[Workspace]
 
 
 class AsyncWorkspacesClient(object):
@@ -76,27 +86,26 @@ class AsyncWorkspacesClient(object):
         self._auth = auth
         self._requester = requester
 
-    async def list(self, *, page_num: int = 1, page_size: int = 20, headers=None) -> NumberPaged[Workspace]:
+    async def list(self, *, page_num: int = 1, page_size: int = 20, headers=None) -> AsyncNumberPaged[Workspace]:
         url = f"{self._base_url}/v1/workspaces"
-        params = {
-            "page_size": page_size,
-            "page_num": page_num,
-        }
-        data = await self._requester.arequest(
-            "get",
-            url,
-            False,
-            self._PrivateListPublishedBotsV1Data,
-            headers=headers,
-            params=params,
-        )
-        return NumberPaged(
-            items=data.workspaces,
+
+        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return self._requester.make_request(
+                "GET",
+                url,
+                headers=headers,
+                params={
+                    "page_size": i_page_size,
+                    "page_num": i_page_num,
+                },
+                cast=_PrivateListWorkspacesData,
+                is_async=False,
+                stream=False,
+            )
+
+        return await AsyncNumberPaged.build(
             page_num=page_num,
             page_size=page_size,
-            total=data.total_count,
+            requestor=self._requester,
+            request_maker=request_maker,
         )
-
-    class _PrivateListPublishedBotsV1Data(CozeModel):
-        total_count: int
-        workspaces: List[Workspace]
