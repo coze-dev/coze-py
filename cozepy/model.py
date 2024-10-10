@@ -1,9 +1,8 @@
-from typing import AsyncIterator, Awaitable, Callable, Dict, Generic, Iterator, List, Optional, Tuple, TypeVar
+from typing import AsyncIterator, Callable, Dict, Generic, Iterator, List, Optional, Tuple, TypeVar
 
 from pydantic import BaseModel, ConfigDict
 
 from cozepy.exception import CozeEventError
-from cozepy.util import anext
 
 T = TypeVar("T")
 
@@ -111,33 +110,42 @@ class AsyncStream(Generic[T]):
         self,
         iters: AsyncIterator[str],
         fields: List[str],
-        handler: Callable[[Dict[str, str]], Awaitable[T]],
+        handler: Callable[[Dict[str, str]], T],
         logid: str,
     ):
         self._iters = iters
         self._fields = fields
         self._handler = handler
         self._logid = logid
+        self._iterator = self.__stream__()
 
-    def __aiter__(self):
-        return self
+    async def __aiter__(self) -> AsyncIterator[T]:
+        async for item in self._iterator:
+            yield item
 
     async def __anext__(self) -> T:
-        return await self._handler(await self._extra_event())
+        return await self._iterator.__anext__()
 
-    async def _extra_event(self) -> Dict[str, str]:
-        data = dict(map(lambda x: (x, ""), self._fields))
+    async def __stream__(self) -> AsyncIterator[T]:
+        data = self._make_data()
         times = 0
 
-        while times < len(data):
-            line = await anext(self._iters)
+        async for line in self._iters:
+            line = line.strip()
             if line == "":
                 continue
 
             field, value = self._extra_field_data(line, data)
             data[field] = value
             times += 1
-        return data
+
+            if times >= len(self._fields):
+                try:
+                    yield self._handler(data)
+                except StopAsyncIteration:
+                    return
+                data = self._make_data()
+                times = 0
 
     def _extra_field_data(self, line: str, data: Dict[str, str]) -> Tuple[str, str]:
         for field in self._fields:
@@ -147,3 +155,6 @@ class AsyncStream(Generic[T]):
                 else:
                     raise CozeEventError(field, line, self._logid)
         raise CozeEventError("", line, self._logid)
+
+    def _make_data(self):
+        return dict(map(lambda x: (x, ""), self._fields))
