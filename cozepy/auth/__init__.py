@@ -693,7 +693,6 @@ class TokenAuth(Auth):
     """
 
     def __init__(self, token: str):
-        # TODO: 其他 sdk 实现
         assert isinstance(token, str)
         assert len(token) > 0
         self._token = token

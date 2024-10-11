@@ -18,7 +18,7 @@ from typing import (
 import httpx
 from pydantic import BaseModel, ConfigDict
 
-from cozepy.exception import CozeEventError
+from cozepy.exception import CozeInvalidEventError
 
 if TYPE_CHECKING:
     from cozepy.request import Requester
@@ -408,7 +408,9 @@ class AsyncLastIDPaged(AsyncPagedBase[T]):
 
 
 class Stream(Generic[T]):
-    def __init__(self, iters: Iterator[str], fields: List[str], handler: Callable[[Dict[str, str]], T], logid: str):
+    def __init__(
+        self, iters: Iterator[str], fields: List[str], handler: Callable[[Dict[str, str], str], T], logid: str
+    ):
         self._iters = iters
         self._fields = fields
         self._handler = handler
@@ -418,14 +420,14 @@ class Stream(Generic[T]):
         return self
 
     def __next__(self) -> T:
-        return self._handler(self._extra_event())
+        return self._handler(self._extra_event(), self._logid)
 
     def _extra_event(self) -> Dict[str, str]:
         data = dict(map(lambda x: (x, ""), self._fields))
         times = 0
 
         while times < len(data):
-            line = next(self._iters)
+            line = next(self._iters).strip()
             if line == "":
                 continue
 
@@ -440,8 +442,8 @@ class Stream(Generic[T]):
                 if data[field] == "":
                     return field, line[len(field) + 1 :].strip()
                 else:
-                    raise CozeEventError(field, line, self._logid)
-        raise CozeEventError("", line, self._logid)
+                    raise CozeInvalidEventError(field, line, self._logid)
+        raise CozeInvalidEventError("", line, self._logid)
 
 
 class AsyncStream(Generic[T]):
@@ -449,7 +451,7 @@ class AsyncStream(Generic[T]):
         self,
         iters: AsyncIterator[str],
         fields: List[str],
-        handler: Callable[[Dict[str, str]], T],
+        handler: Callable[[Dict[str, str], str], T],
         logid: str,
     ):
         self._iters = iters
@@ -480,7 +482,7 @@ class AsyncStream(Generic[T]):
 
             if times >= len(self._fields):
                 try:
-                    yield self._handler(data)
+                    yield self._handler(data, self._logid)
                 except StopAsyncIteration:
                     return
                 data = self._make_data()
@@ -492,8 +494,8 @@ class AsyncStream(Generic[T]):
                 if data[field] == "":
                     return field, line[len(field) + 1 :].strip()
                 else:
-                    raise CozeEventError(field, line, self._logid)
-        raise CozeEventError("", line, self._logid)
+                    raise CozeInvalidEventError(field, line, self._logid)
+        raise CozeInvalidEventError("", line, self._logid)
 
     def _make_data(self):
         return dict(map(lambda x: (x, ""), self._fields))

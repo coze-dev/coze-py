@@ -1,4 +1,4 @@
-from cozepy import CozeAPIError, CozeEventError, CozePKCEAuthError, CozePKCEAuthErrorType
+from cozepy import CozeAPIError, CozeInvalidEventError, CozePKCEAuthError, CozePKCEAuthErrorType
 
 
 def test_coze_error():
@@ -17,8 +17,8 @@ def test_coze_error():
     err = CozePKCEAuthError(CozePKCEAuthErrorType.AUTHORIZATION_PENDING)
     assert err.error == "authorization_pending"
 
-    err = CozeEventError("event", "xxx", "logid")
+    err = CozeInvalidEventError("event", "xxx", "logid")
     assert str(err) == "invalid event, field: event, data: xxx, logid: logid"
 
-    err = CozeEventError("", "xxx", "logid")
+    err = CozeInvalidEventError("", "xxx", "logid")
     assert str(err) == "invalid event, data: xxx, logid: logid"

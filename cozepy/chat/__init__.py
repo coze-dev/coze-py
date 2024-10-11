@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, AsyncIterator, Dict, List, Optional, Union, ov
 from typing_extensions import Literal
 
 from cozepy.auth import Auth
+from cozepy.exception import CozeAPIError
 from cozepy.model import AsyncStream, CozeModel, Stream
 from cozepy.request import Requester
 
@@ -158,6 +159,13 @@ class ChatStatus(str, Enum):
     REQUIRES_ACTION = "requires_action"
 
 
+class ChatError(CozeModel):
+    # The error code. An integer type. 0 indicates success, other values indicate failure.
+    code: int
+    # The error message. A string type.
+    msg: str
+
+
 class Chat(CozeModel):
     # The ID of the chat.
     id: str
@@ -177,7 +185,7 @@ class Chat(CozeModel):
     # When the chat encounters an exception, this field returns detailed error information, including:
     # Code: The error code. An integer type. 0 indicates success, other values indicate failure.
     # Msg: The error message. A string type.
-
+    last_error: Optional[ChatError] = None
     # The running status of the session. The values are:
     # created: The session has been created.
     # in_progress: The Bot is processing.
@@ -233,7 +241,7 @@ class ChatEvent(CozeModel):
     message: Optional[Message] = None
 
 
-def _chat_stream_handler(data: Dict, is_async: bool = False) -> ChatEvent:
+def _chat_stream_handler(data: Dict, logid: str, is_async: bool = False) -> ChatEvent:
     event = data["event"]
     event_data = data["data"]  # type: str
     if event == ChatEventType.DONE:
@@ -254,17 +262,20 @@ def _chat_stream_handler(data: Dict, is_async: bool = False) -> ChatEvent:
         ChatEventType.CONVERSATION_CHAT_FAILED,
         ChatEventType.CONVERSATION_CHAT_REQUIRES_ACTION,
     ]:
-        return ChatEvent(event=event, chat=Chat.model_validate_json(event_data))
+        chat = Chat.model_validate_json(event_data)
+        if event == ChatEventType.CONVERSATION_CHAT_FAILED and chat.last_error and chat.last_error.code > 0:
+            raise CozeAPIError(chat.last_error.code, chat.last_error.msg, logid)
+        return ChatEvent(event=event, chat=chat)
     else:
         raise ValueError(f"invalid chat.event: {event}, {data}")
 
 
-def _sync_chat_stream_handler(data: Dict) -> ChatEvent:
-    return _chat_stream_handler(data, is_async=False)
+def _sync_chat_stream_handler(data: Dict, logid: str) -> ChatEvent:
+    return _chat_stream_handler(data, logid=logid, is_async=False)
 
 
-def _async_chat_stream_handler(data: Dict) -> ChatEvent:
-    return _chat_stream_handler(data, is_async=True)
+def _async_chat_stream_handler(data: Dict, logid: str) -> ChatEvent:
+    return _chat_stream_handler(data, logid=logid, is_async=True)
 
 
 class ToolOutput(CozeModel):

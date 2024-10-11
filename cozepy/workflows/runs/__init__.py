@@ -99,7 +99,7 @@ class WorkflowEvent(CozeModel):
     error: Optional[WorkflowEventError] = None
 
 
-def _workflow_stream_handler(data: Dict[str, str], is_async: bool = False) -> WorkflowEvent:
+def _workflow_stream_handler(data: Dict[str, str], logid: str, is_async: bool = False) -> WorkflowEvent:
     id = int(data["id"])
     event = data["event"]
     event_data = data["data"]  # type: str
@@ -125,12 +125,12 @@ def _workflow_stream_handler(data: Dict[str, str], is_async: bool = False) -> Wo
         raise ValueError(f"invalid workflows.event: {event}, {event_data}")
 
 
-def _sync_workflow_stream_handler(data: Dict[str, str]) -> WorkflowEvent:
-    return _workflow_stream_handler(data, is_async=False)
+def _sync_workflow_stream_handler(data: Dict[str, str], logid: str) -> WorkflowEvent:
+    return _workflow_stream_handler(data, logid=logid, is_async=False)
 
 
-def _async_workflow_stream_handler(data: Dict[str, str]) -> WorkflowEvent:
-    return _workflow_stream_handler(data, is_async=True)
+def _async_workflow_stream_handler(data: Dict[str, str], logid: str) -> WorkflowEvent:
+    return _workflow_stream_handler(data, logid=logid, is_async=True)
 
 
 class WorkflowsRunsClient(object):

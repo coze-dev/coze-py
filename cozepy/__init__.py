@@ -26,6 +26,7 @@ from .bots import (
 )
 from .chat import (
     Chat,
+    ChatError,
     ChatEvent,
     ChatEventType,
     ChatStatus,
@@ -45,7 +46,7 @@ from .config import (
 )
 from .conversations import Conversation
 from .coze import AsyncCoze, Coze
-from .exception import CozeAPIError, CozeError, CozeEventError, CozePKCEAuthError, CozePKCEAuthErrorType
+from .exception import CozeAPIError, CozeError, CozeInvalidEventError, CozePKCEAuthError, CozePKCEAuthErrorType
 from .files import File
 from .knowledge.documents import (
     Document,
@@ -110,16 +111,17 @@ __all__ = [
     "Bot",
     "SimpleBot",
     # chat
+    "Chat",
+    "ChatError",
+    "ChatEvent",
+    "ChatEventType",
+    "ChatStatus",
+    "Message",
+    "MessageContentType",
+    "MessageObjectString",
+    "MessageObjectStringType",
     "MessageRole",
     "MessageType",
-    "MessageContentType",
-    "MessageObjectStringType",
-    "ChatStatus",
-    "ChatEventType",
-    "MessageObjectString",
-    "Message",
-    "Chat",
-    "ChatEvent",
     "ToolOutput",
     # conversations
     "Conversation",
@@ -160,7 +162,7 @@ __all__ = [
     # exception
     "CozeError",
     "CozeAPIError",
-    "CozeEventError",
+    "CozeInvalidEventError",
     "CozePKCEAuthError",
     "CozePKCEAuthErrorType",
     # model
