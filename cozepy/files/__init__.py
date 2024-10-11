@@ -1,3 +1,6 @@
+from pathlib import Path
+from typing import Union
+
 from cozepy.auth import Auth
 from cozepy.model import CozeModel
 from cozepy.request import Requester
@@ -27,7 +30,7 @@ class FilesClient(object):
         self._auth = auth
         self._requester = requester
 
-    def upload(self, *, file: str) -> File:
+    def upload(self, *, file: Union[Path]) -> File:
         """
         Upload files to Coze platform.
 
@@ -71,7 +74,7 @@ class AsyncFilesClient(object):
         self._auth = auth
         self._requester = requester
 
-    async def upload(self, *, file: str) -> File:
+    async def upload(self, *, file: Union[Path]) -> File:
         """
         Upload files to Coze platform.
 
