@@ -2,8 +2,27 @@ from typing import Dict, List, Optional
 
 from cozepy.auth import Auth
 from cozepy.chat import Message, MessageContentType, MessageRole
-from cozepy.model import CozeModel, LastIDPaged
+from cozepy.model import AsyncLastIDPaged, CozeModel, HTTPRequest, LastIDPaged, LastIDPagedResponse
 from cozepy.request import Requester
+
+
+class _PrivateListMessageResp(CozeModel, LastIDPagedResponse[Message]):
+    first_id: str
+    last_id: str
+    has_more: bool
+    items: List[Message]
+
+    def get_first_id(self) -> str:
+        return self.first_id
+
+    def get_last_id(self) -> str:
+        return self.last_id
+
+    def get_has_more(self) -> bool:
+        return self.has_more
+
+    def get_items(self) -> List[Message]:
+        return self.items
 
 
 class MessagesClient(object):
@@ -81,16 +100,30 @@ class MessagesClient(object):
         params = {
             "conversation_id": conversation_id,
         }
-        body = {
-            "order": order,
-            "chat_id": chat_id,
-            "before_id": before_id,
-            "after_id": after_id,
-            "limit": limit,
-        }
 
-        res = self._requester.request("post", url, False, self._PrivateListMessageResp, params=params, body=body)
-        return LastIDPaged(res.items, res.first_id, res.last_id, res.has_more)
+        def request_maker(i_before_id: str, i_after_id: str) -> HTTPRequest:
+            return self._requester.make_request(
+                "POST",
+                url,
+                json={
+                    "order": order,
+                    "chat_id": chat_id,
+                    "before_id": i_before_id if i_before_id else None,
+                    "after_id": i_after_id if i_after_id else None,
+                    "limit": limit,
+                },
+                params=params,
+                cast=_PrivateListMessageResp,
+                is_async=False,
+                stream=False,
+            )
+
+        return LastIDPaged(
+            before_id=before_id or "",
+            after_id=after_id or "",
+            requestor=self._requester,
+            request_maker=request_maker,
+        )
 
     def retrieve(
         self,
@@ -176,12 +209,6 @@ class MessagesClient(object):
 
         return self._requester.request("post", url, False, Message, params=params)
 
-    class _PrivateListMessageResp(CozeModel):
-        first_id: str
-        last_id: str
-        has_more: bool
-        items: List[Message]
-
 
 class AsyncMessagesClient(object):
     """
@@ -239,7 +266,7 @@ class AsyncMessagesClient(object):
         before_id: Optional[str] = None,
         after_id: Optional[str] = None,
         limit: int = 50,
-    ) -> LastIDPaged[Message]:
+    ) -> AsyncLastIDPaged[Message]:
         """
         Get the message list of a specified conversation.
 
@@ -258,16 +285,30 @@ class AsyncMessagesClient(object):
         params = {
             "conversation_id": conversation_id,
         }
-        body = {
-            "order": order,
-            "chat_id": chat_id,
-            "before_id": before_id,
-            "after_id": after_id,
-            "limit": limit,
-        }
 
-        res = await self._requester.arequest("post", url, False, self._PrivateListMessageResp, params=params, body=body)
-        return LastIDPaged(res.items, res.first_id, res.last_id, res.has_more)
+        def request_maker(i_before_id: str, i_after_id: str) -> HTTPRequest:
+            return self._requester.make_request(
+                "POST",
+                url,
+                json={
+                    "order": order,
+                    "chat_id": chat_id,
+                    "before_id": i_before_id if i_before_id else None,
+                    "after_id": i_after_id if i_after_id else None,
+                    "limit": limit,
+                },
+                params=params,
+                cast=_PrivateListMessageResp,
+                is_async=False,
+                stream=False,
+            )
+
+        return await AsyncLastIDPaged.build(
+            before_id=before_id or "",
+            after_id=after_id or "",
+            requestor=self._requester,
+            request_maker=request_maker,
+        )
 
     async def retrieve(
         self,
@@ -354,9 +395,3 @@ class AsyncMessagesClient(object):
         }
 
         return await self._requester.arequest("post", url, False, Message, params=params)
-
-    class _PrivateListMessageResp(CozeModel):
-        first_id: str
-        last_id: str
-        has_more: bool
-        items: List[Message]

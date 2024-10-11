@@ -2,7 +2,7 @@ from enum import IntEnum
 from typing import List, Optional
 
 from cozepy.auth import Auth
-from cozepy.model import CozeModel, NumberPaged
+from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
 from cozepy.util import base64_encode_string
 
@@ -252,6 +252,17 @@ class DocumentBase(CozeModel):
     update_rule: Optional[DocumentUpdateRule] = None
 
 
+class _PrivateListDocumentsData(CozeModel, NumberPagedResponse[Document]):
+    document_infos: List[Document]
+    total: int
+
+    def get_total(self) -> int:
+        return self.total
+
+    def get_items(self) -> List[Document]:
+        return self.document_infos
+
+
 class DocumentsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = base_url
@@ -377,23 +388,29 @@ class DocumentsClient(object):
         :return: list of Document
         """
         url = f"{self._base_url}/open_api/knowledge/document/list"
-        body = {
-            "dataset_id": dataset_id,
-            "page": page_num,
-            "size": page_size,
-        }
         headers = {"Agw-Js-Conv": "str"}
-        res = self._requester.request("post", url, False, self._PrivateListDocumentsData, body=body, headers=headers)
+
+        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return self._requester.make_request(
+                "POST",
+                url,
+                headers=headers,
+                json={
+                    "dataset_id": dataset_id,
+                    "page": i_page_num,
+                    "size": i_page_size,
+                },
+                cast=_PrivateListDocumentsData,
+                is_async=False,
+                stream=False,
+            )
+
         return NumberPaged(
-            items=res.document_infos,
             page_num=page_num,
             page_size=page_size,
-            total=res.total,
+            requestor=self._requester,
+            request_maker=request_maker,
         )
-
-    class _PrivateListDocumentsData(CozeModel):
-        document_infos: List[Document]
-        total: int
 
 
 class AsyncDocumentsClient(object):
@@ -506,7 +523,7 @@ class AsyncDocumentsClient(object):
         dataset_id: str,
         page_num: int = 1,
         page_size: int = 10,
-    ) -> NumberPaged[Document]:
+    ) -> AsyncNumberPaged[Document]:
         """
         View the file list of a specified knowledge base, which includes lists of documents, spreadsheets, or images.
 
@@ -521,22 +538,26 @@ class AsyncDocumentsClient(object):
         :return: list of Document
         """
         url = f"{self._base_url}/open_api/knowledge/document/list"
-        body = {
-            "dataset_id": dataset_id,
-            "page": page_num,
-            "size": page_size,
-        }
         headers = {"Agw-Js-Conv": "str"}
-        res = await self._requester.arequest(
-            "post", url, False, self._PrivateListDocumentsData, body=body, headers=headers
-        )
-        return NumberPaged(
-            items=res.document_infos,
+
+        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return self._requester.make_request(
+                "POST",
+                url,
+                headers=headers,
+                json={
+                    "dataset_id": dataset_id,
+                    "page": i_page_num,
+                    "size": i_page_size,
+                },
+                cast=_PrivateListDocumentsData,
+                is_async=False,
+                stream=False,
+            )
+
+        return await AsyncNumberPaged.build(
             page_num=page_num,
             page_size=page_size,
-            total=res.total,
+            requestor=self._requester,
+            request_maker=request_maker,
         )
-
-    class _PrivateListDocumentsData(CozeModel):
-        document_infos: List[Document]
-        total: int

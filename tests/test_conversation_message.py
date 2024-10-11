@@ -4,9 +4,32 @@ import pytest
 from cozepy import AsyncCoze, Coze, Message, TokenAuth
 
 
+def mock_conversations_messages_list(respx_mock, has_more, last_id):
+    respx_mock.post(
+        "/v1/conversation/message/list",
+        json={
+            "order": "desc",
+            "chat_id": None,
+            "before_id": None,
+            "after_id": f"{last_id}",
+            "limit": 1,
+        },
+    ).mock(
+        httpx.Response(
+            200,
+            json={
+                "first_id": "",
+                "has_more": has_more,
+                "last_id": f"{last_id + 1}",
+                "data": [Message.user_text_message(f"id_{last_id}").model_dump()],
+            },
+        )
+    )
+
+
 @pytest.mark.respx(base_url="https://api.coze.com")
 class TestConversationMessage:
-    def test_conversations_messages_create(self, respx_mock):
+    def test_sync_conversations_messages_create(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         msg = Message.assistant_text_message("hi")
@@ -18,21 +41,50 @@ class TestConversationMessage:
         assert message
         assert message.content == msg.content
 
-    def test_conversations_messages_list(self, respx_mock):
+    def test_sync_conversations_messages_list(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        msg = Message.user_text_message("hi")
-        respx_mock.post("/v1/conversation/message/list").mock(
-            httpx.Response(
-                200, json={"first_id": "first_id", "has_more": False, "last_id": "last_id", "data": [msg.model_dump()]}
-            )
+        mock_conversations_messages_list(respx_mock, has_more=True, last_id=1)
+
+        page = coze.conversations.messages.list(conversation_id="conversation id", after_id="1", limit=1)
+        assert page
+        assert len(page.items) == 1
+
+    def test_sync_conversations_messages_iterator(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        total = 10
+        for idx in range(total):
+            mock_conversations_messages_list(respx_mock, has_more=idx < total - 1, last_id=idx + 1)
+
+        total_result = 0
+        page = coze.conversations.messages.list(conversation_id="conversation id", before_id="", after_id="1", limit=1)
+        for message in page:
+            total_result += 1
+            assert message
+            assert message.content == f"id_{total_result}"
+        assert total_result == total
+
+    def test_sync_conversations_messages_page_iterator(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        total = 10
+        for idx in range(total):
+            mock_conversations_messages_list(respx_mock, has_more=idx < total - 1, last_id=idx + 1)
+
+        total_result = 0
+        page_iter = coze.conversations.messages.list(
+            conversation_id="conversation id", before_id="", after_id="1", limit=1
         )
+        for page in page_iter.iter_pages():
+            total_result += 1
+            assert page
+            assert len(page.items) == 1
+            message = page.items[0]
+            assert message.content == f"id_{total_result}"
+        assert total_result == total
 
-        message_list = coze.conversations.messages.list(conversation_id="conversation id")
-        assert message_list
-        assert len(message_list.items) == 1
-
-    def test_conversations_messages_retrieve(self, respx_mock):
+    def test_sync_conversations_messages_retrieve(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         msg = Message.user_text_message("hi")
@@ -42,7 +94,7 @@ class TestConversationMessage:
         assert message
         assert message.content == msg.content
 
-    def test_conversations_messages_update(self, respx_mock):
+    def test_sync_conversations_messages_update(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         msg = Message.user_text_message("hi")
@@ -52,7 +104,7 @@ class TestConversationMessage:
         assert message
         assert message.content == msg.content
 
-    def test_conversations_messages_delete(self, respx_mock):
+    def test_sync_conversations_messages_delete(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         msg = Message.user_text_message("hi")
@@ -66,7 +118,7 @@ class TestConversationMessage:
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
 class TestAsyncConversationMessage:
-    async def test_create(self, respx_mock):
+    async def test_async_conversations_messages_create(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         msg = Message.assistant_text_message("hi")
@@ -78,21 +130,50 @@ class TestAsyncConversationMessage:
         assert message
         assert message.content == msg.content
 
-    async def test_list(self, respx_mock):
+    async def test_async_conversations_messages_list(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        msg = Message.user_text_message("hi")
-        respx_mock.post("/v1/conversation/message/list").mock(
-            httpx.Response(
-                200, json={"first_id": "first_id", "has_more": False, "last_id": "last_id", "data": [msg.model_dump()]}
-            )
+        mock_conversations_messages_list(respx_mock, has_more=True, last_id=1)
+
+        page = await coze.conversations.messages.list(conversation_id="conversation id", after_id="1", limit=1)
+        assert page
+        assert len(page.items) == 1
+
+    async def test_async_conversations_messages_iterator(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        total = 10
+        for idx in range(total):
+            mock_conversations_messages_list(respx_mock, has_more=idx < total - 1, last_id=idx + 1)
+
+        total_result = 0
+        page = await coze.conversations.messages.list(conversation_id="conversation id", after_id="1", limit=1)
+        async for message in page:
+            total_result += 1
+            assert message
+            assert message.content == f"id_{total_result}"
+        assert total_result == total
+
+    async def test_async_conversations_messages_page_iterator(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        total = 10
+        for idx in range(total):
+            mock_conversations_messages_list(respx_mock, has_more=idx < total - 1, last_id=idx + 1)
+
+        total_result = 0
+        page_iter = await coze.conversations.messages.list(
+            conversation_id="conversation id", before_id="", after_id="1", limit=1
         )
+        async for page in page_iter.iter_pages():
+            total_result += 1
+            assert page
+            assert len(page.items) == 1
+            message = page.items[0]
+            assert message.content == f"id_{total_result}"
+        assert total_result == total
 
-        message_list = await coze.conversations.messages.list(conversation_id="conversation id")
-        assert message_list
-        assert len(message_list.items) == 1
-
-    async def test_retrieve(self, respx_mock):
+    async def test_async_conversations_messages_retrieve(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         msg = Message.user_text_message("hi")
@@ -102,7 +183,7 @@ class TestAsyncConversationMessage:
         assert message
         assert message.content == msg.content
 
-    async def test_update(self, respx_mock):
+    async def test_async_conversations_messages_update(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         msg = Message.user_text_message("hi")
@@ -112,7 +193,7 @@ class TestAsyncConversationMessage:
         assert message
         assert message.content == msg.content
 
-    async def test_delete(self, respx_mock):
+    async def test_async_conversations_messages_delete(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         msg = Message.user_text_message("hi")
