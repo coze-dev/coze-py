@@ -11,10 +11,6 @@ class CozeError(Exception):
 
 
 class CozeAPIError(CozeError):
-    """
-    base class for all api errors
-    """
-
     def __init__(self, code: Optional[int] = None, msg: str = "", logid: Optional[str] = None):
         self.code = code
         self.msg = msg
@@ -36,21 +32,13 @@ COZE_PKCE_AUTH_ERROR_TYPE_ENUMS = set(e.value for e in CozePKCEAuthErrorType)
 
 
 class CozePKCEAuthError(CozeError):
-    """
-    base class for all pkce auth errors
-    """
-
     def __init__(self, error: CozePKCEAuthErrorType, logid: Optional[str] = None):
         super().__init__(f"pkce auth error: {error.value}")
         self.error = error
         self.logid = logid
 
 
-class CozeEventError(CozeError):
-    """
-    base class for all event errors
-    """
-
+class CozeInvalidEventError(CozeError):
     def __init__(self, field: str = "", data: str = "", logid: str = ""):
         self.field = field
         self.data = data
