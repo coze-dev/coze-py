@@ -1,6 +1,7 @@
 # Coze Python API SDK
 
 [![PyPI version](https://img.shields.io/pypi/v/cozepy.svg)](https://pypi.org/project/cozepy/)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/cozepy)
 [![codecov](https://codecov.io/github/coze-dev/coze-py/graph/badge.svg?token=U6OKGQXF0E)](https://codecov.io/github/coze-dev/coze-py)
 
 ## Introduction
