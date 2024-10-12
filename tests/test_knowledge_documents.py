@@ -77,10 +77,10 @@ class TestKnowledgeDocuments:
                 DocumentBase(
                     name="name",
                     source_info=DocumentSourceInfo.build_web_page("x"),
-                    update_rule=DocumentUpdateRule.auto_update(1),
+                    update_rule=DocumentUpdateRule.build_auto_update(1),
                 ),
             ],
-            chunk_strategy=DocumentChunkStrategy.auto(),
+            chunk_strategy=DocumentChunkStrategy.build_auto(),
         )
         assert documents
         assert len(documents) == 1
@@ -101,10 +101,10 @@ class TestKnowledgeDocuments:
                 DocumentBase(
                     name="name",
                     source_info=DocumentSourceInfo.build_local_file("content"),
-                    update_rule=DocumentUpdateRule.no_auto_update(),
+                    update_rule=DocumentUpdateRule.build_no_auto_update(),
                 ),
             ],
-            chunk_strategy=DocumentChunkStrategy.custom(1, ",", False, True),
+            chunk_strategy=DocumentChunkStrategy.build_custom(1, ",", False, True),
         )
         assert documents
         assert len(documents) == 1
@@ -229,10 +229,10 @@ class TestAsyncKnowledgeDocuments:
                 DocumentBase(
                     name="name",
                     source_info=DocumentSourceInfo.build_web_page("x"),
-                    update_rule=DocumentUpdateRule.auto_update(1),
+                    update_rule=DocumentUpdateRule.build_auto_update(1),
                 ),
             ],
-            chunk_strategy=DocumentChunkStrategy.auto(),
+            chunk_strategy=DocumentChunkStrategy.build_auto(),
         )
         assert documents
         assert len(documents) == 1
@@ -253,10 +253,10 @@ class TestAsyncKnowledgeDocuments:
                 DocumentBase(
                     name="name",
                     source_info=DocumentSourceInfo.build_local_file("content"),
-                    update_rule=DocumentUpdateRule.no_auto_update(),
+                    update_rule=DocumentUpdateRule.build_no_auto_update(),
                 ),
             ],
-            chunk_strategy=DocumentChunkStrategy.custom(1, ",", False, True),
+            chunk_strategy=DocumentChunkStrategy.build_custom(1, ",", False, True),
         )
         assert documents
         assert len(documents) == 1
