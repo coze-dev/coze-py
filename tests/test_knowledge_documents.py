@@ -76,7 +76,7 @@ class TestKnowledgeDocuments:
             document_bases=[
                 DocumentBase(
                     name="name",
-                    source_info=DocumentSourceInfo.from_web_page("x"),
+                    source_info=DocumentSourceInfo.build_web_page("x"),
                     update_rule=DocumentUpdateRule.auto_update(1),
                 ),
             ],
@@ -100,7 +100,7 @@ class TestKnowledgeDocuments:
             document_bases=[
                 DocumentBase(
                     name="name",
-                    source_info=DocumentSourceInfo.from_local_file("content"),
+                    source_info=DocumentSourceInfo.build_local_file("content"),
                     update_rule=DocumentUpdateRule.no_auto_update(),
                 ),
             ],
@@ -228,7 +228,7 @@ class TestAsyncKnowledgeDocuments:
             document_bases=[
                 DocumentBase(
                     name="name",
-                    source_info=DocumentSourceInfo.from_web_page("x"),
+                    source_info=DocumentSourceInfo.build_web_page("x"),
                     update_rule=DocumentUpdateRule.auto_update(1),
                 ),
             ],
@@ -252,7 +252,7 @@ class TestAsyncKnowledgeDocuments:
             document_bases=[
                 DocumentBase(
                     name="name",
-                    source_info=DocumentSourceInfo.from_local_file("content"),
+                    source_info=DocumentSourceInfo.build_local_file("content"),
                     update_rule=DocumentUpdateRule.no_auto_update(),
                 ),
             ],

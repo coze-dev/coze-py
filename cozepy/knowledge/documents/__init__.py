@@ -215,11 +215,11 @@ class DocumentSourceInfo(CozeModel):
     document_source: Optional[int] = None
 
     @staticmethod
-    def from_local_file(content: str, file_type: str = "txt") -> "DocumentSourceInfo":
+    def build_local_file(content: str, file_type: str = "txt") -> "DocumentSourceInfo":
         return DocumentSourceInfo(file_base64=base64_encode_string(content), file_type=file_type)
 
     @staticmethod
-    def from_web_page(url: str) -> "DocumentSourceInfo":
+    def build_web_page(url: str) -> "DocumentSourceInfo":
         return DocumentSourceInfo(web_url=url, document_source=1)
 
 

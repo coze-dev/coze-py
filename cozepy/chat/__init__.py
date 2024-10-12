@@ -1,10 +1,11 @@
+import json
+import time
 from enum import Enum
 from typing import TYPE_CHECKING, AsyncIterator, Dict, List, Optional, Union, overload
 
 from typing_extensions import Literal
 
 from cozepy.auth import Auth
-from cozepy.exception import CozeAPIError
 from cozepy.model import AsyncStream, CozeModel, Stream
 from cozepy.request import Requester
 
@@ -82,15 +83,33 @@ class MessageObjectString(CozeModel):
     type: MessageObjectStringType
     # Text content. Required when type is text.
     # 文本内容。
-    text: str
+    text: Optional[str] = None
     # The ID of the file or image content.
     # 在 type 为 file 或 image 时，file_id 和 file_url 应至少指定一个。
-    file_id: str
+    file_id: Optional[str] = None
     # The online address of the file or image content.<br>Must be a valid address that is publicly accessible.
     # file_id or file_url must be specified when type is file or image.
     # 文件或图片内容的在线地址。必须是可公共访问的有效地址。
     # 在 type 为 file 或 image 时，file_id 和 file_url 应至少指定一个。
-    file_url: str
+    file_url: Optional[str] = None
+
+    @staticmethod
+    def build_text(text: str):
+        return MessageObjectString(type=MessageObjectStringType.TEXT, text=text)
+
+    @staticmethod
+    def build_image(file_id: Optional[str] = None, file_url: Optional[str] = None):
+        if not file_id and not file_url:
+            raise ValueError("file_id or file_url must be specified")
+
+        return MessageObjectString(type=MessageObjectStringType.IMAGE, file_id=file_id, file_url=file_url)
+
+    @staticmethod
+    def build_file(file_id: Optional[str] = None, file_url: Optional[str] = None):
+        if not file_id and not file_url:
+            raise ValueError("file_id or file_url must be specified")
+
+        return MessageObjectString(type=MessageObjectStringType.FILE, file_id=file_id, file_url=file_url)
 
 
 class Message(CozeModel):
@@ -118,7 +137,7 @@ class Message(CozeModel):
     updated_at: Optional[int] = None
 
     @staticmethod
-    def user_text_message(content: str, meta_data: Optional[Dict[str, str]] = None) -> "Message":
+    def build_user_question_text(content: str, meta_data: Optional[Dict[str, str]] = None) -> "Message":
         return Message(
             role=MessageRole.USER,
             type=MessageType.QUESTION,
@@ -128,7 +147,19 @@ class Message(CozeModel):
         )
 
     @staticmethod
-    def assistant_text_message(content: str, meta_data: Optional[Dict[str, str]] = None) -> "Message":
+    def build_user_question_objects(
+        objects: List[MessageObjectString], meta_data: Optional[Dict[str, str]] = None
+    ) -> "Message":
+        return Message(
+            role=MessageRole.USER,
+            type=MessageType.QUESTION,
+            content=json.dumps([obj.model_dump() for obj in objects]),
+            content_type=MessageContentType.TEXT,
+            meta_data=meta_data,
+        )
+
+    @staticmethod
+    def build_assistant_answer(content: str, meta_data: Optional[Dict[str, str]] = None) -> "Message":
         return Message(
             role=MessageRole.ASSISTANT,
             type=MessageType.ANSWER,
@@ -197,6 +228,11 @@ class Chat(CozeModel):
     # Details of the information needed for execution.
 
 
+class ChatPoll(CozeModel):
+    chat: Chat
+    messages: Optional[List[Message]] = None
+
+
 class ChatEventType(str, Enum):
     # Event for creating a conversation, indicating the start of the conversation.
     # 创建对话的事件，表示对话开始。
@@ -262,10 +298,7 @@ def _chat_stream_handler(data: Dict, logid: str, is_async: bool = False) -> Chat
         ChatEventType.CONVERSATION_CHAT_FAILED,
         ChatEventType.CONVERSATION_CHAT_REQUIRES_ACTION,
     ]:
-        chat = Chat.model_validate_json(event_data)
-        if event == ChatEventType.CONVERSATION_CHAT_FAILED and chat.last_error and chat.last_error.code > 0:
-            raise CozeAPIError(chat.last_error.code, chat.last_error.msg, logid)
-        return ChatEvent(event=event, chat=chat)
+        return ChatEvent(event=event, chat=Chat.model_validate_json(event_data))
     else:
         raise ValueError(f"invalid chat.event: {event}, {data}")
 
@@ -371,6 +404,61 @@ class ChatClient(object):
             meta_data=meta_data,
             conversation_id=conversation_id,
         )
+
+    def create_and_poll(
+        self,
+        *,
+        bot_id: str,
+        user_id: str,
+        conversation_id: Optional[str] = None,
+        additional_messages: Optional[List[Message]] = None,
+        custom_variables: Optional[Dict[str, str]] = None,
+        auto_save_history: bool = True,
+        meta_data: Optional[Dict[str, str]] = None,
+        poll_timeout: Optional[int] = None,
+    ) -> ChatPoll:
+        """
+        Call the Chat API with non-streaming to send messages to a published Coze bot and
+        fetch chat status & message.
+
+        docs en: https://www.coze.com/docs/developer_guides/chat_v3
+        docs zh: https://www.coze.cn/docs/developer_guides/chat_v3
+
+        :param bot_id: The ID of the bot that the API interacts with.
+        :param user_id: The user who calls the API to chat with the bot.
+        This parameter is defined, generated, and maintained by the user within their business system.
+        :param conversation_id: Indicate which conversation the chat is taking place in.
+        :param additional_messages: Additional information for the conversation. You can pass the user's query for this
+        conversation through this field. The array length is limited to 100, meaning up to 100 messages can be input.
+        :param custom_variables: The customized variable in a key-value pair.
+        :param auto_save_history: Whether to automatically save the history of conversation records.
+        :param meta_data: Additional information, typically used to encapsulate some business-related fields.
+        :param poll_timeout: poll timeout in seconds
+        :return: chat object
+        """
+        chat = self.create(
+            bot_id=bot_id,
+            user_id=user_id,
+            conversation_id=conversation_id,
+            additional_messages=additional_messages,
+            custom_variables=custom_variables,
+            auto_save_history=auto_save_history,
+            meta_data=meta_data,
+        )
+
+        start = int(time.time())
+        interval = 1
+        while chat.status == ChatStatus.IN_PROGRESS:
+            if poll_timeout is not None and int(time.time()) - start > poll_timeout:
+                # too long, cancel chat
+                self.cancel(conversation_id=chat.conversation_id, chat_id=chat.id)
+                return ChatPoll(chat=chat)
+
+            time.sleep(interval)
+            chat = self.retrieve(conversation_id=chat.conversation_id, chat_id=chat.id)
+
+        messages = self.messages.list(conversation_id=chat.conversation_id, chat_id=chat.id)
+        return ChatPoll(chat=chat, messages=messages)
 
     @overload
     def _create(

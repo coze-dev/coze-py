@@ -21,7 +21,7 @@ def mock_conversations_messages_list(respx_mock, has_more, last_id):
                 "first_id": "",
                 "has_more": has_more,
                 "last_id": f"{last_id + 1}",
-                "data": [Message.user_text_message(f"id_{last_id}").model_dump()],
+                "data": [Message.build_user_question_text(f"id_{last_id}").model_dump()],
             },
         )
     )
@@ -32,7 +32,7 @@ class TestConversationMessage:
     def test_sync_conversations_messages_create(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        msg = Message.assistant_text_message("hi")
+        msg = Message.build_assistant_answer("hi")
         respx_mock.post("/v1/conversation/message/create").mock(httpx.Response(200, json={"data": msg.model_dump()}))
 
         message = coze.conversations.messages.create(
@@ -87,7 +87,7 @@ class TestConversationMessage:
     def test_sync_conversations_messages_retrieve(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        msg = Message.user_text_message("hi")
+        msg = Message.build_user_question_text("hi")
         respx_mock.get("/v1/conversation/message/retrieve").mock(httpx.Response(200, json=msg.model_dump()))
 
         message = coze.conversations.messages.retrieve(conversation_id="conversation id", message_id="message id")
@@ -97,7 +97,7 @@ class TestConversationMessage:
     def test_sync_conversations_messages_update(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        msg = Message.user_text_message("hi")
+        msg = Message.build_user_question_text("hi")
         respx_mock.post("/v1/conversation/message/modify").mock(httpx.Response(200, json=msg.model_dump()))
 
         message = coze.conversations.messages.update(conversation_id="conversation id", message_id="message id")
@@ -107,7 +107,7 @@ class TestConversationMessage:
     def test_sync_conversations_messages_delete(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        msg = Message.user_text_message("hi")
+        msg = Message.build_user_question_text("hi")
         respx_mock.post("/v1/conversation/message/delete").mock(httpx.Response(200, json=msg.model_dump()))
 
         message = coze.conversations.messages.delete(conversation_id="conversation id", message_id="message id")
@@ -121,7 +121,7 @@ class TestAsyncConversationMessage:
     async def test_async_conversations_messages_create(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        msg = Message.assistant_text_message("hi")
+        msg = Message.build_assistant_answer("hi")
         respx_mock.post("/v1/conversation/message/create").mock(httpx.Response(200, json={"data": msg.model_dump()}))
 
         message = await coze.conversations.messages.create(
@@ -176,7 +176,7 @@ class TestAsyncConversationMessage:
     async def test_async_conversations_messages_retrieve(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        msg = Message.user_text_message("hi")
+        msg = Message.build_user_question_text("hi")
         respx_mock.get("/v1/conversation/message/retrieve").mock(httpx.Response(200, json=msg.model_dump()))
 
         message = await coze.conversations.messages.retrieve(conversation_id="conversation id", message_id="message id")
@@ -186,7 +186,7 @@ class TestAsyncConversationMessage:
     async def test_async_conversations_messages_update(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        msg = Message.user_text_message("hi")
+        msg = Message.build_user_question_text("hi")
         respx_mock.post("/v1/conversation/message/modify").mock(httpx.Response(200, json=msg.model_dump()))
 
         message = await coze.conversations.messages.update(conversation_id="conversation id", message_id="message id")
@@ -196,7 +196,7 @@ class TestAsyncConversationMessage:
     async def test_async_conversations_messages_delete(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        msg = Message.user_text_message("hi")
+        msg = Message.build_user_question_text("hi")
         respx_mock.post("/v1/conversation/message/delete").mock(httpx.Response(200, json=msg.model_dump()))
 
         message = await coze.conversations.messages.delete(conversation_id="conversation id", message_id="message id")
