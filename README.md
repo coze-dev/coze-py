@@ -38,7 +38,7 @@ pip install cozepy
 | setup coze log config        | [examples/log.py](examples/log.py)                                      |
 | how to handle exception      | [examples/exception.py](examples/exception.py)                          |
 
-### Initialize the coze client
+### Initialize the Coze client
 
 Firstly, you need to access https://www.coze.com/open/oauth/pats (for the cn environment,
 visit https://www.coze.cn/open/oauth/pats).
@@ -57,6 +57,12 @@ from cozepy import AsyncCoze, Coze, TokenAuth  # noqa
 
 coze = Coze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 ```
+
+coze api access_token can also be generated via the OAuth App. For details, refer to:
+- [web-oauth-app](https://github.com/coze-dev/coze-py?tab=readme-ov-file#web-oauth-app)
+- [jwt-oauth-app](https://github.com/coze-dev/coze-py?tab=readme-ov-file#jwt-oauth-app)
+- [pkce-oauth-app](https://github.com/coze-dev/coze-py?tab=readme-ov-file#pkce-oauth-app)
+- [device-oauth-app](https://github.com/coze-dev/coze-py?tab=readme-ov-file#device-oauth-app)
 
 ### Chat
 
@@ -134,7 +140,7 @@ bots = bots_page.items
 # create bot
 bot = coze.bots.create(
     # id of workspace
-    space_id='space id',
+    space_id='workspace id',
     # name of bot
     name='bot name',
     # description of bot
@@ -502,7 +508,9 @@ code_challenge, and code_challenge_method, an authorization link can be generate
 # to select the code_challenge_method.
 code_verifier = "random code verifier"
 url = pkce_oauth_app.get_oauth_url(
-    redirect_uri=web_oauth_redirect_uri, code_verifier=code_verifier, code_challenge_method="S256"
+    redirect_uri=web_oauth_redirect_uri,
+    code_verifier=code_verifier,
+    code_challenge_method="S256"
 )
 ```
 
@@ -609,7 +617,7 @@ oauth_token = device_oauth_app.refresh_access_token(oauth_token.refresh_token)
 
 ### Async usage
 
-cozepy supports asynchronous calls through httpx.AsyncClient.
+cozepy supports asynchronous calls through `httpx.AsyncClient`.
 
 Just replace the `Coze` client with the `AsyncCoze` client to use all the asynchronous calls of the Coze OpenAPI.
 
@@ -736,7 +744,7 @@ from cozepy import Coze, TokenAuth
 
 coze = Coze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 
-bots_page = coze.bots.list(space_id='space id', page_size=10)
+bots_page = coze.bots.list(space_id='workspace id', page_size=10)
 bots = bots_page.items
 total = bots_page.total
 has_more = bots_page.has_more
@@ -750,7 +758,7 @@ from cozepy import Coze, TokenAuth
 
 coze = Coze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 
-bots_page = coze.bots.list(space_id='space id', page_size=10)
+bots_page = coze.bots.list(space_id='workspace id', page_size=10)
 for bot in bots_page:
     print('got bot:', bot)
 ```
@@ -767,7 +775,7 @@ coze = AsyncCoze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 
 
 async def main():
-    bots_page = await coze.bots.list(space_id='space id', page_size=10)
+    bots_page = await coze.bots.list(space_id='workspace id', page_size=10)
     async for bot in bots_page:
         print('got bot:', bot)
 
@@ -783,7 +791,7 @@ from cozepy import Coze, TokenAuth
 
 coze = Coze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 
-bots_page = coze.bots.list(space_id='space id', page_size=10)
+bots_page = coze.bots.list(space_id='workspace id', page_size=10)
 for page in bots_page.iter_pages():
     print('got page:', page.page_num)
     for bot in page.items:
@@ -802,7 +810,7 @@ coze = AsyncCoze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 
 
 async def main():
-    bots_page = await coze.bots.list(space_id='space id', page_size=10)
+    bots_page = await coze.bots.list(space_id='workspace id', page_size=10)
     async for page in bots_page.iter_pages():
         print('got page:', page.page_num)
         for bot in page.items:
