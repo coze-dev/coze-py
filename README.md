@@ -3,9 +3,14 @@
 [![PyPI version](https://img.shields.io/pypi/v/cozepy.svg)](https://pypi.org/project/cozepy/)
 [![codecov](https://codecov.io/github/coze-dev/coze-py/graph/badge.svg?token=U6OKGQXF0E)](https://codecov.io/github/coze-dev/coze-py)
 
-- Supports all Coze open APIs and authentication methods
-- Supports both synchronous and asynchronous function calls
-- Optimized for streaming interfaces, returning Stream and AsyncStream objects
+## Introduction
+
+The Coze API SDK for Python is a versatile tool for integrating Coze's open APIs into 
+your projects.
+- Supports all Coze open APIs and authentication APIs
+- Supports both synchronous and asynchronous SDK calls
+- Optimized for streaming apis, returning Stream and AsyncStream objects
+- Optimized for list apis, returning Iterator Page objects
 - Features a simple and user-friendly API design for ease of use
 
 ## Requirements
