@@ -62,21 +62,20 @@ chat = coze.chat.create(
     bot_id='bot id',
     user_id='user id',
     additional_messages=[
-        Message.user_text_message('how are you?'),
-        Message.assistant_text_message('I am fine, thank you.')
+        Message.build_user_question_text('how are you?'),
     ],
 )
 start = int(time.time())
 while chat.status == ChatStatus.IN_PROGRESS:
     if int(time.time()) - start > 120:
         # too long, cancel chat
-        coze.chat.cancel(conversation_id=chat.conversation_id, chat_id=chat.chat_id)
+        coze.chat.cancel(conversation_id=chat.conversation_id, chat_id=chat.id)
         break
 
     time.sleep(1)
-    chat = coze.chat.retrieve(conversation_id=chat.conversation_id, chat_id=chat.chat_id)
+    chat = coze.chat.retrieve(conversation_id=chat.conversation_id, chat_id=chat.id)
 
-message_list = coze.chat.messages.list(conversation_id=chat.conversation_id, chat_id=chat.chat_id)
+message_list = coze.chat.messages.list(conversation_id=chat.conversation_id, chat_id=chat.id)
 for message in message_list:
     print('got message:', message.content)
 
@@ -85,8 +84,8 @@ stream = coze.chat.stream(
     bot_id='bot id',
     user_id='user id',
     additional_messages=[
-        Message.user_text_message('how are you?'),
-        Message.assistant_text_message('I am fine, thank you.')
+        Message.build_user_question_text('how are you?'),
+        Message.build_assistant_answer('I am fine, thank you.')
     ],
 )
 for event in stream:
@@ -136,8 +135,8 @@ coze = Coze(auth=TokenAuth("your_token"))
 # create conversation
 conversation = coze.conversations.create(
     messages=[
-        Message.user_text_message('how are you?'),
-        Message.assistant_text_message('I am fine, thank you.')
+        Message.build_user_question_text('how are you?'),
+        Message.build_assistant_answer('I am fine, thank you.')
     ],
 )
 
@@ -236,7 +235,7 @@ documents = coze.knowledge.documents.create(
     document_bases=[
         DocumentBase(
             name='document name',
-            source_info=DocumentSourceInfo.from_local_file('local file content')
+            source_info=DocumentSourceInfo.build_local_file('local file content')
         )
     ],
     chunk_strategy=DocumentChunkStrategy.auto()
@@ -248,7 +247,7 @@ documents = coze.knowledge.documents.create(
     document_bases=[
         DocumentBase(
             name='document name',
-            source_info=DocumentSourceInfo.from_web_page('https://example.com')
+            source_info=DocumentSourceInfo.build_web_page('https://example.com')
         )
     ],
     chunk_strategy=DocumentChunkStrategy.auto()
@@ -394,8 +393,8 @@ async def main() -> None:
         bot_id='bot id',
         user_id='user id',
         additional_messages=[
-            Message.user_text_message('how are you?'),
-            Message.assistant_text_message('I am fine, thank you.')
+            Message.build_user_question_text('how are you?'),
+            Message.build_assistant_answer('I am fine, thank you.')
         ],
     )
     print('chat', chat)
@@ -419,8 +418,8 @@ stream = coze.chat.stream(
     bot_id='bot id',
     user_id='user id',
     additional_messages=[
-        Message.user_text_message('how are you?'),
-        Message.assistant_text_message('I am fine, thank you.')
+        Message.build_user_question_text('how are you?'),
+        Message.build_assistant_answer('I am fine, thank you.')
     ],
 )
 for event in stream:
@@ -474,8 +473,8 @@ async def main():
         bot_id='bot id',
         user_id='user id',
         additional_messages=[
-            Message.user_text_message('how are you?'),
-            Message.assistant_text_message('I am fine, thank you.')
+            Message.build_user_question_text('how are you?'),
+            Message.build_assistant_answer('I am fine, thank you.')
         ],
     )
     async for event in stream:

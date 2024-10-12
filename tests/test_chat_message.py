@@ -9,8 +9,8 @@ class TestChatMessage:
     def test_create(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        msg = Message.user_text_message("hi")
-        msg2 = Message.user_text_message("hey")
+        msg = Message.build_user_question_text("hi")
+        msg2 = Message.build_user_question_text("hey")
         respx_mock.post("/v3/chat/message/list").mock(
             httpx.Response(
                 200,
@@ -29,8 +29,8 @@ class TestAsyncChatMessage:
     async def test_chat_message_list(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        msg = Message.user_text_message("hi")
-        msg2 = Message.user_text_message("hey")
+        msg = Message.build_user_question_text("hi")
+        msg2 = Message.build_user_question_text("hey")
         respx_mock.post("/v3/chat/message/list").mock(
             httpx.Response(
                 200,

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 from cozepy.auth import Auth
 from cozepy.model import CozeModel
@@ -13,15 +13,15 @@ class File(CozeModel):
 
     # The total byte size of the file.
     # 文件的总字节数。
-    bytes: int
+    bytes: Optional[int] = None
 
     # The upload time of the file, in the format of a 10-digit Unix timestamp in seconds (s).
     # 文件的上传时间，格式为 10 位的 Unixtime 时间戳，单位为秒（s）。
-    created_at: int
+    created_at: Optional[int] = None
 
     # The name of the file.
     # 文件名称。
-    file_name: str
+    file_name: Optional[str] = None
 
 
 class FilesClient(object):

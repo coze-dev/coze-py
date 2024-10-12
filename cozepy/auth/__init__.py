@@ -55,7 +55,7 @@ class Scope(CozeModel):
     attribute_constraint: Optional[ScopeAttributeConstraint] = None
 
     @staticmethod
-    def from_bot_chat(bot_id_list: List[str], permission_list: Optional[List[str]] = None) -> "Scope":
+    def build_bot_chat(bot_id_list: List[str], permission_list: Optional[List[str]] = None) -> "Scope":
         if not permission_list:
             permission_list = ["Connector.botChat"]
         return Scope(
@@ -79,9 +79,9 @@ class OAuthApp(object):
     def _get_oauth_url(
         self,
         redirect_uri: str,
-        state: str,
         code_challenge: Optional[str] = None,
         code_challenge_method: Optional[str] = None,
+        state: str = "",
         workspace_id: Optional[str] = None,
     ):
         params = {
@@ -150,7 +150,7 @@ class WebOAuthApp(OAuthApp):
     def get_oauth_url(
         self,
         redirect_uri: str,
-        state: str,
+        state: str = "",
         workspace_id: Optional[str] = None,
     ):
         """
@@ -165,7 +165,7 @@ class WebOAuthApp(OAuthApp):
         """
         return self._get_oauth_url(
             redirect_uri,
-            state,
+            state=state,
             workspace_id=workspace_id,
         )
 
@@ -212,7 +212,7 @@ class AsyncWebOAuthApp(OAuthApp):
     def get_oauth_url(
         self,
         redirect_uri: str,
-        state: str,
+        state: str = "",
         workspace_id: Optional[str] = None,
     ):
         """
@@ -227,7 +227,7 @@ class AsyncWebOAuthApp(OAuthApp):
         """
         return self._get_oauth_url(
             redirect_uri,
-            state,
+            state=state,
             workspace_id=workspace_id,
         )
 
@@ -273,9 +273,14 @@ class JWTOAuthApp(OAuthApp):
         self._public_key_id = public_key_id
         super().__init__(client_id, base_url, www_base_url="")
 
-    def get_access_token(self, ttl: int, scope: Optional[Scope] = None) -> OAuthToken:
+    def get_access_token(self, ttl: int = 900, scope: Optional[Scope] = None) -> OAuthToken:
         """
         Get the token by jwt with jwt auth flow.
+
+        :param ttl: The validity period of the AccessToken you apply for is in seconds.
+        The default value is 900 seconds and the maximum value you can set is 86399 seconds,
+        which is 24 hours.
+        :param scope:
         """
         jwt_token = self._gen_jwt(3600)
         url = f"{self._base_url}/api/permission/oauth2/token"
@@ -366,9 +371,9 @@ class PKCEOAuthApp(OAuthApp):
     def get_oauth_url(
         self,
         redirect_uri: str,
-        state: str,
         code_verifier: str,
         code_challenge_method: Literal["plain", "S256"] = "plain",
+        state: str = "",
         workspace_id: Optional[str] = None,
     ):
         """
@@ -376,10 +381,10 @@ class PKCEOAuthApp(OAuthApp):
 
         :param redirect_uri: The redirect_uri of your app, where authentication responses can be sent and received by
         your app. It must exactly match one of the redirect URIs you registered in the OAuth Apps.
-        :param state: A value included in the request that is also returned in the token response. It can be a string
-        of any hash value.
         :param code_verifier:
         :param code_challenge_method:
+        :param state: A value included in the request that is also returned in the token response. It can be a string
+        of any hash value.
         :param workspace_id:
         :return:
         """
@@ -387,9 +392,9 @@ class PKCEOAuthApp(OAuthApp):
 
         return self._get_oauth_url(
             redirect_uri,
-            state,
             code_challenge=code_challenge,
             code_challenge_method=code_challenge_method,
+            state=state,
             workspace_id=workspace_id,
         )
 
@@ -433,9 +438,9 @@ class AsyncPKCEOAuthApp(OAuthApp):
     def get_oauth_url(
         self,
         redirect_uri: str,
-        state: str,
         code_verifier: str,
         code_challenge_method: Literal["plain", "S256"] = "plain",
+        state: str = "",
         workspace_id: Optional[str] = None,
     ):
         """
@@ -443,10 +448,10 @@ class AsyncPKCEOAuthApp(OAuthApp):
 
         :param redirect_uri: The redirect_uri of your app, where authentication responses can be sent and received by
         your app. It must exactly match one of the redirect URIs you registered in the OAuth Apps.
-        :param state: A value included in the request that is also returned in the token response. It can be a string
-        of any hash value.
         :param code_verifier:
         :param code_challenge_method:
+        :param state: A value included in the request that is also returned in the token response. It can be a string
+        of any hash value.
         :param workspace_id:
         :return:
         """
@@ -454,9 +459,9 @@ class AsyncPKCEOAuthApp(OAuthApp):
 
         return self._get_oauth_url(
             redirect_uri,
-            state,
             code_challenge=code_challenge,
             code_challenge_method=code_challenge_method,
+            state=state,
             workspace_id=workspace_id,
         )
 

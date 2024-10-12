@@ -199,7 +199,7 @@ class TestJWTOAuthApp:
             )
         )
 
-        token = app.get_access_token(100, scope=Scope.from_bot_chat(["bot id"]))
+        token = app.get_access_token(100, scope=Scope.build_bot_chat(["bot id"]))
         assert token.access_token == mock_token
 
 
@@ -216,7 +216,7 @@ class TestAsyncJWTOAuthApp:
             )
         )
 
-        token = await app.get_access_token(100, scope=Scope.from_bot_chat(["bot id"]))
+        token = await app.get_access_token(100, scope=Scope.build_bot_chat(["bot id"]))
         assert token.access_token == mock_token
 
 
@@ -225,7 +225,7 @@ class TestPKCEOAuthApp:
     def test_get_oauth_url(self, respx_mock):
         app = PKCEOAuthApp("client id")
 
-        url = app.get_oauth_url("https://example.com", "state", "code_verifier", "S256")
+        url = app.get_oauth_url("https://example.com", "code_verifier", "S256", state="state")
         assert (
             "https://www.coze.com/api/permission/oauth2/authorize?"
             "response_type=code&client_id=client+id&"
@@ -233,7 +233,9 @@ class TestPKCEOAuthApp:
             "code_challenge=73oehA2tBul5grZPhXUGQwNAjxh69zNES8bu2bVD0EM&code_challenge_method=S256"
         ) == url
 
-        url = app.get_oauth_url("https://example.com", "state", "code_verifier", "S256", workspace_id="this_is_id")
+        url = app.get_oauth_url(
+            "https://example.com", "code_verifier", "S256", state="state", workspace_id="this_is_id"
+        )
         assert (
             "https://www.coze.com/api/permission/oauth2/workspace_id/this_is_id/authorize?"
             "response_type=code&client_id=client+id&"
@@ -274,7 +276,7 @@ class TestAsyncPKCEOAuthApp:
     async def test_get_oauth_url(self, respx_mock):
         app = AsyncPKCEOAuthApp("client id")
 
-        url = app.get_oauth_url("https://example.com", "state", "code_verifier", "S256")
+        url = app.get_oauth_url("https://example.com", "code_verifier", "S256", state="state")
         assert (
             "https://www.coze.com/api/permission/oauth2/authorize?"
             "response_type=code&client_id=client+id&"
@@ -282,7 +284,9 @@ class TestAsyncPKCEOAuthApp:
             "code_challenge=73oehA2tBul5grZPhXUGQwNAjxh69zNES8bu2bVD0EM&code_challenge_method=S256"
         ) == url
 
-        url = app.get_oauth_url("https://example.com", "state", "code_verifier", "S256", workspace_id="this_is_id")
+        url = app.get_oauth_url(
+            "https://example.com", "code_verifier", "S256", workspace_id="this_is_id", state="state"
+        )
         assert (
             "https://www.coze.com/api/permission/oauth2/workspace_id/this_is_id/authorize?"
             "response_type=code&client_id=client+id&"
