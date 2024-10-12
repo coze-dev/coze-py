@@ -49,11 +49,11 @@ class DocumentChunkStrategy(CozeModel):
     separator: Optional[str] = None
 
     @staticmethod
-    def auto() -> "DocumentChunkStrategy":
+    def build_auto() -> "DocumentChunkStrategy":
         return DocumentChunkStrategy(chunk_type=0)
 
     @staticmethod
-    def custom(
+    def build_custom(
         max_tokens: int, separator: str, remove_extra_spaces: bool = False, remove_urls_emails: bool = False
     ) -> "DocumentChunkStrategy":
         return DocumentChunkStrategy(
@@ -233,11 +233,11 @@ class DocumentUpdateRule(CozeModel):
     update_interval: int
 
     @staticmethod
-    def no_auto_update() -> "DocumentUpdateRule":
+    def build_no_auto_update() -> "DocumentUpdateRule":
         return DocumentUpdateRule(update_type=DocumentUpdateType.NO_AUTO_UPDATE, update_interval=24)
 
     @staticmethod
-    def auto_update(interval: int) -> "DocumentUpdateRule":
+    def build_auto_update(interval: int) -> "DocumentUpdateRule":
         return DocumentUpdateRule(update_type=DocumentUpdateType.AUTO_UPDATE, update_interval=interval)
 
 
