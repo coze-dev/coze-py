@@ -20,7 +20,7 @@ coze = Coze(auth=TokenAuth(token=api_coze_token or "mock"))
 
 # Invoke the create interface to create a bot in the draft status.
 bot = coze.bots.create(
-    # The bot should exist under a space and your space id needs configuration.
+    # The bot should exist under a space and your workspace id needs configuration.
     space_id="workspace id",
     # Bot name
     name="translator bot",
