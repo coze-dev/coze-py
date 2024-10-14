@@ -4,7 +4,7 @@ This example is for illustrating how to handle the abnormal errors in the proces
 
 import os  # noqa
 
-# Get an access_token through pat or oauth.
+# Get an access_token through personal access token oroauth.
 api_coze_token = os.getenv("COZE_API_TOKEN")
 
 from cozepy import Coze, TokenAuth, BotPromptInfo, Message, ChatEventType, MessageContentType, CozeAPIError  # noqa
