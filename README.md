@@ -90,7 +90,8 @@ coze = Coze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 chat_poll = coze.chat.create_and_poll(
     # id of bot
     bot_id='bot_id',
-    # id of user
+    # id of user, Note: The user_id here is specified by the developer, for example, it can be the
+    # business id in the developer system, and does not include the internal attributes of coze.
     user_id='user_id',
     # user input
     additional_messages=[Message.build_user_question_text("How are you?")]
@@ -116,7 +117,8 @@ coze = Coze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 for event in coze.chat.stream(
         # id of bot
         bot_id='bot_id',
-        # id of user
+        # id of user, Note: The user_id here is specified by the developer, for example, it can be the
+        # business id in the developer system, and does not include the internal attributes of coze.
         user_id='user_id',
         # user input
         additional_messages=[Message.build_user_question_text("How are you?")]
@@ -140,12 +142,15 @@ coze = Coze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 bot = coze.bots.retrieve(bot_id='bot id')
 
 # list bot list
+# open your workspace, browser url will be https://www.coze.com/space/<this is workspace id>/develop
+# copy <this is workspace id> as workspace id
 bots_page = coze.bots.list(space_id='workspace id', page_num=1)
 bots = bots_page.items
 
 # create bot
 bot = coze.bots.create(
-    # id of workspace
+    # id of workspace, open your workspace, browser url will be https://www.coze.com/space/<this is workspace id>/develop
+    # copy <this is workspace id> as workspace id
     space_id='workspace id',
     # name of bot
     name='bot name',
@@ -480,6 +485,10 @@ coze = Coze(auth=TokenAuth(oauth_token.access_token))
 
 #### PKCE OAuth App
 
+PKCE stands for Proof Key for Code Exchange, and it's an extension to the OAuth 2.0 authorization
+code flow designed to enhance security for public clients, such as mobile and single-page 
+applications.
+
 Firstly, users need to access https://www.coze.com/open/oauth/apps. For the cn environment,
 users need to access https://www.coze.cn/open/oauth/apps to create an OAuth App of the type
 of Mobile/PC/Single-page application.
@@ -492,7 +501,8 @@ After the creation is completed, three parameters, namely the client ID can be o
 
 ```python
 import os
-from cozepy import Coze, TokenAuth, PKCEOAuthApp
+
+from cozepy import PKCEOAuthApp
 
 # client ID
 pkce_oauth_client_id = os.getenv("COZE_PKCE_OAUTH_CLIENT_ID")
@@ -544,6 +554,10 @@ oauth_token = pkce_oauth_app.refresh_access_token(oauth_token.refresh_token)
 ```
 
 #### Device OAuth App
+
+The OAuth 2.0 device flow, also known as the device authorization grant, is an extension to t
+e OAuth 2.0 protocol designed for devices that have limited input capabilities or lack a suitable
+browser.
 
 Firstly, users need to access https://www.coze.com/open/oauth/apps. For the cn environment,
 users need to access https://www.coze.cn/open/oauth/apps to create an OAuth App of the type
@@ -639,6 +653,7 @@ coze = AsyncCoze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 async def main() -> None:
     chat = await coze.chat.create(
         bot_id='bot id',
+        # id of user, Note: The user_id here is specified by the developer, for example, it can be the business id in the developer system, and does not include the internal attributes of coze.
         user_id='user id',
         additional_messages=[
             Message.build_user_question_text('how are you?'),
@@ -665,6 +680,8 @@ coze = Coze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 
 stream = coze.chat.stream(
     bot_id='bot id',
+    # id of user, Note: The user_id here is specified by the developer, for example, it can be the
+    # business id in the developer system, and does not include the internal attributes of coze.
     user_id='user id',
     additional_messages=[
         Message.build_user_question_text('how are you?'),
@@ -722,6 +739,8 @@ coze = AsyncCoze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 async def main():
     stream = coze.chat.stream(
         bot_id='bot id',
+        # id of user, Note: The user_id here is specified by the developer, for example, it can be the
+        # business id in the developer system, and does not include the internal attributes of coze.
         user_id='user id',
         additional_messages=[
             Message.build_user_question_text('how are you?'),
@@ -750,6 +769,8 @@ from cozepy import Coze, TokenAuth
 
 coze = Coze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 
+# open your workspace, browser url will be https://www.coze.com/space/<this is workspace id>/develop
+# copy <this is workspace id> as workspace id
 bots_page = coze.bots.list(space_id='workspace id', page_size=10)
 bots = bots_page.items
 total = bots_page.total
@@ -764,6 +785,8 @@ from cozepy import Coze, TokenAuth
 
 coze = Coze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 
+# open your workspace, browser url will be https://www.coze.com/space/<this is workspace id>/develop
+# copy <this is workspace id> as workspace id
 bots_page = coze.bots.list(space_id='workspace id', page_size=10)
 for bot in bots_page:
     print('got bot:', bot)
@@ -781,6 +804,8 @@ coze = AsyncCoze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 
 
 async def main():
+    # open your workspace, browser url will be https://www.coze.com/space/<this is workspace id>/develop
+    # copy <this is workspace id> as workspace id
     bots_page = await coze.bots.list(space_id='workspace id', page_size=10)
     async for bot in bots_page:
         print('got bot:', bot)
@@ -797,6 +822,8 @@ from cozepy import Coze, TokenAuth
 
 coze = Coze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 
+# open your workspace, browser url will be https://www.coze.com/space/<this is workspace id>/develop
+# copy <this is workspace id> as workspace id
 bots_page = coze.bots.list(space_id='workspace id', page_size=10)
 for page in bots_page.iter_pages():
     print('got page:', page.page_num)
@@ -816,6 +843,8 @@ coze = AsyncCoze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 
 
 async def main():
+    # open your workspace, browser url will be https://www.coze.com/space/<this is workspace id>/develop
+    # copy <this is workspace id> as workspace id
     bots_page = await coze.bots.list(space_id='workspace id', page_size=10)
     async for page in bots_page.iter_pages():
         print('got page:', page.page_num)

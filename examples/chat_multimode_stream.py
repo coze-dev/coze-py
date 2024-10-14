@@ -8,7 +8,7 @@ import sys
 
 from cozepy import COZE_COM_BASE_URL
 
-# Get an access_token through pat or oauth.
+# Get an access_token through personal access token oroauth.
 api_coze_token = os.getenv("COZE_API_TOKEN")
 api_base = os.getenv("COZE_API_BASE") or COZE_COM_BASE_URL
 

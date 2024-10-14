@@ -10,7 +10,7 @@ from cozepy import setup_logging
 # open debug logging, default is warning
 setup_logging(level=logging.DEBUG)
 
-# Get an access_token through pat or oauth.
+# Get an access_token through personal access token oroauth.
 api_coze_token = os.getenv("COZE_API_TOKEN")
 
 from cozepy import Coze, TokenAuth, BotPromptInfo, Message, ChatEventType, MessageContentType  # noqa

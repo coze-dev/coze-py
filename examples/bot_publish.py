@@ -5,7 +5,7 @@ This example is for describing how to create a bot, update a bot and publish a b
 import os  # noqa
 from pathlib import Path
 
-# Get an access_token through pat or oauth.
+# Get an access_token through personal access token oroauth.
 api_coze_token = os.getenv("COZE_API_TOKEN")
 
 from cozepy import Coze, TokenAuth, BotPromptInfo, Message, ChatEventType, MessageContentType  # noqa

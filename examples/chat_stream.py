@@ -5,7 +5,7 @@ and handle chat events
 
 import os  # noqa
 
-# Get an access_token through pat or oauth.
+# Get an access_token through personal access token oroauth.
 api_coze_token = os.getenv("COZE_API_TOKEN")
 
 from cozepy import Coze, TokenAuth, Message, ChatStatus, MessageContentType, ChatEventType  # noqa
