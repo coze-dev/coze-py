@@ -8,9 +8,8 @@ This example is about how to use the web oauth process to acquire user authoriza
 # The specific creation process can be referred to in the document:
 # https://www.coze.com/docs/developer_guides/oauth_code. For the cn environment, it can be
 # accessed at https://www.coze.cn/docs/developer_guides/oauth_code.
-# After the creation is completed, three parameters, namely the client ID, client secret,
-# and redirect link, can be obtained. For the client secret, users need to keep it securely
-# to avoid leakage.
+# After the creation is completed, the client ID, client secret, and redirect link, can be
+# obtained. For the client secret, users need to keep it securely to avoid leakage.
 
 import os  # noqa
 

@@ -8,9 +8,8 @@ This example is about how to use the service jwt oauth process to acquire user a
 # The specific creation process can be referred to in the document:
 # https://www.coze.com/docs/developer_guides/oauth_jwt. For the cn environment, it can be
 # accessed at https://www.coze.cn/docs/developer_guides/oauth_jwt.
-# After the creation is completed, three parameters, namely the client ID, private key,
-# and public key id, can be obtained. For the client secret and public key id, users need to
-# keep it securely to avoid leakage.
+# After the creation is completed, the client ID, private key, and public key id, can be obtained.
+# For the client secret and public key id, users need to keep it securely to avoid leakage.
 
 import os  # noqa
 

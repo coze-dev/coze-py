@@ -8,7 +8,7 @@ This example is about how to use the device oauth process to acquire user author
 # The specific creation process can be referred to in the document:
 # https://www.coze.com/docs/developer_guides/oauth_device_code. For the cn environment, it can be
 # accessed at https://www.coze.cn/docs/developer_guides/oauth_device_code.
-# After the creation is completed, three parameters, namely the client ID can be obtained.
+# After the creation is completed, the client ID can be obtained.
 
 import os  # noqa
 

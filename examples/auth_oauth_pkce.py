@@ -8,7 +8,7 @@ This example is about how to use the pkce oauth process to acquire user authoriz
 # The specific creation process can be referred to in the document:
 # https://www.coze.com/docs/developer_guides/oauth_pkce. For the cn environment, it can be
 # accessed at https://www.coze.cn/docs/developer_guides/oauth_pkce.
-# After the creation is completed, three parameters, namely the client ID can be obtained.
+# After the creation is completed, the client ID can be obtained.
 
 import os  # noqa
 
