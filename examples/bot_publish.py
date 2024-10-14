@@ -31,6 +31,14 @@ bot = coze.bots.create(
 # Call the publish interface to publish the bot on the api channel.
 coze.bots.publish(bot_id=bot.bot_id)
 
+# Developers can also modify the bot configuration and republish it.
+coze.bots.update(
+    bot_id=bot.bot_id,
+    name="translator bot 2.0",
+    prompt_info=BotPromptInfo(prompt="your are a translator, translate the following text from Chinese to English"),
+)
+coze.bots.publish(bot_id=bot.bot_id)
+
 # Call the coze.chat.stream method to create a chat. The create method is a streaming
 # chat and will return a Chat Iterator. Developers should iterate the iterator to get
 # chat event and handle them.
