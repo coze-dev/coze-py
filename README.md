@@ -59,7 +59,7 @@ token from being disclosed.
 ```python
 import os
 
-from cozepy import AsyncCoze, Coze, TokenAuth  # noqa
+from cozepy import Coze, TokenAuth  # noqa
 
 coze = Coze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 ```

@@ -5,13 +5,13 @@ This example is for describing how to create a bot, update a bot and publish a b
 import os  # noqa
 from pathlib import Path
 
-# Get an access_token through personal access token oroauth.
-api_coze_token = os.getenv("COZE_API_TOKEN")
+# Get an access_token through personal access token or oauth.
+coze_api_token = os.getenv("COZE_API_TOKEN")
 
 from cozepy import Coze, TokenAuth, BotPromptInfo, Message, ChatEventType, MessageContentType  # noqa
 
 # Init the Coze client through the access_token.
-coze = Coze(auth=TokenAuth(token=api_coze_token))
+coze = Coze(auth=TokenAuth(token=coze_api_token))
 
 # Call the upload file interface to get the avatar id.
 avatar = coze.files.upload(file=Path("/path/avatar.jpg"))

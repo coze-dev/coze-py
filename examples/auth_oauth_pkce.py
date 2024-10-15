@@ -1,6 +1,10 @@
 """
-This example is about how to use the pkce oauth process to acquire user authorization.
+How to effectuate OpenAPI authorization through the OAuth Proof Key for Code Exchange method.
 """
+
+# PKCE stands for Proof Key for Code Exchange, and it's an extension to the OAuth 2.0 authorization
+# code flow designed to enhance security for public clients, such as mobile and single-page
+# applications.
 
 # Firstly, users need to access https://www.coze.com/open/oauth/apps. For the cn environment,
 # users need to access https://www.coze.cn/open/oauth/apps to create an OAuth App of the type

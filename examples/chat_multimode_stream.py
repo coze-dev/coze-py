@@ -8,14 +8,14 @@ import sys
 
 from cozepy import COZE_COM_BASE_URL
 
-# Get an access_token through personal access token oroauth.
-api_coze_token = os.getenv("COZE_API_TOKEN")
+# Get an access_token through personal access token or oauth.
+coze_api_token = os.getenv("COZE_API_TOKEN")
 api_base = os.getenv("COZE_API_BASE") or COZE_COM_BASE_URL
 
 from cozepy import Coze, TokenAuth, Message, ChatEventType, MessageObjectString  # noqa
 
 # Init the Coze client through the access_token.
-coze = Coze(auth=TokenAuth(token=api_coze_token), base_url=api_base)
+coze = Coze(auth=TokenAuth(token=coze_api_token), base_url=api_base)
 
 # Create a bot instance in Coze, copy the last number from the web link as the bot's ID.
 bot_id = os.getenv("COZE_BOT_ID")

@@ -1,14 +1,13 @@
 """
-This is an example where a personal access token is generated from the coze web page,
-then stored in the environment variable, and the coze client is initialized through
-the personal access token.
+How to use personal access token to init Coze client.
 """
 
 # Firstly, you need to access https://www.coze.com/open/oauth/pats (for the cn environment,
-# visit https://www.coze.cn/open/oauth/pats). Click to add a new token. After setting the
-# appropriate name, expiration time, and permissions, click OK to generate your personal
-# access token. Please store it in a secure environment to prevent this personal access
-# token from being disclosed.
+# visit https://www.coze.cn/open/oauth/pats).
+#
+# Click to add a new token. After setting the appropriate name, expiration time, and
+# permissions, click OK to generate your personal access token. Please store it in a
+# secure environment to prevent this personal access token from being disclosed.
 
 import os  # noqa
 

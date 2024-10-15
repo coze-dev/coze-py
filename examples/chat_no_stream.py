@@ -6,13 +6,13 @@ poll the status of the conversation, and obtain the messages after the conversat
 import os  # noqa
 import time
 
-# Get an access_token through personal access token oroauth.
-api_coze_token = os.getenv("COZE_API_TOKEN")
+# Get an access_token through personal access token or oauth.
+coze_api_token = os.getenv("COZE_API_TOKEN")
 
 from cozepy import Coze, TokenAuth, Message, ChatStatus, MessageContentType  # noqa
 
 # Init the Coze client through the access_token.
-coze = Coze(auth=TokenAuth(token=api_coze_token))
+coze = Coze(auth=TokenAuth(token=coze_api_token))
 
 # Create a bot instance in Coze, copy the last number from the web link as the bot's ID.
 bot_id = "bot id"

@@ -5,12 +5,12 @@ This example describes how to use the workflow interface to stream chat.
 import os  # noqa
 
 # Get an access_token through personal access token or oauth.
-api_coze_token = os.getenv("COZE_API_TOKEN")
+coze_api_token = os.getenv("COZE_API_TOKEN")
 
 from cozepy import Coze, TokenAuth, Stream, WorkflowEvent, WorkflowEventType  # noqa
 
 # Init the Coze client through the access_token.
-coze = Coze(auth=TokenAuth(token=api_coze_token))
+coze = Coze(auth=TokenAuth(token=coze_api_token))
 
 # Create a workflow instance in Coze, copy the last number from the web link as the workflow's ID.
 workflow_id = "workflow id"

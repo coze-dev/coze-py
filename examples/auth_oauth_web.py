@@ -1,5 +1,5 @@
 """
-This example is about how to use the web oauth process to acquire user authorization.
+How to effectuate OpenAPI authorization through the OAuth authorization code method.
 """
 
 # Firstly, users need to access https://www.coze.com/open/oauth/apps. For the cn environment,
