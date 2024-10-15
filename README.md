@@ -41,6 +41,7 @@ pip install cozepy
 | multimodal chat, with image  | [examples/chat_multimodal_stream.py](examples/chat_multimode_stream.py) |
 | non-stream workflow chat     | [examples/workflow_no_stream.py](examples/workflow_no_stream.py)        |
 | stream workflow chat         | [examples/workflow_stream.py](examples/workflow_stream.py)              |
+| timeout config               | [examples/timeout.py](examples/timeout.py)                              |
 | setup coze log config        | [examples/log.py](examples/log.py)                                      |
 | how to handle exception      | [examples/exception.py](examples/exception.py)                          |
 
@@ -859,4 +860,46 @@ async def main():
 
 
 asyncio.run(main())
+```
+
+### Config
+
+#### Log Config
+
+coze support config logging level
+
+```python
+import logging
+
+from cozepy import setup_logging
+
+# open debug logging, default is warning
+setup_logging(level=logging.DEBUG)
+```
+
+#### Timeout Config
+
+Coze client is built on httpx, and supports passing a custom httpx.Client when initializing
+Coze, and setting a timeout on the httpx.Client
+```python
+import os
+
+import httpx
+
+from cozepy import COZE_COM_BASE_URL,Coze,TokenAuth, SyncHTTPClient
+
+# Coze client is built on httpx, and supports passing a custom httpx.Client when initializing
+# Coze, and setting a timeout on the httpx.Client
+http_client = SyncHTTPClient(timeout=httpx.Timeout(
+    # 600s timeout on elsewhere
+    timeout=600.0,
+    # 5s timeout on connect
+    connect=5.0
+))
+
+# Init the Coze client through the access_token and custom timeout http client.
+coze = Coze(auth=TokenAuth(token=os.getenv("COZE_API_TOKEN")),
+            base_url=COZE_COM_BASE_URL,
+            http_client=http_client
+            )
 ```
