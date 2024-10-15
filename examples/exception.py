@@ -2,7 +2,7 @@
 This example is for illustrating how to handle the abnormal errors in the process of using the sdk.
 """
 
-import os  # noqa
+import os
 
 # Get an access_token through personal access token or oauth.
 coze_api_token = os.getenv("COZE_API_TOKEN")

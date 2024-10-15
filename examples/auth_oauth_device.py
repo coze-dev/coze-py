@@ -10,7 +10,13 @@ This example is about how to use the device oauth process to acquire user author
 # accessed at https://www.coze.cn/docs/developer_guides/oauth_device_code.
 # After the creation is completed, the client ID can be obtained.
 
-import os  # noqa
+import os
+
+from cozepy import COZE_COM_BASE_URL
+
+# The default access is api.coze.com, but if you need to access api.coze.cn,
+# please use base_url to configure the api endpoint to access
+coze_api_base = os.getenv("COZE_API_BASE") or COZE_COM_BASE_URL
 
 # client ID
 device_oauth_client_id = os.getenv("COZE_DEVICE_OAUTH_CLIENT_ID")
@@ -21,7 +27,7 @@ device_oauth_client_id = os.getenv("COZE_DEVICE_OAUTH_CLIENT_ID")
 
 from cozepy import Coze, TokenAuth, DeviceOAuthApp, CozePKCEAuthError, CozePKCEAuthErrorType  # noqa
 
-device_oauth_app = DeviceOAuthApp(client_id=device_oauth_client_id)
+device_oauth_app = DeviceOAuthApp(client_id=device_oauth_client_id, base_url=coze_api_base)
 
 # In the device oauth authorization process, developers need to first call the interface
 # of Coze to generate the device code to obtain the user_code and device_code. Then generate
@@ -65,7 +71,7 @@ except CozePKCEAuthError as e:
     raise  # for example, re-raise the error
 
 # use the access token to init Coze client
-coze = Coze(auth=TokenAuth(oauth_token.access_token))
+coze = Coze(auth=TokenAuth(oauth_token.access_token), base_url=coze_api_base)
 
 # When the token expires, you can also refresh and re-obtain the token
 oauth_token = device_oauth_app.refresh_access_token(oauth_token.refresh_token)

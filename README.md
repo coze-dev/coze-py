@@ -59,9 +59,15 @@ token from being disclosed.
 ```python
 import os
 
-from cozepy import Coze, TokenAuth  # noqa
+from cozepy import Coze, TokenAuth, COZE_COM_BASE_URL
 
-coze = Coze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
+# Get an access_token through personal access token or oauth.
+coze_api_token = os.getenv("COZE_API_TOKEN")
+# The default access is api.coze.com, but if you need to access api.coze.cn,
+# please use base_url to configure the api endpoint to access
+coze_api_base = os.getenv("COZE_API_BASE") or COZE_COM_BASE_URL
+
+coze = Coze(auth=TokenAuth(coze_api_token), base_url=coze_api_base)
 ```
 
 coze api access_token can also be generated via the OAuth App. For details, refer to:

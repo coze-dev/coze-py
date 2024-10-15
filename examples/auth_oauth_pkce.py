@@ -14,7 +14,13 @@ How to effectuate OpenAPI authorization through the OAuth Proof Key for Code Exc
 # accessed at https://www.coze.cn/docs/developer_guides/oauth_pkce.
 # After the creation is completed, the client ID can be obtained.
 
-import os  # noqa
+import os
+
+from cozepy import COZE_COM_BASE_URL
+
+# The default access is api.coze.com, but if you need to access api.coze.cn,
+# please use base_url to configure the api endpoint to access
+coze_api_base = os.getenv("COZE_API_BASE") or COZE_COM_BASE_URL
 
 # client ID
 pkce_oauth_client_id = os.getenv("COZE_PKCE_OAUTH_CLIENT_ID")
@@ -27,7 +33,7 @@ web_oauth_redirect_uri = os.getenv("COZE_WEB_OAUTH_REDIRECT_URI")
 
 from cozepy import Coze, TokenAuth, PKCEOAuthApp  # noqa
 
-pkce_oauth_app = PKCEOAuthApp(client_id=pkce_oauth_client_id)
+pkce_oauth_app = PKCEOAuthApp(client_id=pkce_oauth_client_id, base_url=coze_api_base)
 
 # In the pkce oauth process, first, need to select a suitable code_challenge_method.
 # Coze supports two types: plain and s256. Then, based on the selected code_challenge_method
@@ -57,7 +63,7 @@ oauth_token = pkce_oauth_app.get_access_token(
 )
 
 # use the access token to init Coze client
-coze = Coze(auth=TokenAuth(oauth_token.access_token))
+coze = Coze(auth=TokenAuth(oauth_token.access_token), base_url=coze_api_base)
 
 # When the token expires, you can also refresh and re-obtain the token
 oauth_token = pkce_oauth_app.refresh_access_token(oauth_token.refresh_token)

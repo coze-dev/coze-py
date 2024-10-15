@@ -11,7 +11,13 @@ How to effectuate OpenAPI authorization through the OAuth authorization code met
 # After the creation is completed, the client ID, client secret, and redirect link, can be
 # obtained. For the client secret, users need to keep it securely to avoid leakage.
 
-import os  # noqa
+import os
+
+from cozepy import COZE_COM_BASE_URL
+
+# The default access is api.coze.com, but if you need to access api.coze.cn,
+# please use base_url to configure the api endpoint to access
+coze_api_base = os.getenv("COZE_API_BASE") or COZE_COM_BASE_URL
 
 # client ID
 web_oauth_client_id = os.getenv("COZE_WEB_OAUTH_CLIENT_ID")
@@ -29,6 +35,7 @@ from cozepy import Coze, TokenAuth, WebOAuthApp  # noqa
 web_oauth_app = WebOAuthApp(
     client_id=web_oauth_client_id,
     client_secret=web_oauth_client_secret,
+    base_url=coze_api_base,
 )
 
 # The WebOAuth authorization process is to first generate a coze authorization link and
@@ -50,7 +57,7 @@ code = "mock code"
 oauth_token = web_oauth_app.get_access_token(redirect_uri=web_oauth_redirect_uri, code=code)
 
 # use the access token to init Coze client
-coze = Coze(auth=TokenAuth(oauth_token.access_token))
+coze = Coze(auth=TokenAuth(oauth_token.access_token), base_url=coze_api_base)
 
 # When the token expires, you can also refresh and re-obtain the token
 oauth_token = web_oauth_app.refresh_access_token(oauth_token.refresh_token)
