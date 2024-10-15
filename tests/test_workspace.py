@@ -4,7 +4,7 @@ import pytest
 from cozepy import AsyncCoze, Coze, TokenAuth, Workspace, WorkspaceRoleType, WorkspaceType
 
 
-def mock_get_workspace_list(respx_mock, total, page, idx):
+def mock_get_workspace_list(respx_mock, total, page):
     respx_mock.get(
         "/v1/workspaces",
         params={
@@ -18,7 +18,7 @@ def mock_get_workspace_list(respx_mock, total, page, idx):
                     "total_count": total,
                     "workspaces": [
                         Workspace(
-                            id=f"id_{idx}" if idx else "id",
+                            id=f"id_{page}" if page else "id",
                             name="name",
                             icon_url="icon_url",
                             role_type=WorkspaceRoleType.ADMIN,
@@ -36,19 +36,19 @@ class TestWorkspace:
     def test_sync_workspaces_list(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        mock_get_workspace_list(respx_mock, total=1, page=1, idx=0)
+        mock_get_workspace_list(respx_mock, total=1, page=1)
 
         res = coze.workspaces.list()
 
         assert res
-        assert res.items[0].id == "id"
+        assert res.items[0].id == "id_1"
 
     def test_sync_workspaces_iterator(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         total = 10
         for idx in range(total):
-            mock_get_workspace_list(respx_mock, total=total, page=idx + 1, idx=idx + 1)
+            mock_get_workspace_list(respx_mock, total=total, page=idx + 1)
 
         total_result = 0
         for idx, workspace in enumerate(coze.workspaces.list(page_size=1)):
@@ -57,13 +57,15 @@ class TestWorkspace:
             assert workspace.id == f"id_{idx + 1}"
         assert total_result == total
 
+        assert len(list(coze.workspaces.list(page_size=1))) == total
+
     def test_sync_workspaces_page_iterator(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         total = 10
         size = 1
         for idx in range(total):
-            mock_get_workspace_list(respx_mock, total=total, page=idx + 1, idx=idx + 1)
+            mock_get_workspace_list(respx_mock, total=total, page=idx + 1)
 
         total_result = 0
         for idx, page in enumerate(coze.workspaces.list(page_size=1).iter_pages()):
@@ -82,19 +84,19 @@ class TestAsyncWorkspace:
     async def test_async_workspaces_list(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        mock_get_workspace_list(respx_mock, total=1, page=1, idx=0)
+        mock_get_workspace_list(respx_mock, total=1, page=1)
 
         res = await coze.workspaces.list(page_num=1)
 
         assert res
-        assert res.items[0].id == "id"
+        assert res.items[0].id == "id_1"
 
     async def test_async_workspaces_iterator(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         total = 10
         for idx in range(total):
-            mock_get_workspace_list(respx_mock, total=total, page=idx + 1, idx=idx + 1)
+            mock_get_workspace_list(respx_mock, total=total, page=idx + 1)
 
         total_result = 0
         idx = 0
@@ -110,7 +112,7 @@ class TestAsyncWorkspace:
 
         total = 10
         for idx in range(total):
-            mock_get_workspace_list(respx_mock, total=total, page=idx + 1, idx=idx + 1)
+            mock_get_workspace_list(respx_mock, total=total, page=idx + 1)
 
         total_result = 0
         idx = 0
