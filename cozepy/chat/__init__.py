@@ -197,6 +197,61 @@ class ChatError(CozeModel):
     msg: str
 
 
+class ChatRequiredActionType(str, Enum):
+    SUBMIT_TOOL_OUTPUTS = "submit_tool_outputs"
+
+
+class ChatToolCallType(str, Enum):
+    FUNCTION = "function"
+
+
+class ChatToolCallFunction(CozeModel):
+    # The name of the method.
+    name: str
+
+    # The parameters of the method.
+    argument: str
+
+
+class ChatToolCall(CozeModel):
+    # The ID for reporting the running results.
+    id: str
+
+    # The type of tool, with the enum value of function.
+    type: ChatToolCallType
+
+    # The definition of the execution method function.
+    function: Optional[ChatToolCallFunction] = None
+
+
+class ChatSubmitToolOutputs(CozeModel):
+    # Details of the specific reported information.
+    tool_calls: List[ChatToolCall]
+
+
+class ChatRequiredAction(CozeModel):
+    """Details of the information needed for execution."""
+
+    # The type of additional operation, with the enum value of submit_tool_outputs.
+    type: ChatRequiredActionType
+
+    # Details of the results that need to be submitted, uploaded through the submission API, and
+    # the chat can continue afterward.
+    submit_tool_outputs: Optional[ChatSubmitToolOutputs] = None
+
+
+class ChatUsage(CozeModel):
+    # The total number of Tokens consumed in this chat, including the consumption for both the input
+    # and output parts.
+    token_count: int
+
+    # The total number of Tokens consumed for the output part.
+    output_count: int
+
+    # The total number of Tokens consumed for the input part.
+    input_count: int
+
+
 class Chat(CozeModel):
     # The ID of the chat.
     id: str
@@ -226,6 +281,10 @@ class Chat(CozeModel):
     status: ChatStatus
 
     # Details of the information needed for execution.
+    required_action: Optional[ChatRequiredAction] = None
+
+    # Detailed information about Token consumption.
+    usage: Optional[ChatUsage] = None
 
 
 class ChatPoll(CozeModel):

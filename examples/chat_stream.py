@@ -38,3 +38,7 @@ for event in coze.chat.stream(
 ):
     if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
         print(event.message.content, end="")
+
+    if event.event == ChatEventType.CONVERSATION_CHAT_COMPLETED:
+        print()
+        print("token usage:", event.chat.usage.token_count)

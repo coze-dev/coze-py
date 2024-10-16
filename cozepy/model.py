@@ -19,6 +19,7 @@ import httpx
 from pydantic import BaseModel, ConfigDict
 
 from cozepy.exception import CozeInvalidEventError
+from cozepy.log import log_debug
 
 if TYPE_CHECKING:
     from cozepy.request import Requester
@@ -431,6 +432,8 @@ class Stream(Generic[T]):
             if line == "":
                 continue
 
+            log_debug("receive event, logid=%s, event=%s", self._logid, line)
+
             field, value = self._extra_field_data(line, data)
             data[field] = value
             times += 1
@@ -475,6 +478,8 @@ class AsyncStream(Generic[T]):
             line = line.strip()
             if line == "":
                 continue
+
+            log_debug("async receive event, logid=%s, event=%s", self._logid, line)
 
             field, value = self._extra_field_data(line, data)
             data[field] = value

@@ -2,7 +2,7 @@ import httpx
 import pytest
 
 from cozepy import AsyncCoze, Chat, ChatEvent, ChatEventType, ChatStatus, Coze, TokenAuth
-from cozepy.chat import ChatError, Message
+from cozepy.chat import ChatError, ChatUsage, Message
 
 
 def make_chat(conversation_id: str = "conversation_id", status: ChatStatus = ChatStatus.IN_PROGRESS) -> Chat:
@@ -95,6 +95,8 @@ class TestChat:
                 meta_data=None,
                 last_error=ChatError(code=0, msg=""),
                 status=ChatStatus.CREATED,
+                required_action=None,
+                usage=ChatUsage(token_count=0, output_count=0, input_count=0),
             ),
         )
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
@@ -183,6 +185,8 @@ data:{}
                 meta_data=None,
                 last_error=ChatError(code=0, msg=""),
                 status=ChatStatus.CREATED,
+                required_action=None,
+                usage=ChatUsage(token_count=0, output_count=0, input_count=0),
             ),
         )
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
@@ -260,6 +264,8 @@ class TestAsyncChatConversationMessage:
                 meta_data=None,
                 last_error=ChatError(code=0, msg=""),
                 status=ChatStatus.CREATED,
+                required_action=None,
+                usage=ChatUsage(token_count=0, output_count=0, input_count=0),
             ),
         )
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
@@ -347,6 +353,8 @@ data:{}
                 meta_data=None,
                 last_error=ChatError(code=0, msg=""),
                 status=ChatStatus.CREATED,
+                required_action=None,
+                usage=ChatUsage(token_count=0, output_count=0, input_count=0),
             ),
         )
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED

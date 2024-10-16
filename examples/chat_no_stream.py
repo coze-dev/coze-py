@@ -73,4 +73,8 @@ else:
         ],
     )
     for message in chat_poll.messages:
-        print(f"role={message.role}, content={message.content}")
+        print(message.content, end="")
+
+    if chat_poll.chat.status == ChatStatus.COMPLETED:
+        print()
+        print("token usage:", chat_poll.chat.usage.token_count)
