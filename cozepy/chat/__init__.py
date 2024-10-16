@@ -154,7 +154,7 @@ class Message(CozeModel):
             role=MessageRole.USER,
             type=MessageType.QUESTION,
             content=json.dumps([obj.model_dump() for obj in objects]),
-            content_type=MessageContentType.TEXT,
+            content_type=MessageContentType.OBJECT_STRING,
             meta_data=meta_data,
         )
 
