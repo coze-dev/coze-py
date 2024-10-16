@@ -90,7 +90,7 @@ simplify the process.
 ```python
 import os
 
-from cozepy import Coze, TokenAuth, Message
+from cozepy import Coze, TokenAuth, Message, ChatStatus
 
 coze = Coze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
 
@@ -104,7 +104,11 @@ chat_poll = coze.chat.create_and_poll(
     additional_messages=[Message.build_user_question_text("How are you?")]
 )
 for message in chat_poll.messages:
-    print(f"role={message.role}, content={message.content}")
+    print(message.content, end="")
+
+if chat_poll.chat.status == ChatStatus.COMPLETED:
+    print()
+    print("token usage:", chat_poll.chat.usage.token_count)
 ```
 
 #### Stream Chat
@@ -131,8 +135,11 @@ for event in coze.chat.stream(
         additional_messages=[Message.build_user_question_text("How are you?")]
 ):
     if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
-        message = event.message
-        print(f"role={message.role}, content={message.content}")
+        print(event.message.content, end="")
+
+    if event.event == ChatEventType.CONVERSATION_CHAT_COMPLETED:
+        print()
+        print("token usage:", event.chat.usage.token_count)
 ```
 
 ### Bots
