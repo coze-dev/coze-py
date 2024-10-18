@@ -73,7 +73,7 @@ else:
         ],
     )
     for message in chat_poll.messages:
-        print(message.content, end="")
+        print(message.content, end="", flush=True)
 
     if chat_poll.chat.status == ChatStatus.COMPLETED:
         print()

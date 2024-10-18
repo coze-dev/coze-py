@@ -31,13 +31,11 @@ for event in coze.chat.stream(
     bot_id=bot_id,
     user_id=user_id,
     additional_messages=[
-        Message.build_user_question_text("Who are you?"),
-        Message.build_assistant_answer("I am Bot by Coze."),
-        Message.build_user_question_text("1+2=? And tell me your name."),
+        Message.build_user_question_text("Tell a 500-word story."),
     ],
 ):
     if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
-        print(event.message.content, end="")
+        print(event.message.content, end="", flush=True)
 
     if event.event == ChatEventType.CONVERSATION_CHAT_COMPLETED:
         print()

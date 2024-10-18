@@ -201,7 +201,7 @@ class Requester(object):
             method=request.method,
             url=request.url,
             is_async=False,
-            response=self.sync_client.send(request.as_httpx, stream=False),
+            response=self.sync_client.send(request.as_httpx, stream=request.stream),
             model=request.cast,
             stream=request.stream,
             data_field=request.data_field,
