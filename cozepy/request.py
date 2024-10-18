@@ -348,8 +348,11 @@ class Requester(object):
         stream: bool = False,
         data_field: str = "data",
     ) -> Union[T, List[T], Tuple[Iterator[str], str], Tuple[AsyncIterator[str], str], None]:
+        # application/json
+        # text/event-stream
+        resp_content_type = response.headers.get("content-type")
         logid = response.headers.get("x-tt-logid")
-        if stream:
+        if stream and "event-stream" in resp_content_type:
             if is_async:
                 return response.aiter_lines(), logid
             return response.iter_lines(), logid
