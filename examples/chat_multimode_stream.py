@@ -49,4 +49,4 @@ for event in coze.chat.stream(
 ):
     if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
         message = event.message
-        print(event.message.content, end="")
+        print(event.message.content, end="", flush=True)
