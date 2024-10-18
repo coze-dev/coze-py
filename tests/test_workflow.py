@@ -2,8 +2,9 @@ import httpx
 import pytest
 
 from cozepy import AsyncCoze, Coze, TokenAuth, WorkflowRunResult
+from tests.config import make_stream_response
 
-stream_testdata = """
+stream_testdata = make_stream_response("""
 id: 0
 event: Message
 data: {"content":"msg","node_is_finish":false,"node_seq_id":"0","node_title":"Message"}
@@ -44,7 +45,7 @@ id: 6
 event: Done
 data: {}
 
-"""
+""")
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -63,7 +64,7 @@ class TestWorkflowsRuns:
     def test_sync_workflows_runs_stream(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/v1/workflow/stream_run").mock(httpx.Response(200, content=stream_testdata))
+        respx_mock.post("/v1/workflow/stream_run").mock(stream_testdata)
 
         events = list(coze.workflows.runs.stream(workflow_id="id"))
 
@@ -73,7 +74,7 @@ class TestWorkflowsRuns:
     def test_sync_workflows_runs_resume(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/v1/workflow/stream_resume").mock(httpx.Response(200, content=stream_testdata))
+        respx_mock.post("/v1/workflow/stream_resume").mock(stream_testdata)
 
         events = list(
             coze.workflows.runs.resume(
@@ -91,13 +92,10 @@ class TestWorkflowsRuns:
         coze = Coze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/v1/workflow/stream_resume").mock(
-            httpx.Response(
-                200,
-                content="""
+            make_stream_response("""
 id:0
 event:invalid
-data:{}""",
-            )
+data:{}""")
         )
 
         with pytest.raises(Exception, match="invalid workflows.event: invalid"):
@@ -128,7 +126,7 @@ class TestAsyncWorkflowsRuns:
     async def test_async_workflows_runs_stream(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/v1/workflow/stream_run").mock(httpx.Response(200, content=stream_testdata))
+        respx_mock.post("/v1/workflow/stream_run").mock(stream_testdata)
 
         events = [event async for event in coze.workflows.runs.stream(workflow_id="id")]
 
@@ -138,7 +136,7 @@ class TestAsyncWorkflowsRuns:
     async def test_async_workflows_runs_resume(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/v1/workflow/stream_resume").mock(httpx.Response(200, content=stream_testdata))
+        respx_mock.post("/v1/workflow/stream_resume").mock(stream_testdata)
 
         events = [
             event
@@ -157,13 +155,10 @@ class TestAsyncWorkflowsRuns:
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/v1/workflow/stream_resume").mock(
-            httpx.Response(
-                200,
-                content="""
+            make_stream_response("""
 id:0
 event:invalid
-data:{}""",
-            )
+data:{}""")
         )
 
         with pytest.raises(Exception, match="invalid workflows.event: invalid"):

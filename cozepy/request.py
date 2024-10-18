@@ -352,7 +352,7 @@ class Requester(object):
         # text/event-stream
         resp_content_type = response.headers.get("content-type")
         logid = response.headers.get("x-tt-logid")
-        if stream and "stream" in resp_content_type:
+        if stream and "event-stream" in resp_content_type:
             if is_async:
                 return response.aiter_lines(), logid
             return response.iter_lines(), logid
