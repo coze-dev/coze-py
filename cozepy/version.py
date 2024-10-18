@@ -2,7 +2,7 @@ import platform
 import sys
 from functools import lru_cache
 
-VERSION = "0.5.0"
+VERSION = "0.6.0"
 
 
 @lru_cache(maxsize=1)
