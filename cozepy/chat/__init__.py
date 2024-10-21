@@ -210,7 +210,7 @@ class ChatToolCallFunction(CozeModel):
     name: str
 
     # The parameters of the method.
-    argument: str
+    arguments: str
 
 
 class ChatToolCall(CozeModel):
