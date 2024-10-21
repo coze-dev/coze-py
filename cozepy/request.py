@@ -379,6 +379,7 @@ class Requester(object):
         self, method: str, url: str, response: Response, data_field: str = "data"
     ) -> Tuple[Optional[int], str, Any]:
         try:
+            response.read()
             body = response.json()
             logid = response.headers.get("x-tt-logid")
             log_debug("request %s#%s responding, logid=%s, data=%s", method, url, logid, body)
