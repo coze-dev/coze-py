@@ -1,5 +1,5 @@
 """
-This use case teaches you how to use localplugin.
+This use case teaches you how to use local plugin.
 """
 
 import json
@@ -27,12 +27,21 @@ user_id = "user id"
 
 
 # These two functions are mock implementations.
-class MyFunction(object):
-    def get_schedule(cls):
+class LocalPluginMocker(object):
+    @staticmethod
+    def get_schedule():
         return "I have two interviews in the afternoon."
 
-    def screenshot(cls):
+    @staticmethod
+    def screenshot():
         return "The background of my screen is a little dog running on the beach."
+
+    @staticmethod
+    def get_function(name: str):
+        return {
+            "get_schedule": LocalPluginMocker.get_schedule,
+            "screenshot": LocalPluginMocker.screenshot,
+        }[name]
 
 
 # `handle_stream` is used to handle events. When the `CONVERSATION_CHAT_REQUIRES_ACTION` event is received,
@@ -42,48 +51,50 @@ def handle_stream(stream: Stream[ChatEvent]):
         if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
             print(event.message.content, end="", flush=True)
 
-        if event.event == ChatEventType.CONVERSATION_CHAT_COMPLETED:
-            print()
-            print("token usage:", event.chat.usage.token_count)
         if event.event == ChatEventType.CONVERSATION_CHAT_REQUIRES_ACTION:
-            if event.chat.required_action.submit_tool_outputs:
-                tool_calls = event.chat.required_action.submit_tool_outputs.tool_calls
-                tool_outputs: List[ToolOutput] = []
-                for tool_call in tool_calls:
-                    print(f"function call: {tool_call.function.name} {tool_call.function.arguments}")
-                    myfunction = MyFunction()
-                    fn = myfunction.__getattribute__(tool_call.function.name)
-                    output = json.dumps({"output": fn()})
-                    tool_outputs.append(ToolOutput(tool_call_id=tool_call.id, output=output))
+            if not event.chat.required_action or not event.chat.required_action.submit_tool_outputs:
+                continue
+            tool_calls = event.chat.required_action.submit_tool_outputs.tool_calls
+            tool_outputs: List[ToolOutput] = []
+            for tool_call in tool_calls:
+                print(f"function call: {tool_call.function.name} {tool_call.function.arguments}")
+                local_function = LocalPluginMocker.get_function(tool_call.function.name)
+                output = json.dumps({"output": local_function()})
+                tool_outputs.append(ToolOutput(tool_call_id=tool_call.id, output=output))
 
-                new_stream = coze.chat.submit_tool_outputs(
+            handle_stream(
+                coze.chat.submit_tool_outputs(
                     conversation_id=event.chat.conversation_id,
                     chat_id=event.chat.id,
                     tool_outputs=tool_outputs,
                     stream=True,
                 )
-                handle_stream(new_stream)
+            )
+
+        if event.event == ChatEventType.CONVERSATION_CHAT_COMPLETED:
+            print()
+            print("token usage:", event.chat.usage.token_count)
 
 
-# The intelligent entity will call MyFunction.get_schedule to obtain the schedule.
+# The intelligent entity will call LocalPluginMocker.get_schedule to obtain the schedule.
 # get_schedule is just a mock method.
-stream = coze.chat.stream(
-    bot_id=bot_id,
-    user_id=user_id,
-    additional_messages=[
-        Message.build_user_question_text("What do I have to do in the afternoon?"),
-    ],
+handle_stream(
+    coze.chat.stream(
+        bot_id=bot_id,
+        user_id=user_id,
+        additional_messages=[
+            Message.build_user_question_text("What do I have to do in the afternoon?"),
+        ],
+    )
 )
 
-handle_stream(stream)
-
-# The intelligent entity will obtain a screenshot through MyFunction.screenshot.
-stream = coze.chat.stream(
-    bot_id=bot_id,
-    user_id=user_id,
-    additional_messages=[
-        Message.build_user_question_text("What's on my screen?"),
-    ],
+# The intelligent entity will obtain a screenshot through LocalPluginMocker.screenshot.
+handle_stream(
+    coze.chat.stream(
+        bot_id=bot_id,
+        user_id=user_id,
+        additional_messages=[
+            Message.build_user_question_text("What's on my screen?"),
+        ],
+    )
 )
-
-handle_stream(stream)
