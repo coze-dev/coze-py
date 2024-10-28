@@ -38,8 +38,8 @@ class TestRooms:
 class TestAsyncRooms:
     async def test_async_rooms_create(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
-        bot_id = random_hex(10)
 
+        bot_id = random_hex(10)
         voice_id = random_hex(10)
         mock_res = mock_create_room(respx_mock)
 
