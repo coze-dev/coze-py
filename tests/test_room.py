@@ -25,7 +25,7 @@ class TestRooms:
         assert res
         assert res.token == "JOIN_ROOM_TOKEN"
         assert res.room_id == "ROOM_ID"
-        assert res.uid == "UID"
+        assert res.uid == uid
         assert res.app_id == app_id
 
 
