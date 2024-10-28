@@ -10,7 +10,6 @@ from typing import (
     Optional,
     Tuple,
     Type,
-    TypeAlias,
     TypeVar,
     Union,
     cast,
@@ -58,17 +57,18 @@ class HTTPRequest(CozeModel, Generic[T]):
         )
 
 
+# TODO: fix this type
 HTTPResponse = Union[T, List[T], Tuple[Iterator[str], str], None]
 
-APIEndpoint: TypeAlias = Callable[[HTTPRequest], HTTPResponse]
+APIEndpoint = Callable[[HTTPRequest], HTTPResponse]
 
-APIMiddleware: TypeAlias = Callable[[APIEndpoint], APIEndpoint]
+APIMiddleware = Callable[[APIEndpoint], APIEndpoint]
 
 AsyncHTTPResponse = Union[T, List[T], Tuple[AsyncIterator[str], str], None]
 
-AsyncAPIEndpoint: TypeAlias = Callable[[HTTPRequest], AsyncHTTPResponse]
+AsyncAPIEndpoint = Callable[[HTTPRequest], AsyncHTTPResponse]
 
-AsyncAPIMiddleware: TypeAlias = Callable[[AsyncAPIEndpoint], AsyncAPIEndpoint]
+AsyncAPIMiddleware = Callable[[AsyncAPIEndpoint], AsyncAPIEndpoint]
 
 
 class PagedBase(Generic[T], abc.ABC):
@@ -120,6 +120,7 @@ class NumberPaged(PagedBase[T]):
         page_size: int,
         requestor: "Requester",
         request_maker: Callable[[int, int], HTTPRequest],
+        **kwargs,
     ):
         self.page_num = page_num
         self.page_size = page_size
@@ -129,6 +130,7 @@ class NumberPaged(PagedBase[T]):
 
         self._requestor = requestor
         self._request_maker = request_maker
+        self._middlewares: Optional[List[APIMiddleware]] = kwargs.get("middlewares", None)
 
         self._fetch_page()
 
@@ -168,7 +170,7 @@ class NumberPaged(PagedBase[T]):
         if self._total is not None:
             return
         request: HTTPRequest = self._request_maker(self.page_num, self.page_size)
-        res: NumberPagedResponse[T] = self._requestor.send(request)
+        res: NumberPagedResponse[T] = self._requestor.send(request, middlewares=self._middlewares)
         self._total = res.get_total()
         self._items = res.get_items()
 
@@ -273,6 +275,7 @@ class LastIDPaged(PagedBase[T]):
         after_id: str,
         requestor: "Requester",
         request_maker: Callable[[str, str], HTTPRequest],
+        **kwargs,
     ):
         self.before_id = before_id
         self.after_id = after_id
@@ -283,6 +286,7 @@ class LastIDPaged(PagedBase[T]):
 
         self._requestor = requestor
         self._request_maker = request_maker
+        self._middlewares: Optional[List[APIMiddleware]] = kwargs.get("middlewares", None)
 
         self._fetch_page()
 
@@ -322,7 +326,7 @@ class LastIDPaged(PagedBase[T]):
             return
 
         request = self._request_maker(self.before_id, self.after_id)
-        res: LastIDPagedResponse[T] = self._requestor.send(request)
+        res: LastIDPagedResponse[T] = self._requestor.send(request, middlewares=self._middlewares)
 
         self.first_id = res.get_first_id()
         self.last_id = res.get_last_id()

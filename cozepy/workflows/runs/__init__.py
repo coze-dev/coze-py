@@ -146,6 +146,7 @@ class WorkflowsRunsClient(object):
         parameters: Optional[Dict[str, Any]] = None,
         bot_id: Optional[str] = None,
         ext: Optional[Dict[str, Any]] = None,
+        **kwargs,
     ) -> WorkflowRunResult:
         """
         Run the published workflow.
@@ -170,7 +171,7 @@ class WorkflowsRunsClient(object):
             "bot_id": bot_id,
             "ext": ext,
         }
-        return self._requester.request("post", url, False, WorkflowRunResult, body=body)
+        return self._requester.request("post", url, False, WorkflowRunResult, body=body, **kwargs)
 
     def stream(
         self,

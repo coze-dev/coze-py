@@ -28,11 +28,28 @@ def log_middleware(endpoint: APIEndpoint) -> APIEndpoint:
     return wrap
 
 
-# Init the Coze client through the access_token.
-coze = Coze(auth=TokenAuth(token=coze_api_token), base_url=coze_api_base, middlewares=[log_middleware])
+def middleware_of_coze():
+    # Init the Coze client through the access_token.
+    coze = Coze(auth=TokenAuth(token=coze_api_token), base_url=coze_api_base, middlewares=[log_middleware])
 
-# your work space id
-workspace_id = os.getenv("COZE_WORKSPACE_ID") or "workspace id"
+    # your work space id
+    workspace_id = os.getenv("COZE_WORKSPACE_ID") or "workspace id"
 
-# Call API With middleware
-print(coze.bots.list(space_id=workspace_id))
+    # Call API With middleware
+    print(coze.bots.list(space_id=workspace_id))
+
+
+def middleware_of_method():
+    # Init the Coze client through the access_token.
+    coze = Coze(auth=TokenAuth(token=coze_api_token), base_url=coze_api_base)
+
+    # your work space id
+    workspace_id = os.getenv("COZE_WORKSPACE_ID") or "workspace id"
+
+    # Call API With middleware
+    print(coze.bots.list(space_id=workspace_id, middlewares=[log_middleware]))
+
+
+if __name__ == "__main__":
+    middleware_of_coze()
+    middleware_of_method()

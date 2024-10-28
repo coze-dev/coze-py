@@ -220,7 +220,7 @@ class BotsClient(object):
 
         return self._requester.request("get", url, False, Bot, params=params)
 
-    def list(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> NumberPaged[SimpleBot]:
+    def list(self, *, space_id: str, page_num: int = 1, page_size: int = 20, **kwargs) -> NumberPaged[SimpleBot]:
         """
         Get the bots published as API service.
         查看指定空间发布到 Bot as API 渠道的 Bot 列表。
@@ -259,6 +259,7 @@ class BotsClient(object):
             page_size=page_size,
             requestor=self._requester,
             request_maker=request_maker,
+            **kwargs,
         )
 
 

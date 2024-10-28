@@ -45,6 +45,7 @@ class AsyncHTTPClient(httpx.AsyncClient):
         super().__init__(**kwargs)
 
 
+# TODO: add AsyncRequester
 class Requester(object):
     """
     http request helper class.
@@ -171,11 +172,14 @@ class Requester(object):
         body: Optional[dict] = None,
         files: Optional[dict] = None,
         data_field: str = "data",
+        **kwargs,
     ) -> Union[T, List[T], Tuple[Iterator[str], str], None]:
         """
         Send a request to the server.
         """
         method = method.upper()
+        print("kwargs", kwargs)
+        middlewares: Optional[List[APIMiddleware]] = kwargs.get("middlewares", None)
 
         request = self.make_request(
             method,
@@ -190,18 +194,24 @@ class Requester(object):
             is_async=False,
         )
 
-        return self.send(request)
+        return self.send(request, middlewares=middlewares)
 
     def send(
         self,
         request: HTTPRequest,
+        middlewares: Optional[List[APIMiddleware]] = None,
     ) -> Union[T, List[T], Tuple[Iterator[str], str], None]:
         """
         Send a request to the server.
         """
         send = self._send
-        for middleware in self._middlewares:
-            send = middleware(send)
+        if self._middlewares:
+            for middleware in self._middlewares:
+                send = middleware(send)
+        print("middlewares", middlewares)
+        if middlewares:
+            for middleware in middlewares:
+                send = middleware(send)
         return send(request)
 
     def _send(
