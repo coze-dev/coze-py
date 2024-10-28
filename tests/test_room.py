@@ -35,6 +35,8 @@ class TestRooms:
         assert res.app_id == mock_res.app_id
 
 
+@pytest.mark.respx(base_url="https://api.coze.com")
+@pytest.mark.asyncio
 class TestAsyncRooms:
     async def test_async_rooms_create(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
