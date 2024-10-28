@@ -3,7 +3,7 @@ import pytest
 
 from cozepy import AsyncCoze, Coze, TokenAuth
 from cozepy import CreateRoomResult
-
+from cozepy.util import random_hex
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 class TestRooms:
