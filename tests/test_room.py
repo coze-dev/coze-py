@@ -2,7 +2,7 @@ import httpx
 import pytest
 
 from cozepy import AsyncCoze, Coze, TokenAuth
-from cozepy.rooms import CreateRoomResult
+from cozepy import CreateRoomResult
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
