@@ -10,6 +10,7 @@ from typing import (
     Optional,
     Tuple,
     Type,
+    TypeAlias,
     TypeVar,
     Union,
     cast,
@@ -55,6 +56,19 @@ class HTTPRequest(CozeModel, Generic[T]):
             json=self.json_body,
             files=self.files,
         )
+
+
+HTTPResponse = Union[T, List[T], Tuple[Iterator[str], str], None]
+
+APIEndpoint: TypeAlias = Callable[[HTTPRequest], HTTPResponse]
+
+APIMiddleware: TypeAlias = Callable[[APIEndpoint], APIEndpoint]
+
+AsyncHTTPResponse = Union[T, List[T], Tuple[AsyncIterator[str], str], None]
+
+AsyncAPIEndpoint: TypeAlias = Callable[[HTTPRequest], AsyncHTTPResponse]
+
+AsyncAPIMiddleware: TypeAlias = Callable[[AsyncAPIEndpoint], AsyncAPIEndpoint]
 
 
 class PagedBase(Generic[T], abc.ABC):

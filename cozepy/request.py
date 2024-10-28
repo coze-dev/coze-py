@@ -20,7 +20,7 @@ from typing_extensions import Literal
 from cozepy.config import DEFAULT_CONNECTION_LIMITS, DEFAULT_TIMEOUT
 from cozepy.exception import COZE_PKCE_AUTH_ERROR_TYPE_ENUMS, CozeAPIError, CozePKCEAuthError, CozePKCEAuthErrorType
 from cozepy.log import log_debug, log_warning
-from cozepy.model import HTTPRequest
+from cozepy.model import APIMiddleware, HTTPRequest
 from cozepy.version import user_agent
 
 if TYPE_CHECKING:
@@ -55,10 +55,12 @@ class Requester(object):
         auth: Optional["Auth"] = None,
         sync_client: Optional[SyncHTTPClient] = None,
         async_client: Optional[AsyncHTTPClient] = None,
+        middlewares: Optional[List[APIMiddleware]] = None,
     ):
         self._auth = auth
         self._sync_client = sync_client
         self._async_client = async_client
+        self._middlewares = middlewares
 
     def make_request(
         self,
@@ -197,6 +199,18 @@ class Requester(object):
         """
         Send a request to the server.
         """
+        send = self._send
+        for middleware in self._middlewares:
+            send = middleware(send)
+        return send(request)
+
+    def _send(
+        self,
+        request: HTTPRequest,
+    ) -> Union[T, List[T], Tuple[Iterator[str], str], None]:
+        """
+        Send a request to the server.
+        """
         return self._parse_response(
             method=request.method,
             url=request.url,
@@ -289,6 +303,20 @@ class Requester(object):
         )
 
     async def asend(
+        self,
+        request: HTTPRequest,
+    ) -> Union[T, List[T], Tuple[AsyncIterator[str], str], None]:
+        return self._parse_response(
+            method=request.method,
+            url=request.url,
+            is_async=True,
+            response=await self.async_client.send(request.as_httpx, stream=request.stream),
+            model=request.cast,
+            stream=request.stream,
+            data_field=request.data_field,
+        )
+
+    async def _asend(
         self,
         request: HTTPRequest,
     ) -> Union[T, List[T], Tuple[AsyncIterator[str], str], None]:

@@ -1,8 +1,10 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from cozepy.auth import Auth
 from cozepy.config import COZE_COM_BASE_URL
 from cozepy.request import AsyncHTTPClient, Requester, SyncHTTPClient
+
+from .model import APIMiddleware
 
 if TYPE_CHECKING:
     from .bots import AsyncBotsClient, BotsClient
@@ -21,10 +23,11 @@ class Coze(object):
         auth: Auth,
         base_url: str = COZE_COM_BASE_URL,
         http_client: Optional[SyncHTTPClient] = None,
+        middlewares: Optional[List[APIMiddleware]] = None,
     ):
         self._auth = auth
         self._base_url = base_url
-        self._requester = Requester(auth=auth, sync_client=http_client)
+        self._requester = Requester(auth=auth, sync_client=http_client, middlewares=middlewares)
 
         # service client
         self._bots: Optional[BotsClient] = None
