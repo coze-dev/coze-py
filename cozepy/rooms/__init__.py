@@ -8,8 +8,9 @@ from cozepy.request import Requester
 class CreateRoomResult(CozeModel):
     # Token to join the room
     token: str
+    # The id of user
     uid: str
-    # The id of the room
+    # The id of room
     room_id: str
     # App id to join the room
     app_id: str
@@ -28,8 +29,9 @@ class RoomsClient(object):
     def create(self, *, bot_id: str, voice_id: str) -> CreateRoomResult:
         """
         create rtc room
-        :param bot_id: The id of the chat bot
-        :param voice_id: The voice id of the chat bot
+
+        :param bot_id: The id of the bot.
+        :param voice_id: The voice id of the voice.
         :return:
         """
         url = f"{self._base_url}/v1/audio/rooms"
@@ -53,8 +55,9 @@ class AsyncRoomsClient(object):
     async def create(self, *, bot_id: str, voice_id: Optional[str] = None) -> CreateRoomResult:
         """
         create rtc room
-        :param bot_id: The id of the chat bot
-        :param voice_id: The voice id of the chat bot
+
+        :param bot_id: The id of the bot.
+        :param voice_id: The voice id of the voice.
         :return:
         """
         url = f"{self._base_url}/v1/audio/rooms"
