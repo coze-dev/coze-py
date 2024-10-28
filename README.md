@@ -28,22 +28,24 @@ pip install cozepy
 
 ### Examples
 
-| Example                      | File                                                                    |
-|------------------------------|-------------------------------------------------------------------------|
-| pat auth                     | [examples/auth_pat.py](examples/auth_pat.py)                            |
-| oauth by web code            | [examples/auth_oauth_web.py](examples/auth_oauth_web.py)                |
-| oauth by jwt flow            | [examples/auth_oauth_jwt.py](examples/auth_oauth_jwt.py)                |
-| oauth by pkce flow           | [examples/auth_oauth_pkce.py](examples/auth_oauth_pkce.py)              |
-| oauth by device flow         | [examples/auth_oauth_device.py](examples/auth_oauth_device.py)          |
-| bot create, publish and chat | [examples/bot_publish.py](examples/bot_publish.py)                      |
-| non-stream chat              | [examples/chat_no_stream.py](examples/chat_no_stream.py)                |
-| steam chat                   | [examples/chat_stream.py](examples/chat_stream.py)                      |
-| multimodal chat, with image  | [examples/chat_multimodal_stream.py](examples/chat_multimode_stream.py) |
-| non-stream workflow chat     | [examples/workflow_no_stream.py](examples/workflow_no_stream.py)        |
-| stream workflow chat         | [examples/workflow_stream.py](examples/workflow_stream.py)              |
-| timeout config               | [examples/timeout.py](examples/timeout.py)                              |
-| setup coze log config        | [examples/log.py](examples/log.py)                                      |
-| how to handle exception      | [examples/exception.py](examples/exception.py)                          |
+| Example                      | File                                                                         |
+|------------------------------|------------------------------------------------------------------------------|
+| pat auth                     | [examples/auth_pat.py](examples/auth_pat.py)                                 |
+| oauth by web code            | [examples/auth_oauth_web.py](examples/auth_oauth_web.py)                     |
+| oauth by jwt flow            | [examples/auth_oauth_jwt.py](examples/auth_oauth_jwt.py)                     |
+| oauth by pkce flow           | [examples/auth_oauth_pkce.py](examples/auth_oauth_pkce.py)                   |
+| oauth by device flow         | [examples/auth_oauth_device.py](examples/auth_oauth_device.py)               |
+| bot create, publish and chat | [examples/bot_publish.py](examples/bot_publish.py)                           |
+| non-stream chat              | [examples/chat_no_stream.py](examples/chat_no_stream.py)                     |
+| steam chat                   | [examples/chat_stream.py](examples/chat_stream.py)                           |
+| chat with conversation       | [examples/chat_conversation_stream.py](examples/chat_conversation_stream.py) |
+| chat with local plugin       | [examples/chat_local_plugin.py](examples/chat_local_plugin.py)               |
+| chat with image              | [examples/chat_multimodal_stream.py](examples/chat_multimode_stream.py)      |
+| non-stream workflow chat     | [examples/workflow_no_stream.py](examples/workflow_no_stream.py)             |
+| stream workflow chat         | [examples/workflow_stream.py](examples/workflow_stream.py)                   |
+| timeout config               | [examples/timeout.py](examples/timeout.py)                                   |
+| setup coze log config        | [examples/log.py](examples/log.py)                                           |
+| how to handle exception      | [examples/exception.py](examples/exception.py)                               |
 
 ### Initialize the Coze client
 
