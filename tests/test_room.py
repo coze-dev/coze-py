@@ -9,7 +9,10 @@ from cozepy.util import random_hex
 class TestRooms:
     def test_sync_rooms_create(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
-
+room_id = random_hex(10)
+room_token = random_hex(10)
+app_id = random_hex(10)
+uid = random_hex(10)
         respx_mock.post("/v1/audio/rooms").mock(
             httpx.Response(
                 200,
