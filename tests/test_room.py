@@ -18,7 +18,7 @@ uid = random_hex(10)
                 200,
                 json={
                     "data": CreateRoomResult(
-                        token="JOIN_ROOM_TOKEN", uid="UID", room_id="ROOM_ID", app_id="APP_ID"
+token=room_token, uid=uid, room_id=room_id, app_id=app_id
                     ).model_dump()
                 },
             )
