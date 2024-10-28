@@ -23,7 +23,7 @@ class TestRooms:
 
         res = coze.rooms.create(bot_id="BOT_ID", voice_id="VOICE_ID")
         assert res
-        assert res.token == "JOIN_ROOM_TOKEN"
+        assert res.token == room_token
         assert res.room_id == room_id
         assert res.uid == uid
         assert res.app_id == app_id
