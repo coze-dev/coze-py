@@ -11,7 +11,7 @@ class TestChatMessage:
 
         msg = Message.build_user_question_text("hi")
         msg2 = Message.build_user_question_text("hey")
-        respx_mock.post("/v3/chat/message/list").mock(
+        respx_mock.get("/v3/chat/message/list").mock(
             httpx.Response(
                 200,
                 json={"data": [msg.model_dump(), msg2.model_dump()]},
@@ -31,7 +31,7 @@ class TestAsyncChatMessage:
 
         msg = Message.build_user_question_text("hi")
         msg2 = Message.build_user_question_text("hey")
-        respx_mock.post("/v3/chat/message/list").mock(
+        respx_mock.get("/v3/chat/message/list").mock(
             httpx.Response(
                 200,
                 json={"data": [msg.model_dump(), msg2.model_dump()]},

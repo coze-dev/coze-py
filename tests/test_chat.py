@@ -205,7 +205,7 @@ data:{}
             httpx.Response(200, json={"data": make_chat(conversation_id, ChatStatus.COMPLETED).model_dump()})
         )
         msg = Message.build_user_question_text("hi")
-        respx_mock.post("/v3/chat/message/list").mock(
+        respx_mock.get("/v3/chat/message/list").mock(
             httpx.Response(
                 200,
                 json={"data": [msg.model_dump()]},
