@@ -23,8 +23,15 @@ coze_api_base = os.getenv("COZE_API_BASE") or COZE_COM_BASE_URL
 jwt_oauth_client_id = os.getenv("COZE_JWT_OAUTH_CLIENT_ID")
 # private key
 jwt_oauth_private_key = os.getenv("COZE_JWT_OAUTH_PRIVATE_KEY")
+# The private key file that stores the private key with .pem extension
+jwt_oauth_private_file = os.getenv("COZE_JWT_OAUTH_PRIVATE_FILE")
 # public key id
 jwt_oauth_public_key_id = os.getenv("COZE_JWT_OAUTH_PUBLIC_KEY_ID")
+
+if jwt_oauth_private_file:
+    with open(jwt_oauth_private_file, "r") as f:
+        jwt_oauth_private_key = f.read()
+
 
 # The sdk offers the JWTOAuthApp class to establish an authorization for Service OAuth.
 # Firstly, it is required to initialize the JWTOAuthApp.
@@ -45,6 +52,8 @@ jwt_oauth_app = JWTOAuthApp(
 # the jwt oauth process.
 
 # Generate the authorization token
+# The default ttl is 900s, and developers can customize the expiration time, which can be
+# set up to 24 hours at most.
 oauth_token = jwt_oauth_app.get_access_token(ttl=3600)
 
 # use the access token to init Coze client
