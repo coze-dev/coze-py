@@ -23,14 +23,15 @@ coze_api_base = os.getenv("COZE_API_BASE") or COZE_COM_BASE_URL
 jwt_oauth_client_id = os.getenv("COZE_JWT_OAUTH_CLIENT_ID")
 # private key
 jwt_oauth_private_key = os.getenv("COZE_JWT_OAUTH_PRIVATE_KEY")
+# The private key file that stores the private key with .pem extension
+jwt_oauth_private_file = os.getenv("COZE_JWT_OAUTH_PRIVATE_FILE")
 # public key id
 jwt_oauth_public_key_id = os.getenv("COZE_JWT_OAUTH_PUBLIC_KEY_ID")
 
-# If the private key is stored separately as a file with .pem extension, 
-# you may read its content properly and then use it as private key here in code
-jwt_oauth_private_key_file_path = "./private_key.pem"  # replace with actual path
-with open(jwt_oauth_private_key_file_path, "rb") as private_key_file:
-    jwt_oauth_private_key = private_key_file.read().decode("utf-8")
+if jwt_oauth_private_file:
+    with open(jwt_oauth_private_file, "r") as f:
+        jwt_oauth_private_key = f.read()
+
 
 # The sdk offers the JWTOAuthApp class to establish an authorization for Service OAuth.
 # Firstly, it is required to initialize the JWTOAuthApp.
