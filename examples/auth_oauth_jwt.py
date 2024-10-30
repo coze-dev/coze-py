@@ -52,7 +52,9 @@ jwt_oauth_app = JWTOAuthApp(
 # the jwt oauth process.
 
 # Generate the authorization token
-oauth_token = jwt_oauth_app.get_access_token()
+# The default ttl is 900s, and developers can customize the expiration time, which can be
+# set up to 24 hours at most.
+oauth_token = jwt_oauth_app.get_access_token(ttl=3600)
 
 # use the access token to init Coze client
 coze = Coze(auth=TokenAuth(oauth_token.access_token), base_url=coze_api_base)
