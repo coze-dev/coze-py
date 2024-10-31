@@ -1,14 +1,25 @@
 from enum import Enum
-from typing import Any, AsyncIterator, Dict, Optional
+from typing import TYPE_CHECKING, Any, AsyncIterator, Dict, Optional
 
 from cozepy.auth import Auth
 from cozepy.model import AsyncStream, CozeModel, Stream
 from cozepy.request import Requester
 
+if TYPE_CHECKING:
+    from .run_histories import AsyncWorkflowsRunsRunHistoriesClient, WorkflowsRunsRunHistoriesClient
+
 
 class WorkflowRunResult(CozeModel):
     debug_url: str
-    data: str
+
+    # Workflow execution result, usually a JSON serialized string. In some scenarios, a
+    # string with a non-JSON structure may be returned.
+    data: Optional[str]
+
+    # Execution ID of asynchronous execution. Only returned when the workflow is executed
+    # asynchronously (is_async=true). You can use execute_id to call the Query Workflow
+    # Asynchronous Execution Result API to obtain the final execution result of the workflow.
+    execute_id: Optional[str]
 
 
 class WorkflowEventType(str, Enum):
@@ -139,12 +150,15 @@ class WorkflowsRunsClient(object):
         self._auth = auth
         self._requester = requester
 
+        self._run_histories: Optional[WorkflowsRunsRunHistoriesClient] = None
+
     def create(
         self,
         *,
         workflow_id: str,
         parameters: Optional[Dict[str, Any]] = None,
         bot_id: Optional[str] = None,
+        is_async: bool = False,
         ext: Optional[Dict[str, Any]] = None,
     ) -> WorkflowRunResult:
         """
@@ -160,6 +174,7 @@ class WorkflowsRunsClient(object):
         list of parameters on the arrangement page of the specified workflow.
         :param bot_id: The associated Bot ID required for some workflow executions,
         such as workflows with database nodes, variable nodes, etc.
+        :param is_async: Whether to run asynchronously.
         :param ext: Used to specify some additional fields in the format of Map[String][String].
         :return: The result of the workflow execution
         """
@@ -168,6 +183,7 @@ class WorkflowsRunsClient(object):
             "workflow_id": workflow_id,
             "parameters": parameters,
             "bot_id": bot_id,
+            "is_async": is_async,
             "ext": ext,
         }
         return self._requester.request("post", url, False, WorkflowRunResult, body=body)
@@ -243,6 +259,14 @@ class WorkflowsRunsClient(object):
         )
         return Stream(steam_iters, fields=["id", "event", "data"], handler=_sync_workflow_stream_handler, logid=logid)
 
+    @property
+    def run_histories(self) -> "WorkflowsRunsRunHistoriesClient":
+        if not self._run_histories:
+            from .run_histories import WorkflowsRunsRunHistoriesClient
+
+            self._run_histories = WorkflowsRunsRunHistoriesClient(self._base_url, self._auth, self._requester)
+        return self._run_histories
+
 
 class AsyncWorkflowsRunsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
@@ -250,12 +274,15 @@ class AsyncWorkflowsRunsClient(object):
         self._auth = auth
         self._requester = requester
 
+        self._run_histories: Optional[AsyncWorkflowsRunsRunHistoriesClient] = None
+
     async def create(
         self,
         *,
         workflow_id: str,
         parameters: Optional[Dict[str, Any]] = None,
         bot_id: Optional[str] = None,
+        is_async: bool = False,
         ext: Optional[Dict[str, Any]] = None,
     ) -> WorkflowRunResult:
         """
@@ -271,6 +298,7 @@ class AsyncWorkflowsRunsClient(object):
         list of parameters on the arrangement page of the specified workflow.
         :param bot_id: The associated Bot ID required for some workflow executions,
         such as workflows with database nodes, variable nodes, etc.
+        :param is_async: Whether to run asynchronously.
         :param ext: Used to specify some additional fields in the format of Map[String][String].
         :return: The result of the workflow execution
         """
@@ -279,6 +307,7 @@ class AsyncWorkflowsRunsClient(object):
             "workflow_id": workflow_id,
             "parameters": parameters,
             "bot_id": bot_id,
+            "is_async": is_async,
             "ext": ext,
         }
         return await self._requester.arequest("post", url, False, WorkflowRunResult, body=body)
@@ -359,3 +388,11 @@ class AsyncWorkflowsRunsClient(object):
             steam_iters, fields=["id", "event", "data"], handler=_async_workflow_stream_handler, logid=logid
         ):
             yield item
+
+    @property
+    def run_histories(self) -> "AsyncWorkflowsRunsRunHistoriesClient":
+        if not self._run_histories:
+            from .run_histories import AsyncWorkflowsRunsRunHistoriesClient
+
+            self._run_histories = AsyncWorkflowsRunsRunHistoriesClient(self._base_url, self._auth, self._requester)
+        return self._run_histories

@@ -396,7 +396,7 @@ class Requester(object):
             return None, body["error_code"], None
         if "error_message" in body and body["error_message"] != "":
             return None, body["error_message"], None
-        if data_field in body:
+        if data_field in body or "debug_url" in body:
             if "first_id" in body:
                 return (
                     0,
@@ -413,8 +413,9 @@ class Requester(object):
                     0,
                     "",
                     {
-                        "data": body[data_field],
-                        "debug_url": body["debug_url"],
+                        "data": body.get(data_field),
+                        "debug_url": body.get("debug_url") or "",
+                        "execute_id": body.get("execute_id") or None,
                     },
                 )
             return 0, "", body[data_field]

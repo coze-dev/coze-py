@@ -91,6 +91,7 @@ from .workflows.runs import (
     WorkflowEventType,
     WorkflowRunResult,
 )
+from .workflows.runs.run_histories import WorkflowExecuteStatus, WorkflowRunHistory, WorkflowRunMode
 from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
 
 __all__ = [
@@ -162,6 +163,10 @@ __all__ = [
     "WorkflowEventInterrupt",
     "WorkflowEventError",
     "WorkflowEvent",
+    # workflows.runs.run_histories
+    "WorkflowExecuteStatus",
+    "WorkflowRunMode",
+    "WorkflowRunHistory",
     # workspaces
     "WorkspaceRoleType",
     "WorkspaceType",
