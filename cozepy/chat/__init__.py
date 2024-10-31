@@ -131,6 +131,8 @@ class Message(CozeModel):
 
     id: Optional[str] = None
     conversation_id: Optional[str] = None
+    # section_id is used to distinguish the context sections of the session history. The same section is one context.
+    section_id: Optional[str] = None
     bot_id: Optional[str] = None
     chat_id: Optional[str] = None
     created_at: Optional[int] = None
