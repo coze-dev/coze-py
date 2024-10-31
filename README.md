@@ -6,8 +6,9 @@
 
 ## Introduction
 
-The Coze API SDK for Python is a versatile tool for integrating Coze's open APIs into 
+The Coze API SDK for Python is a versatile tool for integrating Coze's open APIs into
 your projects.
+
 - Supports all Coze open APIs and authentication APIs
 - Supports both synchronous and asynchronous SDK calls
 - Optimized for streaming apis, returning Stream and AsyncStream objects
@@ -43,6 +44,7 @@ pip install cozepy
 | chat with image              | [examples/chat_multimodal_stream.py](examples/chat_multimode_stream.py)      |
 | non-stream workflow chat     | [examples/workflow_no_stream.py](examples/workflow_no_stream.py)             |
 | stream workflow chat         | [examples/workflow_stream.py](examples/workflow_stream.py)                   |
+| async workflow run           | [examples/workflow_async.py](examples/workflow_async.py)                     |
 | timeout config               | [examples/timeout.py](examples/timeout.py)                                   |
 | setup coze log config        | [examples/log.py](examples/log.py)                                           |
 | how to handle exception      | [examples/exception.py](examples/exception.py)                               |
@@ -74,6 +76,7 @@ coze = Coze(auth=TokenAuth(coze_api_token), base_url=coze_api_base)
 ```
 
 coze api access_token can also be generated via the OAuth App. For details, refer to:
+
 - [web-oauth-app](https://github.com/coze-dev/coze-py?tab=readme-ov-file#web-oauth-app)
 - [jwt-oauth-app](https://github.com/coze-dev/coze-py?tab=readme-ov-file#jwt-oauth-app)
 - [pkce-oauth-app](https://github.com/coze-dev/coze-py?tab=readme-ov-file#pkce-oauth-app)
@@ -502,7 +505,7 @@ coze = Coze(auth=TokenAuth(oauth_token.access_token))
 #### PKCE OAuth App
 
 PKCE stands for Proof Key for Code Exchange, and it's an extension to the OAuth 2.0 authorization
-code flow designed to enhance security for public clients, such as mobile and single-page 
+code flow designed to enhance security for public clients, such as mobile and single-page
 applications.
 
 Firstly, users need to access https://www.coze.com/open/oauth/apps. For the cn environment,
@@ -546,7 +549,7 @@ url = pkce_oauth_app.get_oauth_url(
 )
 ```
 
-Developers should lead users to open up this authorization link. 
+Developers should lead users to open up this authorization link.
 
 When the user consents to the authorization, Coze will redirect with the code to the
 callback address configured by the developer, and the developer can obtain this code.
@@ -596,15 +599,15 @@ device_oauth_app = DeviceOAuthApp(client_id=device_oauth_client_id)
 ```
 
 In the device oauth authorization process, developers need to first call the interface
-of Coze to generate the device code to obtain the user_code and device_code. 
+of Coze to generate the device code to obtain the user_code and device_code.
 
-Then generate the authorization link through the user_code, guide the user to open the 
-link, fill in the user_code, and consent to the authorization. 
+Then generate the authorization link through the user_code, guide the user to open the
+link, fill in the user_code, and consent to the authorization.
 
-Developers need to call the interface of Coze to generate the token through the device_code. 
+Developers need to call the interface of Coze to generate the token through the device_code.
 
-When the user has not authorized or rejected the authorization, the interface will throw an 
-error and return a specific error code. 
+When the user has not authorized or rejected the authorization, the interface will throw an
+error and return a specific error code.
 
 After the user consents to the authorization, the interface will succeed and return the
 access_token.
@@ -890,12 +893,13 @@ setup_logging(level=logging.DEBUG)
 
 Coze client is built on httpx, and supports passing a custom httpx.Client when initializing
 Coze, and setting a timeout on the httpx.Client
+
 ```python
 import os
 
 import httpx
 
-from cozepy import COZE_COM_BASE_URL,Coze,TokenAuth, SyncHTTPClient
+from cozepy import COZE_COM_BASE_URL, Coze, TokenAuth, SyncHTTPClient
 
 # Coze client is built on httpx, and supports passing a custom httpx.Client when initializing
 # Coze, and setting a timeout on the httpx.Client

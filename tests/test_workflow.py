@@ -1,7 +1,16 @@
 import httpx
 import pytest
 
-from cozepy import AsyncCoze, Coze, TokenAuth, WorkflowRunResult
+from cozepy import (
+    AsyncCoze,
+    Coze,
+    TokenAuth,
+    WorkflowExecuteStatus,
+    WorkflowRunHistory,
+    WorkflowRunMode,
+    WorkflowRunResult,
+)
+from cozepy.util import random_hex
 from tests.config import make_stream_response
 
 stream_testdata = make_stream_response("""
@@ -48,18 +57,54 @@ data: {}
 """)
 
 
+def mock_create_workflow_run(respx_mock, is_async: bool):
+    respx_mock.post(
+        "/v1/workflow/run",
+        json={
+            "workflow_id": "id",
+            "parameters": None,
+            "bot_id": None,
+            "is_async": is_async,
+            "ext": None,
+        },
+    ).mock(
+        httpx.Response(
+            200,
+            json={
+                "data": WorkflowRunResult(
+                    debug_url="debug_url",
+                    data="data" if not is_async else None,
+                    execute_id="execute_id" if is_async else None,
+                ).model_dump()
+            },
+        )
+    )
+
+
+def mock_create_workflow_stream(respx_mock, data):
+    respx_mock.post("/v1/workflow/stream_run").mock(data)
+
+
 @pytest.mark.respx(base_url="https://api.coze.com")
 class TestWorkflowsRuns:
-    def test_sync_workflows_runs_create(self, respx_mock):
+    def test_sync_workflows_runs_create_no_async(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/v1/workflow/run").mock(
-            httpx.Response(200, json={"data": WorkflowRunResult(debug_url="debug_url", data="data").model_dump()})
-        )
+        mock_create_workflow_run(respx_mock, False)
 
         res = coze.workflows.runs.create(workflow_id="id")
         assert res
         assert res.data == "data"
+
+    def test_sync_workflows_runs_create_async(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        mock_create_workflow_run(respx_mock, True)
+
+        res = coze.workflows.runs.create(workflow_id="id", is_async=True)
+        assert res
+        assert not res.data
+        assert res.execute_id
 
     def test_sync_workflows_runs_stream(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
@@ -108,20 +153,63 @@ data:{}""")
                 )
             )
 
+    def test_sync_workflows_runs_run_histories_retrieve(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        workflow_id = random_hex(10)
+        execute_id = random_hex(10)
+        url = f"/v1/workflows/{workflow_id}/run_histories/{execute_id}"
+        respx_mock.get(url).mock(
+            httpx.Response(
+                200,
+                json={
+                    "data": [
+                        WorkflowRunHistory(
+                            execute_id="execute_id",
+                            execute_status=WorkflowExecuteStatus.RUNNING,
+                            bot_id="bot_id",
+                            connector_id="connector_id",
+                            connector_uid="connector_uid",
+                            run_mode=WorkflowRunMode.SYNCHRONOUS,
+                            logid="logid",
+                            create_time=0,
+                            update_time=0,
+                            output="output",
+                            error_code=0,
+                            error_message="error_message",
+                            debug_url="debug_url",
+                        ).model_dump()
+                    ]
+                },
+            )
+        )
+
+        res = coze.workflows.runs.run_histories.retrieve(workflow_id=workflow_id, execute_id=execute_id)
+        assert res
+
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
 class TestAsyncWorkflowsRuns:
-    async def test_async_workflows_runs_create(self, respx_mock):
+    async def test_async_workflows_runs_create_no_async(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/v1/workflow/run").mock(
-            httpx.Response(200, json={"data": WorkflowRunResult(debug_url="debug_url", data="data").model_dump()})
-        )
+        mock_create_workflow_run(respx_mock, False)
 
         res = await coze.workflows.runs.create(workflow_id="id")
         assert res
         assert res.data == "data"
+        assert not res.execute_id
+
+    async def test_async_workflows_runs_create_async(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        mock_create_workflow_run(respx_mock, True)
+
+        res = await coze.workflows.runs.create(workflow_id="id", is_async=True)
+        assert res
+        assert not res.data
+        assert res.execute_id == "execute_id"
 
     async def test_async_workflows_runs_stream(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
@@ -169,3 +257,37 @@ data:{}""")
                 interrupt_type=123,
             ):
                 assert event
+
+    async def test_async_workflows_runs_run_histories_retrieve(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        workflow_id = random_hex(10)
+        execute_id = random_hex(10)
+        url = f"/v1/workflows/{workflow_id}/run_histories/{execute_id}"
+        respx_mock.get(url).mock(
+            httpx.Response(
+                200,
+                json={
+                    "data": [
+                        WorkflowRunHistory(
+                            execute_id="execute_id",
+                            execute_status=WorkflowExecuteStatus.RUNNING,
+                            bot_id="bot_id",
+                            connector_id="connector_id",
+                            connector_uid="connector_uid",
+                            run_mode=WorkflowRunMode.SYNCHRONOUS,
+                            logid="logid",
+                            create_time=0,
+                            update_time=0,
+                            output="output",
+                            error_code=0,
+                            error_message="error_message",
+                            debug_url="debug_url",
+                        ).model_dump()
+                    ]
+                },
+            )
+        )
+
+        res = await coze.workflows.runs.run_histories.retrieve(workflow_id=workflow_id, execute_id=execute_id)
+        assert res
