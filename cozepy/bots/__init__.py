@@ -99,8 +99,11 @@ class _PrivateListBotsData(CozeModel, NumberPagedResponse[SimpleBot]):
     space_bots: List[SimpleBot]
     total: int
 
-    def get_total(self) -> int:
+    def get_total(self) -> Optional[int]:
         return self.total
+
+    def get_has_more(self) -> Optional[bool]:
+        return None
 
     def get_items(self) -> List[SimpleBot]:
         return self.space_bots

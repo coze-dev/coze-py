@@ -1,4 +1,5 @@
 from .audio.rooms import CreateRoomResult
+from .audio.voices import Voice
 from .auth import (
     AsyncDeviceOAuthApp,
     AsyncJWTOAuthApp,
@@ -96,6 +97,10 @@ from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
 
 __all__ = [
     "VERSION",
+    # audio.rooms
+    "CreateRoomResult",
+    # audio.voices
+    "Voice",
     # auth
     "AsyncDeviceOAuthApp",
     "AsyncJWTOAuthApp",
@@ -200,6 +205,4 @@ __all__ = [
     # request
     "SyncHTTPClient",
     "AsyncHTTPClient",
-    # audio.room
-    "CreateRoomResult",
 ]

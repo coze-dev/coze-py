@@ -91,7 +91,11 @@ class AsyncPagedBase(Generic[T], abc.ABC):
 
 class NumberPagedResponse(Generic[T], abc.ABC):
     @abc.abstractmethod
-    def get_total(self) -> int:
+    def get_total(self) -> Optional[int]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_has_more(self) -> Optional[bool]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -111,6 +115,7 @@ class NumberPaged(PagedBase[T]):
         self.page_size = page_size
 
         self._total = None
+        self._has_more = None
         self._items = None
 
         self._requestor = requestor
@@ -142,7 +147,9 @@ class NumberPaged(PagedBase[T]):
 
     @property
     def has_more(self) -> bool:
-        if self._items and len(self._items) >= self.page_size:
+        if self._has_more is not None:
+            return self._has_more
+        if self._items is not None and self._items and len(self._items) >= self.page_size:
             return True
         return False
 
@@ -151,11 +158,12 @@ class NumberPaged(PagedBase[T]):
         return self._total or 0
 
     def _fetch_page(self):
-        if self._total is not None:
+        if self._total is not None or self._has_more is not None:
             return
         request: HTTPRequest = self._request_maker(self.page_num, self.page_size)
         res: NumberPagedResponse[T] = self._requestor.send(request)
         self._total = res.get_total()
+        self._has_more = res.get_has_more()
         self._items = res.get_items()
 
 
@@ -171,6 +179,7 @@ class AsyncNumberPaged(AsyncPagedBase[T]):
         self.page_size = page_size
 
         self._total = None
+        self._has_more = None
         self._items = None
 
         self._requestor = requestor
@@ -201,7 +210,9 @@ class AsyncNumberPaged(AsyncPagedBase[T]):
 
     @property
     def has_more(self) -> bool:
-        if self._items and len(self._items) >= self.page_size:
+        if self._has_more is not None:
+            return self._has_more
+        if self._items is not None and self._items and len(self._items) >= self.page_size:
             return True
         return False
 
@@ -219,6 +230,7 @@ class AsyncNumberPaged(AsyncPagedBase[T]):
         request = self._request_maker(self.page_num, self.page_size)
         res: NumberPagedResponse[T] = await self._requestor.asend(request)
         self._total = res.get_total()
+        self._has_more = res.get_has_more()
         self._items = res.get_items()
 
     @staticmethod

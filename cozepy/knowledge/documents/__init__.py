@@ -256,8 +256,11 @@ class _PrivateListDocumentsData(CozeModel, NumberPagedResponse[Document]):
     document_infos: List[Document]
     total: int
 
-    def get_total(self) -> int:
+    def get_total(self) -> Optional[int]:
         return self.total
+
+    def get_has_more(self) -> Optional[bool]:
+        return None
 
     def get_items(self) -> List[Document]:
         return self.document_infos
