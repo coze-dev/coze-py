@@ -5,12 +5,12 @@ from cozepy.config import COZE_COM_BASE_URL
 from cozepy.request import AsyncHTTPClient, Requester, SyncHTTPClient
 
 if TYPE_CHECKING:
+    from .audio import AsyncAudioClient, AudioClient
     from .bots import AsyncBotsClient, BotsClient
     from .chat import AsyncChatClient, ChatClient
     from .conversations import AsyncConversationsClient, ConversationsClient
     from .files import AsyncFilesClient, FilesClient
     from .knowledge import AsyncKnowledgeClient, KnowledgeClient
-    from .rooms import AsyncRoomsClient, RoomsClient
     from .workflows import AsyncWorkflowsClient, WorkflowsClient
     from .workspaces import AsyncWorkspacesClient, WorkspacesClient
 
@@ -34,7 +34,7 @@ class Coze(object):
         self._files: Optional[FilesClient] = None
         self._workflows: Optional[WorkflowsClient] = None
         self._knowledge: Optional[KnowledgeClient] = None
-        self._rooms: Optional[RoomsClient] = None
+        self._audio: Optional[AudioClient] = None
 
     @property
     def bots(self) -> "BotsClient":
@@ -93,12 +93,12 @@ class Coze(object):
         return self._knowledge
 
     @property
-    def rooms(self) -> "RoomsClient":
-        if not self._rooms:
-            from .rooms import RoomsClient
+    def audio(self) -> "AudioClient":
+        if not self._audio:
+            from .audio import AudioClient
 
-            self._rooms = RoomsClient(self._base_url, self._auth, self._requester)
-        return self._rooms
+            self._audio = AudioClient(self._base_url, self._auth, self._requester)
+        return self._audio
 
 
 class AsyncCoze(object):
@@ -120,7 +120,7 @@ class AsyncCoze(object):
         self._knowledge: Optional[AsyncKnowledgeClient] = None
         self._workflows: Optional[AsyncWorkflowsClient] = None
         self._workspaces: Optional[AsyncWorkspacesClient] = None
-        self._rooms: Optional[AsyncRoomsClient] = None
+        self._audio: Optional[AsyncAudioClient] = None
 
     @property
     def bots(self) -> "AsyncBotsClient":
@@ -179,9 +179,9 @@ class AsyncCoze(object):
         return self._workspaces
 
     @property
-    def rooms(self) -> "AsyncRoomsClient":
-        if not self._rooms:
-            from .rooms import AsyncRoomsClient
+    def audio(self) -> "AsyncAudioClient":
+        if not self._audio:
+            from .audio import AsyncAudioClient
 
-            self._rooms = AsyncRoomsClient(self._base_url, self._auth, self._requester)
-        return self._rooms
+            self._audio = AsyncAudioClient(self._base_url, self._auth, self._requester)
+        return self._audio

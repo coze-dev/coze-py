@@ -1,3 +1,4 @@
+from .audio.rooms import CreateRoomResult
 from .auth import (
     AsyncDeviceOAuthApp,
     AsyncJWTOAuthApp,
@@ -80,7 +81,6 @@ from .model import (
     Stream,
 )
 from .request import AsyncHTTPClient, SyncHTTPClient
-from .rooms import CreateRoomResult
 from .version import VERSION
 from .workflows.runs import (
     WorkflowEvent,
@@ -200,6 +200,6 @@ __all__ = [
     # request
     "SyncHTTPClient",
     "AsyncHTTPClient",
-    # room
+    # audio.room
     "CreateRoomResult",
 ]

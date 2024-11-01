@@ -19,7 +19,7 @@ def mock_create_room(respx_mock):
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
-class TestRooms:
+class TestAudioRooms:
     def test_sync_rooms_create(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
@@ -27,7 +27,7 @@ class TestRooms:
         voice_id = random_hex(10)
         mock_res = mock_create_room(respx_mock)
 
-        res = coze.rooms.create(bot_id=bot_id, voice_id=voice_id)
+        res = coze.audio.rooms.create(bot_id=bot_id, voice_id=voice_id)
         assert res
         assert res.token == mock_res.token
         assert res.room_id == mock_res.room_id
@@ -37,7 +37,7 @@ class TestRooms:
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
-class TestAsyncRooms:
+class TestAsyncAudioRooms:
     async def test_async_rooms_create(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
@@ -45,7 +45,7 @@ class TestAsyncRooms:
         voice_id = random_hex(10)
         mock_res = mock_create_room(respx_mock)
 
-        res = await coze.rooms.create(bot_id=bot_id, voice_id=voice_id)
+        res = await coze.audio.rooms.create(bot_id=bot_id, voice_id=voice_id)
         assert res
         assert res.token == mock_res.token
         assert res.room_id == mock_res.room_id
