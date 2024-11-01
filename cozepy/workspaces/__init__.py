@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
 from cozepy.auth import Auth
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
@@ -34,8 +34,11 @@ class _PrivateListWorkspacesData(CozeModel, NumberPagedResponse[Workspace]):
     total_count: int
     workspaces: List[Workspace]
 
-    def get_total(self) -> int:
+    def get_total(self) -> Optional[int]:
         return self.total_count
+
+    def get_has_more(self) -> Optional[bool]:
+        return None
 
     def get_items(self) -> List[Workspace]:
         return self.workspaces
