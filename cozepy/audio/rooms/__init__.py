@@ -39,7 +39,7 @@ class RoomsClient(object):
             "bot_id": bot_id,
             "voice_id": voice_id,
         }
-        return self._requester.request("post", url, stream=False, model=CreateRoomResult, body=body)
+        return self._requester.request("post", url, stream=False, cast=CreateRoomResult, body=body)
 
 
 class AsyncRoomsClient(object):
@@ -65,4 +65,4 @@ class AsyncRoomsClient(object):
             "bot_id": bot_id,
             "voice_id": voice_id,
         }
-        return await self._requester.arequest("post", url, stream=False, model=CreateRoomResult, body=body)
+        return await self._requester.arequest("post", url, stream=False, cast=CreateRoomResult, body=body)

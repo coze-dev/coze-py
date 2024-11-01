@@ -33,6 +33,39 @@ class CozeModel(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
 
+class HTTPResponse(Generic[T]):
+    def __init__(self, response: httpx.Response, data: T):
+        self.response = response
+        self.data = data
+
+    @property
+    def logid(self):
+        return self.response.headers.get("x-tt-logid")
+
+
+class IteratorHTTPResponse(HTTPResponse[Iterator[T]]):
+    def __init__(self, response: httpx.Response, data: Iterator[T]):
+        super().__init__(response, data)
+
+
+class AsyncIteratorHTTPResponse(HTTPResponse[AsyncIterator[T]]):
+    def __init__(self, response: httpx.Response, data: AsyncIterator[T]):
+        super().__init__(response, data)
+
+
+class FileHTTPResponse(HTTPResponse[None]):
+    def __init__(self, response: httpx.Response):
+        super().__init__(response, None)
+
+    def write_to_file(
+        self,
+        file: Union[str],
+    ) -> None:
+        with open(file, mode="wb") as f:
+            for data in self.response.iter_bytes():
+                f.write(data)
+
+
 class HTTPRequest(CozeModel, Generic[T]):
     method: str
     url: str

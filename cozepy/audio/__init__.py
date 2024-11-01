@@ -5,6 +5,7 @@ from cozepy.request import Requester
 
 if TYPE_CHECKING:
     from .rooms import AsyncRoomsClient, RoomsClient
+    from .speech import AsyncSpeechClient, SpeechClient
     from .voices import AsyncVoicesClient, VoicesClient
 
 
@@ -16,6 +17,7 @@ class AudioClient(object):
 
         self._rooms: Optional[RoomsClient] = None
         self._voices: Optional[VoicesClient] = None
+        self._speech: Optional[SpeechClient] = None
 
     @property
     def rooms(self) -> "RoomsClient":
@@ -24,6 +26,14 @@ class AudioClient(object):
 
             self._rooms = RoomsClient(base_url=self._base_url, auth=self._auth, requester=self._requester)
         return self._rooms
+
+    @property
+    def speech(self) -> "SpeechClient":
+        if self._speech is None:
+            from .speech import SpeechClient
+
+            self._speech = SpeechClient(base_url=self._base_url, auth=self._auth, requester=self._requester)
+        return self._speech
 
     @property
     def voices(self) -> "VoicesClient":
@@ -42,6 +52,7 @@ class AsyncAudioClient(object):
 
         self._rooms: Optional[AsyncRoomsClient] = None
         self._voices: Optional[AsyncVoicesClient] = None
+        self._speech: Optional[AsyncSpeechClient] = None
 
     @property
     def rooms(self) -> "AsyncRoomsClient":
@@ -50,6 +61,14 @@ class AsyncAudioClient(object):
 
             self._rooms = AsyncRoomsClient(base_url=self._base_url, auth=self._auth, requester=self._requester)
         return self._rooms
+
+    @property
+    def speech(self) -> "AsyncSpeechClient":
+        if self._speech is None:
+            from .speech import AsyncSpeechClient
+
+            self._speech = AsyncSpeechClient(base_url=self._base_url, auth=self._auth, requester=self._requester)
+        return self._speech
 
     @property
     def voices(self) -> "AsyncVoicesClient":

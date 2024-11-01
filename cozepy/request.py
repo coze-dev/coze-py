@@ -1,8 +1,6 @@
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncIterator,
-    Iterator,
     List,
     Optional,
     Tuple,
@@ -20,7 +18,7 @@ from typing_extensions import Literal
 from cozepy.config import DEFAULT_CONNECTION_LIMITS, DEFAULT_TIMEOUT
 from cozepy.exception import COZE_PKCE_AUTH_ERROR_TYPE_ENUMS, CozeAPIError, CozePKCEAuthError, CozePKCEAuthErrorType
 from cozepy.log import log_debug, log_warning
-from cozepy.model import HTTPRequest
+from cozepy.model import AsyncIteratorHTTPResponse, FileHTTPResponse, HTTPRequest, IteratorHTTPResponse
 from cozepy.version import user_agent
 
 if TYPE_CHECKING:
@@ -68,7 +66,7 @@ class Requester(object):
         headers: Optional[dict] = None,
         json: Optional[dict] = None,
         files: Optional[dict] = None,
-        cast: Union[Type[T], List[Type[T]], None] = None,
+        cast: Union[Type[T], List[Type[T]], Type[FileHTTPResponse], None] = None,
         data_field: str = "data",
         is_async: Optional[bool] = None,
         stream: bool = False,
@@ -108,7 +106,7 @@ class Requester(object):
         method: str,
         url: str,
         stream: Literal[False],
-        model: Type[T],
+        cast: Type[T],
         params: dict = ...,
         headers: dict = ...,
         body: dict = ...,
@@ -122,7 +120,7 @@ class Requester(object):
         method: str,
         url: str,
         stream: Literal[False],
-        model: List[Type[T]],
+        cast: List[Type[T]],
         params: dict = ...,
         headers: dict = ...,
         body: dict = ...,
@@ -135,14 +133,28 @@ class Requester(object):
         self,
         method: str,
         url: str,
-        stream: Literal[True],
-        model: None,
+        stream: Literal[False],
+        cast: Type[FileHTTPResponse],
         params: dict = ...,
         headers: dict = ...,
         body: dict = ...,
         files: dict = ...,
         data_field: str = ...,
-    ) -> Tuple[Iterator[str], str]: ...
+    ) -> FileHTTPResponse: ...
+
+    @overload
+    def request(
+        self,
+        method: str,
+        url: str,
+        stream: Literal[True],
+        cast: None,
+        params: dict = ...,
+        headers: dict = ...,
+        body: dict = ...,
+        files: dict = ...,
+        data_field: str = ...,
+    ) -> IteratorHTTPResponse[str]: ...
 
     @overload
     def request(
@@ -150,7 +162,7 @@ class Requester(object):
         method: str,
         url: str,
         stream: Literal[False],
-        model: None,
+        cast: None,
         params: dict = ...,
         headers: dict = ...,
         body: dict = ...,
@@ -163,13 +175,13 @@ class Requester(object):
         method: str,
         url: str,
         stream: Literal[True, False],
-        model: Union[Type[T], List[Type[T]], None],
+        cast: Union[Type[T], List[Type[T]], Type[FileHTTPResponse], None],
         params: Optional[dict] = None,
         headers: Optional[dict] = None,
         body: Optional[dict] = None,
         files: Optional[dict] = None,
         data_field: str = "data",
-    ) -> Union[T, List[T], Tuple[Iterator[str], str], None]:
+    ) -> Union[T, List[T], IteratorHTTPResponse[str], FileHTTPResponse, None]:
         """
         Send a request to the server.
         """
@@ -182,7 +194,7 @@ class Requester(object):
             headers=headers,
             json=body,
             files=files,
-            cast=model,
+            cast=cast,
             data_field=data_field,
             stream=stream,
             is_async=False,
@@ -193,7 +205,7 @@ class Requester(object):
     def send(
         self,
         request: HTTPRequest,
-    ) -> Union[T, List[T], Tuple[Iterator[str], str], None]:
+    ) -> Union[T, List[T], IteratorHTTPResponse[str], FileHTTPResponse, None]:
         """
         Send a request to the server.
         """
@@ -202,7 +214,7 @@ class Requester(object):
             url=request.url,
             is_async=False,
             response=self.sync_client.send(request.as_httpx, stream=request.stream),
-            model=request.cast,
+            cast=request.cast,
             stream=request.stream,
             data_field=request.data_field,
         )
@@ -213,7 +225,7 @@ class Requester(object):
         method: str,
         url: str,
         stream: Literal[False],
-        model: Type[T],
+        cast: Type[T],
         params: dict = ...,
         headers: dict = ...,
         body: dict = ...,
@@ -227,7 +239,7 @@ class Requester(object):
         method: str,
         url: str,
         stream: Literal[False],
-        model: List[Type[T]],
+        cast: List[Type[T]],
         params: dict = ...,
         headers: dict = ...,
         body: dict = ...,
@@ -241,7 +253,21 @@ class Requester(object):
         method: str,
         url: str,
         stream: Literal[False],
-        model: None,
+        cast: Type[FileHTTPResponse],
+        params: dict = ...,
+        headers: dict = ...,
+        body: dict = ...,
+        files: dict = ...,
+        data_field: str = ...,
+    ) -> FileHTTPResponse: ...
+
+    @overload
+    async def arequest(
+        self,
+        method: str,
+        url: str,
+        stream: Literal[False],
+        cast: None,
         params: Optional[dict] = ...,
         headers: Optional[dict] = ...,
         body: Optional[dict] = ...,
@@ -255,26 +281,26 @@ class Requester(object):
         method: str,
         url: str,
         stream: Literal[True],
-        model: None,
+        cast: None,
         params: Optional[dict] = ...,
         headers: Optional[dict] = ...,
         body: Optional[dict] = ...,
         files: Optional[dict] = ...,
         data_field: str = ...,
-    ) -> Tuple[AsyncIterator[str], str]: ...
+    ) -> AsyncIteratorHTTPResponse[str]: ...
 
     async def arequest(
         self,
         method: str,
         url: str,
         stream: Literal[True, False],
-        model: Union[Type[T], List[Type[T]], None],
+        cast: Union[Type[T], List[Type[T]], Type[FileHTTPResponse], None],
         params: Optional[dict] = None,
         headers: Optional[dict] = None,
         body: Optional[dict] = None,
         files: Optional[dict] = None,
         data_field: str = "data",
-    ) -> Union[T, List[T], Tuple[AsyncIterator[str], str], None]:
+    ) -> Union[T, List[T], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None]:
         """
         Send a request to the server.
         """
@@ -285,19 +311,19 @@ class Requester(object):
 
         response = await self.async_client.send(request.as_httpx, stream=stream)
         return self._parse_response(
-            method, url, True, response=response, model=model, stream=stream, data_field=data_field
+            method, url, True, response=response, cast=cast, stream=stream, data_field=data_field
         )
 
     async def asend(
         self,
         request: HTTPRequest,
-    ) -> Union[T, List[T], Tuple[AsyncIterator[str], str], None]:
+    ) -> Union[T, List[T], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None]:
         return self._parse_response(
             method=request.method,
             url=request.url,
             is_async=True,
             response=await self.async_client.send(request.as_httpx, stream=request.stream),
-            model=request.cast,
+            cast=request.cast,
             stream=request.stream,
             data_field=request.data_field,
         )
@@ -321,10 +347,10 @@ class Requester(object):
         url: str,
         is_async: Literal[False],
         response: httpx.Response,
-        model: Union[Type[T], List[Type[T]], None],
+        cast: Union[Type[T], List[Type[T]], Type[FileHTTPResponse], None],
         stream: bool = ...,
         data_field: str = ...,
-    ) -> Union[T, List[T], Tuple[Iterator[str], str], None]: ...
+    ) -> Union[T, List[T], IteratorHTTPResponse[str], FileHTTPResponse, None]: ...
 
     @overload
     def _parse_response(
@@ -333,10 +359,10 @@ class Requester(object):
         url: str,
         is_async: Literal[True],
         response: httpx.Response,
-        model: Union[Type[T], List[Type[T]], None],
+        cast: Union[Type[T], List[Type[T]], Type[FileHTTPResponse], None],
         stream: bool = ...,
         data_field: str = ...,
-    ) -> Union[T, List[T], Tuple[AsyncIterator[str], str], None]: ...
+    ) -> Union[T, List[T], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None]: ...
 
     def _parse_response(
         self,
@@ -344,18 +370,24 @@ class Requester(object):
         url: str,
         is_async: Literal[True, False],
         response: httpx.Response,
-        model: Union[Type[T], List[Type[T]], None],
+        cast: Union[Type[T], List[Type[T]], Type[FileHTTPResponse], None],
         stream: bool = False,
         data_field: str = "data",
-    ) -> Union[T, List[T], Tuple[Iterator[str], str], Tuple[AsyncIterator[str], str], None]:
+    ) -> Union[T, List[T], IteratorHTTPResponse[str], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None]:
         # application/json
         # text/event-stream
+        # audio/<xx>
         resp_content_type = response.headers.get("content-type")
+        if resp_content_type:
+            resp_content_type = resp_content_type.lower()
         logid = response.headers.get("x-tt-logid")
         if stream and "event-stream" in resp_content_type:
             if is_async:
-                return response.aiter_lines(), logid
-            return response.iter_lines(), logid
+                return AsyncIteratorHTTPResponse(response, response.aiter_lines())
+            return IteratorHTTPResponse(response, response.iter_lines())
+
+        if resp_content_type and "audio" in resp_content_type:
+            return FileHTTPResponse(response)  # type: ignore
 
         code, msg, data = self._parse_requests_code_msg(method, url, response, data_field)
 
@@ -367,13 +399,13 @@ class Requester(object):
             if msg in COZE_PKCE_AUTH_ERROR_TYPE_ENUMS:
                 raise CozePKCEAuthError(CozePKCEAuthErrorType(msg), logid)
             raise CozeAPIError(code, msg, logid)
-        if isinstance(model, List):
-            item_model = model[0]
-            return [item_model.model_validate(item) for item in data]
+        if isinstance(cast, List):
+            item_cast = cast[0]
+            return [item_cast.model_validate(item) for item in data]
         else:
-            if model is None:
+            if cast is None:
                 return None
-            return model.model_validate(data)
+            return cast.model_validate(data)  # type: ignore
 
     def _parse_requests_code_msg(
         self, method: str, url: str, response: Response, data_field: str = "data"
