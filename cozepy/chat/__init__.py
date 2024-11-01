@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, AsyncIterator, Dict, List, Optional, Union, ov
 from typing_extensions import Literal
 
 from cozepy.auth import Auth
-from cozepy.model import AsyncStream, CozeModel, Stream
+from cozepy.model import AsyncIteratorHTTPResponse, AsyncStream, CozeModel, IteratorHTTPResponse, Stream
 from cozepy.request import Requester
 
 if TYPE_CHECKING:
@@ -588,7 +588,7 @@ class ChatClient(object):
                 body=body,
             )
 
-        steam_iters, logid = self._requester.request(
+        response: IteratorHTTPResponse[str] = self._requester.request(
             "post",
             url,
             True,
@@ -596,7 +596,7 @@ class ChatClient(object):
             params=params,
             body=body,
         )
-        return Stream(steam_iters, fields=["event", "data"], handler=_sync_chat_stream_handler, logid=logid)
+        return Stream(response.data, fields=["event", "data"], handler=_sync_chat_stream_handler, logid=response.logid)
 
     def retrieve(
         self,
@@ -660,7 +660,7 @@ class ChatClient(object):
                 body=body,
             )
 
-        steam_iters, logid = self._requester.request(
+        resp: IteratorHTTPResponse[str] = self._requester.request(
             "post",
             url,
             True,
@@ -668,7 +668,7 @@ class ChatClient(object):
             params=params,
             body=body,
         )
-        return Stream(steam_iters, fields=["event", "data"], handler=_sync_chat_stream_handler, logid=logid)
+        return Stream(resp.data, fields=["event", "data"], handler=_sync_chat_stream_handler, logid=resp.logid)
 
     def cancel(
         self,
@@ -856,14 +856,14 @@ class AsyncChatClient(object):
                 body=body,
             )
 
-        steam_iters, logid = await self._requester.arequest(
+        resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
             "post",
             url,
             True,
             None,
             body=body,
         )
-        return AsyncStream(steam_iters, fields=["event", "data"], handler=_async_chat_stream_handler, logid=logid)
+        return AsyncStream(resp.data, fields=["event", "data"], handler=_async_chat_stream_handler, logid=resp.logid)
 
     async def retrieve(
         self,
@@ -963,8 +963,10 @@ class AsyncChatClient(object):
         if not stream:
             return await self._requester.arequest("post", url, False, Chat, params=params, body=body)
 
-        steam_iters, logid = await self._requester.arequest("post", url, True, None, params=params, body=body)
-        return AsyncStream(steam_iters, fields=["event", "data"], handler=_async_chat_stream_handler, logid=logid)
+        resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
+            "post", url, True, None, params=params, body=body
+        )
+        return AsyncStream(resp.data, fields=["event", "data"], handler=_async_chat_stream_handler, logid=resp.logid)
 
     async def cancel(
         self,

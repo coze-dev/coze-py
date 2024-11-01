@@ -486,7 +486,7 @@ class AsyncDocumentsClient(object):
             "post",
             url,
             False,
-            model=None,
+            cast=None,
             headers=headers,
             body=body,
         )
@@ -515,7 +515,7 @@ class AsyncDocumentsClient(object):
             "post",
             url,
             False,
-            model=None,
+            cast=None,
             headers=headers,
             body=body,
         )

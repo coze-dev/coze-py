@@ -2,7 +2,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, AsyncIterator, Dict, Optional
 
 from cozepy.auth import Auth
-from cozepy.model import AsyncStream, CozeModel, Stream
+from cozepy.model import AsyncIteratorHTTPResponse, AsyncStream, CozeModel, IteratorHTTPResponse, Stream
 from cozepy.request import Requester
 
 if TYPE_CHECKING:
@@ -217,14 +217,16 @@ class WorkflowsRunsClient(object):
             "bot_id": bot_id,
             "ext": ext,
         }
-        steam_iters, logid = self._requester.request(
+        resp: IteratorHTTPResponse[str] = self._requester.request(
             "post",
             url,
             True,
             None,
             body=body,
         )
-        return Stream(steam_iters, fields=["id", "event", "data"], handler=_sync_workflow_stream_handler, logid=logid)
+        return Stream(
+            resp.data, fields=["id", "event", "data"], handler=_sync_workflow_stream_handler, logid=resp.logid
+        )
 
     def resume(
         self,
@@ -250,14 +252,16 @@ class WorkflowsRunsClient(object):
             "resume_data": resume_data,
             "interrupt_type": interrupt_type,
         }
-        steam_iters, logid = self._requester.request(
+        resp: IteratorHTTPResponse[str] = self._requester.request(
             "post",
             url,
             True,
             None,
             body=body,
         )
-        return Stream(steam_iters, fields=["id", "event", "data"], handler=_sync_workflow_stream_handler, logid=logid)
+        return Stream(
+            resp.data, fields=["id", "event", "data"], handler=_sync_workflow_stream_handler, logid=resp.logid
+        )
 
     @property
     def run_histories(self) -> "WorkflowsRunsRunHistoriesClient":
@@ -341,7 +345,7 @@ class AsyncWorkflowsRunsClient(object):
             "bot_id": bot_id,
             "ext": ext,
         }
-        steam_iters, logid = await self._requester.arequest(
+        resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
             "post",
             url,
             True,
@@ -349,7 +353,7 @@ class AsyncWorkflowsRunsClient(object):
             body=body,
         )
         async for item in AsyncStream(
-            steam_iters, fields=["id", "event", "data"], handler=_async_workflow_stream_handler, logid=logid
+            resp.data, fields=["id", "event", "data"], handler=_async_workflow_stream_handler, logid=resp.logid
         ):
             yield item
 
@@ -377,7 +381,7 @@ class AsyncWorkflowsRunsClient(object):
             "resume_data": resume_data,
             "interrupt_type": interrupt_type,
         }
-        steam_iters, logid = await self._requester.arequest(
+        resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
             "post",
             url,
             True,
@@ -385,7 +389,7 @@ class AsyncWorkflowsRunsClient(object):
             body=body,
         )
         async for item in AsyncStream(
-            steam_iters, fields=["id", "event", "data"], handler=_async_workflow_stream_handler, logid=logid
+            resp.data, fields=["id", "event", "data"], handler=_async_workflow_stream_handler, logid=resp.logid
         ):
             yield item
 
