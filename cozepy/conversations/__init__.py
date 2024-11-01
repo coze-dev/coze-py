@@ -10,6 +10,8 @@ class Conversation(CozeModel):
     id: str
     created_at: int
     meta_data: Dict[str, str]
+    # section_id is used to distinguish the context sections of the session history. The same section is one context.
+    last_section_id: str
 
 
 class ConversationsClient(object):
