@@ -42,6 +42,7 @@ pip install cozepy
 | chat with conversation       | [examples/chat_conversation_stream.py](examples/chat_conversation_stream.py) |
 | chat with local plugin       | [examples/chat_local_plugin.py](examples/chat_local_plugin.py)               |
 | chat with image              | [examples/chat_multimodal_stream.py](examples/chat_multimode_stream.py)      |
+| chat with audio              | [examples/chat_audio.py](examples/chat_audio.py)                             |
 | non-stream workflow chat     | [examples/workflow_no_stream.py](examples/workflow_no_stream.py)             |
 | stream workflow chat         | [examples/workflow_stream.py](examples/workflow_stream.py)                   |
 | async workflow run           | [examples/workflow_async.py](examples/workflow_async.py)                     |

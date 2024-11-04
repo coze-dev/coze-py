@@ -1,9 +1,16 @@
-from typing import Optional
+from enum import Enum
 
 from cozepy.auth import Auth
 from cozepy.model import FileHTTPResponse
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
+
+
+class AudioFormat(str, Enum):
+    WAV = "wav"
+    PCM = "pcm"
+    OGG_OPUS = "ogg_opus"
+    MP3 = "mp3"
 
 
 class SpeechClient(object):
@@ -17,7 +24,7 @@ class SpeechClient(object):
         self._requester = requester
 
     def create(
-        self, *, input: str, voice_id: str, response_format: Optional[str] = None, speed: Optional[float] = None
+        self, *, input: str, voice_id: str, response_format: AudioFormat = AudioFormat.MP3, speed: float = 1
     ) -> FileHTTPResponse:
         """
         Generate speech audio from input text with specified voice
@@ -49,7 +56,7 @@ class AsyncSpeechClient(object):
         self._requester = requester
 
     async def create(
-        self, *, input: str, voice_id: str, response_format: Optional[str] = None, speed: Optional[float] = None
+        self, *, input: str, voice_id: str, response_format: AudioFormat = AudioFormat.MP3, speed: float = 1
     ) -> FileHTTPResponse:
         """
         Generate speech audio from input text with specified voice
