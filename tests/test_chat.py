@@ -1,9 +1,12 @@
+import base64
+
 import httpx
 import pytest
 
-from cozepy import AsyncCoze, Chat, ChatEvent, ChatEventType, ChatStatus, Coze, TokenAuth
+from cozepy import AsyncCoze, Chat, ChatEvent, ChatEventType, ChatStatus, Coze, MessageObjectString, TokenAuth
 from cozepy.chat import ChatError, ChatUsage, Message
-from tests.config import make_stream_response
+from cozepy.util import random_hex, write_pcm_to_wav_file
+from tests.config import make_stream_response, read_file
 
 
 def make_chat(conversation_id: str = "conversation_id", status: ChatStatus = ChatStatus.IN_PROGRESS) -> Chat:
@@ -62,6 +65,20 @@ data:{}
         """)
 
 
+class TestMessageObjectString:
+    def test_build_image(self):
+        with pytest.raises(ValueError, match="file_id or file_url must be specified"):
+            MessageObjectString.build_image()
+
+    def test_build_file(self):
+        with pytest.raises(ValueError, match="file_id or file_url must be specified"):
+            MessageObjectString.build_file()
+
+    def test_build_audio(self):
+        with pytest.raises(ValueError, match="file_id or file_url must be specified"):
+            MessageObjectString.build_audio()
+
+
 @pytest.mark.respx(base_url="https://api.coze.com")
 class TestChat:
     def test_sync_chat_create(self, respx_mock):
@@ -101,6 +118,31 @@ class TestChat:
             ),
         )
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
+
+    def test_sync_chat_audio_stream(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        chat_audio_stream_resp = make_stream_response(read_file("testdata/chat_audio_stream_resp.txt"))
+        respx_mock.post("/v3/chat").mock(chat_audio_stream_resp)
+        events = list(
+            coze.chat.stream(
+                bot_id="bot",
+                user_id="user",
+                additional_messages=[
+                    Message.build_user_question_objects(
+                        [
+                            MessageObjectString.build_audio(file_id="fake file id"),
+                        ]
+                    ),
+                ],
+            )
+        )
+
+        assert events
+        assert len(events) == 7
+
+        assert base64.b64decode(events[-1].message.content)
+        write_pcm_to_wav_file(base64.b64decode(events[-1].message.content), f"{random_hex(10)}.wav")
 
     def test_sync_chat_stream_error(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
@@ -260,6 +302,32 @@ class TestAsyncChatConversationMessage:
             ),
         )
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
+
+    async def test_sync_chat_audio_stream(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        chat_audio_stream_resp = make_stream_response(read_file("testdata/chat_audio_stream_resp.txt"))
+        respx_mock.post("/v3/chat").mock(chat_audio_stream_resp)
+        events = [
+            event
+            async for event in coze.chat.stream(
+                bot_id="bot",
+                user_id="user",
+                additional_messages=[
+                    Message.build_user_question_objects(
+                        [
+                            MessageObjectString.build_audio(file_id="fake file id"),
+                        ]
+                    ),
+                ],
+            )
+        ]
+
+        assert events
+        assert len(events) == 7
+
+        assert base64.b64decode(events[-1].message.content)
+        write_pcm_to_wav_file(base64.b64decode(events[-1].message.content), f"{random_hex(10)}.wav")
 
     async def test_async_chat_stream_error(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))

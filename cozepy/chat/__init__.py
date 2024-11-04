@@ -67,6 +67,13 @@ class MessageContentType(str, Enum):
     # 卡片。此枚举值仅在接口响应中出现，不支持作为入参。
     CARD = "card"
 
+    # If there is a voice message in the input message, the conversation.audio.delta event will be returned in the
+    # streaming response event. The data of this event corresponds to the Message Object. The content_type is audio,
+    # and the content is a PCM audio clip with a sampling rate of 24kHz, raw 16 bit, 1 channel, little-endian.
+    # 如果入参的消息中有语音消息，那么流式响应事件中，会返回 conversation.audio.delta 事件，此事件的 data 对应 Message Object。
+    # content_type 为 audio，content 为采样率 24kHz，raw 16 bit, 1 channel, little-endian 的 pcm 音频片段。
+    AUDIO = "audio"
+
 
 class MessageObjectStringType(str, Enum):
     """
@@ -76,6 +83,7 @@ class MessageObjectStringType(str, Enum):
     TEXT = "text"
     FILE = "file"
     IMAGE = "image"
+    AUDIO = "audio"
 
 
 class MessageObjectString(CozeModel):
@@ -111,6 +119,13 @@ class MessageObjectString(CozeModel):
             raise ValueError("file_id or file_url must be specified")
 
         return MessageObjectString(type=MessageObjectStringType.FILE, file_id=file_id, file_url=file_url)
+
+    @staticmethod
+    def build_audio(file_id: Optional[str] = None, file_url: Optional[str] = None):
+        if not file_id and not file_url:
+            raise ValueError("file_id or file_url must be specified")
+
+        return MessageObjectString(type=MessageObjectStringType.AUDIO, file_id=file_id, file_url=file_url)
 
 
 class Message(CozeModel):
@@ -201,6 +216,7 @@ class ChatError(CozeModel):
 
 
 class ChatRequiredActionType(str, Enum):
+    UNKNOWN = ""
     SUBMIT_TOOL_OUTPUTS = "submit_tool_outputs"
 
 
@@ -324,6 +340,13 @@ class ChatEventType(str, Enum):
     # 对话中断，需要使用方上报工具的执行结果。
     CONVERSATION_CHAT_REQUIRES_ACTION = "conversation.chat.requires_action"
 
+    # If there is a voice message in the input message, the conversation.audio.delta event will be returned in the
+    # streaming response event. The data of this event corresponds to the Message Object. The content_type is audio,
+    # and the content is a PCM audio clip with a sampling rate of 24kHz, raw 16 bit, 1 channel, little-endian.
+    # 如果入参的消息中有语音消息，那么流式响应事件中，会返回 conversation.audio.delta 事件，此事件的 data 对应 Message Object。
+    # content_type 为 audio，content 为采样率 24kHz，raw 16 bit, 1 channel, little-endian 的 pcm 音频片段。
+    CONVERSATION_AUDIO_DELTA = "conversation.audio.delta"
+
     # Error events during the streaming response process. For detailed explanations of code and msg, please refer to Error codes.
     # 流式响应过程中的错误事件。关于 code 和 msg 的详细说明，可参考错误码。
     ERROR = "error"
@@ -351,6 +374,7 @@ def _chat_stream_handler(data: Dict, logid: str, is_async: bool = False) -> Chat
     elif event in [
         ChatEventType.CONVERSATION_MESSAGE_DELTA,
         ChatEventType.CONVERSATION_MESSAGE_COMPLETED,
+        ChatEventType.CONVERSATION_AUDIO_DELTA,
     ]:
         return ChatEvent(event=event, message=Message.model_validate_json(event_data))
     elif event in [
@@ -438,6 +462,7 @@ class ChatClient(object):
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
         conversation_id: Optional[str] = None,
+        **kwargs,
     ) -> Stream[ChatEvent]:
         """
         Call the Chat API with streaming to send messages to a published Coze bot.
@@ -465,6 +490,7 @@ class ChatClient(object):
             auto_save_history=auto_save_history,
             meta_data=meta_data,
             conversation_id=conversation_id,
+            **kwargs,
         )
 
     def create_and_poll(
@@ -561,6 +587,7 @@ class ChatClient(object):
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
         conversation_id: Optional[str] = None,
+        **kwargs,
     ) -> Union[Chat, Stream[ChatEvent]]:
         """
         Create a conversation.
@@ -579,6 +606,7 @@ class ChatClient(object):
             "auto_save_history": auto_save_history,
             "meta_data": meta_data,
         }
+        headers: Optional[dict] = kwargs.get("headers")
         if not stream:
             return self._requester.request(
                 "post",
@@ -586,6 +614,7 @@ class ChatClient(object):
                 False,
                 Chat,
                 params=params,
+                headers=headers,
                 body=body,
             )
 
@@ -595,6 +624,7 @@ class ChatClient(object):
             True,
             None,
             params=params,
+            headers=headers,
             body=body,
         )
         return Stream(response.data, fields=["event", "data"], handler=_sync_chat_stream_handler, logid=response.logid)

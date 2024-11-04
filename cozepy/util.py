@@ -2,6 +2,7 @@ import base64
 import hashlib
 import random
 import sys
+import wave
 
 if sys.version_info < (3, 10):
 
@@ -41,3 +42,23 @@ def remove_url_trailing_slash(base_url: str) -> str:
     if base_url:
         return base_url.rstrip("/")
     return base_url
+
+
+def write_pcm_to_wav_file(
+    pcm_data: bytes, filepath: str, channels: int = 1, sample_width: int = 2, frame_rate: int = 24000
+):
+    """
+    Save PCM binary data to WAV file
+
+    :param pcm_data: PCM binary data (24kHz, 16-bit, 1 channel, little-endian)
+    :param output_filename: Output WAV filename
+    """
+
+    with wave.open(filepath, "wb") as wav_file:
+        # Set WAV file parameters
+        wav_file.setnchannels(channels)
+        wav_file.setsampwidth(sample_width)
+        wav_file.setframerate(frame_rate)
+
+        # Write PCM data
+        wav_file.writeframes(pcm_data)
