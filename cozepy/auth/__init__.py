@@ -10,7 +10,7 @@ from cozepy.config import COZE_CN_BASE_URL, COZE_COM_BASE_URL
 from cozepy.exception import CozePKCEAuthError, CozePKCEAuthErrorType
 from cozepy.model import CozeModel
 from cozepy.request import Requester
-from cozepy.util import gen_s256_code_challenge, random_hex
+from cozepy.util import gen_s256_code_challenge, random_hex, remove_url_trailing_slash
 
 
 class OAuthToken(CozeModel):
@@ -71,7 +71,7 @@ class Scope(CozeModel):
 class OAuthApp(object):
     def __init__(self, client_id: str, base_url: str, www_base_url: str):
         self._client_id = client_id
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._api_endpoint = urlparse(base_url).netloc
         self._www_base_url = www_base_url
         self._requester = Requester()
@@ -142,7 +142,7 @@ class WebOAuthApp(OAuthApp):
         """
         self._client_id = client_id
         self._client_secret = client_secret
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._api_endpoint = urlparse(base_url).netloc
         self._token = ""
         super().__init__(client_id, base_url, www_base_url=www_base_url)
@@ -204,7 +204,7 @@ class AsyncWebOAuthApp(OAuthApp):
         """
         self._client_id = client_id
         self._client_secret = client_secret
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._api_endpoint = urlparse(base_url).netloc
         self._token = ""
         super().__init__(client_id, base_url, www_base_url=www_base_url)
@@ -266,7 +266,7 @@ class JWTOAuthApp(OAuthApp):
         :param base_url:
         """
         self._client_id = client_id
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._api_endpoint = urlparse(base_url).netloc
         self._token = ""
         self._private_key = private_key
@@ -319,7 +319,7 @@ class AsyncJWTOAuthApp(OAuthApp):
         :param base_url:
         """
         self._client_id = client_id
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._api_endpoint = urlparse(base_url).netloc
         self._token = ""
         self._private_key = private_key
@@ -733,7 +733,7 @@ class JWTAuth(Auth):
 
         self._client_id = client_id
         self._ttl = ttl
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._token = None
         self._oauth_cli = JWTOAuthApp(self._client_id, private_key, public_key_id, base_url=self._base_url)
 

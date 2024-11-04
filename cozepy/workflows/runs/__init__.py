@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, AsyncIterator, Dict, Optional
 from cozepy.auth import Auth
 from cozepy.model import AsyncIteratorHTTPResponse, AsyncStream, CozeModel, IteratorHTTPResponse, Stream
 from cozepy.request import Requester
+from cozepy.util import remove_url_trailing_slash
 
 if TYPE_CHECKING:
     from .run_histories import AsyncWorkflowsRunsRunHistoriesClient, WorkflowsRunsRunHistoriesClient
@@ -146,7 +147,7 @@ def _async_workflow_stream_handler(data: Dict[str, str], logid: str) -> Workflow
 
 class WorkflowsRunsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
 
@@ -274,7 +275,7 @@ class WorkflowsRunsClient(object):
 
 class AsyncWorkflowsRunsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
 

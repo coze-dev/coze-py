@@ -8,6 +8,7 @@ from typing_extensions import Literal
 from cozepy.auth import Auth
 from cozepy.model import AsyncIteratorHTTPResponse, AsyncStream, CozeModel, IteratorHTTPResponse, Stream
 from cozepy.request import Requester
+from cozepy.util import remove_url_trailing_slash
 
 if TYPE_CHECKING:
     from .message import AsyncChatMessagesClient, ChatMessagesClient
@@ -383,7 +384,7 @@ class ToolOutput(CozeModel):
 
 class ChatClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
         self._messages: Optional[ChatMessagesClient] = None
@@ -708,7 +709,7 @@ class ChatClient(object):
 
 class AsyncChatClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
         self._messages: Optional[AsyncChatMessagesClient] = None

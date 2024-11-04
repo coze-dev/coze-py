@@ -4,7 +4,7 @@ from typing import List, Optional
 from cozepy.auth import Auth
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
-from cozepy.util import base64_encode_string
+from cozepy.util import base64_encode_string, remove_url_trailing_slash
 
 
 class DocumentChunkStrategy(CozeModel):
@@ -268,7 +268,7 @@ class _PrivateListDocumentsData(CozeModel, NumberPagedResponse[Document]):
 
 class DocumentsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
 
@@ -418,7 +418,7 @@ class DocumentsClient(object):
 
 class AsyncDocumentsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
 

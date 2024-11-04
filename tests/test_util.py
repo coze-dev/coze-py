@@ -2,7 +2,8 @@ from typing import Any, AsyncIterator, List
 
 import pytest
 
-from cozepy.util import anext, base64_encode_string
+from cozepy import COZE_COM_BASE_URL
+from cozepy.util import anext, base64_encode_string, remove_url_trailing_slash
 
 
 class ListAsyncIterator:
@@ -36,3 +37,11 @@ async def test_anext():
 
     with pytest.raises(StopAsyncIteration):
         await anext(async_iterator)
+
+
+def test_remove_url_trailing_slash():
+    assert remove_url_trailing_slash(None) is None
+    assert remove_url_trailing_slash(COZE_COM_BASE_URL) == COZE_COM_BASE_URL
+    assert remove_url_trailing_slash(COZE_COM_BASE_URL + "/") == COZE_COM_BASE_URL
+    assert remove_url_trailing_slash(COZE_COM_BASE_URL + "//") == COZE_COM_BASE_URL
+    assert remove_url_trailing_slash(COZE_COM_BASE_URL + "///") == COZE_COM_BASE_URL

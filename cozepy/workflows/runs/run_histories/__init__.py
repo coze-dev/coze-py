@@ -4,6 +4,7 @@ from typing import Optional
 from cozepy.auth import Auth
 from cozepy.model import CozeModel
 from cozepy.request import Requester
+from cozepy.util import remove_url_trailing_slash
 
 
 class WorkflowExecuteStatus(str, Enum):
@@ -76,7 +77,7 @@ class WorkflowRunHistory(CozeModel):
 
 class WorkflowsRunsRunHistoriesClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
 
@@ -97,7 +98,7 @@ class WorkflowsRunsRunHistoriesClient(object):
 
 class AsyncWorkflowsRunsRunHistoriesClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
 
