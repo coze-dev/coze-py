@@ -46,6 +46,7 @@ pip install cozepy
 | stream workflow chat         | [examples/workflow_stream.py](examples/workflow_stream.py)                   |
 | async workflow run           | [examples/workflow_async.py](examples/workflow_async.py)                     |
 | conversation                 | [examples/conversation.py](examples/conversation.py)                         |
+| workspace                    | [examples/workspace.py](examples/workspace.py)                               |
 | timeout config               | [examples/timeout.py](examples/timeout.py)                                   |
 | setup coze log config        | [examples/log.py](examples/log.py)                                           |
 | how to handle exception      | [examples/exception.py](examples/exception.py)                               |

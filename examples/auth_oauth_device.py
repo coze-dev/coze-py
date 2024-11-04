@@ -45,7 +45,7 @@ device_code = device_oauth_app.get_device_code()
 # The returned device_code contains an authorization link. Developers need to guide users
 # to open up this link.
 # open device_code.verification_url
-
+print("Please open url:", device_code.verification_url)
 
 # The developers then need to use the device_code to poll Coze's interface to obtain the token.
 # The SDK has encapsulated this part of the code in and handled the different returned error
@@ -55,6 +55,7 @@ try:
         device_code=device_code.device_code,
         poll=True,
     )
+    print("Get access token:", oauth_token.access_token)
 except CozePKCEAuthError as e:
     if e.error == CozePKCEAuthErrorType.ACCESS_DENIED:
         # The user rejected the authorization.
@@ -74,4 +75,4 @@ except CozePKCEAuthError as e:
 coze = Coze(auth=TokenAuth(oauth_token.access_token), base_url=coze_api_base)
 
 # When the token expires, you can also refresh and re-obtain the token
-oauth_token = device_oauth_app.refresh_access_token(oauth_token.refresh_token)
+# oauth_token = device_oauth_app.refresh_access_token(oauth_token.refresh_token)
