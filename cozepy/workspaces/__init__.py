@@ -4,6 +4,7 @@ from typing import List, Optional
 from cozepy.auth import Auth
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
+from cozepy.util import remove_url_trailing_slash
 
 
 class WorkspaceRoleType(str, Enum):
@@ -50,7 +51,7 @@ class WorkspacesClient(object):
     """
 
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
 
@@ -85,7 +86,7 @@ class AsyncWorkspacesClient(object):
     """
 
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
 

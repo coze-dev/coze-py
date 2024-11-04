@@ -35,3 +35,9 @@ def gen_s256_code_challenge(code_verifier):
     # 3. remove =
     code_challenge = code_challenge.rstrip("=")
     return code_challenge
+
+
+def remove_url_trailing_slash(base_url: str) -> str:
+    if base_url:
+        return base_url.rstrip("/")
+    return base_url

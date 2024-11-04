@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Optional
 from cozepy.auth import Auth
 from cozepy.config import COZE_COM_BASE_URL
 from cozepy.request import AsyncHTTPClient, Requester, SyncHTTPClient
+from cozepy.util import remove_url_trailing_slash
 
 if TYPE_CHECKING:
     from .audio import AsyncAudioClient, AudioClient
@@ -23,7 +24,7 @@ class Coze(object):
         http_client: Optional[SyncHTTPClient] = None,
     ):
         self._auth = auth
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._requester = Requester(auth=auth, sync_client=http_client)
 
         # service client
@@ -109,7 +110,7 @@ class AsyncCoze(object):
         http_client: Optional[AsyncHTTPClient] = None,
     ):
         self._auth = auth
-        self._base_url = base_url
+        self._base_url = remove_url_trailing_slash(base_url)
         self._requester = Requester(auth=auth, async_client=http_client)
 
         # service client
