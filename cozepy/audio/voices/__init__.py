@@ -1,5 +1,6 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
+from cozepy import AudioFormat
 from cozepy.auth import Auth
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
@@ -57,6 +58,49 @@ class VoicesClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
+
+    def clone(
+        self,
+        *,
+        voice_name: str,
+        file: Union[str],
+        audio_format: AudioFormat,
+        language: Optional[str] = None,
+        voice_id: Optional[str] = None,
+        preview_text: Optional[str] = None,
+        text: Optional[str] = None,
+        **kwargs,
+    ) -> Voice:
+        """
+        Clone the user's voice, and use the cloned voice to create voice speech
+        Each Volcano account is assigned a voice by default. A voice can be cloned 10 times,
+        and repeated cloning of the same voice will overwrite it.
+
+        :param voice_name: The name of the cloned voice, cannot be empty, and the length is greater than 6.
+        :param file: Audio Files.
+        :param audio_format: Only "wav", "mp3", "ogg", "m4a", "aac", "pcm" formats are supported.
+        :param language: Only supports "zh", "en" "ja" "es" "id" "pt" languages.
+        :param voice_id: If it is passed in, it will be trained on the original voice, covering the previously
+        trained voice.
+        :param preview_text: If a text is passed in, a preview audio will be generated based on the text.
+         Otherwise, the default text "你好，我是你的专属AI克隆声音，希望未来可以一起好好相处哦".
+        :param text: Users can recite the text, and the service will compare the audio with the text.
+         If the difference is too large, an error will be returned.
+        :return: Voice of the cloned.
+        """
+        url = f"{self._base_url}/v1/audio/voices/clone"
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {
+            "voice_name": voice_name,
+            "audio_format": audio_format,
+            "language": language,
+            "voice_id": voice_id,
+            "preview_text": preview_text,
+            "text": text,
+        }
+        files = {"file": file}
+
+        return self._requester.request("post", url, False, Voice, headers=headers, body=body, files=files)
 
     def list(
         self,
