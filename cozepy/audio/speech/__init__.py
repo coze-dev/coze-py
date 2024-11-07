@@ -13,6 +13,15 @@ class AudioFormat(str, Enum):
     MP3 = "mp3"
 
 
+class LanguageCode(str, Enum):
+    ZH = "zh"
+    EN = "en"
+    JA = "ja"
+    ES = "es"
+    ID = "id"
+    PT = "pt"
+
+
 class SpeechClient(object):
     """
     speech service client.

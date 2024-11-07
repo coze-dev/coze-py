@@ -80,6 +80,15 @@ class HTTPRequest(CozeModel, Generic[T]):
 
     @property
     def as_httpx(self) -> httpx.Request:
+        if self.files and self.json_body:
+            return httpx.Request(
+                method=self.method,
+                url=self.url,
+                params=self.params,
+                headers=self.headers,
+                data=self.json_body,
+                files=self.files,
+            )
         return httpx.Request(
             method=self.method,
             url=self.url,
