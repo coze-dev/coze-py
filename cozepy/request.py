@@ -19,7 +19,7 @@ from cozepy.config import DEFAULT_CONNECTION_LIMITS, DEFAULT_TIMEOUT
 from cozepy.exception import COZE_PKCE_AUTH_ERROR_TYPE_ENUMS, CozeAPIError, CozePKCEAuthError, CozePKCEAuthErrorType
 from cozepy.log import log_debug, log_warning
 from cozepy.model import AsyncIteratorHTTPResponse, FileHTTPResponse, HTTPRequest, IteratorHTTPResponse
-from cozepy.version import user_agent
+from cozepy.version import coze_client_user_agent, user_agent
 
 if TYPE_CHECKING:
     from cozepy.auth import Auth
@@ -74,6 +74,7 @@ class Requester(object):
         if headers is None:
             headers = {}
         headers["User-Agent"] = user_agent()
+        headers["X-Coze-Client-User-Agent"] = coze_client_user_agent()
         if self._auth:
             self._auth.authentication(headers)
 
