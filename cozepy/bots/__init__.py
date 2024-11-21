@@ -189,21 +189,17 @@ class BotsClient(object):
             body=body,
         )
 
-    def publish(
-        self,
-        *,
-        bot_id: str,
-        connector_ids: Optional[List[str]] = None,
-    ) -> Bot:
+    def publish(self, *, bot_id: str, connector_ids: Optional[List[str]] = None, **kwargs) -> Bot:
         url = f"{self._base_url}/v1/bot/publish"
+        headers: Optional[dict] = kwargs.get("headers")
         if not connector_ids:
-            connector_ids = ["API"]
+            connector_ids = ["1024"]
         body = {
             "bot_id": bot_id,
             "connector_ids": connector_ids,
         }
 
-        return self._requester.request("post", url, False, Bot, body=body)
+        return self._requester.request("post", url, False, Bot, headers=headers, body=body)
 
     def retrieve(self, *, bot_id: str) -> Bot:
         """

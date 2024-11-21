@@ -56,6 +56,13 @@ class WorkspacesClient(object):
         self._requester = requester
 
     def list(self, *, page_num: int = 1, page_size: int = 20, headers=None) -> NumberPaged[Workspace]:
+        """
+
+        :param page_num:
+        :param page_size:
+        :param headers:
+        :return:
+        """
         url = f"{self._base_url}/v1/workspaces"
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
