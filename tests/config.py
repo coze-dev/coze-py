@@ -15,6 +15,6 @@ def read_file(path: str):
 def make_stream_response(content: str) -> httpx.Response:
     return httpx.Response(
         200,
-        headers={"content-type": "text/event-stream"},
+        headers={"content-type": "text/event-stream", "x-tt-logid": "logid"},
         content=content,
     )

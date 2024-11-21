@@ -357,6 +357,7 @@ class ChatEventType(str, Enum):
 
 
 class ChatEvent(CozeModel):
+    logid: str
     event: ChatEventType
     chat: Optional[Chat] = None
     message: Optional[Message] = None
@@ -376,7 +377,7 @@ def _chat_stream_handler(data: Dict, logid: str, is_async: bool = False) -> Chat
         ChatEventType.CONVERSATION_MESSAGE_COMPLETED,
         ChatEventType.CONVERSATION_AUDIO_DELTA,
     ]:
-        return ChatEvent(event=event, message=Message.model_validate_json(event_data))
+        return ChatEvent(logid=logid, event=event, message=Message.model_validate_json(event_data))
     elif event in [
         ChatEventType.CONVERSATION_CHAT_CREATED,
         ChatEventType.CONVERSATION_CHAT_IN_PROGRESS,
@@ -384,7 +385,7 @@ def _chat_stream_handler(data: Dict, logid: str, is_async: bool = False) -> Chat
         ChatEventType.CONVERSATION_CHAT_FAILED,
         ChatEventType.CONVERSATION_CHAT_REQUIRES_ACTION,
     ]:
-        return ChatEvent(event=event, chat=Chat.model_validate_json(event_data))
+        return ChatEvent(logid=logid, event=event, chat=Chat.model_validate_json(event_data))
     else:
         raise ValueError(f"invalid chat.event: {event}, {data}")
 

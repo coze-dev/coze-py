@@ -27,18 +27,22 @@ class RoomsClient(object):
         self._auth = auth
         self._requester = requester
 
-    def create(self, *, bot_id: str, voice_id: str) -> CreateRoomResult:
+    def create(
+        self, *, bot_id: str, voice_id: Optional[str] = None, conversation_id: Optional[str] = None
+    ) -> CreateRoomResult:
         """
         create rtc room
 
         :param bot_id: The id of the bot.
         :param voice_id: The voice id of the voice.
-        :return:
+        :param conversation_id: The id of the conversation.
+        :return: create room result
         """
         url = f"{self._base_url}/v1/audio/rooms"
         body = {
             "bot_id": bot_id,
             "voice_id": voice_id,
+            "conversation_id": conversation_id,
         }
         return self._requester.request("post", url, stream=False, cast=CreateRoomResult, body=body)
 
@@ -53,7 +57,9 @@ class AsyncRoomsClient(object):
         self._auth = auth
         self._requester = requester
 
-    async def create(self, *, bot_id: str, voice_id: Optional[str] = None) -> CreateRoomResult:
+    async def create(
+        self, *, bot_id: str, voice_id: Optional[str] = None, conversation_id: Optional[str] = None
+    ) -> CreateRoomResult:
         """
         create rtc room
 
@@ -65,5 +71,6 @@ class AsyncRoomsClient(object):
         body = {
             "bot_id": bot_id,
             "voice_id": voice_id,
+            "conversation_id": conversation_id,
         }
         return await self._requester.arequest("post", url, stream=False, cast=CreateRoomResult, body=body)
