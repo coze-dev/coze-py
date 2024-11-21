@@ -102,6 +102,7 @@ class TestChat:
         assert events
         assert len(events) == 9
         assert events[0] == ChatEvent(
+            logid="logid",
             event=ChatEventType.CONVERSATION_CHAT_CREATED,
             chat=Chat(
                 id="7382159487131697202",
@@ -207,6 +208,7 @@ data:{}
         assert events
         assert len(events) == 9
         assert events[0] == ChatEvent(
+            logid="logid",
             event=ChatEventType.CONVERSATION_CHAT_CREATED,
             chat=Chat(
                 id="7382159487131697202",
@@ -286,6 +288,7 @@ class TestAsyncChatConversationMessage:
         assert events
         assert len(events) == 9
         assert events[0] == ChatEvent(
+            logid="logid",
             event=ChatEventType.CONVERSATION_CHAT_CREATED,
             chat=Chat(
                 id="7382159487131697202",
@@ -395,6 +398,7 @@ data:{}
         assert events
         assert len(events) == 9
         assert events[0] == ChatEvent(
+            logid="logid",
             event=ChatEventType.CONVERSATION_CHAT_CREATED,
             chat=Chat(
                 id="7382159487131697202",
