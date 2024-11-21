@@ -174,14 +174,16 @@ class NumberPaged(PagedBase[T]):
         yield self
 
         page_num = self.page_num
-        while self.total > page_num * self.page_size:
+        current_page = self
+        while NumberPaged._is_page_has_more(current_page):
             page_num += 1
-            yield NumberPaged(
+            current_page = NumberPaged(
                 page_num=page_num,
                 page_size=self.page_size,
                 requestor=self._requestor,
                 request_maker=self._request_maker,
             )
+            yield current_page
 
     @property
     def items(self) -> List[T]:
@@ -189,11 +191,7 @@ class NumberPaged(PagedBase[T]):
 
     @property
     def has_more(self) -> bool:
-        if self._has_more is not None:
-            return self._has_more
-        if self._items is not None and self._items and len(self._items) >= self.page_size:
-            return True
-        return False
+        return NumberPaged._is_page_has_more(self)
 
     @property
     def total(self) -> int:
@@ -207,6 +205,16 @@ class NumberPaged(PagedBase[T]):
         self._total = res.get_total()
         self._has_more = res.get_has_more()
         self._items = res.get_items()
+
+    @staticmethod
+    def _is_page_has_more(page: "NumberPaged[T]") -> bool:
+        if page._has_more is not None:
+            return page._has_more
+        if page._items is not None and page._items and len(page._items) >= page.page_size:
+            return True
+        if page.total is not None and page.total > page.page_num * page.page_size:
+            return True
+        return False
 
 
 class AsyncNumberPaged(AsyncPagedBase[T]):
@@ -236,7 +244,8 @@ class AsyncNumberPaged(AsyncPagedBase[T]):
         yield self
 
         page_num = self.page_num
-        while self.total > page_num * self.page_size:
+        current_page = self
+        while AsyncNumberPaged._is_page_has_more(current_page):
             page_num += 1
             page: AsyncNumberPaged[T] = await AsyncNumberPaged.build(
                 page_num=page_num,
@@ -244,6 +253,7 @@ class AsyncNumberPaged(AsyncPagedBase[T]):
                 requestor=self._requestor,
                 request_maker=self._request_maker,
             )
+            current_page = page
             yield page
 
     @property
@@ -252,11 +262,7 @@ class AsyncNumberPaged(AsyncPagedBase[T]):
 
     @property
     def has_more(self) -> bool:
-        if self._has_more is not None:
-            return self._has_more
-        if self._items is not None and self._items and len(self._items) >= self.page_size:
-            return True
-        return False
+        return AsyncNumberPaged._is_page_has_more(self)
 
     @property
     def total(self) -> int:
@@ -274,6 +280,16 @@ class AsyncNumberPaged(AsyncPagedBase[T]):
         self._total = res.get_total()
         self._has_more = res.get_has_more()
         self._items = res.get_items()
+
+    @staticmethod
+    def _is_page_has_more(page: "AsyncNumberPaged[T]") -> bool:
+        if page._has_more is not None:
+            return page._has_more
+        if page._items is not None and page._items and len(page._items) >= page.page_size:
+            return True
+        if page.total is not None and page.total > page.page_num * page.page_size:
+            return True
+        return False
 
     @staticmethod
     async def build(
