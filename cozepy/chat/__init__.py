@@ -207,6 +207,9 @@ class ChatStatus(str, Enum):
     # The session is interrupted and requires further processing.
     REQUIRES_ACTION = "requires_action"
 
+    # The session is canceled.
+    CANCELED = "canceled"
+
 
 class ChatError(CozeModel):
     # The error code. An integer type. 0 indicates success, other values indicate failure.
