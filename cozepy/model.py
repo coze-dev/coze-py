@@ -210,10 +210,11 @@ class NumberPaged(PagedBase[T]):
     def _is_page_has_more(page: "NumberPaged[T]") -> bool:
         if page._has_more is not None:
             return page._has_more
+        if page._total is not None:
+            return page._total > page.page_num * page.page_size
         if page._items is not None and page._items and len(page._items) >= page.page_size:
             return True
-        if page.total is not None and page.total > page.page_num * page.page_size:
-            return True
+
         return False
 
 
@@ -285,9 +286,9 @@ class AsyncNumberPaged(AsyncPagedBase[T]):
     def _is_page_has_more(page: "AsyncNumberPaged[T]") -> bool:
         if page._has_more is not None:
             return page._has_more
-        if page._items is not None and page._items and len(page._items) >= page.page_size:
-            return True
-        if page.total is not None and page.total > page.page_num * page.page_size:
+        if page._total is not None:
+            return page._total > page.page_num * page.page_size
+        if page._total is not None and page._items and len(page._items) >= page.page_size:
             return True
         return False
 
