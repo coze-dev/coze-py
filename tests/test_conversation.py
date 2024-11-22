@@ -3,12 +3,16 @@ import time
 import httpx
 import pytest
 
-from cozepy import AsyncCoze, Conversation, Coze, TokenAuth
+from cozepy import AsyncCoze, Conversation, Coze, Section, TokenAuth
 from cozepy.util import random_hex
 
 
 def make_conversation():
     return Conversation(id=random_hex(10), created_at=int(time.time()), meta_data={}, last_section_id=random_hex(10))
+
+
+def make_section(conversation_id: str):
+    return Section(id=random_hex(10), conversation_id=conversation_id)
 
 
 def mock_list_conversation(respx_mock, has_more, page):
@@ -92,6 +96,20 @@ class TestConversation:
         assert res.id == conversation.id
         assert res.last_section_id == conversation.last_section_id
 
+    def test_sync_conversations_clear(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        conversation = make_conversation()
+        section = make_section(conversation.id)
+        respx_mock.post(f"/v1/conversations/{conversation.id}/clear").mock(
+            httpx.Response(200, json={"data": section.model_dump()})
+        )
+
+        res = coze.conversations.clear(conversation_id=conversation.id)
+        assert res
+        assert res.id == section.id
+        assert res.conversation_id == section.conversation_id
+
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
@@ -152,3 +170,17 @@ class TestAsyncConversation:
         assert res
         assert res.id == conversation.id
         assert res.last_section_id == conversation.last_section_id
+
+    async def test_async_conversations_clear(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        conversation = make_conversation()
+        section = make_section(conversation.id)
+        respx_mock.post(f"/v1/conversations/{conversation.id}/clear").mock(
+            httpx.Response(200, json={"data": section.model_dump()})
+        )
+
+        res = await coze.conversations.clear(conversation_id=conversation.id)
+        assert res
+        assert res.id == section.id
+        assert res.conversation_id == section.conversation_id
