@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from cozepy.auth import Auth
 from cozepy.chat import Message
@@ -62,7 +62,7 @@ class ConversationsClient(object):
         :return: Conversation object
         """
         url = f"{self._base_url}/v1/conversation/create"
-        body = {
+        body: Dict[str, Any] = {
             "messages": [i.model_dump() for i in messages] if messages and len(messages) > 0 else [],
             "meta_data": meta_data,
         }
@@ -157,7 +157,7 @@ class AsyncConversationsClient(object):
         :return: Conversation object
         """
         url = f"{self._base_url}/v1/conversation/create"
-        body = {
+        body: Dict[str, Any] = {
             "messages": [i.model_dump() for i in messages] if messages and len(messages) > 0 else [],
             "meta_data": meta_data,
         }
