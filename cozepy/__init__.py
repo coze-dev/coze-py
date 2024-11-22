@@ -55,7 +55,7 @@ from .config import (
     DEFAULT_CONNECTION_LIMITS,
     DEFAULT_TIMEOUT,
 )
-from .conversations import Conversation
+from .conversations import Conversation, Section
 from .coze import AsyncCoze, Coze
 from .exception import CozeAPIError, CozeError, CozeInvalidEventError, CozePKCEAuthError, CozePKCEAuthErrorType
 from .files import File
@@ -151,6 +151,7 @@ __all__ = [
     "ToolOutput",
     # conversations
     "Conversation",
+    "Section",
     # files
     "File",
     # knowledge.documents

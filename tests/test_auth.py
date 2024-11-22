@@ -199,7 +199,7 @@ class TestJWTOAuthApp:
             )
         )
 
-        token = app.get_access_token(100, scope=Scope.build_bot_chat(["bot id"]))
+        token = app.get_access_token(100, scope=Scope.build_bot_chat(["bot id"]), session_name="session_name")
         assert token.access_token == mock_token
 
 

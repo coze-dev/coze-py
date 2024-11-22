@@ -273,7 +273,9 @@ class JWTOAuthApp(OAuthApp):
         self._public_key_id = public_key_id
         super().__init__(client_id, base_url, www_base_url="")
 
-    def get_access_token(self, ttl: int = 900, scope: Optional[Scope] = None) -> OAuthToken:
+    def get_access_token(
+        self, ttl: int = 900, scope: Optional[Scope] = None, session_name: Optional[str] = None
+    ) -> OAuthToken:
         """
         Get the token by jwt with jwt auth flow.
 
@@ -281,8 +283,9 @@ class JWTOAuthApp(OAuthApp):
         The default value is 900 seconds and the maximum value you can set is 86399 seconds,
         which is 24 hours.
         :param scope:
+        :param session_name: Isolate different sub-resources under the same jwt account
         """
-        jwt_token = self._gen_jwt(3600)
+        jwt_token = self._gen_jwt(3600, session_name)
         url = f"{self._base_url}/api/permission/oauth2/token"
         headers = {"Authorization": f"Bearer {jwt_token}"}
         body = {
@@ -292,7 +295,7 @@ class JWTOAuthApp(OAuthApp):
         }
         return self._requester.request("post", url, False, OAuthToken, headers=headers, body=body)
 
-    def _gen_jwt(self, ttl: int):
+    def _gen_jwt(self, ttl: int, session_name: Optional[str] = None):
         now = int(time.time())
         header = {"alg": "RS256", "typ": "JWT", "kid": self._public_key_id}
         payload = {
@@ -302,6 +305,8 @@ class JWTOAuthApp(OAuthApp):
             "exp": now + ttl,
             "jti": random_hex(16),
         }
+        if session_name:
+            payload["session_name"] = session_name
         s = jwt.encode(header, payload, self._private_key)
         return s.decode("utf-8")
 
