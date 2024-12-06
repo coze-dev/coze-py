@@ -723,24 +723,28 @@ class JWTAuth(Auth):
 
     def __init__(
         self,
-        client_id: str,
-        private_key: str,
-        public_key_id: str,
+        client_id: Optional[str] = None,
+        private_key: Optional[str] = None,
+        public_key_id: Optional[str] = None,
         ttl: int = 7200,
         base_url: str = COZE_COM_BASE_URL,
+        oauth_app: Optional[JWTOAuthApp] = None,
     ):
-        assert isinstance(client_id, str)
-        assert isinstance(private_key, str)
-        assert isinstance(public_key_id, str)
-        assert isinstance(ttl, int)
         assert ttl > 0
-        assert isinstance(base_url, str)
-
-        self._client_id = client_id
         self._ttl = ttl
-        self._base_url = remove_url_trailing_slash(base_url)
         self._token = None
-        self._oauth_cli = JWTOAuthApp(self._client_id, private_key, public_key_id, base_url=self._base_url)
+
+        if oauth_app:
+            self._oauth_cli = oauth_app
+        else:
+            assert isinstance(client_id, str)
+            assert isinstance(private_key, str)
+            assert isinstance(public_key_id, str)
+            assert isinstance(ttl, int)
+            assert isinstance(base_url, str)
+            self._oauth_cli = JWTOAuthApp(
+                client_id, private_key, public_key_id, base_url=remove_url_trailing_slash(base_url)
+            )
 
     @property
     def token_type(self) -> str:

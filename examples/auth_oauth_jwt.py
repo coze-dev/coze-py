@@ -58,10 +58,7 @@ jwt_oauth_app = JWTOAuthApp(
 oauth_token = jwt_oauth_app.get_access_token(ttl=3600)
 
 # use the access token to init Coze client
-coze = Coze(auth=JWTAuth(client_id=jwt_oauth_client_id,
-                         private_key=jwt_oauth_private_key,
-                         public_key_id=jwt_oauth_public_key_id,
-                         base_url=coze_api_base), base_url=coze_api_base)
+coze = Coze(auth=JWTAuth(oauth_app=jwt_oauth_app), base_url=coze_api_base)
 
 # The jwt oauth process does not support refreshing tokens. When the token expires,
 # just directly call get_access_token to generate a new token.
