@@ -872,6 +872,9 @@ class AsyncChatClient(object):
         Conversation is an interaction between a bot and a user, including one or more messages.
         """
         url = f"{self._base_url}/v3/chat"
+        params = {
+            "conversation_id": conversation_id if conversation_id else None,
+        }
         body = {
             "bot_id": bot_id,
             "user_id": user_id,
@@ -879,7 +882,6 @@ class AsyncChatClient(object):
             "stream": stream,
             "custom_variables": custom_variables,
             "auto_save_history": auto_save_history,
-            "conversation_id": conversation_id if conversation_id else None,
             "meta_data": meta_data,
         }
         if not stream:
