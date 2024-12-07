@@ -1,0 +1,24 @@
+{
+    "files.exclude": {
+        // Git
+        "**/.git": true,
+        "**/.svn": true,
+        // Python
+        "**/.venv": true,
+        "**/__pycache__": true,
+        "**/.pytest_cache": true,
+        "**/.mypy_cache": true,
+        "**/*.pyc": true,
+        "**/.coverage": true,
+        "**/.eggs": true,
+        "**/*.egg-info": true,
+        "**/.ruff_cache": true,
+        // Project
+        "**/build": true,
+        "**/dist": true,
+        // Editor
+        "**/.idea": true,
+        // System
+        "**/.DS_Store": true
+    }
+} 
