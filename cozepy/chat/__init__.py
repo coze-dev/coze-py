@@ -890,6 +890,7 @@ class AsyncChatClient(object):
                 url,
                 False,
                 Chat,
+                params=params,
                 body=body,
             )
 
@@ -898,6 +899,7 @@ class AsyncChatClient(object):
             url,
             True,
             None,
+            params=params,
             body=body,
         )
         return AsyncStream(resp.data, fields=["event", "data"], handler=_async_chat_stream_handler, logid=resp.logid)
