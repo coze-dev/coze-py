@@ -724,11 +724,11 @@ class ChatClient(object):
         :return:
         """
         url = f"{self._base_url}/v3/chat/cancel"
-        params = {
+        body = {
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return self._requester.request("post", url, False, Chat, params=params)
+        return self._requester.request("post", url, False, Chat, body=body)
 
     @property
     def messages(
@@ -1026,11 +1026,11 @@ class AsyncChatClient(object):
         :return:
         """
         url = f"{self._base_url}/v3/chat/cancel"
-        params = {
+        body = {
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return await self._requester.arequest("post", url, False, Chat, params=params)
+        return await self._requester.arequest("post", url, False, Chat, body=body)
 
     @property
     def messages(
