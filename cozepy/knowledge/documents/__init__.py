@@ -3,10 +3,15 @@ from typing import List, Optional
 
 from cozepy.auth import Auth
 from cozepy.datasets.documents import (
-    Document,
-    DocumentBase,
-    DocumentChunkStrategy,
-    DocumentUpdateRule,
+    Document,  # noqa
+    DocumentBase,  # noqa
+    DocumentChunkStrategy,  # noqa
+    DocumentFormatType,  # noqa
+    DocumentSourceInfo,  # noqa
+    DocumentSourceType,  # noqa
+    DocumentStatus,  # noqa
+    DocumentUpdateRule,  # noqa
+    DocumentUpdateType,  # noqa
 )
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
