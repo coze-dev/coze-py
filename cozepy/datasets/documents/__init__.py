@@ -266,7 +266,7 @@ class _PrivateListDocumentsData(CozeModel, NumberPagedResponse[Document]):
         return self.document_infos
 
 
-class DatasetDocumentsClient(object):
+class DatasetsDocumentsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
@@ -415,7 +415,7 @@ class DatasetDocumentsClient(object):
         )
 
 
-class AsyncDatasetDocumentsClient(object):
+class AsyncDatasetsDocumentsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth

@@ -11,8 +11,9 @@ if TYPE_CHECKING:
     from .bots import AsyncBotsClient, BotsClient
     from .chat import AsyncChatClient, ChatClient
     from .conversations import AsyncConversationsClient, ConversationsClient
+    from .datasets import AsyncDatasetsClient, DatasetsClient
     from .files import AsyncFilesClient, FilesClient
-    from .knowledge import AsyncKnowledgeClient, KnowledgeClient
+    from .knowledge import AsyncKnowledgeClient, KnowledgeClient  # deprecated
     from .workflows import AsyncWorkflowsClient, WorkflowsClient
     from .workspaces import AsyncWorkspacesClient, WorkspacesClient
 
@@ -35,7 +36,8 @@ class Coze(object):
         self._chat: Optional[ChatClient] = None
         self._files: Optional[FilesClient] = None
         self._workflows: Optional[WorkflowsClient] = None
-        self._knowledge: Optional[KnowledgeClient] = None
+        self._knowledge: Optional[KnowledgeClient] = None  # deprecated
+        self._datasets: Optional[DatasetsClient] = None
         self._audio: Optional[AudioClient] = None
 
     @property
@@ -101,6 +103,14 @@ class Coze(object):
         return self._knowledge
 
     @property
+    def datasets(self) -> "DatasetsClient":
+        if not self._datasets:
+            from .datasets import DatasetsClient
+
+            self._datasets = DatasetsClient(self._base_url, self._auth, self._requester)
+        return self._datasets
+
+    @property
     def audio(self) -> "AudioClient":
         if not self._audio:
             from .audio import AudioClient
@@ -125,7 +135,8 @@ class AsyncCoze(object):
         self._chat: Optional[AsyncChatClient] = None
         self._conversations: Optional[AsyncConversationsClient] = None
         self._files: Optional[AsyncFilesClient] = None
-        self._knowledge: Optional[AsyncKnowledgeClient] = None
+        self._knowledge: Optional[AsyncKnowledgeClient] = None  # deprecated
+        self._datasets: Optional[AsyncDatasetsClient] = None
         self._workflows: Optional[AsyncWorkflowsClient] = None
         self._workspaces: Optional[AsyncWorkspacesClient] = None
         self._audio: Optional[AsyncAudioClient] = None
@@ -164,11 +175,25 @@ class AsyncCoze(object):
 
     @property
     def knowledge(self) -> "AsyncKnowledgeClient":
+        warnings.warn(
+            "The 'coze.knowledge' module is deprecated and will be removed in a future version. "
+            "Please use 'coze.datasets' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if not self._knowledge:
             from .knowledge import AsyncKnowledgeClient
 
             self._knowledge = AsyncKnowledgeClient(self._base_url, self._auth, self._requester)
         return self._knowledge
+
+    @property
+    def datasets(self) -> "AsyncDatasetsClient":
+        if not self._datasets:
+            from .datasets import AsyncDatasetsClient
+
+            self._datasets = AsyncDatasetsClient(self._base_url, self._auth, self._requester)
+        return self._datasets
 
     @property
     def workflows(self) -> "AsyncWorkflowsClient":

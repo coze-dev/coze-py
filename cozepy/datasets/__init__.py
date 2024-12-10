@@ -5,7 +5,7 @@ from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
 if TYPE_CHECKING:
-    from .documents import AsyncDocumentsClient, DocumentsClient
+    from .documents import AsyncDatasetsDocumentsClient, DatasetsDocumentsClient
 
 
 class DatasetsClient(object):
@@ -13,14 +13,16 @@ class DatasetsClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
-        self._documents: Optional[DocumentsClient] = None
+        self._documents: Optional[DatasetsDocumentsClient] = None
 
     @property
-    def documents(self) -> "DocumentsClient":
+    def documents(self) -> "DatasetsDocumentsClient":
         if self._documents is None:
-            from .documents import DocumentsClient
+            from .documents import DatasetsDocumentsClient
 
-            self._documents = DocumentsClient(base_url=self._base_url, auth=self._auth, requester=self._requester)
+            self._documents = DatasetsDocumentsClient(
+                base_url=self._base_url, auth=self._auth, requester=self._requester
+            )
         return self._documents
 
 
@@ -29,12 +31,14 @@ class AsyncDatasetsClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
-        self._documents: Optional[AsyncDocumentsClient] = None
+        self._documents: Optional[AsyncDatasetsDocumentsClient] = None
 
     @property
-    def documents(self) -> "AsyncDocumentsClient":
+    def documents(self) -> "AsyncDatasetsDocumentsClient":
         if self._documents is None:
-            from .documents import AsyncDocumentsClient
+            from .documents import AsyncDatasetsDocumentsClient
 
-            self._documents = AsyncDocumentsClient(base_url=self._base_url, auth=self._auth, requester=self._requester)
+            self._documents = AsyncDatasetsDocumentsClient(
+                base_url=self._base_url, auth=self._auth, requester=self._requester
+            )
         return self._documents
