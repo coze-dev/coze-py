@@ -1,3 +1,4 @@
+import warnings
 from typing import TYPE_CHECKING, Optional
 
 from cozepy.auth import Auth
@@ -87,6 +88,12 @@ class Coze(object):
 
     @property
     def knowledge(self) -> "KnowledgeClient":
+        warnings.warn(
+            "The 'coze.knowledge' module is deprecated and will be removed in a future version. "
+            "Please use 'coze.datasets' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if not self._knowledge:
             from .knowledge import KnowledgeClient
 

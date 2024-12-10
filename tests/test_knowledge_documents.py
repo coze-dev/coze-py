@@ -1,3 +1,5 @@
+import warnings
+
 import httpx
 import pytest
 
@@ -15,6 +17,12 @@ from cozepy import (
     DocumentUpdateType,
     TokenAuth,
 )
+
+# Disable deprecation warnings for knowledge module during tests
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="cozepy")
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="cozepy.knowledge")
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="cozepy.knowledge.documents")
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="cozepy.knowledge.documents")
 
 
 def make_document(id: int = 0) -> Document:

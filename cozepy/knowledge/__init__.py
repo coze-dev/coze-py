@@ -1,3 +1,4 @@
+import warnings
 from typing import TYPE_CHECKING, Optional
 
 from cozepy.auth import Auth
@@ -10,6 +11,12 @@ if TYPE_CHECKING:
 
 class KnowledgeClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
+        warnings.warn(
+            "The 'coze.knowledge' module is deprecated and will be removed in a future version. "
+            "Please use 'coze.datasets' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
@@ -17,6 +24,12 @@ class KnowledgeClient(object):
 
     @property
     def documents(self) -> "DocumentsClient":
+        warnings.warn(
+            "The 'coze.knowledge.documents' module is deprecated and will be removed in a future version. "
+            "Please use 'coze.datasets.documents' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if self._documents is None:
             from .documents import DocumentsClient
 
@@ -26,6 +39,12 @@ class KnowledgeClient(object):
 
 class AsyncKnowledgeClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
+        warnings.warn(
+            "The 'coze.knowledge' module is deprecated and will be removed in a future version. "
+            "Please use 'coze.datasets' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
@@ -33,6 +52,12 @@ class AsyncKnowledgeClient(object):
 
     @property
     def documents(self) -> "AsyncDocumentsClient":
+        warnings.warn(
+            "The 'coze.knowledge.documents' module is deprecated and will be removed in a future version. "
+            "Please use 'coze.datasets.documents' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if self._documents is None:
             from .documents import AsyncDocumentsClient
 

@@ -1,3 +1,4 @@
+import warnings
 from enum import IntEnum
 from typing import List, Optional
 
@@ -268,6 +269,12 @@ class _PrivateListDocumentsData(CozeModel, NumberPagedResponse[Document]):
 
 class DocumentsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
+        warnings.warn(
+            "The 'coze.knowledge.documents' module is deprecated and will be removed in a future version. "
+            "Please use 'coze.datasets' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
@@ -279,6 +286,12 @@ class DocumentsClient(object):
         document_bases: List[DocumentBase],
         chunk_strategy: Optional[DocumentChunkStrategy] = None,
     ) -> List[Document]:
+        warnings.warn(
+            "The 'coze.knowledge.documents.create' method is deprecated and will be removed in a future version. "
+            "Please use 'coze.datasets.documents.create' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         """
         Upload files to the specific knowledge.
 
@@ -313,6 +326,12 @@ class DocumentsClient(object):
         document_name: Optional[str] = None,
         update_rule: Optional[DocumentUpdateRule] = None,
     ) -> None:
+        warnings.warn(
+            "The 'coze.knowledge.documents.update' method is deprecated and will be removed in a future version. "
+            "Please use 'coze.datasets.documents.update' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         """
         Modify the knowledge base file name and update strategy.
 
@@ -346,6 +365,12 @@ class DocumentsClient(object):
         *,
         document_ids: List[str],
     ) -> None:
+        warnings.warn(
+            "The 'coze.knowledge.documents.delete' method is deprecated and will be removed in a future version. "
+            "Please use 'coze.datasets.documents.delete' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         """
         Delete text, images, sheets, and other files in the knowledge base, supporting batch deletion.
 
@@ -377,6 +402,12 @@ class DocumentsClient(object):
         page_num: int = 1,
         page_size: int = 10,
     ) -> NumberPaged[Document]:
+        warnings.warn(
+            "The 'coze.knowledge.documents.list' method is deprecated and will be removed in a future version. "
+            "Please use 'coze.datasets.documents.list' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         """
         View the file list of a specified knowledge base, which includes lists of documents, spreadsheets, or images.
 
@@ -418,6 +449,12 @@ class DocumentsClient(object):
 
 class AsyncDocumentsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
+        warnings.warn(
+            "The 'coze.knowledge.documents' module is deprecated and will be removed in a future version. "
+            "Please use 'coze.datasets.documents' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
@@ -429,6 +466,12 @@ class AsyncDocumentsClient(object):
         document_bases: List[DocumentBase],
         chunk_strategy: Optional[DocumentChunkStrategy] = None,
     ) -> List[Document]:
+        warnings.warn(
+            "The 'coze.knowledge.documents.create' method is deprecated and will be removed in a future version. "
+            "Please use 'coze.datasets.documents.create' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         """
         Upload files to the specific knowledge.
 
@@ -463,6 +506,12 @@ class AsyncDocumentsClient(object):
         document_name: Optional[str] = None,
         update_rule: Optional[DocumentUpdateRule] = None,
     ) -> None:
+        warnings.warn(
+            "The 'coze.knowledge.documents.update' method is deprecated and will be removed in a future version. "
+            "Please use 'coze.datasets.documents.update' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         """
         Modify the knowledge base file name and update strategy.
 
@@ -496,6 +545,12 @@ class AsyncDocumentsClient(object):
         *,
         document_ids: List[str],
     ) -> None:
+        warnings.warn(
+            "The 'coze.knowledge.documents.delete' method is deprecated and will be removed in a future version. "
+            "Please use 'coze.datasets.documents.delete' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         """
         Delete text, images, sheets, and other files in the knowledge base, supporting batch deletion.
 
@@ -527,6 +582,12 @@ class AsyncDocumentsClient(object):
         page_num: int = 1,
         page_size: int = 10,
     ) -> AsyncNumberPaged[Document]:
+        warnings.warn(
+            "The 'coze.knowledge.documents.list' method is deprecated and will be removed in a future version. "
+            "Please use 'coze.datasets.documents.list' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         """
         View the file list of a specified knowledge base, which includes lists of documents, spreadsheets, or images.
 
