@@ -19,7 +19,7 @@ from cozepy import (
 )
 
 # Disable deprecation warnings for knowledge module during tests
-warnings.filterwarnings("ignore", category=DeprecationWarning, module="cozepy")
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="cozepy.knowledge")
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="cozepy.knowledge.documents")
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="cozepy.knowledge.documents")
