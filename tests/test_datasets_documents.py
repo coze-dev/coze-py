@@ -69,7 +69,7 @@ def mock_documents_list(respx_mock, total, page):
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
-class TestKnowledgeDocuments:
+class TestDatasetsDocuments:
     def test_create_web_auto_update(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
@@ -221,7 +221,7 @@ class TestKnowledgeDocuments:
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
-class TestAsyncKnowledgeDocuments:
+class TestAsyncDatasetsDocuments:
     async def test_sync_knowledge_documents_create_web_auto_update(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 

@@ -57,9 +57,7 @@ from .config import (
 )
 from .conversations import Conversation, Section
 from .coze import AsyncCoze, Coze
-from .exception import CozeAPIError, CozeError, CozeInvalidEventError, CozePKCEAuthError, CozePKCEAuthErrorType
-from .files import File
-from .knowledge.documents import (
+from .datasets.documents import (
     Document,
     DocumentBase,
     DocumentChunkStrategy,
@@ -70,6 +68,8 @@ from .knowledge.documents import (
     DocumentUpdateRule,
     DocumentUpdateType,
 )
+from .exception import CozeAPIError, CozeError, CozeInvalidEventError, CozePKCEAuthError, CozePKCEAuthErrorType
+from .files import File
 from .log import setup_logging
 from .model import (
     AsyncLastIDPaged,
