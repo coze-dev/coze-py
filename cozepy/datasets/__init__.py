@@ -1,8 +1,8 @@
 from enum import IntEnum
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from cozepy.auth import Auth
-from cozepy.model import CozeModel
+from cozepy.model import CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
@@ -16,7 +16,39 @@ class CreateDatasetResp(CozeModel):
 
 class DatasetFormatType(IntEnum):
     TEXT = 0
+    SHEET = 1
     IMAGE = 2
+
+
+class DatasetStatus(IntEnum):
+    Enable = 1
+    Disable = 3
+
+
+class Dataset(CozeModel):
+    name: str  # The name of the dataset
+    space_id: str  # The ID of the space that the dataset belongs to
+    status: DatasetStatus  # The status of the dataset, 0: enable, 3: disable
+    can_edit: bool  # Whether the dataset can be edited
+    icon_url: str  # The icon URL of the dataset
+    doc_count: int  # The count of the documents in the dataset
+    file_list: List[str]  # The list of files in the dataset
+    hit_count: int  # The count of the hits in the dataset
+    # avatar_url:
+
+
+class _PrivateListDatasetsData(CozeModel, NumberPagedResponse[Dataset]):
+    total_count: int
+    dataset_list: List[Dataset]
+
+    def get_total(self) -> Optional[int]:
+        return self.total_count
+
+    def get_has_more(self) -> Optional[bool]:
+        return None
+
+    def get_items(self) -> List[Dataset]:
+        return self.dataset_list
 
 
 class DatasetsClient(object):
@@ -68,6 +100,43 @@ class DatasetsClient(object):
             False,
             CreateDatasetResp,
             body=body,
+        )
+
+    def list(
+        self,
+        *,
+        space_id: str,
+        name: Optional[str] = None,
+        format_type: Optional[DatasetFormatType] = None,
+        create_time_order: Optional[str] = None,
+        page_num: int = 1,
+        page_size: int = 10,
+        headers=None,
+    ) -> NumberPaged[Dataset]:
+        url = f"{self._base_url}/v1/datasets"
+
+        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return self._requester.make_request(
+                "GET",
+                url,
+                headers=headers,
+                params={
+                    "space_id": space_id,
+                    "name": name,
+                    "format_type": format_type,
+                    "page_size": i_page_size,
+                    "page_num": i_page_num,
+                },
+                cast=_PrivateListDatasetsData,
+                is_async=False,
+                stream=False,
+            )
+
+        return NumberPaged(
+            page_num=page_num,
+            page_size=page_size,
+            requestor=self._requester,
+            request_maker=request_maker,
         )
 
 
