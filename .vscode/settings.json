@@ -20,5 +20,5 @@
         "**/.idea": true,
         // System
         "**/.DS_Store": true
-    }
+    },
 } 

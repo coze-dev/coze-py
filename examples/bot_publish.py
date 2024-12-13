@@ -24,7 +24,7 @@ coze_api_token = os.getenv("COZE_API_TOKEN")
 # please use base_url to configure the api endpoint to access
 coze_api_base = os.getenv("COZE_API_BASE") or COZE_COM_BASE_URL
 # workspace id
-workflow_id = os.getenv("COZE_WORKSPACE_ID") or "your workspace id"
+workspace_id = os.getenv("COZE_WORKSPACE_ID") or "your workspace id"
 # Whether to print detailed logs
 is_debug = os.getenv("DEBUG")
 
@@ -41,7 +41,7 @@ avatar = coze.files.upload(file=Path(avatar_path))
 # Invoke the create interface to create a bot in the draft status.
 bot = coze.bots.create(
     # The bot should exist under a space and your space id needs configuration.
-    space_id=workflow_id,
+    space_id=workspace_id,
     # Bot name
     name="translator bot",
     # Bot avatar
