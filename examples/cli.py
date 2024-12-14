@@ -4,10 +4,15 @@ import time
 from functools import lru_cache
 from typing import Optional
 
+import click
+from rich.console import Console
+from rich.table import Table
+
 from cozepy import COZE_CN_BASE_URL, Coze, DeviceOAuthApp, OAuthToken, TokenAuth
 from cozepy.log import setup_logging
 
 setup_logging(logging.ERROR)
+console = Console()
 
 
 class DeviceAuth(object):
@@ -115,13 +120,43 @@ class CozeCli(object):
 
     def list_workspaces(self):
         """列出所有工作空间"""
-        return self._auth.client().workspaces.list()
+        workspaces = self._auth.client().workspaces.list()
+
+        # 创建表格
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("ID", style="dim")
+        table.add_column("名称")
+        table.add_column("描述")
+        table.add_column("创建时间", justify="right")
+
+        for ws in workspaces:
+            created_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(ws.created_at))
+            table.add_row(ws.id, ws.name, ws.description or "-", created_at)
+
+        console.print(table)
+        return workspaces
 
 
-def main():
-    cli = CozeCli()
-    print(cli.list_workspaces())
+@click.group()
+def cli():
+    """Coze 命令行工具"""
+    pass
+
+
+@cli.group()
+def workspace():
+    """工作空间相关操作"""
+    pass
+
+
+@workspace.command("list")
+def list_workspaces():
+    """列出所有工作空间"""
+    try:
+        CozeCli().list_workspaces()
+    except Exception as e:
+        console.print(f"[red]错误: {str(e)}[/red]")
 
 
 if __name__ == "__main__":
-    main()
+    cli()
