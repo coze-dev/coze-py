@@ -10,6 +10,8 @@ from rich.table import Table
 
 from cozepy import COZE_CN_BASE_URL, Coze, DeviceOAuthApp, OAuthToken, TokenAuth
 from cozepy.log import setup_logging
+from cozepy.model import NumberPaged
+from cozepy.workspaces import Workspace
 
 setup_logging(logging.ERROR)
 console = Console()
@@ -73,8 +75,9 @@ class DeviceAuth(object):
         if not token.refresh_token:
             return None
         try:
-            return self._oauth_app.refresh_token(token.refresh_token)
-        except Exception:
+            return self._oauth_app.refresh_access_token(token.refresh_token)
+        except Exception as e:
+            print(e)
             return None
 
     def _load_token(self) -> Optional[OAuthToken]:
@@ -118,22 +121,10 @@ class CozeCli(object):
     def __init__(self):
         self._auth = DeviceAuth()
 
-    def list_workspaces(self):
+    def list_workspaces(self, page: int, size: int) -> NumberPaged[Workspace]:
         """列出所有工作空间"""
-        workspaces = self._auth.client().workspaces.list()
+        workspaces = self._auth.client().workspaces.list(page_num=page, page_size=size)
 
-        # 创建表格
-        table = Table(show_header=True, header_style="bold magenta")
-        table.add_column("ID", style="dim")
-        table.add_column("名称")
-        table.add_column("描述")
-        table.add_column("创建时间", justify="right")
-
-        for ws in workspaces:
-            created_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(ws.created_at))
-            table.add_row(ws.id, ws.name, ws.description or "-", created_at)
-
-        console.print(table)
         return workspaces
 
 
@@ -150,10 +141,41 @@ def workspace():
 
 
 @workspace.command("list")
-def list_workspaces():
-    """列出所有工作空间"""
+@click.option("--page", default=1, help="page")
+@click.option("--size", default=10, help="size")
+def list_workspaces(page: int, size: int):
+    """列出所有工作空间,支持分页"""
     try:
-        CozeCli().list_workspaces()
+        # 计算分页起始和结束索引
+        start = (page - 1) * size
+        end = start + size
+
+        # 获取工作空间并分页
+        workspaces = CozeCli().list_workspaces(page, size)
+
+        # 创建表格
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("ID", style="dim")
+        table.add_column("Name")
+        table.add_column("Type")
+        table.add_column("Role")
+
+        for ws in workspaces:
+            table.add_row(ws.id, ws.name, ws.workspace_type, ws.role_type)
+
+        console.print(table)
+        total = workspaces.total
+
+        # 显示分页信息
+        console.print(f"\n总数: {total} | 当前页: {page} | 每页: {size}\n")
+
+        if start >= total:
+            console.print("[yellow]当前页无数据[/yellow]")
+            return
+
+        if end > total:
+            end = total
+
     except Exception as e:
         console.print(f"[red]错误: {str(e)}[/red]")
 
