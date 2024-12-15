@@ -33,16 +33,6 @@ class CozeModel(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
 
-class Store(abc.ABC, Generic[T]):
-    @abc.abstractmethod
-    def get(self, key: str) -> T:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def set(self, key: str, data: T, ttl: int) -> None:
-        raise NotImplementedError
-
-
 class HTTPResponse(Generic[T]):
     def __init__(self, response: httpx.Response, data: T):
         self.response = response
