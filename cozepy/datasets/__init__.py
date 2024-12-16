@@ -170,6 +170,39 @@ class DatasetsClient(object):
             request_maker=request_maker,
         )
 
+    def update(
+        self,
+        *,
+        dataset_id: str,
+        name: str,
+        description: Optional[str] = None,
+        icon_file_id: Optional[str] = None,
+    ) -> CreateDatasetRes:
+        """
+        Update Dataset
+        This API will fully refresh the knowledge base's name, file_id, and description settings. If these parameters are not set, they will revert to default settings.
+
+        docs en: https://www.coze.com/docs/developer_guides/update_dataset
+        docs zh: https://www.coze.cn/docs/developer_guides/update_dataset
+
+        :param name: The name of the dataset
+        :param description: The description of the dataset
+        :param icon_file_id: The ID of the icon file, uploaded by `coze.files.upload`
+        """
+        url = f"{self._base_url}/v1/datasets/{dataset_id}"
+        body = {
+            "name": name,
+            "description": description,
+            "file_id": icon_file_id,
+        }
+        return self._requester.request(
+            "put",
+            url,
+            False,
+            cast=None,
+            body=body,
+        )
+
 
 class AsyncDatasetsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
