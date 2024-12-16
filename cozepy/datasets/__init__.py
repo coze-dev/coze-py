@@ -9,6 +9,7 @@ from cozepy.util import remove_url_trailing_slash
 
 if TYPE_CHECKING:
     from .documents import AsyncDatasetsDocumentsClient, DatasetsDocumentsClient
+    from .images import AsyncDatasetsImagesClient, DatasetsImagesClient
 
 
 class CreateDatasetRes(CozeModel):
@@ -72,6 +73,7 @@ class DatasetsClient(object):
         self._auth = auth
         self._requester = requester
         self._documents: Optional[DatasetsDocumentsClient] = None
+        self._images: Optional[DatasetsImagesClient] = None
 
     @property
     def documents(self) -> "DatasetsDocumentsClient":
@@ -82,6 +84,14 @@ class DatasetsClient(object):
                 base_url=self._base_url, auth=self._auth, requester=self._requester
             )
         return self._documents
+
+    @property
+    def images(self) -> "DatasetsImagesClient":
+        if self._images is None:
+            from .images import DatasetsImagesClient
+
+            self._images = DatasetsImagesClient(base_url=self._base_url, auth=self._auth, requester=self._requester)
+        return self._images
 
     def create(
         self,
@@ -185,6 +195,7 @@ class DatasetsClient(object):
         docs en: https://www.coze.com/docs/developer_guides/update_dataset
         docs zh: https://www.coze.cn/docs/developer_guides/update_dataset
 
+        :param dataset_id: The ID of the dataset
         :param name: The name of the dataset
         :param description: The description of the dataset
         :param icon_file_id: The ID of the icon file, uploaded by `coze.files.upload`
@@ -233,6 +244,27 @@ class AsyncDatasetsClient(object):
         self._auth = auth
         self._requester = requester
         self._documents: Optional[AsyncDatasetsDocumentsClient] = None
+        self._images: Optional[AsyncDatasetsImagesClient] = None
+
+    @property
+    def documents(self) -> "AsyncDatasetsDocumentsClient":
+        if self._documents is None:
+            from .documents import AsyncDatasetsDocumentsClient
+
+            self._documents = AsyncDatasetsDocumentsClient(
+                base_url=self._base_url, auth=self._auth, requester=self._requester
+            )
+        return self._documents
+
+    @property
+    def images(self) -> "AsyncDatasetsImagesClient":
+        if self._images is None:
+            from .images import AsyncDatasetsImagesClient
+
+            self._images = AsyncDatasetsImagesClient(
+                base_url=self._base_url, auth=self._auth, requester=self._requester
+            )
+        return self._images
 
     async def create(
         self,
@@ -318,16 +350,6 @@ class AsyncDatasetsClient(object):
             request_maker=request_maker,
         )
 
-    @property
-    def documents(self) -> "AsyncDatasetsDocumentsClient":
-        if self._documents is None:
-            from .documents import AsyncDatasetsDocumentsClient
-
-            self._documents = AsyncDatasetsDocumentsClient(
-                base_url=self._base_url, auth=self._auth, requester=self._requester
-            )
-        return self._documents
-
     async def update(
         self,
         *,
@@ -343,6 +365,7 @@ class AsyncDatasetsClient(object):
         docs en: https://www.coze.com/docs/developer_guides/update_dataset
         docs zh: https://www.coze.cn/docs/developer_guides/update_dataset
 
+        :param dataset_id: The ID of the dataset
         :param name: The name of the dataset
         :param description: The description of the dataset
         :param icon_file_id: The ID of the icon file, uploaded by `coze.files.upload`

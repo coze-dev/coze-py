@@ -161,7 +161,8 @@ __all__ = [
     "DatasetFormatType",
     "DatasetStatus",
     "CreateDatasetRes",
-    # knowledge.documents
+    # datasets.images
+    # datasets.documents
     "DocumentChunkStrategy",
     "DocumentFormatType",
     "DocumentSourceType",
