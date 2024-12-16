@@ -41,10 +41,10 @@ class Dataset(CozeModel):
     bot_used_count: int = 0  # The count of the bots used in the dataset
     slice_count: int = 0  # The count of the segments in the dataset
     all_file_size: int = 0  # The total size of all files in the dataset
-    chunk_strategy: DocumentChunkStrategy = DocumentChunkStrategy.NONE  # The chunk strategy of the dataset
+    chunk_strategy: Optional[DocumentChunkStrategy] = None  # The chunk strategy of the dataset
     failed_file_list: List[str] = []  # The list of files that failed to be uploaded in the dataset
     processing_file_list: List[str] = []  # The list of files that are being processed in the dataset
-    processing_file_id_list: List[str]  # The list of file IDs that are being processed in the dataset
+    processing_file_id_list: List[str] = []  # The list of file IDs that are being processed in the dataset
     avatar_url: str = ""  # The avatar URL of the dataset creator
     creator_id: str = ""  # The ID of the dataset creator
     creator_name: str = ""  # The name of the dataset creator
@@ -255,7 +255,7 @@ class AsyncDatasetsClient(object):
                 stream=False,
             )
 
-        return AsyncNumberPaged.build(
+        return await AsyncNumberPaged.build(
             page_num=page_num,
             page_size=page_size,
             requestor=self._requester,
