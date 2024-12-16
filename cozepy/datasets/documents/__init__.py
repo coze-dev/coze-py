@@ -17,6 +17,11 @@ class DocumentChunkStrategy(CozeModel):
     # 1：自定义。此时需要通过 separator、max_tokens、remove_extra_spaces 和 remove_urls_emails 分段规则细节。
     chunk_type: Optional[int] = None
 
+    # Image knowledge base annotation method:
+    # 0: (Default) System automatically annotates description information
+    # 1: Manual annotation
+    caption_type: Optional[int] = None
+
     # Maximum segment length, with a range of 100 to 2000.
     # Required when chunk_type=1.
     # 最大分段长度，取值范围为 100~2000。
@@ -111,25 +116,14 @@ class DocumentUpdateType(IntEnum):
 
 
 class Document(CozeModel):
-    # The ID of the file.
-    # 文件的 ID。
+    # File ID.
     document_id: str
 
-    # The total character count of the file content.
-    # 文件内容的总字符数量。
+    # Total number of characters in the document content.
     char_count: int
 
-    # The chunking rules. For detailed instructions, refer to the ChunkStrategy object.
-    # 分段规则。详细说明可参考 chunk_strategy object。
+    # Segmentation rules.
     chunk_strategy: Optional[DocumentChunkStrategy] = None
-
-    # The upload time of the file, in the format of a 10-digit Unix timestamp.
-    # 文件的上传时间，格式为 10 位的 Unixtime 时间戳。
-    create_time: int
-
-    # The last modified time of the file, in the format of a 10-digit Unix timestamp.
-    # 文件的最近一次修改时间，格式为 10 位的 Unixtime 时间戳。
-    update_time: int
 
     # 文件的格式类型。取值包括：
     # 0：文档类型，例如 txt 、pdf 、在线网页等格式均属于文档类型。
@@ -192,6 +186,12 @@ class Document(CozeModel):
     # 1：自动更新
     update_type: DocumentUpdateType
 
+    # The upload time of the file, in the format of a 10-digit Unix timestamp.
+    create_time: int
+
+    # The last modified time of the file, in the format of a 10-digit Unix timestamp.
+    update_time: int
+
 
 class DocumentSourceInfo(CozeModel):
     # 本地文件的 Base64 编码。
@@ -207,9 +207,11 @@ class DocumentSourceInfo(CozeModel):
     # 上传在线网页时必选
     web_url: Optional[str] = None
 
+    source_file_id: Optional[str] = None  # uploaded by `coze.files.upload`
+
     # 文件的上传方式。支持设置为 1，表示上传在线网页。
     # 上传在线网页时必选
-    document_source: Optional[int] = None
+    document_source: Optional[DocumentSourceType] = None
 
     @staticmethod
     def build_local_file(content: str, file_type: str = "txt") -> "DocumentSourceInfo":
@@ -217,7 +219,11 @@ class DocumentSourceInfo(CozeModel):
 
     @staticmethod
     def build_web_page(url: str) -> "DocumentSourceInfo":
-        return DocumentSourceInfo(web_url=url, document_source=1)
+        return DocumentSourceInfo(web_url=url, document_source=DocumentSourceType.ONLINE_WEB)
+
+    @staticmethod
+    def build_file_id(file_id: str) -> "DocumentSourceInfo":
+        return DocumentSourceInfo(source_file_id=file_id, document_source=DocumentSourceType.UPLOAD_FILE_ID)
 
 
 class DocumentUpdateRule(CozeModel):
@@ -275,6 +281,7 @@ class DatasetsDocumentsClient(object):
         dataset_id: str,
         document_bases: List[DocumentBase],
         chunk_strategy: Optional[DocumentChunkStrategy] = None,
+        format_type: Optional[DocumentFormatType] = None,
     ) -> List[Document]:
         """
         Upload files to the specific knowledge.
@@ -298,6 +305,7 @@ class DatasetsDocumentsClient(object):
             "dataset_id": dataset_id,
             "document_bases": [i.model_dump() for i in document_bases],
             "chunk_strategy": chunk_strategy.model_dump() if chunk_strategy else None,
+            "format_type": format_type,
         }
         return self._requester.request(
             "post", url, False, [Document], headers=headers, body=body, data_field="document_infos"

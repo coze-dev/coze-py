@@ -16,9 +16,9 @@ from cozepy import (
     Coze,
     CreateDatasetRes,
     Dataset,
-    DatasetFormatType,
     DeviceOAuthApp,
     Document,
+    DocumentFormatType,
     OAuthToken,
     Photo,
     TemplateEntityType,
@@ -27,6 +27,8 @@ from cozepy import (
     Workspace,
     WorkspaceType,
 )
+from cozepy.datasets import DocumentProgress
+from cozepy.datasets.documents import DocumentBase, DocumentSourceInfo
 from cozepy.log import setup_logging
 
 try:
@@ -52,6 +54,18 @@ console = Console()
 
 def format_time(timestamp: int) -> str:
     return datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S")
+
+
+def is_image_file(file: str) -> bool:
+    return file.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".ico", ".webp"))
+
+
+def is_int(value: str) -> bool:
+    try:
+        int(value)
+        return True
+    except ValueError:
+        return False
 
 
 class FileCache(object):
@@ -390,6 +404,30 @@ class RichDatasetList(object):
         )
 
 
+class RichDocumentProgressList(object):
+    def __init__(self, document_progress: DocumentProgress):
+        self._document_progress = document_progress
+
+    def print(self):
+        console.print(
+            """[bold blue]Document Progress[/bold blue]
+[yellow]ID:[/yellow] [dim]{document_id}[/dim]
+[yellow]Name:[/yellow] {document_name}
+[yellow]Type:[/yellow] {type}
+[yellow]Status:[/yellow] {status}
+[yellow]Progress:[/yellow] {progress}%
+[yellow]Remaining Time:[/yellow] {remaining_time}
+""".format(
+                document_id=self._document_progress.document_id,
+                document_name=self._document_progress.document_name,
+                type=self._document_progress.type,
+                status=self._document_progress.status.name,
+                progress=self._document_progress.progress,
+                remaining_time=format_time(self._document_progress.remaining_time),
+            )
+        )
+
+
 class RichDocumentList(object):
     def __init__(self, documents: List[Document], total: int, page: int, size: int):
         self._documents = documents
@@ -435,6 +473,22 @@ class RichDocumentList(object):
             indent=2,
             ensure_ascii=False,
         )
+
+
+class RichDocument(object):
+    def __init__(self, document: Document):
+        self._document = document
+
+    def print(self, json_output: bool = False):
+        if json_output:
+            print(self._document.model_dump_json(indent=2))
+            return
+
+        console.print(f"ID: [dim]{self._document.document_id}[/dim]")
+        console.print(f"Name: {self._document.name}")
+        console.print(f"Type: {self._document.type}")
+        console.print(f"Create Time: {format_time(self._document.create_time)}")
+        console.print(f"Update Time: {format_time(self._document.update_time)}")
 
 
 class CozeAPI(object):
@@ -579,7 +633,7 @@ class CozeAPI(object):
     """dataset"""
 
     def create_dataset(
-        self, name: str, space_id: str, format_type: DatasetFormatType, description: Optional[str], icon: Optional[str]
+        self, name: str, space_id: str, format_type: DocumentFormatType, description: Optional[str], icon: Optional[str]
     ) -> CreateDatasetRes:
         if not name:
             raise ValueError("Please specify dataset name")
@@ -606,7 +660,7 @@ class CozeAPI(object):
         self,
         space_id: str,
         name: Optional[str] = None,
-        format_type: Optional[DatasetFormatType] = None,
+        format_type: Optional[DocumentFormatType] = None,
         page: int = 1,
         size: int = 10,
         all_pages: bool = False,
@@ -647,6 +701,14 @@ class CozeAPI(object):
             raise ValueError("Please specify dataset id")
         self.client.datasets.delete(dataset_id=dataset_id)
 
+    def get_dataset_process(self, dataset_id: str, document_id: str) -> RichDocumentProgressList:
+        if not dataset_id:
+            raise ValueError("Please specify dataset id")
+        if not document_id:
+            raise ValueError("Please specify document id")
+        res = self.client.datasets.process(dataset_id=dataset_id, document_ids=[document_id])
+        return RichDocumentProgressList(res.items[0])
+
     def list_dataset_documents(
         self, dataset_id: str, page: int = 1, size: int = 10, all_pages: bool = False
     ) -> RichDocumentList:
@@ -663,13 +725,38 @@ class CozeAPI(object):
 
         return RichDocumentList(documents, documents_page.total, page, size)
 
+    def create_dataset_document(self, dataset_id: str, filepath: str) -> RichDocument:
+        if not dataset_id:
+            raise ValueError("Please specify dataset id")
+        if not filepath:
+            raise ValueError("Please specify file")
+        if is_image_file(filepath):
+            if os.path.exists(filepath):
+                file = self.client.files.upload(file=filepath)
+                file_id = file.id
+            else:
+                raise ValueError("File not found")
+            res = self.client.datasets.documents.create(
+                dataset_id=dataset_id,
+                document_bases=[
+                    DocumentBase(
+                        name=os.path.basename(filepath),
+                        source_info=DocumentSourceInfo.build_file_id(file_id),
+                    )
+                ],
+                format_type=DocumentFormatType.IMAGE,
+            )
+            return RichDocument(res[0])
+        else:
+            raise ValueError("Unsupported file type")
+
     def list_dataset_images(
         self,
         dataset_id: str,
-        page: int = 1,
-        size: int = 10,
         keyword: Optional[str] = None,
         has_caption: bool = False,
+        page: int = 1,
+        size: int = 10,
         all_pages: bool = False,
     ) -> RichDocumentList:
         if not dataset_id:
@@ -881,7 +968,7 @@ def dataset():
 @click.option("--description", "description", help="Dataset description")
 @click.option("--icon", "icon", help="Dataset icon")
 def create_dataset(
-    name: str, space_id: str, format_type: DatasetFormatType, description: Optional[str], icon: Optional[str]
+    name: str, space_id: str, format_type: DocumentFormatType, description: Optional[str], icon: Optional[str]
 ):
     """Create a dataset"""
     try:
@@ -911,9 +998,11 @@ def list_datasets(
     """List all datasets in a space"""
     try:
         format_type = (
-            {"txt": DatasetFormatType.TEXT, "table": DatasetFormatType.TABLE, "image": DatasetFormatType.IMAGE}[
-                format_type
-            ]
+            {
+                "txt": DocumentFormatType.DOCUMENT,
+                "table": DocumentFormatType.SPREADSHEET,
+                "image": DocumentFormatType.IMAGE,
+            }[format_type]
             if format_type
             else None
         )
@@ -948,6 +1037,18 @@ def delete_dataset(dataset_id: str):
         console.print(f"[red]Error: {str(e)}[/red]")
 
 
+@dataset.command("process")
+@click.option("--dataset_id", "dataset_id", help="Dataset ID")
+@click.option("--document_id", "document_id", help="Document ID")
+def process_dataset(dataset_id: str, document_id: str):
+    """get dataset process"""
+    try:
+        res = coze.get_dataset_process(dataset_id, document_id)
+        res.print()
+    except Exception as e:
+        console.print(f"[red]Error: {str(e)}[/red]")
+
+
 @dataset.group()
 def document():
     """Dataset Document"""
@@ -969,6 +1070,18 @@ def list_dataset_documents(dataset_id: str, page: int, size: int, json_output: b
         console.print(f"[red]Error: {str(e)}[/red]")
 
 
+@document.command("create")
+@click.option("--dataset_id", "dataset_id", help="Dataset ID")
+@click.option("--file", "file", help="File")
+def create_dataset_document(dataset_id: str, file: str):
+    """Upload a document to a dataset"""
+    try:
+        res = coze.create_dataset_document(dataset_id, file)
+        res.print()
+    except Exception as e:
+        console.print(f"[red]Error: {str(e)}[/red]")
+
+
 @dataset.group()
 def image():
     """Dataset Image"""
@@ -977,14 +1090,18 @@ def image():
 
 @image.command("list")
 @click.option("--dataset_id", "dataset_id", help="Dataset ID")
+@click.option("--keyword", "keyword", help="keyword")
+@click.option("--has_caption", "has_caption", help="has caption")
 @click.option("--page", default=1, help="page number")
 @click.option("--size", default=10, help="page size")
 @click.option("--json", "json_output", is_flag=True, help="output in json format")
 @click.option("--all", "all_pages", is_flag=True, help="get all images")
-def list_dataset_images(dataset_id: str, page: int, size: int, json_output: bool, all_pages: bool):
+def list_dataset_images(
+    dataset_id: str, keyword: str, has_caption: bool, page: int, size: int, json_output: bool, all_pages: bool
+):
     """List all images in a dataset"""
     try:
-        res = coze.list_dataset_images(dataset_id, page, size, all_pages)
+        res = coze.list_dataset_images(dataset_id, keyword, has_caption, page, size, all_pages)
         res.print(json_output)
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")

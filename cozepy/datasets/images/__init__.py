@@ -161,35 +161,39 @@ class AsyncDatasetsImagesClient(object):
         self,
         *,
         dataset_id: str,
-        page_num: int = 1,
-        page_size: int = 10,
         keyword: Optional[str] = None,
         has_caption: Optional[bool] = None,
+        page_num: int = 1,
+        page_size: int = 10,
+        **kwargs,
     ) -> AsyncNumberPaged[Photo]:
         """
-        View the file list of a specified knowledge base, which includes lists of documents, spreadsheets, or images.
+        Call this API to view detailed information of images in the image knowledge base.
+        When viewing images, it is supported to filter through image annotations.
 
-        docs en: https://www.coze.com/docs/developer_guides/list_knowledge_files
-        docs zh: https://www.coze.cn/docs/developer_guides/list_knowledge_files
+        docs en: https://www.coze.com/docs/developer_guides/get_images
+        docs zh: https://www.coze.cn/docs/developer_guides/get_images
 
         :param dataset_id: The ID of the knowledge base.
+        :param keyword: The keyword to filter images.
+        :param has_caption: Whether the image has a caption.
         :param page_num: The page number for paginated queries. Default is 1, meaning the data return starts from the
         first page.
-        :param page_size: The size of pagination. Default is 10, meaning that 10 data entries are returned per page.
-        :return: list of Document
+        :param page_size: The size of pagination. Default is 10, meaning that 10 data entries are returned per page. The value range is 1~299, with a default of 10.
         """
-        url = f"{self._base_url}/open_api/knowledge/document/list"
-        headers = {"Agw-Js-Conv": "str"}
+        url = f"{self._base_url}/v1/datasets/{dataset_id}/images"
+        headers: Optional[dict] = kwargs.get("headers")
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
-                "POST",
+                "get",
                 url,
                 headers=headers,
-                json={
-                    "dataset_id": dataset_id,
-                    "page": i_page_num,
-                    "size": i_page_size,
+                params={
+                    "page_num": i_page_num,
+                    "page_size": i_page_size,
+                    "keyword": keyword,
+                    "has_caption": has_caption,
                 },
                 cast=_PrivateListPhotosData,
                 is_async=False,

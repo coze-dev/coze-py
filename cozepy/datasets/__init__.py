@@ -2,8 +2,8 @@ from enum import IntEnum
 from typing import TYPE_CHECKING, List, Optional
 
 from cozepy.auth import Auth
-from cozepy.datasets.documents import DocumentChunkStrategy
-from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
+from cozepy.datasets.documents import DocumentChunkStrategy, DocumentFormatType, DocumentStatus, DocumentUpdateType
+from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, ListResponse, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
@@ -14,12 +14,6 @@ if TYPE_CHECKING:
 
 class CreateDatasetRes(CozeModel):
     dataset_id: str
-
-
-class DatasetFormatType(IntEnum):
-    TEXT = 0
-    TABLE = 1
-    IMAGE = 2
 
 
 class DatasetStatus(IntEnum):
@@ -33,7 +27,7 @@ class Dataset(CozeModel):
     description: str  # The description of the dataset
     space_id: str  # The ID of the space that the dataset belongs to
     status: DatasetStatus  # The status of the dataset, 1: enable, 3: disable
-    format_type: DatasetFormatType  # The format type of the dataset, 0: text, 1: table, 2: image
+    format_type: DocumentFormatType  # The format type of the dataset, 0: text, 1: table, 2: image
     can_edit: bool = False  # Whether the dataset can be edited
     icon_url: str = ""  # The icon URL of the dataset
     doc_count: int = 0  # The count of the documents in the dataset
@@ -67,6 +61,22 @@ class _PrivateListDatasetsData(CozeModel, NumberPagedResponse[Dataset]):
         return self.dataset_list
 
 
+class DocumentProgress(CozeModel):
+    document_id: str = ""  # File ID.
+    url: str = ""  # File address.
+    size: int = 0  # The size of the file, in bytes.
+    type: str = (
+        ""  # Local file format, i.e., the file extension, such as txt. Format supports pdf, txt, doc, docx types.
+    )
+    status: DocumentStatus  # File processing status. Values include: 0: In processing, 1: Processing completed, 9: Processing failed, recommend re-uploading
+    progress: int = 0  # File upload progress. Unit is percentage.
+    update_type: DocumentUpdateType  # Will the webpage automatically update online. Values include:
+    document_name: str = ""  # File name.
+    remaining_time: int = 0  # Estimated remaining time, in seconds.
+    status_descript: str = ""  # Detailed description of the failure status, for example, the failure information returned when slicing fails. This parameter is returned only when document processing fails.
+    update_interval: int = 0  # Frequency of automatic updates for online web pages. Unit is hours.
+
+
 class DatasetsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
@@ -98,7 +108,7 @@ class DatasetsClient(object):
         *,
         name: str,
         space_id: str,
-        format_type: DatasetFormatType,
+        format_type: DocumentFormatType,
         description: Optional[str] = None,
         icon_file_id: Optional[str] = None,
     ) -> CreateDatasetRes:
@@ -135,7 +145,7 @@ class DatasetsClient(object):
         *,
         space_id: str,
         name: Optional[str] = None,
-        format_type: Optional[DatasetFormatType] = None,
+        format_type: Optional[DocumentFormatType] = None,
         page_num: int = 1,
         page_size: int = 10,
         **kwargs,
@@ -237,6 +247,37 @@ class DatasetsClient(object):
             cast=None,
         )
 
+    def process(
+        self,
+        *,
+        dataset_id: str,
+        document_ids: List[str],
+    ) -> ListResponse[DocumentProgress]:
+        """
+        Check the upload progress
+        Call this API to get the upload progress of knowledge base files.
+        This API supports viewing the upload progress of all types of knowledge base files, such as text, images, and tables.
+        It supports batch viewing of multiple files' progress, but the files must be located in the same knowledge base.
+
+        docs en: https://www.coze.com/docs/developer_guides/get_dataset_progress
+        docs zh: https://www.coze.cn/docs/developer_guides/get_dataset_progress
+
+        :param dataset_id: The ID of the dataset
+        :param document_ids: The IDs of the documents
+        """
+        url = f"{self._base_url}/v1/datasets/{dataset_id}/process"
+        body = {
+            "document_ids": document_ids,
+        }
+        return self._requester.request(
+            "post",
+            url,
+            False,
+            cast=ListResponse[DocumentProgress],
+            body=body,
+            data_field="data.data",
+        )
+
 
 class AsyncDatasetsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
@@ -271,7 +312,7 @@ class AsyncDatasetsClient(object):
         *,
         name: str,
         space_id: str,
-        format_type: DatasetFormatType,
+        format_type: DocumentFormatType,
         description: Optional[str] = None,
         icon_file_id: Optional[str] = None,
     ) -> CreateDatasetRes:
@@ -305,7 +346,7 @@ class AsyncDatasetsClient(object):
         *,
         space_id: str,
         name: Optional[str] = None,
-        format_type: Optional[DatasetFormatType] = None,
+        format_type: Optional[DocumentFormatType] = None,
         page_num: int = 1,
         page_size: int = 10,
         **kwargs,
@@ -405,4 +446,35 @@ class AsyncDatasetsClient(object):
             url,
             False,
             cast=None,
+        )
+
+    async def process(
+        self,
+        *,
+        dataset_id: str,
+        document_ids: List[str],
+    ) -> ListResponse[DocumentProgress]:
+        """
+        Check the upload progress
+        Call this API to get the upload progress of knowledge base files.
+        This API supports viewing the upload progress of all types of knowledge base files, such as text, images, and tables.
+        It supports batch viewing of multiple files' progress, but the files must be located in the same knowledge base.
+
+        docs en: https://www.coze.com/docs/developer_guides/get_dataset_progress
+        docs zh: https://www.coze.cn/docs/developer_guides/get_dataset_progress
+
+        :param dataset_id: The ID of the dataset
+        :param document_ids: The IDs of the documents
+        """
+        url = f"{self._base_url}/v1/datasets/{dataset_id}/process"
+        body = {
+            "document_ids": document_ids,
+        }
+        return await self._requester.arequest(
+            "post",
+            url,
+            False,
+            cast=ListResponse[DocumentProgress],
+            body=body,
+            data_field="data.data",
         )

@@ -2,7 +2,8 @@ import httpx
 import pytest
 
 from cozepy import AsyncCoze, Coze, TokenAuth
-from cozepy.datasets import Dataset, DatasetFormatType, DatasetStatus
+from cozepy.datasets import Dataset, DatasetStatus, DocumentFormatType, DocumentProgress
+from cozepy.datasets.documents import DocumentStatus, DocumentUpdateType
 from cozepy.util import random_hex
 
 
@@ -34,7 +35,7 @@ def mock_list_dataset(respx_mock, total_count, page):
                             description=f"description_{page}",
                             space_id=f"space_id_{page}",
                             status=DatasetStatus.ENABLED,
-                            format_type=DatasetFormatType.TEXT,
+                            format_type=DocumentFormatType.DOCUMENT,
                         ).model_dump()
                     ],
                     "total_count": total_count,
@@ -62,6 +63,28 @@ def mock_delete_dataset(respx_mock, dataset_id):
     )
 
 
+def mock_process_dataset(respx_mock, dataset_id, document_id):
+    respx_mock.post(f"/v1/datasets/{dataset_id}/process").mock(
+        httpx.Response(
+            200,
+            json={
+                "data": {
+                    "data": [
+                        DocumentProgress(
+                            document_id=document_id,
+                            document_name="document_name",
+                            status=DocumentStatus.PROCESSING,
+                            update_type=DocumentUpdateType.AUTO_UPDATE,
+                            progress=0,
+                            remaining_time=0,
+                        ).model_dump()
+                    ]
+                }
+            },
+        )
+    )
+
+
 @pytest.mark.respx(base_url="https://api.coze.com")
 class TestDataset:
     def test_sync_dataset_create(self, respx_mock):
@@ -70,7 +93,7 @@ class TestDataset:
         dataset_id = random_hex(10)
         mock_create_dataset(respx_mock, dataset_id)
 
-        dataset = coze.datasets.create(space_id="space id", name="name", format_type=DatasetFormatType.TEXT)
+        dataset = coze.datasets.create(space_id="space id", name="name", format_type=DocumentFormatType.DOCUMENT)
         assert dataset
         assert dataset.dataset_id == dataset_id
 
@@ -123,6 +146,15 @@ class TestDataset:
 
         coze.datasets.delete(dataset_id=dataset_id)
 
+    def test_sync_dataset_process(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        dataset_id = random_hex(10)
+        document_id = random_hex(10)
+        mock_process_dataset(respx_mock, dataset_id, document_id)
+
+        coze.datasets.process(dataset_id=dataset_id, document_ids=[document_id])
+
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
@@ -133,7 +165,7 @@ class TestAsyncDataset:
         dataset_id = random_hex(10)
         mock_create_dataset(respx_mock, dataset_id)
 
-        dataset = await coze.datasets.create(space_id="space id", name="name", format_type=DatasetFormatType.TEXT)
+        dataset = await coze.datasets.create(space_id="space id", name="name", format_type=DocumentFormatType.DOCUMENT)
         assert dataset
         assert dataset.dataset_id == dataset_id
 
@@ -185,3 +217,12 @@ class TestAsyncDataset:
         mock_delete_dataset(respx_mock, dataset_id)
 
         await coze.datasets.delete(dataset_id=dataset_id)
+
+    async def test_async_dataset_process(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        dataset_id = random_hex(10)
+        document_id = random_hex(10)
+        mock_process_dataset(respx_mock, dataset_id, document_id)
+
+        await coze.datasets.process(dataset_id=dataset_id, document_ids=[document_id])

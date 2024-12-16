@@ -57,7 +57,7 @@ from .config import (
 )
 from .conversations import Conversation, Section
 from .coze import AsyncCoze, Coze
-from .datasets import CreateDatasetRes, Dataset, DatasetFormatType, DatasetStatus
+from .datasets import CreateDatasetRes, Dataset, DatasetStatus
 from .datasets.documents import (
     Document,
     DocumentBase,
@@ -81,6 +81,7 @@ from .model import (
     FileHTTPResponse,
     LastIDPaged,
     LastIDPagedResponse,
+    ListResponse,
     NumberPaged,
     NumberPagedResponse,
     Stream,
@@ -159,7 +160,6 @@ __all__ = [
     "File",
     # datasets
     "Dataset",
-    "DatasetFormatType",
     "DatasetStatus",
     "CreateDatasetRes",
     # datasets.images
@@ -210,6 +210,7 @@ __all__ = [
     "CozePKCEAuthError",
     "CozePKCEAuthErrorType",
     # model
+    "ListResponse",
     "AsyncLastIDPaged",
     "AsyncNumberPaged",
     "AsyncPagedBase",

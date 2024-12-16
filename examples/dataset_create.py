@@ -9,7 +9,7 @@ from cozepy import (  # noqa
     COZE_COM_BASE_URL,
     Coze,
     CreateDatasetResp,
-    DatasetFormatType,
+    DocumentFormatType,
     TokenAuth,
     setup_logging,
 )
