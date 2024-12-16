@@ -57,7 +57,7 @@ from .config import (
 )
 from .conversations import Conversation, Section
 from .coze import AsyncCoze, Coze
-from .datasets import CreateDatasetRes, DatasetFormatType
+from .datasets import CreateDatasetRes, Dataset, DatasetFormatType, DatasetStatus
 from .datasets.documents import (
     Document,
     DocumentBase,
@@ -157,7 +157,9 @@ __all__ = [
     # files
     "File",
     # datasets
+    "Dataset",
     "DatasetFormatType",
+    "DatasetStatus",
     "CreateDatasetRes",
     # knowledge.documents
     "DocumentChunkStrategy",
