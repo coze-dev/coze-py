@@ -144,7 +144,7 @@ class DeviceAuth(object):
         """Get new token"""
         try:
             device_code = self._oauth_app.get_device_code()
-            print("Please open url:", device_code.verification_url)
+            console.print(f"[yellow]Please open url: {device_code.verification_url}[/yellow]")
             return self._oauth_app.get_access_token(device_code.device_code, poll=True)
         except Exception:
             return None
@@ -329,6 +329,10 @@ class CozeAPI(object):
         self._auth = DeviceAuth()
         self._file_cache = FileCache(".cache")
 
+    def logout(self):
+        for file in os.listdir(".cache"):
+            os.remove(os.path.join(".cache", file))
+
     def list_workspaces(
         self,
         page: int = 1,
@@ -497,6 +501,14 @@ coze = CozeAPI()
 def cli():
     """Coze CLI"""
     pass
+
+
+# logout or auth revoke
+@cli.command("logout")
+def logout():
+    """Logout"""
+    coze.logout()
+    console.print("[green]Logout successfully[/green]")
 
 
 @cli.group()
