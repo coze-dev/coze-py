@@ -60,7 +60,7 @@ class DeviceAuth(object):
         # 初始化客户端ID和API基础URL
         self._client_id = "57294420732781205987760324720643.app.coze"
         self._api_base = COZE_CN_BASE_URL
-        # 创建设备OAuth应���实例
+        # 创建设备OAuth应用实例
         self._oauth_app = DeviceOAuthApp(client_id=self._client_id, base_url=self._api_base)
         self._token: Optional[OAuthToken] = None
         self._file_cache = FileCache(".cache")
@@ -457,6 +457,34 @@ class CozeCli(object):
         rich_voice_list = RichVoiceList(voices, json_output)
         console.print(rich_voice_list)
 
+    def create_speech(
+        self,
+        text: str,
+        voice_id: str,
+        output_file: Optional[str] = None,
+        response_format: str = "mp3",
+        speed: float = 1,
+        sample_rate: int = 24000,
+    ):
+        if not output_file:
+            console.print("[red]请指定输出文件[/red]")
+            return
+
+        try:
+            speech = self._auth.client().audio.speech.create(
+                input=text,
+                voice_id=voice_id,
+                response_format=response_format,
+                speed=speed,
+                sample_rate=sample_rate,
+            )
+        except Exception as e:
+            console.print(f"[red]创建语音合成任务失败: {str(e)}[/red]")
+            return
+
+        speech.write_to_file(output_file)
+        console.print(f"\n[green]音频已保存到: {output_file}[/green]")
+
 
 coze = CozeCli()
 
@@ -535,15 +563,42 @@ def voice():
 @click.option("--page", default=1, help="page number")
 @click.option("--size", default=10, help="page size")
 @click.option("--json", "json_output", is_flag=True, help="output in json format")
-@click.option("--all", "all_pages", is_flag=True, help="get all bots")
+@click.option("--all", "all_pages", is_flag=True, help="get all voices")
 @click.option("--name", "name_filter", help="filter by name")
-@click.option("--exclude-system", "exclude_system_voice", is_flag=True, help="exclude system voice")
+@click.option("--exclude-system", "exclude_system", is_flag=True, help="exclude system voice")
 def list_voices(
-    page: int, size: int, json_output: bool, all_pages: bool, name_filter: Optional[str], exclude_system_voice: bool
+    page: int, size: int, json_output: bool, all_pages: bool, name_filter: Optional[str], exclude_system: bool
 ):
     """列出所有可用的语音"""
     try:
-        coze.list_voices(page, size, json_output, all_pages, name_filter, exclude_system_voice)
+        coze.list_voices(page, size, json_output, all_pages, name_filter, exclude_system)
+    except Exception as e:
+        console.print(f"[red]错误: {str(e)}[/red]")
+
+
+@audio.group()
+def speech():
+    """语音合成相关操作"""
+    pass
+
+
+@speech.command("create")
+@click.argument("text")
+@click.option("--voice_id", "voice_id", help="Voice ID")
+@click.option("--output", "-o", "output_file", help="Save audio file path")
+@click.option("--format", "response_format", help="Audio format", default="mp3")
+@click.option("--speed", "speed", help="Speech speed", default=1)
+@click.option("--sample_rate", "sample_rate", help="Sample rate", default=24000)
+def create_speech(
+    text: str, voice_id: str, output_file: Optional[str], response_format: str, speed: float, sample_rate: int
+):
+    """Create speech synthesis task
+
+    VOICE_ID: Voice ID
+    TEXT: Text to be synthesized
+    """
+    try:
+        coze.create_speech(text, voice_id, output_file, response_format, speed, sample_rate)
     except Exception as e:
         console.print(f"[red]错误: {str(e)}[/red]")
 
