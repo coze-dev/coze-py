@@ -84,6 +84,7 @@ from .model import (
     Stream,
 )
 from .request import AsyncHTTPClient, SyncHTTPClient
+from .templates import TemplateDuplicateRes, TemplateEntityType
 from .version import VERSION
 from .workflows.runs import (
     WorkflowEvent,
@@ -180,6 +181,9 @@ __all__ = [
     "WorkspaceRoleType",
     "WorkspaceType",
     "Workspace",
+    # templates
+    "TemplateDuplicateRes",
+    "TemplateEntityType",
     # log
     "setup_logging",
     # config

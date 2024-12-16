@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from .datasets import AsyncDatasetsClient, DatasetsClient
     from .files import AsyncFilesClient, FilesClient
     from .knowledge import AsyncKnowledgeClient, KnowledgeClient  # deprecated
+    from .templates import AsyncTemplatesClient, TemplatesClient
     from .workflows import AsyncWorkflowsClient, WorkflowsClient
     from .workspaces import AsyncWorkspacesClient, WorkspacesClient
 
@@ -39,6 +40,7 @@ class Coze(object):
         self._knowledge: Optional[KnowledgeClient] = None  # deprecated
         self._datasets: Optional[DatasetsClient] = None
         self._audio: Optional[AudioClient] = None
+        self._templates: Optional[TemplatesClient] = None
 
     @property
     def bots(self) -> "BotsClient":
@@ -118,6 +120,14 @@ class Coze(object):
             self._audio = AudioClient(self._base_url, self._auth, self._requester)
         return self._audio
 
+    @property
+    def templates(self) -> "TemplatesClient":
+        if not self._templates:
+            from .templates import TemplatesClient
+
+            self._templates = TemplatesClient(self._base_url, self._auth, self._requester)
+        return self._templates
+
 
 class AsyncCoze(object):
     def __init__(
@@ -140,6 +150,7 @@ class AsyncCoze(object):
         self._workflows: Optional[AsyncWorkflowsClient] = None
         self._workspaces: Optional[AsyncWorkspacesClient] = None
         self._audio: Optional[AsyncAudioClient] = None
+        self._templates: Optional[AsyncTemplatesClient] = None
 
     @property
     def bots(self) -> "AsyncBotsClient":
@@ -218,3 +229,11 @@ class AsyncCoze(object):
 
             self._audio = AsyncAudioClient(self._base_url, self._auth, self._requester)
         return self._audio
+
+    @property
+    def templates(self) -> "AsyncTemplatesClient":
+        if not self._templates:
+            from .templates import AsyncTemplatesClient
+
+            self._templates = AsyncTemplatesClient(self._base_url, self._auth, self._requester)
+        return self._templates
