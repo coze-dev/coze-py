@@ -610,5 +610,25 @@ def create_speech(
         console.print(f"[red]Error: {str(e)}[/red]")
 
 
+@cli.group()
+def template():
+    """Template"""
+    pass
+
+
+@template.command("duplicate")
+@click.argument("template_id")
+@click.argument("workspace_id")
+@click.option("--name", "name", help="Template name")
+def duplicate_template(template_id: str, workspace_id: str, name: Optional[str]):
+    """Duplicate a template"""
+    try:
+        res = coze.templates.duplicate(template_id=template_id, workspace_id=workspace_id, name=name)
+    except Exception as e:
+        console.print(f"[red]Error: {str(e)}[/red]")
+
+    console.print(f"[green]Template duplicated: {res.entity_id}, {res.entity_type}[/green]")
+
+
 if __name__ == "__main__":
     cli()
