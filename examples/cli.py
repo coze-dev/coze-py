@@ -578,6 +578,19 @@ class CozeAPI(object):
 
         return RichDatasetList(datasets, datasets_page.total, page, size)
 
+    def update_dataset(self, dataset_id: str, name: Optional[str], description: Optional[str], icon: Optional[str]):
+        if not dataset_id:
+            raise ValueError("Please specify dataset id")
+        if icon and os.path.exists(icon):
+            file = self.client.files.upload(file=icon)
+            icon_file_id = file.id
+        else:
+            icon_file_id = icon
+
+        self.client.datasets.update(
+            dataset_id=dataset_id, name=name, description=description, icon_file_id=icon_file_id
+        )
+
     def _set_workspace_cache(self, workspace: Workspace):
         self._file_cache.set_typed(f"workspace_{workspace.id}.json", workspace)
 
@@ -784,6 +797,20 @@ def list_datasets(
     try:
         res = coze.list_datasets(space_id, name, format_type, page, size, all_pages)
         res.print(json_output)
+    except Exception as e:
+        console.print(f"[red]Error: {str(e)}[/red]")
+
+
+@dataset.command("update")
+@click.option("--dataset_id", "dataset_id", help="Dataset ID")
+@click.option("--name", "name", help="Dataset name")
+@click.option("--description", "description", help="Dataset description")
+@click.option("--icon", "icon", help="Dataset icon")
+def update_dataset(dataset_id: str, name: Optional[str], description: Optional[str], icon: Optional[str]):
+    """Update a dataset"""
+    try:
+        coze.update_dataset(dataset_id, name, description, icon)
+        console.print(f"[green]Dataset updated: {dataset_id}[/green]")
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
 

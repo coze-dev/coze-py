@@ -44,6 +44,15 @@ def mock_list_dataset(respx_mock, total_count, page):
     )
 
 
+def mock_update_dataset(respx_mock, dataset_id):
+    respx_mock.put(f"/v1/datasets/{dataset_id}").mock(
+        httpx.Response(
+            200,
+            json={"data": {}},
+        )
+    )
+
+
 @pytest.mark.respx(base_url="https://api.coze.com")
 class TestDataset:
     def test_sync_dataset_create(self, respx_mock):
@@ -88,6 +97,14 @@ class TestDataset:
             dataset = page.items[0]
             assert dataset.dataset_id == f"id_{idx + 1}"
         assert total_result == total
+
+    def test_sync_dataset_update(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        dataset_id = random_hex(10)
+        mock_update_dataset(respx_mock, dataset_id)
+
+        coze.datasets.update(dataset_id=dataset_id, name="name")
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -135,3 +152,11 @@ class TestAsyncDataset:
             dataset = page.items[0]
             assert dataset.dataset_id == f"id_{total_result}"
         assert total_result == total
+
+    async def test_async_dataset_update(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        dataset_id = random_hex(10)
+        mock_update_dataset(respx_mock, dataset_id)
+
+        await coze.datasets.update(dataset_id=dataset_id, name="name")
