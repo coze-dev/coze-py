@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import time
+from datetime import datetime
 from functools import lru_cache
 from typing import List, Optional, Type, TypeVar
 
@@ -10,16 +11,18 @@ from pydantic import BaseModel
 from rich.console import Console
 from rich.table import Table
 
-from cozepy import COZE_CN_BASE_URL, Coze, DeviceOAuthApp, OAuthToken, TokenAuth
-from cozepy.bots import Bot
+from cozepy import COZE_CN_BASE_URL, Bot, Coze, DeviceOAuthApp, OAuthToken, TokenAuth, Voice, Workspace
 from cozepy.log import setup_logging
-from cozepy.workspaces import Workspace
 
 BaseT = TypeVar("BaseT", bound=BaseModel)
 
 
 setup_logging(logging.ERROR)
 console = Console()
+
+
+def format_time(timestamp: int) -> str:
+    return datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S")
 
 
 class FileCache(object):
@@ -57,7 +60,7 @@ class DeviceAuth(object):
         # 初始化客户端ID和API基础URL
         self._client_id = "57294420732781205987760324720643.app.coze"
         self._api_base = COZE_CN_BASE_URL
-        # 创建设备OAuth应用实例
+        # 创建设备OAuth应���实例
         self._oauth_app = DeviceOAuthApp(client_id=self._client_id, base_url=self._api_base)
         self._token: Optional[OAuthToken] = None
         self._file_cache = FileCache(".cache")
@@ -264,6 +267,53 @@ class RichBotList(object):
         )
 
 
+class RichVoiceList(object):
+    def __init__(self, voices: List[Voice], json_output: bool = False):
+        self._voices = voices
+        self._json_output = json_output
+
+    def __rich__(self) -> str:
+        if self._json_output:
+            return self._get_json()
+        return self._get_table()
+
+    def _get_table(self) -> Table:
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("ID", style="dim")
+        table.add_column("Name")
+        table.add_column("Is System")
+        table.add_column("Language")
+        table.add_column("Preview Text")
+        table.add_column("Preview Audio")
+        table.add_column("Available Training Times")
+        table.add_column("Create Time")
+        table.add_column("Update Time")
+
+        for voice in self._voices:
+            table.add_row(
+                voice.voice_id,
+                voice.name,
+                "[bold blue]Yes[/bold blue]" if voice.is_system_voice else "[bold yellow]No[/bold yellow]",
+                f"[{voice.language_code}]{voice.language_name}",
+                voice.preview_text,
+                f"[link={voice.preview_audio}]{voice.preview_audio}[/link]",
+                f"{voice.available_training_times} times",
+                format_time(voice.create_time),
+                format_time(voice.update_time),
+            )
+
+        return table
+
+    def _get_json(self) -> str:
+        return json.dumps(
+            {
+                "items": [voice.model_dump(mode="json") for voice in self._voices],
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+
+
 class CozeCli(object):
     """Coze交互式命令行界面"""
 
@@ -371,6 +421,42 @@ class CozeCli(object):
     def _get_bot_cache(self, bot_id: str) -> Optional[Bot]:
         return self._file_cache.get_typed(f"bot_{bot_id}.json", Bot)
 
+    def _set_voice_cache(self, voice: Voice):
+        self._file_cache.set_typed(f"voice_{voice.voice_id}.json", voice)
+
+    def _get_voice_cache(self, voice_id: str) -> Optional[Voice]:
+        return self._file_cache.get_typed(f"voice_{voice_id}.json", Voice)
+
+    def list_voices(
+        self,
+        page: int = 1,
+        size: int = 10,
+        json_output: bool = False,
+        all_pages: bool = False,
+        name_filter: Optional[str] = None,
+        exclude_system_voice: bool = False,
+    ):
+        """列出所有可用的语音"""
+        voices = []
+        try:
+            voices_page = self._auth.client().audio.voices.list(filter_system_voice=exclude_system_voice)
+            if all_pages:
+                voices = [voice for voice in voices_page]
+            else:
+                voices = voices_page.items
+        except Exception as e:
+            console.print(f"[red]获取语音列表失败: {str(e)}[/red]")
+            return
+
+        for voice in voices:
+            self._set_voice_cache(voice)
+
+        if name_filter:
+            voices = [voice for voice in voices if name_filter.lower() in voice.name.lower()]
+
+        rich_voice_list = RichVoiceList(voices, json_output)
+        console.print(rich_voice_list)
+
 
 coze = CozeCli()
 
@@ -429,6 +515,35 @@ def retrieve_bot(workspace_id: str, bot_id: str):
     """显示机器人详细信息"""
     try:
         coze.retrieve_bot(workspace_id, bot_id)
+    except Exception as e:
+        console.print(f"[red]错误: {str(e)}[/red]")
+
+
+@cli.group()
+def audio():
+    """音频相关操作"""
+    pass
+
+
+@audio.group()
+def voice():
+    """语音相关操作"""
+    pass
+
+
+@voice.command("list")
+@click.option("--page", default=1, help="page number")
+@click.option("--size", default=10, help="page size")
+@click.option("--json", "json_output", is_flag=True, help="output in json format")
+@click.option("--all", "all_pages", is_flag=True, help="get all bots")
+@click.option("--name", "name_filter", help="filter by name")
+@click.option("--exclude-system", "exclude_system_voice", is_flag=True, help="exclude system voice")
+def list_voices(
+    page: int, size: int, json_output: bool, all_pages: bool, name_filter: Optional[str], exclude_system_voice: bool
+):
+    """列出所有可用的语音"""
+    try:
+        coze.list_voices(page, size, json_output, all_pages, name_filter, exclude_system_voice)
     except Exception as e:
         console.print(f"[red]错误: {str(e)}[/red]")
 
