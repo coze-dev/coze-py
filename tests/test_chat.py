@@ -1,4 +1,6 @@
 import base64
+import os
+import tempfile
 
 import httpx
 import pytest
@@ -143,7 +145,9 @@ class TestChat:
         assert len(events) == 7
 
         assert base64.b64decode(events[-1].message.content)
-        write_pcm_to_wav_file(base64.b64decode(events[-1].message.content), f"{random_hex(10)}.wav")
+        temp_filename = f"{tempfile.mkdtemp()}/{random_hex(10)}.wav"
+        write_pcm_to_wav_file(base64.b64decode(events[-1].message.content), temp_filename)
+        assert os.path.exists(temp_filename)
 
     def test_sync_chat_stream_error(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
@@ -330,7 +334,9 @@ class TestAsyncChatConversationMessage:
         assert len(events) == 7
 
         assert base64.b64decode(events[-1].message.content)
-        write_pcm_to_wav_file(base64.b64decode(events[-1].message.content), f"{random_hex(10)}.wav")
+        temp_filename = f"{tempfile.mkdtemp()}/{random_hex(10)}.wav"
+        write_pcm_to_wav_file(base64.b64decode(events[-1].message.content), temp_filename)
+        assert os.path.exists(temp_filename)
 
     async def test_async_chat_stream_error(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
