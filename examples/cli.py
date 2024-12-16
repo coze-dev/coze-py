@@ -66,42 +66,42 @@ class FileCache(object):
 
 
 class DeviceAuth(object):
-    """设备授权认证类"""
+    """Device authorization authentication class"""
 
     def __init__(self):
-        # 初始化客户端ID和API基础URL
+        # Initialize client ID and API base URL
         self._client_id = "57294420732781205987760324720643.app.coze"
         self._api_base = COZE_CN_BASE_URL
-        # 创建设备OAuth应用实例
+        # Create device OAuth application instance
         self._oauth_app = DeviceOAuthApp(client_id=self._client_id, base_url=self._api_base)
         self._token: Optional[OAuthToken] = None
         self._file_cache = FileCache(".cache")
 
     @property
     def token(self) -> Optional[OAuthToken]:
-        """获取有效的token
+        """Get valid token
 
-        按以下顺序尝试获取token:
-        1. 使用内存中缓存的token
-        2. 从文件加载token
-        3. 重新获取新token
+        Try to get token in the following order:
+        1. Use token in memory
+        2. Load token from file
+        3. Get new token
         """
-        # 检查内存中的token
+        # Check token in memory
         if self._token and self._is_token_valid(self._token):
             return self._token
 
-        # 尝试从文件加载token
+        # Try to load token from file
         if file_token := self._load_token():
             if self._is_token_valid(file_token):
                 self._token = file_token
                 return self._token
-            # token过期但有refresh_token,尝试刷新
+            # Token expired but has refresh_token, try to refresh
             if refreshed_token := self._refresh_token(file_token):
                 self._token = refreshed_token
                 self._save_token(refreshed_token)
                 return self._token
 
-        # 重新获取新token
+        # Get new token
         if new_token := self._get_token():
             self._token = new_token
             self._save_token(new_token)
@@ -110,17 +110,17 @@ class DeviceAuth(object):
         return None
 
     def client(self, workspace_id: Optional[str] = None) -> Coze:
-        """创建Coze客户端"""
+        """Create Coze client"""
         if not (token := self.token):
             raise Exception("No valid token found")
         return Coze(auth=TokenAuth(token=token.access_token), base_url=self._api_base)
 
     def _is_token_valid(self, token: OAuthToken) -> bool:
-        """检查token是否有效"""
+        """Check if token is valid"""
         return token.expires_in + 30 > int(time.time())
 
     def _refresh_token(self, token: OAuthToken) -> Optional[OAuthToken]:
-        """刷新token"""
+        """Refresh token"""
         if not token.refresh_token:
             return None
         try:
@@ -130,18 +130,18 @@ class DeviceAuth(object):
             return None
 
     def _load_token(self) -> Optional[OAuthToken]:
-        """从文件加载token"""
+        """Load token from file"""
         try:
             return self._file_cache.get_typed(self._cache_key(), OAuthToken)
         except Exception:
             return None
 
     def _save_token(self, token: OAuthToken) -> None:
-        """保存token到文件"""
+        """Save token to file"""
         self._file_cache.set_typed(self._cache_key(), token)
 
     def _get_token(self) -> Optional[OAuthToken]:
-        """获取新token"""
+        """Get new token"""
         try:
             device_code = self._oauth_app.get_device_code()
             print("Please open url:", device_code.verification_url)
@@ -151,7 +151,7 @@ class DeviceAuth(object):
 
     @lru_cache(maxsize=1)
     def _cache_key(self) -> str:
-        """获取token缓存文件路径"""
+        """Get token cache file path"""
         return f"coze_token_{self._client_id}.json"
 
 
@@ -207,7 +207,7 @@ class RichWorkspaceList(object):
         table = self._get_table()
         table.add_section()
         table.add_row(
-            f"总数: {self._total} | 当前页: {self._page} | 每页: {self._size}", style="bold cyan", end_section=True
+            f"Total: {self._total} | Page: {self._page} | Size: {self._size}", style="bold cyan", end_section=True
         )
         return table
 
@@ -250,7 +250,7 @@ class RichBotList(object):
         table = self._get_table()
         table.add_section()
         table.add_row(
-            f"总数: {self._total} | 当前页: {self._page} | 每页: {self._size}", style="bold cyan", end_section=True
+            f"Total: {self._total} | Page: {self._page} | Size: {self._size}", style="bold cyan", end_section=True
         )
         return table
 
@@ -375,7 +375,7 @@ class CozeAPI(object):
         """List bots in a workspace"""
         bots = []
         try:
-            # 获取机器人列表
+            # Get bot list
             bots_page = self._auth.client().bots.list(space_id=workspace_id, page_num=page, page_size=size)
             if all_pages:
                 bots = [bot for bot in bots_page]
@@ -395,20 +395,20 @@ class CozeAPI(object):
         console.print(rich_bot_list)
 
     def retrieve_bot(self, workspace_id: str, bot_id: str):
-        """显示机器人详细信息"""
+        """Show bot details"""
         try:
             workspace = self._get_workspace_cache(workspace_id)
             if not workspace:
                 console.print(f"[red]Workspace not found: {workspace_id}[/red]")
                 return
 
-            # 获取机器人列表
+            # Get bot
             bot = self._auth.client().bots.retrieve(bot_id=bot_id)
             if not bot:
                 console.print(f"[red]Bot not found: {bot_id}[/red]")
                 return
 
-            # 显示机器人详细信息
+            # Show bot details
             console.print(RichBot(bot))
 
         except Exception as e:
@@ -444,7 +444,9 @@ class CozeAPI(object):
         """List all available voices"""
         voices = []
         try:
-            voices_page = self._auth.client().audio.voices.list(filter_system_voice=exclude_system_voice)
+            voices_page = self._auth.client().audio.voices.list(
+                filter_system_voice=exclude_system_voice, page_num=page, page_size=size
+            )
             if all_pages:
                 voices = [voice for voice in voices_page]
             else:
@@ -472,7 +474,7 @@ class CozeAPI(object):
         sample_rate: int = 24000,
     ):
         if not output_file:
-            console.print("[red]请指定输出文件[/red]")
+            console.print("[red]Please specify output file[/red]")
             return
 
         try:
@@ -488,7 +490,7 @@ class CozeAPI(object):
             return
 
         speech.write_to_file(output_file)
-        console.print(f"\n[green]音频已保存到: {output_file}[/green]")
+        console.print(f"\n[green]Audio saved to: {output_file}[/green]")
 
 
 coze = CozeAPI()
