@@ -894,7 +894,7 @@ def create_dataset(
 @dataset.command("list")
 @click.option("--space_id", "space_id", help="Space ID")
 @click.option("--name", "name", help="Dataset name")
-@click.option("--format", "format_type", help="Dataset format", default=0)
+@click.option("--format", "format_type", help="Dataset format", type=click.Choice(["txt", "table", "image"]))
 @click.option("--page", default=1, help="page number")
 @click.option("--size", default=10, help="page size")
 @click.option("--json", "json_output", is_flag=True, help="output in json format")
@@ -902,7 +902,7 @@ def create_dataset(
 def list_datasets(
     space_id: str,
     name: Optional[str],
-    format_type: Optional[DatasetFormatType],
+    format_type: Optional[str],
     page: int,
     size: int,
     json_output: bool,
@@ -910,6 +910,13 @@ def list_datasets(
 ):
     """List all datasets in a space"""
     try:
+        format_type = (
+            {"txt": DatasetFormatType.TEXT, "table": DatasetFormatType.TABLE, "image": DatasetFormatType.IMAGE}[
+                format_type
+            ]
+            if format_type
+            else None
+        )
         res = coze.list_datasets(space_id, name, format_type, page, size, all_pages)
         res.print(json_output)
     except Exception as e:
@@ -966,6 +973,21 @@ def list_dataset_documents(dataset_id: str, page: int, size: int, json_output: b
 def image():
     """Dataset Image"""
     pass
+
+
+@image.command("list")
+@click.option("--dataset_id", "dataset_id", help="Dataset ID")
+@click.option("--page", default=1, help="page number")
+@click.option("--size", default=10, help="page size")
+@click.option("--json", "json_output", is_flag=True, help="output in json format")
+@click.option("--all", "all_pages", is_flag=True, help="get all images")
+def list_dataset_images(dataset_id: str, page: int, size: int, json_output: bool, all_pages: bool):
+    """List all images in a dataset"""
+    try:
+        res = coze.list_dataset_images(dataset_id, page, size, all_pages)
+        res.print(json_output)
+    except Exception as e:
+        console.print(f"[red]Error: {str(e)}[/red]")
 
 
 @image.command("update")
