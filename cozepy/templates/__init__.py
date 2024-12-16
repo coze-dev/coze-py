@@ -22,7 +22,9 @@ class TemplatesClient(object):
         self._auth = auth
         self._requester = requester
 
-    def duplicate(self, *, template_id: str, workspace_id: str, name: str, **kwargs) -> TemplateDuplicateRes:
+    def duplicate(
+        self, *, template_id: str, workspace_id: str, name: Optional[str] = None, **kwargs
+    ) -> TemplateDuplicateRes:
         url = f"{self._base_url}/v1/templates/{template_id}/duplicate"
         headers: Optional[dict] = kwargs.get("headers")
         body = {
@@ -38,7 +40,9 @@ class AsyncTemplatesClient(object):
         self._auth = auth
         self._requester = requester
 
-    async def duplicate(self, *, template_id: str, workspace_id: str, name: str, **kwargs) -> TemplateDuplicateRes:
+    async def duplicate(
+        self, *, template_id: str, workspace_id: str, name: Optional[str] = None, **kwargs
+    ) -> TemplateDuplicateRes:
         url = f"{self._base_url}/v1/templates/{template_id}/duplicate"
         headers: Optional[dict] = kwargs.get("headers")
         body = {

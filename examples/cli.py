@@ -201,15 +201,13 @@ class RichWorkspaceList(object):
         self._size = size
         self._json_output = json_output
 
-    def __rich__(self) -> str:
+    def print(self):
         if self._json_output:
-            return self._get_json()
+            print(self._get_json())
+            return
         table = self._get_table()
-        table.add_section()
-        table.add_row(
-            f"Total: {self._total} | Page: {self._page} | Size: {self._size}", style="bold cyan", end_section=True
-        )
-        return table
+        console.print(table)
+        console.print(f"Total: {self._total} | Page: {self._page} | Size: {self._size}")
 
     def _get_table(self) -> Table:
         table = Table(show_header=True, header_style="bold magenta")
@@ -360,8 +358,7 @@ class CozeAPI(object):
         if name_filter:
             workspaces = [ws for ws in workspaces if name_filter.lower() in ws.name.lower()]
 
-        rich_workspace_list = RichWorkspaceList(workspaces, total, page, size, json_output)
-        console.print(rich_workspace_list)
+        RichWorkspaceList(workspaces, total, page, size, json_output).print()
 
     def list_bots(
         self,
@@ -623,11 +620,15 @@ def template():
 def duplicate_template(template_id: str, workspace_id: str, name: Optional[str]):
     """Duplicate a template"""
     try:
-        res = coze.templates.duplicate(template_id=template_id, workspace_id=workspace_id, name=name)
+        res = coze._auth.client().templates.duplicate(
+            template_id=template_id,
+            workspace_id=workspace_id,
+            name=name,
+            headers={"x-tt-env": "ppe_volcengine", "x-use-ppe": "1"},
+        )
+        console.print(f"[green]Template duplicated: {res.entity_id}, {res.entity_type}[/green]")
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
-
-    console.print(f"[green]Template duplicated: {res.entity_id}, {res.entity_type}[/green]")
 
 
 if __name__ == "__main__":
