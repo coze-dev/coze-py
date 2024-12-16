@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Optional
 
 from cozepy.auth import Auth
 from cozepy.model import FileHTTPResponse
@@ -40,6 +41,7 @@ class SpeechClient(object):
         response_format: AudioFormat = AudioFormat.MP3,
         speed: float = 1,
         sample_rate: int = 24000,
+        **kwargs,
     ) -> FileHTTPResponse:
         """
         Generate speech audio from input text with specified voice
@@ -52,6 +54,7 @@ class SpeechClient(object):
         :return: The synthesized audio file content
         """
         url = f"{self._base_url}/v1/audio/speech"
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "input": input,
             "voice_id": voice_id,
@@ -59,7 +62,7 @@ class SpeechClient(object):
             "speed": speed,
             "sample_rate": sample_rate,
         }
-        return self._requester.request("post", url, stream=False, cast=FileHTTPResponse, body=body)
+        return self._requester.request("post", url, stream=False, cast=FileHTTPResponse, headers=headers, body=body)
 
 
 class AsyncSpeechClient(object):
