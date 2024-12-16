@@ -10,7 +10,17 @@ from typing import List, Optional, Type, TypeVar
 
 from pydantic import BaseModel
 
-from cozepy import COZE_CN_BASE_URL, Bot, Coze, DeviceOAuthApp, OAuthToken, TokenAuth, Voice, Workspace
+from cozepy import (
+    COZE_CN_BASE_URL,
+    Bot,
+    Coze,
+    DeviceOAuthApp,
+    OAuthToken,
+    TemplateEntityType,
+    TokenAuth,
+    Voice,
+    Workspace,
+)
 from cozepy.log import setup_logging
 
 try:
@@ -144,7 +154,7 @@ class DeviceAuth(object):
         """Get new token"""
         try:
             device_code = self._oauth_app.get_device_code()
-            print("Please open url:", device_code.verification_url)
+            console.print(f"[yellow]Please open url: {device_code.verification_url}[/yellow]")
             return self._oauth_app.get_access_token(device_code.device_code, poll=True)
         except Exception:
             return None
@@ -201,15 +211,13 @@ class RichWorkspaceList(object):
         self._size = size
         self._json_output = json_output
 
-    def __rich__(self) -> str:
+    def print(self):
         if self._json_output:
-            return self._get_json()
+            print(self._get_json())
+            return
         table = self._get_table()
-        table.add_section()
-        table.add_row(
-            f"Total: {self._total} | Page: {self._page} | Size: {self._size}", style="bold cyan", end_section=True
-        )
-        return table
+        console.print(table)
+        console.print(f"Total: {self._total} | Page: {self._page} | Size: {self._size}")
 
     def _get_table(self) -> Table:
         table = Table(show_header=True, header_style="bold magenta")
@@ -331,6 +339,10 @@ class CozeAPI(object):
         self._auth = DeviceAuth()
         self._file_cache = FileCache(".cache")
 
+    def logout(self):
+        for file in os.listdir(".cache"):
+            os.remove(os.path.join(".cache", file))
+
     def list_workspaces(
         self,
         page: int = 1,
@@ -360,8 +372,7 @@ class CozeAPI(object):
         if name_filter:
             workspaces = [ws for ws in workspaces if name_filter.lower() in ws.name.lower()]
 
-        rich_workspace_list = RichWorkspaceList(workspaces, total, page, size, json_output)
-        console.print(rich_workspace_list)
+        RichWorkspaceList(workspaces, total, page, size, json_output).print()
 
     def list_bots(
         self,
@@ -502,6 +513,14 @@ def cli():
     pass
 
 
+# logout or auth revoke
+@cli.command("logout")
+def logout():
+    """Logout"""
+    coze.logout()
+    console.print("[green]Logout successfully[/green]")
+
+
 @cli.group()
 def workspace():
     """Workspace"""
@@ -606,6 +625,32 @@ def create_speech(
     """
     try:
         coze.create_speech(text, voice_id, output_file, response_format, speed, sample_rate)
+    except Exception as e:
+        console.print(f"[red]Error: {str(e)}[/red]")
+
+
+@cli.group()
+def template():
+    """Template"""
+    pass
+
+
+@template.command("duplicate")
+@click.argument("template_id")
+@click.argument("workspace_id")
+@click.option("--name", "name", help="Template name")
+def duplicate_template(template_id: str, workspace_id: str, name: Optional[str]):
+    """Duplicate a template"""
+    try:
+        res = coze._auth.client().templates.duplicate(
+            template_id=template_id,
+            workspace_id=workspace_id,
+            name=name,
+        )
+        console.print(f"[green]Template duplicated: {res.entity_id}, {res.entity_type}[/green]")
+        if res.entity_type == TemplateEntityType.AGENT:
+            agent_url = f"https://www.coze.cn/space/{workspace_id}/bot/{res.entity_id}"
+            console.print(f"[green]Agent URL: {agent_url}[/green]")
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
 
