@@ -16,6 +16,7 @@
         // Project
         "**/build": true,
         "**/dist": true,
+        ".cache": true,
         // Editor
         "**/.idea": true,
         // System
