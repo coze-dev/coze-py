@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from .documents import AsyncDatasetsDocumentsClient, DatasetsDocumentsClient
 
 
-class CreateDatasetResp(CozeModel):
+class CreateDatasetRes(CozeModel):
     dataset_id: str
 
 
@@ -73,18 +73,21 @@ class DatasetsClient(object):
         *,
         name: str,
         space_id: str,
+        format_type: DatasetFormatType,
         description: Optional[str] = None,
         icon_file_id: Optional[str] = None,
-        format_type: DatasetFormatType = DatasetFormatType.TEXT,
-    ) -> CreateDatasetResp:
+    ) -> CreateDatasetRes:
         """
         Create Dataset
 
+        docs en: https://www.coze.com/docs/developer_guides/create_dataset
+        docs zh: https://www.coze.cn/docs/developer_guides/create_dataset
+
         :param name: The name of the dataset
         :param space_id: The ID of the space that the dataset belongs to
+        :param format_type: The format type of the dataset, 0: text, 2: image
         :param description: The description of the dataset
         :param icon_file_id: The ID of the icon file, uploaded by `coze.files.upload`
-        :param format_type: The format type of the dataset, 0: text, 2: image
         """
         url = f"{self._base_url}/v1/datasets"
         body = {
@@ -98,7 +101,7 @@ class DatasetsClient(object):
             "post",
             url,
             False,
-            CreateDatasetResp,
+            CreateDatasetRes,
             body=body,
         )
 
@@ -155,7 +158,7 @@ class AsyncDatasetsClient(object):
         description: Optional[str] = None,
         icon_file_id: Optional[str] = None,
         format_type: DatasetFormatType = DatasetFormatType.TEXT,
-    ) -> CreateDatasetResp:
+    ) -> CreateDatasetRes:
         """
         Create Dataset
 
@@ -177,7 +180,7 @@ class AsyncDatasetsClient(object):
             "post",
             url,
             False,
-            CreateDatasetResp,
+            CreateDatasetRes,
             body=body,
         )
 

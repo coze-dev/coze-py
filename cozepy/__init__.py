@@ -57,7 +57,7 @@ from .config import (
 )
 from .conversations import Conversation, Section
 from .coze import AsyncCoze, Coze
-from .datasets import CreateDatasetResp, DatasetFormatType
+from .datasets import CreateDatasetRes, DatasetFormatType
 from .datasets.documents import (
     Document,
     DocumentBase,
@@ -100,8 +100,6 @@ from .workflows.runs.run_histories import WorkflowExecuteStatus, WorkflowRunHist
 from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
 
 __all__ = [
-    "DatasetFormatType",
-    "CreateDatasetResp",
     "VERSION",
     # audio.rooms
     "CreateRoomResult",
@@ -158,6 +156,9 @@ __all__ = [
     "Section",
     # files
     "File",
+    # datasets
+    "DatasetFormatType",
+    "CreateDatasetRes",
     # knowledge.documents
     "DocumentChunkStrategy",
     "DocumentFormatType",

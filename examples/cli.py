@@ -14,6 +14,7 @@ from cozepy import (
     COZE_CN_BASE_URL,
     Bot,
     Coze,
+    CreateDatasetRes,
     DeviceOAuthApp,
     OAuthToken,
     TemplateEntityType,
@@ -21,6 +22,7 @@ from cozepy import (
     Voice,
     Workspace,
 )
+from cozepy.datasets import DatasetFormatType
 from cozepy.log import setup_logging
 
 try:
@@ -169,9 +171,13 @@ class RichBot(Bot):
     def __init__(self, bot: Bot):
         super().__init__(**bot.model_dump())
 
-    def __rich__(self) -> str:
-        print(self.model_dump_json())
-        return """[bold blue]Bot Info[/bold blue]
+    def print(self, json_output: bool):
+        if json_output:
+            print(self.model_dump_json())
+            return
+
+        console.print(
+            """[bold blue]Bot Info[/bold blue]
 [yellow]Name:[/yellow] {name}
 [yellow]Description:[/yellow] {description}
 [yellow]Version:[/yellow] {version}
@@ -188,18 +194,19 @@ class RichBot(Bot):
   [yellow]ID:[/yellow] [cyan]{model_id}[/cyan]
   [yellow]Name:[/yellow] [cyan]{model_name}[/cyan]
 """.format(
-            name=self.name,
-            description=self.description or "[italic]-[/italic]",
-            version=self.version,
-            create_time=self.create_time,
-            update_time=self.update_time,
-            bot_mode={0: "Single Agent", 1: "Multi Agent", 2: "Workflow as Agent"}[self.bot_mode],
-            icon_url=self.icon_url,
-            prompt=self.prompt_info.prompt or "[italic]-[/italic]",
-            prologue=self.onboarding_info.prologue or "[italic]-[/italic]",
-            suggested_questions=self.onboarding_info.suggested_questions or "[italic]-[/italic]",
-            model_id=self.model_info.model_id or "[italic]-[/italic]",
-            model_name=self.model_info.model_name or "[italic]-[/italic]",
+                name=self.name,
+                description=self.description or "[italic]-[/italic]",
+                version=self.version,
+                create_time=self.create_time,
+                update_time=self.update_time,
+                bot_mode={0: "Single Agent", 1: "Multi Agent", 2: "Workflow as Agent"}[self.bot_mode],
+                icon_url=self.icon_url,
+                prompt=self.prompt_info.prompt or "[italic]-[/italic]",
+                prologue=self.onboarding_info.prologue or "[italic]-[/italic]",
+                suggested_questions=self.onboarding_info.suggested_questions or "[italic]-[/italic]",
+                model_id=self.model_info.model_id or "[italic]-[/italic]",
+                model_name=self.model_info.model_name or "[italic]-[/italic]",
+            )
         )
 
 
@@ -339,6 +346,10 @@ class CozeAPI(object):
         self._auth = DeviceAuth()
         self._file_cache = FileCache(".cache")
 
+    @property
+    def client(self) -> Coze:
+        return self._auth.client()
+
     def logout(self):
         for file in os.listdir(".cache"):
             os.remove(os.path.join(".cache", file))
@@ -355,7 +366,7 @@ class CozeAPI(object):
         total = 0
         workspaces = []
         try:
-            workspaces_page = self._auth.client().workspaces.list(page_num=page, page_size=size)
+            workspaces_page = self.client.workspaces.list(page_num=page, page_size=size)
             total = workspaces_page.total
             if all_pages:
                 workspaces = [ws for ws in workspaces_page]
@@ -387,7 +398,7 @@ class CozeAPI(object):
         bots = []
         try:
             # Get bot list
-            bots_page = self._auth.client().bots.list(space_id=workspace_id, page_num=page, page_size=size)
+            bots_page = self.client.bots.list(space_id=workspace_id, page_num=page, page_size=size)
             if all_pages:
                 bots = [bot for bot in bots_page]
             else:
@@ -405,43 +416,18 @@ class CozeAPI(object):
         rich_bot_list = RichBotList(bots, bots_page.total, page, size, json_output)
         console.print(rich_bot_list)
 
-    def retrieve_bot(self, workspace_id: str, bot_id: str):
+    def retrieve_bot(self, workspace_id: str, bot_id: str) -> Bot:
         """Show bot details"""
-        try:
-            workspace = self._get_workspace_cache(workspace_id)
-            if not workspace:
-                console.print(f"[red]Workspace not found: {workspace_id}[/red]")
-                return
+        workspace = self._get_workspace_cache(workspace_id)
+        if not workspace:
+            raise Exception(f"Workspace not found: {workspace_id}")
 
-            # Get bot
-            bot = self._auth.client().bots.retrieve(bot_id=bot_id)
-            if not bot:
-                console.print(f"[red]Bot not found: {bot_id}[/red]")
-                return
+        # Get bot
+        bot = self.client.bots.retrieve(bot_id=bot_id)
+        if not bot:
+            raise Exception(f"Bot not found: {bot_id}")
 
-            # Show bot details
-            console.print(RichBot(bot))
-
-        except Exception as e:
-            console.print(f"[red]Get bot info failed: {str(e)}[/red]")
-
-    def _set_workspace_cache(self, workspace: Workspace):
-        self._file_cache.set_typed(f"workspace_{workspace.id}.json", workspace)
-
-    def _get_workspace_cache(self, workspace_id: str) -> Optional[Workspace]:
-        return self._file_cache.get_typed(f"workspace_{workspace_id}.json", Workspace)
-
-    def _set_bot_cache(self, bot: Bot):
-        self._file_cache.set_typed(f"bot_{bot.bot_id}.json", bot)
-
-    def _get_bot_cache(self, bot_id: str) -> Optional[Bot]:
-        return self._file_cache.get_typed(f"bot_{bot_id}.json", Bot)
-
-    def _set_voice_cache(self, voice: Voice):
-        self._file_cache.set_typed(f"voice_{voice.voice_id}.json", voice)
-
-    def _get_voice_cache(self, voice_id: str) -> Optional[Voice]:
-        return self._file_cache.get_typed(f"voice_{voice_id}.json", Voice)
+        return bot
 
     def list_voices(
         self,
@@ -455,7 +441,7 @@ class CozeAPI(object):
         """List all available voices"""
         voices = []
         try:
-            voices_page = self._auth.client().audio.voices.list(
+            voices_page = self.client.audio.voices.list(
                 filter_system_voice=exclude_system_voice, page_num=page, page_size=size
             )
             if all_pages:
@@ -483,25 +469,63 @@ class CozeAPI(object):
         response_format: str = "mp3",
         speed: float = 1,
         sample_rate: int = 24000,
-    ):
+    ) -> str:
         if not output_file:
-            console.print("[red]Please specify output file[/red]")
-            return
+            raise ValueError("Please specify output file")
 
-        try:
-            speech = self._auth.client().audio.speech.create(
-                input=text,
-                voice_id=voice_id,
-                response_format=response_format,
-                speed=speed,
-                sample_rate=sample_rate,
-            )
-        except Exception as e:
-            console.print(f"[red]Create speech task failed: {str(e)}[/red]")
-            return
-
+        speech = self.client.audio.speech.create(
+            input=text,
+            voice_id=voice_id,
+            response_format=response_format,
+            speed=speed,
+            sample_rate=sample_rate,
+        )
         speech.write_to_file(output_file)
-        console.print(f"\n[green]Audio saved to: {output_file}[/green]")
+        return output_file
+
+    """dataset"""
+
+    def create_dataset(
+        self, name: str, space_id: str, format_type: DatasetFormatType, description: Optional[str], icon: Optional[str]
+    ) -> CreateDatasetRes:
+        if not name:
+            raise ValueError("Please specify dataset name")
+        if not space_id:
+            raise ValueError("Please specify space id")
+        if format_type is None:
+            raise ValueError("Please specify dataset format")
+        if icon and os.path.exists(icon):
+            file = self.client.files.upload(file=icon)
+            icon_file_id = file.id
+        else:
+            icon_file_id = icon
+
+        res = self._auth.client().datasets.create(
+            name=name,
+            space_id=space_id,
+            format_type=format_type,
+            description=description,
+            icon_file_id=icon_file_id,
+        )
+        return res
+
+    def _set_workspace_cache(self, workspace: Workspace):
+        self._file_cache.set_typed(f"workspace_{workspace.id}.json", workspace)
+
+    def _get_workspace_cache(self, workspace_id: str) -> Optional[Workspace]:
+        return self._file_cache.get_typed(f"workspace_{workspace_id}.json", Workspace)
+
+    def _set_bot_cache(self, bot: Bot):
+        self._file_cache.set_typed(f"bot_{bot.bot_id}.json", bot)
+
+    def _get_bot_cache(self, bot_id: str) -> Optional[Bot]:
+        return self._file_cache.get_typed(f"bot_{bot_id}.json", Bot)
+
+    def _set_voice_cache(self, voice: Voice):
+        self._file_cache.set_typed(f"voice_{voice.voice_id}.json", voice)
+
+    def _get_voice_cache(self, voice_id: str) -> Optional[Voice]:
+        return self._file_cache.get_typed(f"voice_{voice_id}.json", Voice)
 
 
 coze = CozeAPI()
@@ -565,10 +589,12 @@ def list_bots(workspace_id: str, page: int, size: int, json_output: bool, all_pa
 @bot.command("retrieve")
 @click.argument("workspace_id")
 @click.argument("bot_id")
-def retrieve_bot(workspace_id: str, bot_id: str):
+@click.option("--json", "json_output", is_flag=True, help="output in json format")
+def retrieve_bot(workspace_id: str, bot_id: str, json_output: bool):
     """Retrieve bot details"""
     try:
-        coze.retrieve_bot(workspace_id, bot_id)
+        bot = coze.retrieve_bot(workspace_id, bot_id)
+        RichBot(bot).print(json_output)
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
 
@@ -624,7 +650,31 @@ def create_speech(
     TEXT: Text to be synthesized
     """
     try:
-        coze.create_speech(text, voice_id, output_file, response_format, speed, sample_rate)
+        output_file = coze.create_speech(text, voice_id, output_file, response_format, speed, sample_rate)
+        console.print(f"\n[green]Audio saved to: {output_file}[/green]")
+    except Exception as e:
+        console.print(f"[red]Error: {str(e)}[/red]")
+
+
+@cli.group()
+def dataset():
+    """Dataset"""
+    pass
+
+
+@dataset.command("create")
+@click.option("--name", "name", help="Dataset name")
+@click.option("--space_id", "space_id", help="Space ID")
+@click.option("--format", "format_type", help="Dataset format", default=0)
+@click.option("--description", "description", help="Dataset description")
+@click.option("--icon", "icon", help="Dataset icon")
+def create_dataset(
+    name: str, space_id: str, format_type: DatasetFormatType, description: Optional[str], icon: Optional[str]
+):
+    """Create a dataset"""
+    try:
+        res = coze.create_dataset(name, space_id, format_type, description, icon)
+        console.print(f"[green]Dataset created: {res.dataset_id}[/green]")
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
 
