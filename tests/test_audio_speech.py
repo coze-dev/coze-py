@@ -22,7 +22,7 @@ class TestAudioSpeech:
 
         mock_create_speech(respx_mock)
 
-        res = coze.audio.speech.create(input=random_hex(10), voice_id=random_hex(10))
+        res = coze.audio.speech.create(input=random_hex(10), voice_id=random_hex(10), speed=1.5, sample_rate=32000)
         assert res
 
 
