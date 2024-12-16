@@ -24,6 +24,7 @@ from cozepy import (
 )
 from cozepy.datasets import Dataset, DatasetFormatType
 from cozepy.log import setup_logging
+from cozepy.workspaces import WorkspaceType
 
 try:
     from rich.console import Console
@@ -211,15 +212,14 @@ class RichBot(Bot):
 
 
 class RichWorkspaceList(object):
-    def __init__(self, workspaces: List[Workspace], total: int, page: int, size: int, json_output: bool):
+    def __init__(self, workspaces: List[Workspace], total: int, page: int, size: int):
         self._workspaces = workspaces
         self._total = total
         self._page = page
         self._size = size
-        self._json_output = json_output
 
-    def print(self):
-        if self._json_output:
+    def print(self, json_output: bool = False):
+        if json_output:
             print(self._get_json())
             return
         table = self._get_table()
@@ -405,23 +405,16 @@ class CozeAPI(object):
         self,
         page: int = 1,
         size: int = 10,
-        json_output: bool = False,
         all_pages: bool = False,
         name_filter: Optional[str] = None,
-    ):
+        workspace_type: Optional[WorkspaceType] = None,
+    ) -> RichWorkspaceList:
         """List workspaces"""
-        total = 0
-        workspaces = []
-        try:
-            workspaces_page = self.client.workspaces.list(page_num=page, page_size=size)
-            total = workspaces_page.total
-            if all_pages:
-                workspaces = [ws for ws in workspaces_page]
-            else:
-                workspaces = workspaces_page.items
-        except Exception as e:
-            console.print(f"[red]Get workspace list failed: {str(e)}[/red]")
-            return
+        workspaces_page = self.client.workspaces.list(page_num=page, page_size=size)
+        if all_pages:
+            workspaces = [ws for ws in workspaces_page]
+        else:
+            workspaces = workspaces_page.items
 
         for ws in workspaces:
             self._set_workspace_cache(ws)
@@ -429,8 +422,10 @@ class CozeAPI(object):
         # Filter by name
         if name_filter:
             workspaces = [ws for ws in workspaces if name_filter.lower() in ws.name.lower()]
+        if workspace_type:
+            workspaces = [ws for ws in workspaces if ws.workspace_type == workspace_type]
 
-        RichWorkspaceList(workspaces, total, page, size, json_output).print()
+        return RichWorkspaceList(workspaces, workspaces_page.total, page, size)
 
     def list_bots(
         self,
@@ -637,10 +632,16 @@ def workspace():
 @click.option("--json", "json_output", is_flag=True, help="output in json format")
 @click.option("--all", "all_pages", is_flag=True, help="get all bots")
 @click.option("--name", "name_filter", help="filter by name")
-def list_workspaces(page: int, size: int, json_output: bool, all_pages: bool, name_filter: Optional[str]):
+@click.option(
+    "--type", "workspace_type", help="workspace type", type=click.Choice([WorkspaceType.PERSONAL, WorkspaceType.TEAM])
+)
+def list_workspaces(
+    page: int, size: int, json_output: bool, all_pages: bool, name_filter: Optional[str], workspace_type: WorkspaceType
+):
     """List all workspaces"""
     try:
-        coze.list_workspaces(page, size, json_output, all_pages, name_filter)
+        res = coze.list_workspaces(page, size, all_pages, name_filter, workspace_type)
+        res.print(json_output)
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
 
