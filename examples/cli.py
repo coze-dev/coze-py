@@ -27,7 +27,6 @@ except ImportError:
     exit(1)
 
 BaseT = TypeVar("BaseT", bound=BaseModel)
-BaseT = TypeVar("BaseT", bound=BaseModel)
 
 
 setup_logging(logging.ERROR)
