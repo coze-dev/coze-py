@@ -139,6 +139,44 @@ class DeviceAuth(object):
         return f"coze_token_{self._client_id}.json"
 
 
+class RichBot(Bot):
+    def __init__(self, bot: Bot):
+        super().__init__(**bot.model_dump())
+
+    def __rich__(self) -> str:
+        print(self.model_dump_json())
+        return """[bold blue]Bot Info[/bold blue]
+[yellow]Name:[/yellow] {name}
+[yellow]Description:[/yellow] {description}
+[yellow]Version:[/yellow] {version}
+[yellow]Create Time:[/yellow] {create_time}
+[yellow]Update Time:[/yellow] {update_time}
+[yellow]Mode:[/yellow] {bot_mode}
+[yellow]Icon URL:[/yellow] [link={icon_url}]{icon_url}[/link]
+[yellow]Prompt:[/yellow]
+  [green]{prompt}[/green]
+[yellow]Onboarding:[/yellow]
+  [yellow]Prologue:[/yellow] [cyan]{prologue}[/cyan]
+  [yellow]Questions:[/yellow] [cyan]{suggested_questions}[/cyan]
+[yellow]Model:[/yellow]
+  [yellow]ID:[/yellow] [cyan]{model_id}[/cyan]
+  [yellow]Name:[/yellow] [cyan]{model_name}[/cyan]
+""".format(
+            name=self.name,
+            description=self.description or "[italic]-[/italic]",
+            version=self.version,
+            create_time=self.create_time,
+            update_time=self.update_time,
+            bot_mode={0: "Single Agent", 1: "Multi Agent", 2: "Workflow as Agent"}[self.bot_mode],
+            icon_url=self.icon_url,
+            prompt=self.prompt_info.prompt or "[italic]-[/italic]",
+            prologue=self.onboarding_info.prologue or "[italic]-[/italic]",
+            suggested_questions=self.onboarding_info.suggested_questions or "[italic]-[/italic]",
+            model_id=self.model_info.model_id or "[italic]-[/italic]",
+            model_name=self.model_info.model_name or "[italic]-[/italic]",
+        )
+
+
 class CozeCli(object):
     """Coze交互式命令行界面"""
 
@@ -194,7 +232,7 @@ class CozeCli(object):
         except Exception as e:
             console.print(f"[red]获取机器人列表失败: {str(e)}[/red]")
 
-    def show_bot(self, workspace_id: str, bot_name: str):
+    def retrieve_bot(self, workspace_id: str, bot_id: str):
         """显示机器人详细信息"""
         try:
             workspace = self._get_workspace_cache(workspace_id)
@@ -203,23 +241,13 @@ class CozeCli(object):
                 return
 
             # 获取机器人列表
-            bots_page = self._auth.client().bots.list(space_id=workspace.id)
-            bot = next((bot for bot in bots_page.items if bot.bot_name == bot_name), None)
+            bot = self._auth.client().bots.retrieve(bot_id=bot_id)
             if not bot:
-                console.print(f"[red]机器人不存在: {bot_name}[/red]")
+                console.print(f"[red]机器人不存在: {bot_id}[/red]")
                 return
 
             # 显示机器人详细信息
-            table = Table(show_header=True, header_style="bold magenta")
-            table.add_column("属性")
-            table.add_column("值")
-
-            table.add_row("ID", bot.bot_id)
-            table.add_row("Name", bot.bot_name)
-            table.add_row("Description", bot.description or "-")
-            table.add_row("Publish Time", bot.publish_time)
-
-            console.print(table)
+            console.print(RichBot(bot))
 
         except Exception as e:
             console.print(f"[red]获取机器人信息失败: {str(e)}[/red]")
@@ -280,14 +308,14 @@ def list_bots(workspace: str, page: int, size: int):
         console.print(f"[red]错误: {str(e)}[/red]")
 
 
-@bot.command("show")
-@click.argument("workspace")
-@click.argument("bot")
-def show_bot(workspace: str, bot: str):
+@bot.command("retrieve")
+@click.argument("workspace_id")
+@click.argument("bot_id")
+def retrieve_bot(workspace_id: str, bot_id: str):
     """显示机器人详细信息"""
     try:
         CozeCli()._ensure_token()
-        CozeCli().show_bot(workspace, bot)
+        CozeCli().retrieve_bot(workspace_id, bot_id)
     except Exception as e:
         console.print(f"[red]错误: {str(e)}[/red]")
 

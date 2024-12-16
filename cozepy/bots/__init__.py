@@ -28,7 +28,7 @@ class BotModelInfo(CozeModel):
 
 
 class BotMode(IntEnum):
-    SINGL_EAGENT = 0
+    SINGLE_AGENT = 0
     MULTI_AGENT = 1
     SINGLE_AGENT_WORKFLOW = 2
 
