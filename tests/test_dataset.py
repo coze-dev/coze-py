@@ -53,6 +53,15 @@ def mock_update_dataset(respx_mock, dataset_id):
     )
 
 
+def mock_delete_dataset(respx_mock, dataset_id):
+    respx_mock.delete(f"/v1/datasets/{dataset_id}").mock(
+        httpx.Response(
+            200,
+            json={"data": {}},
+        )
+    )
+
+
 @pytest.mark.respx(base_url="https://api.coze.com")
 class TestDataset:
     def test_sync_dataset_create(self, respx_mock):
@@ -105,6 +114,14 @@ class TestDataset:
         mock_update_dataset(respx_mock, dataset_id)
 
         coze.datasets.update(dataset_id=dataset_id, name="name")
+
+    def test_sync_dataset_delete(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        dataset_id = random_hex(10)
+        mock_delete_dataset(respx_mock, dataset_id)
+
+        coze.datasets.delete(dataset_id=dataset_id)
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -160,3 +177,11 @@ class TestAsyncDataset:
         mock_update_dataset(respx_mock, dataset_id)
 
         await coze.datasets.update(dataset_id=dataset_id, name="name")
+
+    async def test_async_dataset_delete(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        dataset_id = random_hex(10)
+        mock_delete_dataset(respx_mock, dataset_id)
+
+        await coze.datasets.delete(dataset_id=dataset_id)

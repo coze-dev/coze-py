@@ -203,6 +203,29 @@ class DatasetsClient(object):
             body=body,
         )
 
+    def delete(
+        self,
+        *,
+        dataset_id: str,
+    ):
+        """
+        Delete Dataset
+        The workspace administrator can delete all knowledge bases in the team, while other members can only delete knowledge bases they own.
+        When deleting a knowledge base, all files uploaded to the knowledge base will be deleted simultaneously, and any agents bound to this knowledge base will be automatically unbound.
+
+        docs en: https://www.coze.com/docs/developer_guides/delete_dataset
+        docs zh: https://www.coze.cn/docs/developer_guides/delete_dataset
+
+        :param dataset_id: The ID of the dataset
+        """
+        url = f"{self._base_url}/v1/datasets/{dataset_id}"
+        self._requester.request(
+            "delete",
+            url,
+            False,
+            cast=None,
+        )
+
 
 class AsyncDatasetsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
@@ -336,4 +359,27 @@ class AsyncDatasetsClient(object):
             False,
             cast=None,
             body=body,
+        )
+
+    async def delete(
+        self,
+        *,
+        dataset_id: str,
+    ):
+        """
+        Delete Dataset
+        The workspace administrator can delete all knowledge bases in the team, while other members can only delete knowledge bases they own.
+        When deleting a knowledge base, all files uploaded to the knowledge base will be deleted simultaneously, and any agents bound to this knowledge base will be automatically unbound.
+
+        docs en: https://www.coze.com/docs/developer_guides/delete_dataset
+        docs zh: https://www.coze.cn/docs/developer_guides/delete_dataset
+
+        :param dataset_id: The ID of the dataset
+        """
+        url = f"{self._base_url}/v1/datasets/{dataset_id}"
+        await self._requester.arequest(
+            "delete",
+            url,
+            False,
+            cast=None,
         )

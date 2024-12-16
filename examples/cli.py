@@ -591,6 +591,11 @@ class CozeAPI(object):
             dataset_id=dataset_id, name=name, description=description, icon_file_id=icon_file_id
         )
 
+    def delete_dataset(self, dataset_id: str):
+        if not dataset_id:
+            raise ValueError("Please specify dataset id")
+        self.client.datasets.delete(dataset_id=dataset_id)
+
     def _set_workspace_cache(self, workspace: Workspace):
         self._file_cache.set_typed(f"workspace_{workspace.id}.json", workspace)
 
@@ -811,6 +816,17 @@ def update_dataset(dataset_id: str, name: Optional[str], description: Optional[s
     try:
         coze.update_dataset(dataset_id, name, description, icon)
         console.print(f"[green]Dataset updated: {dataset_id}[/green]")
+    except Exception as e:
+        console.print(f"[red]Error: {str(e)}[/red]")
+
+
+@dataset.command("delete")
+@click.option("--dataset_id", "dataset_id", help="Dataset ID")
+def delete_dataset(dataset_id: str):
+    """Delete a dataset"""
+    try:
+        coze.delete_dataset(dataset_id)
+        console.print(f"[green]Dataset deleted: {dataset_id}[/green]")
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
 
