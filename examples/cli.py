@@ -10,7 +10,17 @@ from typing import List, Optional, Type, TypeVar
 
 from pydantic import BaseModel
 
-from cozepy import COZE_CN_BASE_URL, Bot, Coze, DeviceOAuthApp, OAuthToken, TokenAuth, Voice, Workspace
+from cozepy import (
+    COZE_CN_BASE_URL,
+    Bot,
+    Coze,
+    DeviceOAuthApp,
+    OAuthToken,
+    TemplateEntityType,
+    TokenAuth,
+    Voice,
+    Workspace,
+)
 from cozepy.log import setup_logging
 
 try:
@@ -638,6 +648,9 @@ def duplicate_template(template_id: str, workspace_id: str, name: Optional[str])
             name=name,
         )
         console.print(f"[green]Template duplicated: {res.entity_id}, {res.entity_type}[/green]")
+        if res.entity_type == TemplateEntityType.AGENT:
+            agent_url = f"https://www.coze.cn/space/{workspace_id}/bot/{res.entity_id}"
+            console.print(f"[green]Agent URL: {agent_url}[/green]")
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
 
