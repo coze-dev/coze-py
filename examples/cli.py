@@ -186,76 +186,62 @@ class CozeCli(object):
         self._file_cache = FileCache(".cache")
 
     def _ensure_token(self):
-        """确保��取到有效的token"""
+        """确保取到有效的token"""
         if not self._auth.token:
             raise Exception("无法获取有效的token")
 
-    def list_workspaces(self, page: int = 1, size: int = 10, json_output: bool = False, all_pages: bool = False):
+    def list_workspaces(
+        self,
+        page: int = 1,
+        size: int = 10,
+        json_output: bool = False,
+        all_pages: bool = False,
+        name_filter: Optional[str] = None,
+    ):
         """列出工作空间"""
+        total = 0
+        workspaces = []
         try:
+            workspaces_page = self._auth.client().workspaces.list(page_num=page, page_size=size)
+            total = workspaces_page.total
             if all_pages:
-                # 获取第一页来得到总数
-                first_page = self._auth.client().workspaces.list(page_num=1, page_size=size)
-                total_pages = (first_page.total + size - 1) // size
-
-                # 收集所有页的数据
-                all_workspaces = []
-                for page_num in range(1, total_pages + 1):
-                    page_data = self._auth.client().workspaces.list(page_num=page_num, page_size=size)
-                    all_workspaces.extend(page_data)
-
-                if json_output:
-                    result = {
-                        "total": first_page.total,
-                        "items": [ws.model_dump(mode="json") for ws in all_workspaces],
-                    }
-                    console.print(json.dumps(result, indent=2, ensure_ascii=False))
-                    return
-
-                # 表格输出
-                table = Table(show_header=True, header_style="bold magenta")
-                table.add_column("ID", style="dim")
-                table.add_column("Name")
-                table.add_column("Type")
-                table.add_column("Role")
-
-                for ws in all_workspaces:
-                    table.add_row(ws.id, ws.name, ws.workspace_type, ws.role_type)
-                    self._set_workspace_cache(ws)
-
-                console.print(table)
-                console.print(f"\n总数: {first_page.total}\n")
-                return
-
-            # 单页数据处理
-            workspaces = self._auth.client().workspaces.list(page_num=page, page_size=size)
-
-            if json_output:
-                result = {
-                    "total": workspaces.total,
-                    "page": page,
-                    "size": size,
-                    "items": [ws.model_dump(mode="json") for ws in workspaces],
-                }
-                console.print(json.dumps(result, indent=2, ensure_ascii=False))
-                return
-
-            # 表格输出
-            table = Table(show_header=True, header_style="bold magenta")
-            table.add_column("ID", style="dim")
-            table.add_column("Name")
-            table.add_column("Type")
-            table.add_column("Role")
-
-            for ws in workspaces:
-                table.add_row(ws.id, ws.name, ws.workspace_type, ws.role_type)
-                self._set_workspace_cache(ws)
-
-            console.print(table)
-            console.print(f"\n总数: {workspaces.total} | 当前页: {page} | 每页: {size}\n")
-
+                workspaces = [ws for ws in workspaces_page]
+            else:
+                workspaces = workspaces_page.items
         except Exception as e:
             console.print(f"[red]获取工作空间列表失败: {str(e)}[/red]")
+            return
+
+        for ws in workspaces:
+            self._set_workspace_cache(ws)
+
+        # Filter by name
+        if name_filter:
+            workspaces = [ws for ws in workspaces if name_filter.lower() in ws.name.lower()]
+
+        if json_output:
+            result = {
+                "total": len(workspaces),
+                "items": [ws.model_dump(mode="json") for ws in workspaces],
+            }
+            console.print(json.dumps(result, indent=2, ensure_ascii=False))
+            return
+
+        # 表格输出
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("ID", style="dim")
+        table.add_column("Name")
+        table.add_column("Type")
+        table.add_column("Role")
+
+        for ws in workspaces:
+            table.add_row(ws.id, ws.name, ws.workspace_type, ws.role_type)
+
+        console.print(table)
+        if all_pages:
+            console.print(f"\n总数: {len(workspaces)}\n")
+        else:
+            console.print(f"\n总数: {total} | 当前页: {page} | 每页: {size}\n")
 
     def list_bots(self, workspace_id: str, page: int = 1, size: int = 10):
         """列出工作空间下的机器人"""
@@ -312,6 +298,9 @@ class CozeCli(object):
         return self._file_cache.get_typed(f"bot_{bot_id}.json", Bot)
 
 
+coze = CozeCli()
+
+
 @click.group()
 def cli():
     """Coze 命令行工具"""
@@ -329,11 +318,11 @@ def workspace():
 @click.option("--size", default=10, help="每页数量")
 @click.option("--json", "json_output", is_flag=True, help="以JSON格式输出")
 @click.option("--all", "all_pages", is_flag=True, help="获取所有数据")
-def list_workspaces(page: int, size: int, json_output: bool, all_pages: bool):
+@click.option("--name", "name_filter", help="按名称过滤（不区分大小写）")
+def list_workspaces(page: int, size: int, json_output: bool, all_pages: bool, name_filter: Optional[str]):
     """列出所有工作空间"""
     try:
-        CozeCli()._ensure_token()
-        CozeCli().list_workspaces(page, size, json_output, all_pages)
+        coze.list_workspaces(page, size, json_output, all_pages, name_filter)
     except Exception as e:
         console.print(f"[red]错误: {str(e)}[/red]")
 
@@ -351,8 +340,7 @@ def bot():
 def list_bots(workspace: str, page: int, size: int):
     """列出工作空间下的所有机器人"""
     try:
-        CozeCli()._ensure_token()
-        CozeCli().list_bots(workspace, page, size)
+        coze.list_bots(workspace, page, size)
     except Exception as e:
         console.print(f"[red]错误: {str(e)}[/red]")
 
@@ -363,8 +351,7 @@ def list_bots(workspace: str, page: int, size: int):
 def retrieve_bot(workspace_id: str, bot_id: str):
     """显示机器人详细信息"""
     try:
-        CozeCli()._ensure_token()
-        CozeCli().retrieve_bot(workspace_id, bot_id)
+        coze.retrieve_bot(workspace_id, bot_id)
     except Exception as e:
         console.print(f"[red]错误: {str(e)}[/red]")
 
