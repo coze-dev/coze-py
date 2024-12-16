@@ -636,7 +636,6 @@ def duplicate_template(template_id: str, workspace_id: str, name: Optional[str])
             template_id=template_id,
             workspace_id=workspace_id,
             name=name,
-            headers={"x-tt-env": "ppe_volcengine", "x-use-ppe": "1"},
         )
         console.print(f"[green]Template duplicated: {res.entity_id}, {res.entity_type}[/green]")
     except Exception as e:
