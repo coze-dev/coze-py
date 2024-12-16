@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Awaitable, Optional
+from typing import Optional
 
 from cozepy.auth import Auth
 from cozepy.model import CozeModel
@@ -42,7 +42,7 @@ class AsyncTemplatesClient(object):
 
     async def duplicate(
         self, *, template_id: str, workspace_id: str, name: Optional[str] = None, **kwargs
-    ) -> Awaitable[TemplateDuplicateRes]:
+    ) -> TemplateDuplicateRes:
         url = f"{self._base_url}/v1/templates/{template_id}/duplicate"
         headers: Optional[dict] = kwargs.get("headers")
         body = {
