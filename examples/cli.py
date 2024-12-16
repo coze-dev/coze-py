@@ -3,7 +3,7 @@ import logging
 import os
 import time
 from functools import lru_cache
-from typing import Optional, Type, TypeVar
+from typing import List, Optional, Type, TypeVar
 
 import click
 from pydantic import BaseModel
@@ -178,6 +178,92 @@ class RichBot(Bot):
         )
 
 
+class RichWorkspaceList(object):
+    def __init__(self, workspaces: List[Workspace], total: int, page: int, size: int, json_output: bool):
+        self._workspaces = workspaces
+        self._total = total
+        self._page = page
+        self._size = size
+        self._json_output = json_output
+
+    def __rich__(self) -> str:
+        if self._json_output:
+            return self._get_json()
+        table = self._get_table()
+        table.add_section()
+        table.add_row(
+            f"总数: {self._total} | 当前页: {self._page} | 每页: {self._size}", style="bold cyan", end_section=True
+        )
+        return table
+
+    def _get_table(self) -> Table:
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("ID", style="dim")
+        table.add_column("Name")
+        table.add_column("Type")
+        table.add_column("Role")
+
+        for ws in self._workspaces:
+            table.add_row(ws.id, ws.name, ws.workspace_type, ws.role_type)
+
+        return table
+
+    def _get_json(self) -> str:
+        return json.dumps(
+            {
+                "total": self._total,
+                "page": self._page,
+                "size": self._size,
+                "items": [ws.model_dump(mode="json") for ws in self._workspaces],
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+
+
+class RichBotList(object):
+    def __init__(self, bots: List[Bot], total: int, page: int, size: int, json_output: bool):
+        self._bots = bots
+        self._total = total
+        self._page = page
+        self._size = size
+        self._json_output = json_output
+
+    def __rich__(self) -> str:
+        if self._json_output:
+            return self._get_json()
+        table = self._get_table()
+        table.add_section()
+        table.add_row(
+            f"总数: {self._total} | 当前页: {self._page} | 每页: {self._size}", style="bold cyan", end_section=True
+        )
+        return table
+
+    def _get_table(self) -> Table:
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("ID", style="dim")
+        table.add_column("Name")
+        table.add_column("Description")
+        table.add_column("Publish Time")
+
+        for bot in self._bots:
+            table.add_row(bot.bot_id, bot.bot_name, bot.description or "-", bot.publish_time)
+
+        return table
+
+    def _get_json(self) -> str:
+        return json.dumps(
+            {
+                "total": self._total,
+                "page": self._page,
+                "size": self._size,
+                "items": [bot.model_dump(mode="json") for bot in self._bots],
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+
+
 class CozeCli(object):
     """Coze交互式命令行界面"""
 
@@ -219,51 +305,39 @@ class CozeCli(object):
         if name_filter:
             workspaces = [ws for ws in workspaces if name_filter.lower() in ws.name.lower()]
 
-        if json_output:
-            result = {
-                "total": len(workspaces),
-                "items": [ws.model_dump(mode="json") for ws in workspaces],
-            }
-            console.print(json.dumps(result, indent=2, ensure_ascii=False))
-            return
+        rich_workspace_list = RichWorkspaceList(workspaces, total, page, size, json_output)
+        console.print(rich_workspace_list)
 
-        # 表格输出
-        table = Table(show_header=True, header_style="bold magenta")
-        table.add_column("ID", style="dim")
-        table.add_column("Name")
-        table.add_column("Type")
-        table.add_column("Role")
-
-        for ws in workspaces:
-            table.add_row(ws.id, ws.name, ws.workspace_type, ws.role_type)
-
-        console.print(table)
-        if all_pages:
-            console.print(f"\n总数: {len(workspaces)}\n")
-        else:
-            console.print(f"\n总数: {total} | 当前页: {page} | 每页: {size}\n")
-
-    def list_bots(self, workspace_id: str, page: int = 1, size: int = 10):
+    def list_bots(
+        self,
+        workspace_id: str,
+        page: int = 1,
+        size: int = 10,
+        json_output: bool = False,
+        all_pages: bool = False,
+        name_filter: Optional[str] = None,
+    ):
         """列出工作空间下的机器人"""
+        bots = []
         try:
             # 获取机器人列表
-            bots_page = self._auth.client().bots.list(space_id=workspace_id)
-
-            table = Table(show_header=True, header_style="bold magenta")
-            table.add_column("ID")
-            table.add_column("Name")
-            table.add_column("Description")
-            table.add_column("Publish Time")
-
-            for bot in bots_page.items:
-                table.add_row(bot.bot_id, bot.bot_name, bot.description or "-", bot.publish_time)
-                self._set_bot_cache(bot)
-
-            console.print(table)
-            console.print(f"\n总数: {bots_page.total} | 当前页: {page} | 每页: {size}\n")
-
+            bots_page = self._auth.client().bots.list(space_id=workspace_id, page_num=page, page_size=size)
+            if all_pages:
+                bots = [bot for bot in bots_page]
+            else:
+                bots = bots_page.items
         except Exception as e:
             console.print(f"[red]获取机器人列表失败: {str(e)}[/red]")
+            return
+
+        for bot in bots:
+            self._set_bot_cache(bot)
+
+        if name_filter:
+            bots = [bot for bot in bots if name_filter.lower() in bot.bot_name.lower()]
+
+        rich_bot_list = RichBotList(bots, bots_page.total, page, size, json_output)
+        console.print(rich_bot_list)
 
     def retrieve_bot(self, workspace_id: str, bot_id: str):
         """显示机器人详细信息"""
@@ -314,11 +388,11 @@ def workspace():
 
 
 @workspace.command("list")
-@click.option("--page", default=1, help="页码")
-@click.option("--size", default=10, help="每页数量")
-@click.option("--json", "json_output", is_flag=True, help="以JSON格式输出")
-@click.option("--all", "all_pages", is_flag=True, help="获取所有数据")
-@click.option("--name", "name_filter", help="按名称过滤（不区分大小写）")
+@click.option("--page", default=1, help="page number")
+@click.option("--size", default=10, help="page size")
+@click.option("--json", "json_output", is_flag=True, help="output in json format")
+@click.option("--all", "all_pages", is_flag=True, help="get all bots")
+@click.option("--name", "name_filter", help="filter by name")
 def list_workspaces(page: int, size: int, json_output: bool, all_pages: bool, name_filter: Optional[str]):
     """列出所有工作空间"""
     try:
@@ -334,13 +408,16 @@ def bot():
 
 
 @bot.command("list")
-@click.argument("workspace")
-@click.option("--page", default=1, help="页码")
-@click.option("--size", default=10, help="每页数量")
-def list_bots(workspace: str, page: int, size: int):
-    """列出工作空间下的所有机器人"""
+@click.argument("workspace_id")
+@click.option("--page", default=1, help="page number")
+@click.option("--size", default=10, help="page size")
+@click.option("--json", "json_output", is_flag=True, help="output in json format")
+@click.option("--all", "all_pages", is_flag=True, help="get all bots")
+@click.option("--name", "name_filter", help="filter by name")
+def list_bots(workspace_id: str, page: int, size: int, json_output: bool, all_pages: bool, name_filter: Optional[str]):
+    """list all bots in a workspace"""
     try:
-        coze.list_bots(workspace, page, size)
+        coze.list_bots(workspace_id, page, size, json_output, all_pages, name_filter)
     except Exception as e:
         console.print(f"[red]错误: {str(e)}[/red]")
 
