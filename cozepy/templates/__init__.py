@@ -49,4 +49,4 @@ class AsyncTemplatesClient(object):
             "workspace_id": workspace_id,
             "name": name,
         }
-        return self._requester.arequest("post", url, False, TemplateDuplicateRes, headers=headers, body=body)
+        return await self._requester.arequest("post", url, False, TemplateDuplicateRes, headers=headers, body=body)
