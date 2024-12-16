@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import time
@@ -189,11 +190,23 @@ class CozeCli(object):
         if not self._auth.token:
             raise Exception("无法获取有效的token")
 
-    def list_workspaces(self, page: int = 1, size: int = 10):
+    def list_workspaces(self, page: int = 1, size: int = 10, json_output: bool = False):
         """列出工作空间"""
         try:
             workspaces = self._auth.client().workspaces.list(page_num=page, page_size=size)
 
+            if json_output:
+                # JSON 输出
+                result = {
+                    "total": workspaces.total,
+                    "page": page,
+                    "size": size,
+                    "items": [ws.model_dump(mode="json") for ws in workspaces],
+                }
+                console.print(json.dumps(result, indent=2, ensure_ascii=False))
+                return
+
+            # 表格输出
             table = Table(show_header=True, header_style="bold magenta")
             table.add_column("ID", style="dim")
             table.add_column("Name")
@@ -280,11 +293,12 @@ def workspace():
 @workspace.command("list")
 @click.option("--page", default=1, help="页码")
 @click.option("--size", default=10, help="每页数量")
-def list_workspaces(page: int, size: int):
+@click.option("--json", "json_output", is_flag=True, help="以JSON格式输出")
+def list_workspaces(page: int, size: int, json_output: bool):
     """列出所有工作空间"""
     try:
         CozeCli()._ensure_token()
-        CozeCli().list_workspaces(page, size)
+        CozeCli().list_workspaces(page, size, json_output)
     except Exception as e:
         console.print(f"[red]错误: {str(e)}[/red]")
 
