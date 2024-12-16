@@ -312,17 +312,12 @@ class RichVoiceList(object):
         )
 
 
-class CozeCli(object):
-    """Coze交互式命令行界面"""
+class CozeAPI(object):
+    """Coze API"""
 
     def __init__(self):
         self._auth = DeviceAuth()
         self._file_cache = FileCache(".cache")
-
-    def _ensure_token(self):
-        """确保取到有效的token"""
-        if not self._auth.token:
-            raise Exception("无法获取有效的token")
 
     def list_workspaces(
         self,
@@ -332,7 +327,7 @@ class CozeCli(object):
         all_pages: bool = False,
         name_filter: Optional[str] = None,
     ):
-        """列出工作空间"""
+        """List workspaces"""
         total = 0
         workspaces = []
         try:
@@ -343,7 +338,7 @@ class CozeCli(object):
             else:
                 workspaces = workspaces_page.items
         except Exception as e:
-            console.print(f"[red]获取工作空间列表失败: {str(e)}[/red]")
+            console.print(f"[red]Get workspace list failed: {str(e)}[/red]")
             return
 
         for ws in workspaces:
@@ -365,7 +360,7 @@ class CozeCli(object):
         all_pages: bool = False,
         name_filter: Optional[str] = None,
     ):
-        """列出工作空间下的机器人"""
+        """List bots in a workspace"""
         bots = []
         try:
             # 获取机器人列表
@@ -375,7 +370,7 @@ class CozeCli(object):
             else:
                 bots = bots_page.items
         except Exception as e:
-            console.print(f"[red]获取机器人列表失败: {str(e)}[/red]")
+            console.print(f"[red]Get bot list failed: {str(e)}[/red]")
             return
 
         for bot in bots:
@@ -392,20 +387,20 @@ class CozeCli(object):
         try:
             workspace = self._get_workspace_cache(workspace_id)
             if not workspace:
-                console.print(f"[red]工作空间不存在: {workspace_id}[/red]")
+                console.print(f"[red]Workspace not found: {workspace_id}[/red]")
                 return
 
             # 获取机器人列表
             bot = self._auth.client().bots.retrieve(bot_id=bot_id)
             if not bot:
-                console.print(f"[red]机器人不存在: {bot_id}[/red]")
+                console.print(f"[red]Bot not found: {bot_id}[/red]")
                 return
 
             # 显示机器人详细信息
             console.print(RichBot(bot))
 
         except Exception as e:
-            console.print(f"[red]获取机器人信息失败: {str(e)}[/red]")
+            console.print(f"[red]Get bot info failed: {str(e)}[/red]")
 
     def _set_workspace_cache(self, workspace: Workspace):
         self._file_cache.set_typed(f"workspace_{workspace.id}.json", workspace)
@@ -434,7 +429,7 @@ class CozeCli(object):
         name_filter: Optional[str] = None,
         exclude_system_voice: bool = False,
     ):
-        """列出所有可用的语音"""
+        """List all available voices"""
         voices = []
         try:
             voices_page = self._auth.client().audio.voices.list(filter_system_voice=exclude_system_voice)
@@ -443,7 +438,7 @@ class CozeCli(object):
             else:
                 voices = voices_page.items
         except Exception as e:
-            console.print(f"[red]获取语音列表失败: {str(e)}[/red]")
+            console.print(f"[red]Get voice list failed: {str(e)}[/red]")
             return
 
         for voice in voices:
@@ -477,25 +472,25 @@ class CozeCli(object):
                 sample_rate=sample_rate,
             )
         except Exception as e:
-            console.print(f"[red]创建语音合成任务失败: {str(e)}[/red]")
+            console.print(f"[red]Create speech task failed: {str(e)}[/red]")
             return
 
         speech.write_to_file(output_file)
         console.print(f"\n[green]音频已保存到: {output_file}[/green]")
 
 
-coze = CozeCli()
+coze = CozeAPI()
 
 
 @click.group()
 def cli():
-    """Coze 命令行工具"""
+    """Coze CLI"""
     pass
 
 
 @cli.group()
 def workspace():
-    """工作空间相关操作"""
+    """Workspace"""
     pass
 
 
@@ -506,16 +501,16 @@ def workspace():
 @click.option("--all", "all_pages", is_flag=True, help="get all bots")
 @click.option("--name", "name_filter", help="filter by name")
 def list_workspaces(page: int, size: int, json_output: bool, all_pages: bool, name_filter: Optional[str]):
-    """列出所有工作空间"""
+    """List all workspaces"""
     try:
         coze.list_workspaces(page, size, json_output, all_pages, name_filter)
     except Exception as e:
-        console.print(f"[red]错误: {str(e)}[/red]")
+        console.print(f"[red]Error: {str(e)}[/red]")
 
 
 @cli.group()
 def bot():
-    """机器人相关操作"""
+    """Bot"""
     pass
 
 
@@ -527,33 +522,33 @@ def bot():
 @click.option("--all", "all_pages", is_flag=True, help="get all bots")
 @click.option("--name", "name_filter", help="filter by name")
 def list_bots(workspace_id: str, page: int, size: int, json_output: bool, all_pages: bool, name_filter: Optional[str]):
-    """list all bots in a workspace"""
+    """List all bots in a workspace"""
     try:
         coze.list_bots(workspace_id, page, size, json_output, all_pages, name_filter)
     except Exception as e:
-        console.print(f"[red]错误: {str(e)}[/red]")
+        console.print(f"[red]Error: {str(e)}[/red]")
 
 
 @bot.command("retrieve")
 @click.argument("workspace_id")
 @click.argument("bot_id")
 def retrieve_bot(workspace_id: str, bot_id: str):
-    """显示机器人详细信息"""
+    """Retrieve bot details"""
     try:
         coze.retrieve_bot(workspace_id, bot_id)
     except Exception as e:
-        console.print(f"[red]错误: {str(e)}[/red]")
+        console.print(f"[red]Error: {str(e)}[/red]")
 
 
 @cli.group()
 def audio():
-    """音频相关操作"""
+    """Audio"""
     pass
 
 
 @audio.group()
 def voice():
-    """语音相关操作"""
+    """Voice"""
     pass
 
 
@@ -567,7 +562,7 @@ def voice():
 def list_voices(
     page: int, size: int, json_output: bool, all_pages: bool, name_filter: Optional[str], exclude_system: bool
 ):
-    """列出所有可用的语音"""
+    """List all available voices"""
     try:
         coze.list_voices(page, size, json_output, all_pages, name_filter, exclude_system)
     except Exception as e:
@@ -576,7 +571,7 @@ def list_voices(
 
 @audio.group()
 def speech():
-    """语音合成相关操作"""
+    """Speech"""
     pass
 
 
@@ -598,7 +593,7 @@ def create_speech(
     try:
         coze.create_speech(text, voice_id, output_file, response_format, speed, sample_rate)
     except Exception as e:
-        console.print(f"[red]错误: {str(e)}[/red]")
+        console.print(f"[red]Error: {str(e)}[/red]")
 
 
 if __name__ == "__main__":
