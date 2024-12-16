@@ -22,7 +22,7 @@ from cozepy import (
     Voice,
     Workspace,
 )
-from cozepy.datasets import DatasetFormatType
+from cozepy.datasets import Dataset, DatasetFormatType
 from cozepy.log import setup_logging
 
 try:
@@ -339,6 +339,53 @@ class RichVoiceList(object):
         )
 
 
+class RichDatasetList(object):
+    def __init__(self, datasets: List[Dataset], total: int, page: int, size: int):
+        self._datasets = datasets
+        self._total = total
+        self._page = page
+        self._size = size
+
+    def print(self, json_output: bool = False):
+        if json_output:
+            print(self._get_json())
+            return
+
+        console.print(self._get_table())
+        console.print(f"Total: {self._total} | Page: {self._page} | Size: {self._size}")
+
+    def _get_table(self) -> Table:
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("ID", style="dim")
+        table.add_column("Name")
+        table.add_column("Format")
+        table.add_column("Create Time")
+        table.add_column("Update Time")
+
+        for dataset in self._datasets:
+            table.add_row(
+                dataset.dataset_id,
+                dataset.name,
+                {0: "Text", 1: "Table", 2: "Image"}[dataset.format_type],
+                format_time(dataset.create_time),
+                format_time(dataset.update_time),
+            )
+
+        return table
+
+    def _get_json(self) -> str:
+        return json.dumps(
+            {
+                "total": self._total,
+                "page": self._page,
+                "size": self._size,
+                "items": [dataset.model_dump(mode="json") for dataset in self._datasets],
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+
+
 class CozeAPI(object):
     """Coze API"""
 
@@ -509,6 +556,33 @@ class CozeAPI(object):
         )
         return res
 
+    def list_datasets(
+        self,
+        space_id: str,
+        name: Optional[str] = None,
+        format_type: Optional[DatasetFormatType] = None,
+        page: int = 1,
+        size: int = 10,
+        all_pages: bool = False,
+    ) -> RichDatasetList:
+        """List datasets in a space"""
+        datasets_page = self.client.datasets.list(
+            space_id=space_id,
+            name=name,
+            format_type=format_type,
+            page_num=page,
+            page_size=size,
+        )
+        if all_pages:
+            datasets = [dataset for dataset in datasets_page]
+        else:
+            datasets = datasets_page.items
+
+        for dataset in datasets:
+            self._set_dataset_cache(dataset)
+
+        return RichDatasetList(datasets, datasets_page.total, page, size)
+
     def _set_workspace_cache(self, workspace: Workspace):
         self._file_cache.set_typed(f"workspace_{workspace.id}.json", workspace)
 
@@ -526,6 +600,12 @@ class CozeAPI(object):
 
     def _get_voice_cache(self, voice_id: str) -> Optional[Voice]:
         return self._file_cache.get_typed(f"voice_{voice_id}.json", Voice)
+
+    def _set_dataset_cache(self, dataset: Dataset):
+        self._file_cache.set_typed(f"dataset_{dataset.dataset_id}.json", dataset)
+
+    def _get_dataset_cache(self, dataset_id: str) -> Optional[Dataset]:
+        return self._file_cache.get_typed(f"dataset_{dataset_id}.json", Dataset)
 
 
 coze = CozeAPI()
@@ -656,6 +736,9 @@ def create_speech(
         console.print(f"[red]Error: {str(e)}[/red]")
 
 
+"""dataset"""
+
+
 @cli.group()
 def dataset():
     """Dataset"""
@@ -675,6 +758,31 @@ def create_dataset(
     try:
         res = coze.create_dataset(name, space_id, format_type, description, icon)
         console.print(f"[green]Dataset created: {res.dataset_id}[/green]")
+    except Exception as e:
+        console.print(f"[red]Error: {str(e)}[/red]")
+
+
+@dataset.command("list")
+@click.option("--space_id", "space_id", help="Space ID")
+@click.option("--name", "name", help="Dataset name")
+@click.option("--format", "format_type", help="Dataset format", default=0)
+@click.option("--page", default=1, help="page number")
+@click.option("--size", default=10, help="page size")
+@click.option("--json", "json_output", is_flag=True, help="output in json format")
+@click.option("--all", "all_pages", is_flag=True, help="get all datasets")
+def list_datasets(
+    space_id: str,
+    name: Optional[str],
+    format_type: Optional[DatasetFormatType],
+    page: int,
+    size: int,
+    json_output: bool,
+    all_pages: bool,
+):
+    """List all datasets in a space"""
+    try:
+        res = coze.list_datasets(space_id, name, format_type, page, size, all_pages)
+        res.print(json_output)
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
 
