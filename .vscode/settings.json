@@ -22,4 +22,7 @@
         // System
         "**/.DS_Store": true
     },
+    "cSpell.words": [
+        "respx"
+    ],
 } 

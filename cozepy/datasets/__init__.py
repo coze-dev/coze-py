@@ -92,10 +92,10 @@ class DatasetsClient(object):
         url = f"{self._base_url}/v1/datasets"
         body = {
             "name": name,
-            "description": description,
             "space_id": space_id,
-            "file_id": icon_file_id,
             "format_type": format_type,
+            "description": description,
+            "file_id": icon_file_id,
         }
         return self._requester.request(
             "post",
@@ -155,26 +155,26 @@ class AsyncDatasetsClient(object):
         *,
         name: str,
         space_id: str,
+        format_type: DatasetFormatType,
         description: Optional[str] = None,
         icon_file_id: Optional[str] = None,
-        format_type: DatasetFormatType = DatasetFormatType.TEXT,
     ) -> CreateDatasetRes:
         """
         Create Dataset
 
         :param name: The name of the dataset
         :param space_id: The ID of the space that the dataset belongs to
+        :param format_type: The format type of the dataset, 0: text, 2: image
         :param description: The description of the dataset
         :param icon_file_id: The ID of the icon file, uploaded by `coze.files.upload`
-        :param format_type: The format type of the dataset, 0: text, 2: image
         """
         url = f"{self._base_url}/v1/datasets"
         body = {
             "name": name,
-            "description": description,
             "space_id": space_id,
-            "file_id": icon_file_id,
             "format_type": format_type,
+            "description": description,
+            "file_id": icon_file_id,
         }
         return await self._requester.arequest(
             "post",
