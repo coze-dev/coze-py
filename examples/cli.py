@@ -15,17 +15,19 @@ from cozepy import (
     Bot,
     Coze,
     CreateDatasetRes,
+    Dataset,
+    DatasetFormatType,
     DeviceOAuthApp,
+    Document,
     OAuthToken,
+    Photo,
     TemplateEntityType,
     TokenAuth,
     Voice,
     Workspace,
+    WorkspaceType,
 )
-from cozepy.datasets import Dataset, DatasetFormatType
-from cozepy.datasets.documents import Document
 from cozepy.log import setup_logging
-from cozepy.workspaces import WorkspaceType
 
 try:
     from rich.console import Console
@@ -661,6 +663,30 @@ class CozeAPI(object):
 
         return RichDocumentList(documents, documents_page.total, page, size)
 
+    def list_dataset_images(
+        self,
+        dataset_id: str,
+        page: int = 1,
+        size: int = 10,
+        keyword: Optional[str] = None,
+        has_caption: bool = False,
+        all_pages: bool = False,
+    ) -> RichDocumentList:
+        if not dataset_id:
+            raise ValueError("Please specify dataset id")
+        images_page = self.client.datasets.images.list(
+            dataset_id=dataset_id, page_num=page, page_size=size, keyword=keyword, has_caption=has_caption
+        )
+        if all_pages:
+            images = [image for image in images_page]
+        else:
+            images = images_page.items
+
+        for image in images:
+            self._set_image_cache(image)
+
+        return RichDocumentList(images, images_page.total, page, size)
+
     def update_dataset_image(self, dataset_id: str, document_id: str, caption: str):
         if not dataset_id:
             raise ValueError("Please specify dataset id")
@@ -697,6 +723,12 @@ class CozeAPI(object):
 
     def _get_document_cache(self, document_id: str) -> Optional[Document]:
         return self._file_cache.get_typed(f"document_{document_id}.json", Document)
+
+    def _set_image_cache(self, image: Photo):
+        self._file_cache.set_typed(f"image_{image.document_id}.json", image)
+
+    def _get_image_cache(self, document_id: str) -> Optional[Photo]:
+        return self._file_cache.get_typed(f"image_{document_id}.json", Photo)
 
 
 coze = CozeAPI()

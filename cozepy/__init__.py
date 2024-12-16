@@ -69,6 +69,7 @@ from .datasets.documents import (
     DocumentUpdateRule,
     DocumentUpdateType,
 )
+from .datasets.images import Photo
 from .exception import CozeAPIError, CozeError, CozeInvalidEventError, CozePKCEAuthError, CozePKCEAuthErrorType
 from .files import File
 from .log import setup_logging
@@ -162,6 +163,7 @@ __all__ = [
     "DatasetStatus",
     "CreateDatasetRes",
     # datasets.images
+    "Photo",
     # datasets.documents
     "DocumentChunkStrategy",
     "DocumentFormatType",

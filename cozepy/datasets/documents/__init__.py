@@ -80,13 +80,10 @@ class DocumentFormatType(IntEnum):
 
 
 class DocumentSourceType(IntEnum):
-    # Upload local files.
-    LOCAL_FILE = 0
-
-    # Upload online web pages.
-    ONLINE_WEB = 1
-
-    CUSTOM = 2
+    LOCAL_FILE = 0  # Upload local files.
+    ONLINE_WEB = 1  # Upload online web pages.
+    CUSTOM = 2  # Custom
+    UPLOAD_FILE_ID = 5  # Upload file_id.
 
 
 class DocumentStatus(IntEnum):
