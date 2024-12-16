@@ -281,11 +281,10 @@ class RichVoiceList(object):
         table = Table(show_header=True, header_style="bold magenta")
         table.add_column("ID", style="dim")
         table.add_column("Name")
-        table.add_column("Is System")
+        table.add_column("System")
         table.add_column("Language")
-        table.add_column("Preview Text")
-        table.add_column("Preview Audio")
-        table.add_column("Available Training Times")
+        # table.add_column("Preview Audio")
+        table.add_column("Training Times")
         table.add_column("Create Time")
         table.add_column("Update Time")
 
@@ -294,9 +293,8 @@ class RichVoiceList(object):
                 voice.voice_id,
                 voice.name,
                 "[bold blue]Yes[/bold blue]" if voice.is_system_voice else "[bold yellow]No[/bold yellow]",
-                f"[{voice.language_code}]{voice.language_name}",
-                voice.preview_text,
-                f"[link={voice.preview_audio}]{voice.preview_audio}[/link]",
+                f"({voice.language_code}) {voice.language_name}",
+                # f"[link={voice.preview_audio}]{voice.preview_audio}[/link]",
                 f"{voice.available_training_times} times",
                 format_time(voice.create_time),
                 format_time(voice.update_time),
