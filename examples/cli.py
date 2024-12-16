@@ -3,18 +3,30 @@ import json
 import logging
 import os
 import time
+import warnings
 from datetime import datetime
 from functools import lru_cache
 from typing import List, Optional, Type, TypeVar
 
-import click
 from pydantic import BaseModel
-from rich.console import Console
-from rich.table import Table
 
 from cozepy import COZE_CN_BASE_URL, Bot, Coze, DeviceOAuthApp, OAuthToken, TokenAuth, Voice, Workspace
 from cozepy.log import setup_logging
 
+try:
+    from rich.console import Console
+    from rich.table import Table
+except ImportError:
+    warnings.warn("rich is not installed, please install it by `pip install rich`")
+    exit(1)
+
+try:
+    import click
+except ImportError:
+    warnings.warn("click is not installed, please install it by `pip install click`")
+    exit(1)
+
+BaseT = TypeVar("BaseT", bound=BaseModel)
 BaseT = TypeVar("BaseT", bound=BaseModel)
 
 
