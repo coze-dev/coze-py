@@ -25,7 +25,7 @@ class TestTemplate:
         coze = Coze(auth=TokenAuth(token="token"))
 
         entity_id = random_hex(10)
-        entity_type = random_hex(10)
+        entity_type = "agent"
 
         mock_template_duplicate(respx_mock, entity_id, entity_type)
 
@@ -42,7 +42,7 @@ class TestAsyncTemplate:
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         entity_id = random_hex(10)
-        entity_type = random_hex(10)
+        entity_type = "agent"
 
         mock_template_duplicate(respx_mock, entity_id, entity_type)
 
