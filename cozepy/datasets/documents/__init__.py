@@ -81,12 +81,12 @@ class DocumentFormatType(IntEnum):
 
 class DocumentSourceType(IntEnum):
     # Upload local files.
-    # 上传本地文件。
     LOCAL_FILE = 0
 
     # Upload online web pages.
-    # 上传在线网页。
     ONLINE_WEB = 1
+
+    CUSTOM = 2
 
 
 class DocumentStatus(IntEnum):

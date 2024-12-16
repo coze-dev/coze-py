@@ -23,6 +23,7 @@ from cozepy import (
     Workspace,
 )
 from cozepy.datasets import Dataset, DatasetFormatType
+from cozepy.datasets.documents import Document
 from cozepy.log import setup_logging
 from cozepy.workspaces import WorkspaceType
 
@@ -41,8 +42,9 @@ except ImportError:
 
 BaseT = TypeVar("BaseT", bound=BaseModel)
 
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
-setup_logging(logging.ERROR)
+setup_logging(logging.ERROR if not DEBUG else logging.DEBUG)
 console = Console()
 
 
@@ -386,6 +388,53 @@ class RichDatasetList(object):
         )
 
 
+class RichDocumentList(object):
+    def __init__(self, documents: List[Document], total: int, page: int, size: int):
+        self._documents = documents
+        self._total = total
+        self._page = page
+        self._size = size
+
+    def print(self, json_output: bool = False):
+        if json_output:
+            print(self._get_json())
+            return
+        table = self._get_table()
+        console.print(table)
+        console.print(f"Total: {self._total} | Page: {self._page} | Size: {self._size}")
+
+    def _get_table(self) -> Table:
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("ID", style="dim")
+        table.add_column("Name")
+        table.add_column("Type")
+        table.add_column("Create Time")
+        table.add_column("Update Time")
+
+        for document in self._documents:
+            table.add_row(
+                document.document_id,
+                document.name,
+                document.type,
+                format_time(document.create_time),
+                format_time(document.update_time),
+            )
+
+        return table
+
+    def _get_json(self) -> str:
+        return json.dumps(
+            {
+                "total": self._total,
+                "page": self._page,
+                "size": self._size,
+                "items": [document.model_dump(mode="json") for document in self._documents],
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+
+
 class CozeAPI(object):
     """Coze API"""
 
@@ -596,6 +645,29 @@ class CozeAPI(object):
             raise ValueError("Please specify dataset id")
         self.client.datasets.delete(dataset_id=dataset_id)
 
+    def list_dataset_documents(
+        self, dataset_id: str, page: int = 1, size: int = 10, all_pages: bool = False
+    ) -> RichDocumentList:
+        if not dataset_id:
+            raise ValueError("Please specify dataset id")
+        documents_page = self.client.datasets.documents.list(dataset_id=dataset_id, page_num=page, page_size=size)
+        if all_pages:
+            documents = [document for document in documents_page]
+        else:
+            documents = documents_page.items
+
+        for document in documents:
+            self._set_document_cache(document)
+
+        return RichDocumentList(documents, documents_page.total, page, size)
+
+    def update_dataset_image(self, dataset_id: str, document_id: str, caption: str):
+        if not dataset_id:
+            raise ValueError("Please specify dataset id")
+        if not document_id:
+            raise ValueError("Please specify document id")
+        self.client.datasets.images.update(dataset_id=dataset_id, document_id=document_id, caption=caption)
+
     def _set_workspace_cache(self, workspace: Workspace):
         self._file_cache.set_typed(f"workspace_{workspace.id}.json", workspace)
 
@@ -619,6 +691,12 @@ class CozeAPI(object):
 
     def _get_dataset_cache(self, dataset_id: str) -> Optional[Dataset]:
         return self._file_cache.get_typed(f"dataset_{dataset_id}.json", Dataset)
+
+    def _set_document_cache(self, document: Document):
+        self._file_cache.set_typed(f"document_{document.document_id}.json", document)
+
+    def _get_document_cache(self, document_id: str) -> Optional[Document]:
+        return self._file_cache.get_typed(f"document_{document_id}.json", Document)
 
 
 coze = CozeAPI()
@@ -827,6 +905,46 @@ def delete_dataset(dataset_id: str):
     try:
         coze.delete_dataset(dataset_id)
         console.print(f"[green]Dataset deleted: {dataset_id}[/green]")
+    except Exception as e:
+        console.print(f"[red]Error: {str(e)}[/red]")
+
+
+@dataset.group()
+def document():
+    """Dataset Document"""
+    pass
+
+
+@document.command("list")
+@click.option("--dataset_id", "dataset_id", help="Dataset ID")
+@click.option("--page", default=1, help="page number")
+@click.option("--size", default=10, help="page size")
+@click.option("--json", "json_output", is_flag=True, help="output in json format")
+@click.option("--all", "all_pages", is_flag=True, help="get all documents")
+def list_dataset_documents(dataset_id: str, page: int, size: int, json_output: bool, all_pages: bool):
+    """List all documents in a dataset"""
+    try:
+        res = coze.list_dataset_documents(dataset_id, page, size, all_pages)
+        res.print(json_output)
+    except Exception as e:
+        console.print(f"[red]Error: {str(e)}[/red]")
+
+
+@dataset.group()
+def image():
+    """Dataset Image"""
+    pass
+
+
+@image.command("update")
+@click.option("--dataset_id", "dataset_id", help="Dataset ID")
+@click.option("--document_id", "document_id", help="Document ID")
+@click.option("--caption", "caption", help="Caption")
+def update_dataset_image(dataset_id: str, document_id: str, caption: str):
+    """Update a dataset image"""
+    try:
+        coze.update_dataset_image(dataset_id, document_id, caption)
+        console.print(f"[green]Dataset image updated: {dataset_id}[/green]")
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
 
