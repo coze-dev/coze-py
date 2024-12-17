@@ -88,7 +88,13 @@ class DocumentSourceType(IntEnum):
     LOCAL_FILE = 0  # Upload local files.
     ONLINE_WEB = 1  # Upload online web pages.
     CUSTOM = 2  # Custom
-    UPLOAD_FILE_ID = 5  # Upload file_id.
+    THIRD_PARTY = 3  # Third party
+    FRONT_CRAWL = 4  # Front-end crawling
+    UPLOAD_FILE_ID = 5  # OpenAPI Upload file_id.
+    NOTION = 101
+    GOOGLE_DRIVE = 102
+    FEISHU_WEB = 103
+    LARK_WEB = 104
 
 
 class DocumentStatus(IntEnum):
@@ -281,7 +287,7 @@ class DatasetsDocumentsClient(object):
         dataset_id: str,
         document_bases: List[DocumentBase],
         chunk_strategy: Optional[DocumentChunkStrategy] = None,
-        format_type: Optional[DocumentFormatType] = None,
+        format_type: Optional[DocumentFormatType] = DocumentFormatType.DOCUMENT,
     ) -> List[Document]:
         """
         Upload files to the specific knowledge.
