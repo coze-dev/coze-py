@@ -57,6 +57,7 @@ from .config import (
 )
 from .conversations import Conversation, Section
 from .coze import AsyncCoze, Coze
+from .datasets import CreateDatasetRes, Dataset, DatasetStatus, DocumentProgress
 from .datasets.documents import (
     Document,
     DocumentBase,
@@ -68,6 +69,7 @@ from .datasets.documents import (
     DocumentUpdateRule,
     DocumentUpdateType,
 )
+from .datasets.images import Photo
 from .exception import CozeAPIError, CozeError, CozeInvalidEventError, CozePKCEAuthError, CozePKCEAuthErrorType
 from .files import File
 from .log import setup_logging
@@ -79,6 +81,7 @@ from .model import (
     FileHTTPResponse,
     LastIDPaged,
     LastIDPagedResponse,
+    ListResponse,
     NumberPaged,
     NumberPagedResponse,
     Stream,
@@ -155,7 +158,14 @@ __all__ = [
     "Section",
     # files
     "File",
-    # knowledge.documents
+    # datasets
+    "Dataset",
+    "DatasetStatus",
+    "DocumentProgress",
+    "CreateDatasetRes",
+    # datasets.images
+    "Photo",
+    # datasets.documents
     "DocumentChunkStrategy",
     "DocumentFormatType",
     "DocumentSourceType",
@@ -201,6 +211,7 @@ __all__ = [
     "CozePKCEAuthError",
     "CozePKCEAuthErrorType",
     # model
+    "ListResponse",
     "AsyncLastIDPaged",
     "AsyncNumberPaged",
     "AsyncPagedBase",

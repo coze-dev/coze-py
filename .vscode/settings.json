@@ -21,5 +21,10 @@
         "**/.idea": true,
         // System
         "**/.DS_Store": true
-    }
+    },
+    "cSpell.words": [
+        "cozepy",
+        "logid",
+        "respx"
+    ],
 } 

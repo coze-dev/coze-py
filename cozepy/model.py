@@ -1,6 +1,7 @@
 import abc
 from typing import (
     TYPE_CHECKING,
+    Any,
     AsyncIterator,
     Callable,
     Dict,
@@ -9,7 +10,6 @@ from typing import (
     List,
     Optional,
     Tuple,
-    Type,
     TypeVar,
     Union,
     cast,
@@ -30,7 +30,7 @@ AsyncPage = TypeVar("AsyncPage", bound="AsyncPagedBase")
 
 
 class CozeModel(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=(), arbitrary_types_allowed=True)
 
 
 class HTTPResponse(Generic[T]):
@@ -66,6 +66,15 @@ class FileHTTPResponse(HTTPResponse[None]):
                 f.write(data)
 
 
+class ListResponse(Generic[T]):
+    logid: str
+    items: List[T]
+
+    def __init__(self, items: List[T], **kwargs):
+        self.logid = kwargs.get("logid") or ""
+        self.items = items
+
+
 class HTTPRequest(CozeModel, Generic[T]):
     method: str
     url: str
@@ -76,7 +85,7 @@ class HTTPRequest(CozeModel, Generic[T]):
     is_async: Optional[bool] = None
     stream: bool = False
     data_field: str = "data"
-    cast: Union[Type[T], List[Type[T]], None] = None
+    cast: Optional[Any] = None
 
     @property
     def as_httpx(self) -> httpx.Request:
