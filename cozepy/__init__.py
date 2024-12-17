@@ -57,7 +57,7 @@ from .config import (
 )
 from .conversations import Conversation, Section
 from .coze import AsyncCoze, Coze
-from .datasets import CreateDatasetRes, Dataset, DatasetStatus
+from .datasets import CreateDatasetRes, Dataset, DatasetStatus, DocumentProgress
 from .datasets.documents import (
     Document,
     DocumentBase,
@@ -161,6 +161,7 @@ __all__ = [
     # datasets
     "Dataset",
     "DatasetStatus",
+    "DocumentProgress",
     "CreateDatasetRes",
     # datasets.images
     "Photo",

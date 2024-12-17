@@ -18,7 +18,10 @@ from cozepy import (
     Dataset,
     DeviceOAuthApp,
     Document,
+    DocumentBase,
     DocumentFormatType,
+    DocumentProgress,
+    DocumentSourceInfo,
     OAuthToken,
     Photo,
     TemplateEntityType,
@@ -27,8 +30,6 @@ from cozepy import (
     Workspace,
     WorkspaceType,
 )
-from cozepy.datasets import DocumentProgress
-from cozepy.datasets.documents import DocumentBase, DocumentSourceInfo
 from cozepy.log import setup_logging
 
 try:
