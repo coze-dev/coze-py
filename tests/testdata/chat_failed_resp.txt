@@ -1,0 +1,2 @@
+event:conversation.chat.failed
+data:{"id":"7390342853760696354","conversation_id":"7390331532575195148","bot_id":"7374724495711502387","completed_at":1720698285,"failed_at":1720698286,"last_error":{"code":5000,"msg":"event interval error"},"status":"failed","usage":{"token_count":0,"output_count":0,"input_count":0}}

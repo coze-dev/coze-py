@@ -28,6 +28,10 @@ class Photo(CozeModel):
     update_time: int = 0  # The update time of the image.
 
 
+class UpdateImageRes(CozeModel):
+    pass
+
+
 class _PrivateListPhotosData(CozeModel, NumberPagedResponse[Photo]):
     photo_infos: List[Photo]
     total_count: int
@@ -55,7 +59,7 @@ class DatasetsImagesClient(object):
         document_id: str,
         caption: str,
         **kwargs,
-    ) -> None:
+    ) -> UpdateImageRes:
         """
         Call this API to update the description of images in the knowledge base.
 
@@ -72,7 +76,7 @@ class DatasetsImagesClient(object):
         body = {
             "caption": caption,
         }
-        return self._requester.request("put", url, False, cast=None, headers=headers, body=body)
+        return self._requester.request("put", url, False, cast=UpdateImageRes, headers=headers, body=body)
 
     def list(
         self,
@@ -138,7 +142,7 @@ class AsyncDatasetsImagesClient(object):
         document_id: str,
         caption: str,
         **kwargs,
-    ) -> None:
+    ) -> UpdateImageRes:
         """
         Call this API to update the description of images in the knowledge base.
 
@@ -155,7 +159,7 @@ class AsyncDatasetsImagesClient(object):
         body = {
             "caption": caption,
         }
-        await self._requester.arequest("put", url, False, cast=None, headers=headers, body=body)
+        return await self._requester.arequest("put", url, False, cast=UpdateImageRes, headers=headers, body=body)
 
     async def list(
         self,

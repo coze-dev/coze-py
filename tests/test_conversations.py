@@ -5,17 +5,36 @@ import pytest
 
 from cozepy import AsyncCoze, Conversation, Coze, Section, TokenAuth
 from cozepy.util import random_hex
+from tests.test_util import logid_key
 
 
-def make_conversation():
-    return Conversation(id=random_hex(10), created_at=int(time.time()), meta_data={}, last_section_id=random_hex(10))
+def make_conversation() -> Conversation:
+    return Conversation(
+        id=random_hex(10),
+        created_at=int(time.time()),
+        meta_data={},
+        last_section_id=random_hex(10),
+    )
 
 
-def make_section(conversation_id: str):
+def make_section(conversation_id: str) -> Section:
     return Section(id=random_hex(10), conversation_id=conversation_id)
 
 
-def mock_list_conversation(respx_mock, has_more, page):
+def mock_create_conversations(respx_mock) -> Conversation:
+    conversation = make_conversation()
+    conversation.logid = random_hex(10)
+    respx_mock.post("/v1/conversation/create").mock(
+        httpx.Response(
+            200,
+            json={"data": conversation.model_dump()},
+            headers={logid_key(): conversation.logid},
+        )
+    )
+    return conversation
+
+
+def mock_list_conversations(respx_mock, total_count, page):
     respx_mock.get(
         "https://api.coze.com/v1/conversations",
         params={
@@ -24,7 +43,7 @@ def mock_list_conversation(respx_mock, has_more, page):
     ).mock(
         httpx.Response(
             200,
-            headers={"x-tt-logid": "logid"},
+            headers={logid_key(): "logid"},
             json={
                 "data": {
                     "conversations": [
@@ -32,26 +51,54 @@ def mock_list_conversation(respx_mock, has_more, page):
                             id=f"id_{page}", created_at=int(time.time()), meta_data={}, last_section_id=random_hex(10)
                         ).model_dump()
                     ],
-                    "has_more": has_more,
+                    "has_more": page < total_count,
                 }
             },
         )
     )
 
 
+def mock_retrieve_conversation(respx_mock) -> Conversation:
+    conversation = make_conversation()
+    conversation.logid = random_hex(10)
+    respx_mock.get("/v1/conversation/retrieve").mock(
+        httpx.Response(
+            200,
+            json={"data": conversation.model_dump()},
+            headers={logid_key(): conversation.logid},
+        )
+    )
+
+    return conversation
+
+
+def mock_clear_conversation(respx_mock) -> Section:
+    conversation = make_conversation()
+    section = make_section(conversation.id)
+    section.logid = random_hex(10)
+    respx_mock.post(f"/v1/conversations/{conversation.id}/clear").mock(
+        httpx.Response(
+            200,
+            json={"data": section.model_dump()},
+            headers={logid_key(): section.logid},
+        )
+    )
+    return section
+
+
 @pytest.mark.respx(base_url="https://api.coze.com")
-class TestConversation:
+class TestSyncConversation:
     def test_sync_conversations_create(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        conversation = make_conversation()
         bot_id = random_hex(10)
-        respx_mock.post("/v1/conversation/create").mock(httpx.Response(200, json={"data": conversation.model_dump()}))
+        mock_conversation = mock_create_conversations(respx_mock)
 
         res = coze.conversations.create(bot_id=bot_id)
         assert res
-        assert res.id == conversation.id
-        assert res.last_section_id == conversation.last_section_id
+        assert res.logid == mock_conversation.logid
+        assert res.id == mock_conversation.id
+        assert res.last_section_id == mock_conversation.last_section_id
 
     def test_sync_conversations_list(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
@@ -59,7 +106,7 @@ class TestConversation:
         total = 10
         size = 1
         for idx in range(total):
-            mock_list_conversation(respx_mock, has_more=idx + 1 < total, page=idx + 1)
+            mock_list_conversations(respx_mock, total, page=idx + 1)
 
         # no iter
         resp = coze.conversations.list(bot_id="bot id", page_size=1)
@@ -68,63 +115,60 @@ class TestConversation:
 
         # iter conversation
         total_result = 0
-        for idx, conversation in enumerate(coze.conversations.list(bot_id="bot id", page_size=1)):
+        for conversation in resp:
             total_result += 1
             assert conversation
-            assert conversation.id == f"id_{idx + 1}"
+            assert conversation.id == f"id_{total_result}"
         assert total_result == total
 
         # iter page
         total_result = 0
-        for idx, page in enumerate(coze.conversations.list(bot_id="bot id", page_size=1).iter_pages()):
+        for page in resp.iter_pages():
             total_result += 1
             assert page
-            assert page.has_more == (idx + 1 < total)
+            assert page.has_more == (total_result < total)
             assert len(page.items) == size
             conversation = page.items[0]
-            assert conversation.id == f"id_{idx + 1}"
+            assert conversation.id == f"id_{total_result}"
         assert total_result == total
 
     def test_sync_conversations_retrieve(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        conversation = make_conversation()
-        respx_mock.get("/v1/conversation/retrieve").mock(httpx.Response(200, json={"data": conversation.model_dump()}))
+        mock_conversation = mock_retrieve_conversation(respx_mock)
 
-        res = coze.conversations.retrieve(conversation_id=conversation.id)
+        res = coze.conversations.retrieve(conversation_id=mock_conversation.id)
         assert res
-        assert res.id == conversation.id
-        assert res.last_section_id == conversation.last_section_id
+        assert res.logid == mock_conversation.logid
+        assert res.id == mock_conversation.id
+        assert res.last_section_id == mock_conversation.last_section_id
 
     def test_sync_conversations_clear(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        conversation = make_conversation()
-        section = make_section(conversation.id)
-        respx_mock.post(f"/v1/conversations/{conversation.id}/clear").mock(
-            httpx.Response(200, json={"data": section.model_dump()})
-        )
+        mock_section = mock_clear_conversation(respx_mock)
 
-        res = coze.conversations.clear(conversation_id=conversation.id)
+        res = coze.conversations.clear(conversation_id=mock_section.conversation_id)
         assert res
-        assert res.id == section.id
-        assert res.conversation_id == section.conversation_id
+        assert res.logid == mock_section.logid
+        assert res.id == mock_section.id
+        assert res.conversation_id == mock_section.conversation_id
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
 class TestAsyncConversation:
-    async def test_async_conversation_create(self, respx_mock):
+    async def test_async_conversations_create(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        conversation = make_conversation()
         bot_id = random_hex(10)
-        respx_mock.post("/v1/conversation/create").mock(httpx.Response(200, json={"data": conversation.model_dump()}))
+        mock_conversation = mock_create_conversations(respx_mock)
 
         res = await coze.conversations.create(bot_id=bot_id)
         assert res
-        assert res.id == conversation.id
-        assert res.last_section_id == conversation.last_section_id
+        assert res.logid == mock_conversation.logid
+        assert res.id == mock_conversation.id
+        assert res.last_section_id == mock_conversation.last_section_id
 
     async def test_async_conversations_list(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
@@ -132,7 +176,7 @@ class TestAsyncConversation:
         total = 10
         size = 1
         for idx in range(total):
-            mock_list_conversation(respx_mock, has_more=idx + 1 < total, page=idx + 1)
+            mock_list_conversations(respx_mock, total, page=idx + 1)
 
         # no iter
         resp = await coze.conversations.list(bot_id="bot id", page_size=1)
@@ -141,46 +185,41 @@ class TestAsyncConversation:
 
         # iter conversation
         total_result = 0
-        resp = await coze.conversations.list(bot_id="bot id", page_size=1)
-        for idx, conversation in enumerate([bot async for bot in resp]):
+        async for conversation in resp:
             total_result += 1
             assert conversation
-            assert conversation.id == f"id_{idx + 1}"
+            assert conversation.id == f"id_{total_result}"
         assert total_result == total
 
         # iter page
         total_result = 0
-        resp = await coze.conversations.list(bot_id="bot id", page_size=1)
-        for idx, page in enumerate([page async for page in resp.iter_pages()]):
+        async for page in resp.iter_pages():
             total_result += 1
             assert page
-            assert page.has_more == (idx + 1 < total)
+            assert page.has_more == (total_result < total)
             assert len(page.items) == size
             conversation = page.items[0]
-            assert conversation.id == f"id_{idx + 1}"
+            assert conversation.id == f"id_{total_result}"
         assert total_result == total
 
     async def test_async_conversations_retrieve(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        conversation = make_conversation()
-        respx_mock.get("/v1/conversation/retrieve").mock(httpx.Response(200, json={"data": conversation.model_dump()}))
+        mock_conversation = mock_retrieve_conversation(respx_mock)
 
-        res = await coze.conversations.retrieve(conversation_id=conversation.id)
+        res = await coze.conversations.retrieve(conversation_id=mock_conversation.id)
         assert res
-        assert res.id == conversation.id
-        assert res.last_section_id == conversation.last_section_id
+        assert res.logid == mock_conversation.logid
+        assert res.id == mock_conversation.id
+        assert res.last_section_id == mock_conversation.last_section_id
 
     async def test_async_conversations_clear(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        conversation = make_conversation()
-        section = make_section(conversation.id)
-        respx_mock.post(f"/v1/conversations/{conversation.id}/clear").mock(
-            httpx.Response(200, json={"data": section.model_dump()})
-        )
+        mock_section = mock_clear_conversation(respx_mock)
 
-        res = await coze.conversations.clear(conversation_id=conversation.id)
+        res = await coze.conversations.clear(conversation_id=mock_section.conversation_id)
         assert res
-        assert res.id == section.id
-        assert res.conversation_id == section.conversation_id
+        assert res.logid == mock_section.logid
+        assert res.id == mock_section.id
+        assert res.conversation_id == mock_section.conversation_id

@@ -2,7 +2,7 @@ from enum import IntEnum
 from typing import List, Optional
 
 from cozepy.auth import Auth
-from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
+from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, ListResponse, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
 from cozepy.util import base64_encode_string, remove_url_trailing_slash
 
@@ -261,6 +261,14 @@ class DocumentBase(CozeModel):
     update_rule: Optional[DocumentUpdateRule] = None
 
 
+class UpdateDocumentRes(CozeModel):
+    pass
+
+
+class DeleteDocumentRes(CozeModel):
+    pass
+
+
 class _PrivateListDocumentsData(CozeModel, NumberPagedResponse[Document]):
     document_infos: List[Document]
     total: int
@@ -288,7 +296,7 @@ class DatasetsDocumentsClient(object):
         document_bases: List[DocumentBase],
         chunk_strategy: Optional[DocumentChunkStrategy] = None,
         format_type: Optional[DocumentFormatType] = DocumentFormatType.DOCUMENT,
-    ) -> List[Document]:
+    ) -> ListResponse[Document]:
         """
         Upload files to the specific knowledge.
 
@@ -314,7 +322,7 @@ class DatasetsDocumentsClient(object):
             "format_type": format_type,
         }
         return self._requester.request(
-            "post", url, False, [Document], headers=headers, body=body, data_field="document_infos"
+            "post", url, False, ListResponse[Document], headers=headers, body=body, data_field="document_infos"
         )
 
     def update(
@@ -323,7 +331,7 @@ class DatasetsDocumentsClient(object):
         document_id: str,
         document_name: Optional[str] = None,
         update_rule: Optional[DocumentUpdateRule] = None,
-    ) -> None:
+    ) -> UpdateDocumentRes:
         """
         Modify the knowledge base file name and update strategy.
 
@@ -347,7 +355,7 @@ class DatasetsDocumentsClient(object):
             "post",
             url,
             False,
-            None,
+            cast=UpdateDocumentRes,
             headers=headers,
             body=body,
         )
@@ -356,7 +364,7 @@ class DatasetsDocumentsClient(object):
         self,
         *,
         document_ids: List[str],
-    ) -> None:
+    ) -> DeleteDocumentRes:
         """
         Delete text, images, sheets, and other files in the knowledge base, supporting batch deletion.
 
@@ -376,7 +384,7 @@ class DatasetsDocumentsClient(object):
             "post",
             url,
             False,
-            None,
+            cast=DeleteDocumentRes,
             headers=headers,
             body=body,
         )
@@ -438,7 +446,7 @@ class AsyncDatasetsDocumentsClient(object):
         dataset_id: str,
         document_bases: List[DocumentBase],
         chunk_strategy: Optional[DocumentChunkStrategy] = None,
-    ) -> List[Document]:
+    ) -> ListResponse[Document]:
         """
         Upload files to the specific knowledge.
 
@@ -463,7 +471,7 @@ class AsyncDatasetsDocumentsClient(object):
             "chunk_strategy": chunk_strategy.model_dump() if chunk_strategy else None,
         }
         return await self._requester.arequest(
-            "post", url, False, [Document], headers=headers, body=body, data_field="document_infos"
+            "post", url, False, ListResponse[Document], headers=headers, body=body, data_field="document_infos"
         )
 
     async def update(
@@ -472,7 +480,7 @@ class AsyncDatasetsDocumentsClient(object):
         document_id: str,
         document_name: Optional[str] = None,
         update_rule: Optional[DocumentUpdateRule] = None,
-    ) -> None:
+    ) -> UpdateDocumentRes:
         """
         Modify the knowledge base file name and update strategy.
 
@@ -496,7 +504,7 @@ class AsyncDatasetsDocumentsClient(object):
             "post",
             url,
             False,
-            cast=None,
+            cast=UpdateDocumentRes,
             headers=headers,
             body=body,
         )
@@ -505,7 +513,7 @@ class AsyncDatasetsDocumentsClient(object):
         self,
         *,
         document_ids: List[str],
-    ) -> None:
+    ) -> DeleteDocumentRes:
         """
         Delete text, images, sheets, and other files in the knowledge base, supporting batch deletion.
 
@@ -525,7 +533,7 @@ class AsyncDatasetsDocumentsClient(object):
             "post",
             url,
             False,
-            cast=None,
+            cast=DeleteDocumentRes,
             headers=headers,
             body=body,
         )

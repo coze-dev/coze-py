@@ -77,6 +77,14 @@ class DocumentProgress(CozeModel):
     update_interval: int = 0  # Frequency of automatic updates for online web pages. Unit is hours.
 
 
+class UpdateDatasetRes(CozeModel):
+    pass
+
+
+class DeleteDatasetRes(CozeModel):
+    pass
+
+
 class DatasetsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
@@ -197,7 +205,7 @@ class DatasetsClient(object):
         name: str,
         description: Optional[str] = None,
         icon_file_id: Optional[str] = None,
-    ):
+    ) -> UpdateDatasetRes:
         """
         Update Dataset
         This API will fully refresh the knowledge base's name, file_id, and description settings. If these parameters are not set, they will revert to default settings.
@@ -216,11 +224,11 @@ class DatasetsClient(object):
             "description": description,
             "file_id": icon_file_id,
         }
-        self._requester.request(
+        return self._requester.request(
             "put",
             url,
             False,
-            cast=None,
+            cast=UpdateDatasetRes,
             body=body,
         )
 
@@ -228,7 +236,7 @@ class DatasetsClient(object):
         self,
         *,
         dataset_id: str,
-    ):
+    ) -> DeleteDatasetRes:
         """
         Delete Dataset
         The workspace administrator can delete all knowledge bases in the team, while other members can only delete knowledge bases they own.
@@ -240,11 +248,11 @@ class DatasetsClient(object):
         :param dataset_id: The ID of the dataset
         """
         url = f"{self._base_url}/v1/datasets/{dataset_id}"
-        self._requester.request(
+        return self._requester.request(
             "delete",
             url,
             False,
-            cast=None,
+            cast=DeleteDatasetRes,
         )
 
     def process(
@@ -398,7 +406,7 @@ class AsyncDatasetsClient(object):
         name: str,
         description: Optional[str] = None,
         icon_file_id: Optional[str] = None,
-    ):
+    ) -> UpdateDatasetRes:
         """
         Update Dataset
         This API will fully refresh the knowledge base's name, file_id, and description settings. If these parameters are not set, they will revert to default settings.
@@ -417,11 +425,11 @@ class AsyncDatasetsClient(object):
             "description": description,
             "file_id": icon_file_id,
         }
-        await self._requester.arequest(
+        return await self._requester.arequest(
             "put",
             url,
             False,
-            cast=None,
+            cast=UpdateDatasetRes,
             body=body,
         )
 
@@ -429,7 +437,7 @@ class AsyncDatasetsClient(object):
         self,
         *,
         dataset_id: str,
-    ):
+    ) -> DeleteDatasetRes:
         """
         Delete Dataset
         The workspace administrator can delete all knowledge bases in the team, while other members can only delete knowledge bases they own.
@@ -441,11 +449,11 @@ class AsyncDatasetsClient(object):
         :param dataset_id: The ID of the dataset
         """
         url = f"{self._base_url}/v1/datasets/{dataset_id}"
-        await self._requester.arequest(
+        return await self._requester.arequest(
             "delete",
             url,
             False,
-            cast=None,
+            cast=DeleteDatasetRes,
         )
 
     async def process(

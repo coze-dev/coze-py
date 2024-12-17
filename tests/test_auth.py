@@ -20,7 +20,8 @@ from cozepy import (
     WebOAuthApp,
 )
 from cozepy.util import random_hex
-from tests.config import read_file
+
+from .test_util import read_file
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")

@@ -96,6 +96,10 @@ class SimpleBot(CozeModel):
     publish_time: str
 
 
+class UpdateBotRes(CozeModel):
+    pass
+
+
 class _PrivateListBotsData(CozeModel, NumberPagedResponse[SimpleBot]):
     space_bots: List[SimpleBot]
     total: int
@@ -151,7 +155,7 @@ class BotsClient(object):
         icon_file_id: Optional[str] = None,
         prompt_info: Optional[BotPromptInfo] = None,
         onboarding_info: Optional[BotOnboardingInfo] = None,
-    ) -> None:
+    ) -> UpdateBotRes:
         """
         Update the configuration of a bot.
         This API can be used to update all bots created through the Coze platform or via the API.
@@ -185,7 +189,7 @@ class BotsClient(object):
             "post",
             url,
             False,
-            None,
+            cast=UpdateBotRes,
             body=body,
         )
 
@@ -303,7 +307,7 @@ class AsyncBotsClient(object):
         icon_file_id: Optional[str] = None,
         prompt_info: Optional[BotPromptInfo] = None,
         onboarding_info: Optional[BotOnboardingInfo] = None,
-    ) -> None:
+    ) -> UpdateBotRes:
         """
         Update the configuration of a bot.
         This API can be used to update all bots created through the Coze platform or via the API.
@@ -333,7 +337,7 @@ class AsyncBotsClient(object):
             "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
         }
 
-        return await self._requester.arequest("post", url, False, None, body=body)
+        return await self._requester.arequest("post", url, False, cast=UpdateBotRes, body=body)
 
     async def publish(
         self,

@@ -4,6 +4,7 @@ import pytest
 from cozepy import CozeAPIError, CozePKCEAuthError
 from cozepy.model import CozeModel
 from cozepy.request import Requester
+from tests.test_util import logid_key
 
 
 class ModelForTest(CozeModel):
@@ -19,7 +20,11 @@ class DebugModelForTest(CozeModel):
 class TestRequester:
     def test_code_msg(self, respx_mock):
         respx_mock.post("/api/test").mock(
-            httpx.Response(200, json={"code": 100, "msg": "request failed"}, headers={"x-tt-logid": "mock-logid"})
+            httpx.Response(
+                200,
+                json={"code": 100, "msg": "request failed"},
+                headers={logid_key(): "mock-logid"},
+            )
         )
 
         with pytest.raises(CozeAPIError, match="code: 100, msg: request failed, logid: mock-logid"):
@@ -32,7 +37,7 @@ class TestRequester:
                 json={
                     "error_code": "slow_down",
                 },
-                headers={"x-tt-logid": "mock-logid"},
+                headers={logid_key(): "mock-logid"},
             )
         )
 
@@ -46,7 +51,7 @@ class TestRequester:
                 json={
                     "error_message": "error_message",
                 },
-                headers={"x-tt-logid": "mock-logid"},
+                headers={logid_key(): "mock-logid"},
             )
         )
 
@@ -61,7 +66,7 @@ class TestRequester:
                     "debug_url": "debug_url",
                     "data": "data",
                 },
-                headers={"x-tt-logid": "mock-logid"},
+                headers={logid_key(): "mock-logid"},
             )
         )
 
@@ -73,7 +78,7 @@ class TestRequester:
 class TestAsyncRequester:
     async def test_code_msg(self, respx_mock):
         respx_mock.post("/api/test").mock(
-            httpx.Response(200, json={"code": 100, "msg": "request failed"}, headers={"x-tt-logid": "mock-logid"})
+            httpx.Response(200, json={"code": 100, "msg": "request failed"}, headers={logid_key(): "mock-logid"})
         )
 
         with pytest.raises(CozeAPIError, match="code: 100, msg: request failed, logid: mock-logid"):
@@ -86,7 +91,7 @@ class TestAsyncRequester:
                 json={
                     "error_code": "slow_down",
                 },
-                headers={"x-tt-logid": "mock-logid"},
+                headers={logid_key(): "mock-logid"},
             )
         )
 
@@ -100,7 +105,7 @@ class TestAsyncRequester:
                 json={
                     "error_message": "error_message",
                 },
-                headers={"x-tt-logid": "mock-logid"},
+                headers={logid_key(): "mock-logid"},
             )
         )
 
@@ -115,7 +120,7 @@ class TestAsyncRequester:
                     "debug_url": "debug_url",
                     "data": "data",
                 },
-                headers={"x-tt-logid": "mock-logid"},
+                headers={logid_key(): "mock-logid"},
             )
         )
 

@@ -18,7 +18,13 @@ from typing_extensions import Literal, get_args
 from cozepy.config import DEFAULT_CONNECTION_LIMITS, DEFAULT_TIMEOUT
 from cozepy.exception import COZE_PKCE_AUTH_ERROR_TYPE_ENUMS, CozeAPIError, CozePKCEAuthError, CozePKCEAuthErrorType
 from cozepy.log import log_debug, log_warning
-from cozepy.model import AsyncIteratorHTTPResponse, FileHTTPResponse, HTTPRequest, IteratorHTTPResponse, ListResponse
+from cozepy.model import (
+    AsyncIteratorHTTPResponse,
+    FileHTTPResponse,
+    HTTPRequest,
+    IteratorHTTPResponse,
+    ListResponse,
+)
 from cozepy.version import coze_client_user_agent, user_agent
 
 if TYPE_CHECKING:
@@ -443,7 +449,10 @@ class Requester(object):
             if cast is None:
                 return None
 
-            return cast.model_validate(data)  # type: ignore
+            res = cast.model_validate(data) if data is not None else cast()  # type: ignore
+            if hasattr(res, "logid"):
+                res.logid = logid  # type: ignore
+            return res  # type: ignore
 
     def _parse_requests_code_msg(
         self, method: str, url: str, response: Response, data_field: str = "data"
