@@ -16,16 +16,16 @@ class PhotoStatus(IntEnum):
 
 class Photo(CozeModel):
     document_id: str  # The ID of the image.
-    url: str  # The URL of the image.
-    name: str  # The name of the image.
-    size: int  # The size of the image, in bytes.
-    type: str  # File format, i.e., file extension, such as jpg, png.
+    url: str = ""  # The URL of the image.
+    name: str = ""  # The name of the image.
+    size: int = 0  # The size of the image, in bytes.
+    type: str = ""  # File format, i.e., file extension, such as jpg, png.
     status: PhotoStatus  # Status of the file. Values include: 0: In processing, 1: Completed, 9: Processing failed, it is recommended to re-upload
-    caption: str  # Image description information.
-    creator_id: str  # The ID of the creator.
+    caption: str = ""  # Image description information.
+    creator_id: str = ""  # The ID of the creator.
     source_type: DocumentSourceType  # The source type of the image.
-    create_time: int  # The creation time of the image.
-    update_time: int  # The update time of the image.
+    create_time: int = 0  # The creation time of the image.
+    update_time: int = 0  # The update time of the image.
 
 
 class _PrivateListPhotosData(CozeModel, NumberPagedResponse[Photo]):
