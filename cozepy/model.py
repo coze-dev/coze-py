@@ -6,6 +6,7 @@ from typing import (
     Callable,
     Dict,
     Generic,
+    Iterable,
     Iterator,
     List,
     Optional,
@@ -13,10 +14,12 @@ from typing import (
     TypeVar,
     Union,
     cast,
+    overload,
 )
 
 import httpx
 from pydantic import BaseModel, ConfigDict
+from typing_extensions import SupportsIndex
 
 from cozepy.exception import CozeInvalidEventError
 from cozepy.log import log_debug
@@ -31,6 +34,7 @@ AsyncPage = TypeVar("AsyncPage", bound="AsyncPagedBase")
 
 class CozeModel(BaseModel):
     model_config = ConfigDict(protected_namespaces=(), arbitrary_types_allowed=True)
+    logid: Optional[str] = None
 
 
 class HTTPResponse(Generic[T]):
@@ -73,6 +77,45 @@ class ListResponse(Generic[T]):
     def __init__(self, items: List[T], **kwargs):
         self.logid = kwargs.get("logid") or ""
         self.items = items
+
+    def __len__(self) -> int:
+        return len(self.items)
+
+    def __iter__(self) -> Iterator[T]:
+        return iter(self.items)
+
+    @overload
+    def __getitem__(self, key: SupportsIndex) -> T: ...
+    @overload
+    def __getitem__(self, key: slice) -> List[T]: ...
+
+    def __getitem__(self, key: Union[SupportsIndex, slice]) -> Union[T, List[T]]:
+        return self.items[key]
+
+    @overload
+    def __setitem__(self, key: SupportsIndex, value: T) -> None: ...
+
+    @overload
+    def __setitem__(self, key: slice, value: Iterable[T]) -> None: ...
+
+    def __setitem__(self, key: Union[SupportsIndex, slice], value: Union[T, Iterable[T]]) -> None:
+        if isinstance(key, slice):
+            if not isinstance(value, Iterable):
+                raise TypeError("Can only assign an iterable to slice")
+            self.items[key] = value  # type: ignore
+        else:
+            if isinstance(value, Iterable):
+                raise TypeError("Can only assign a single value to index")
+            self.items[key] = value
+
+    def __delitem__(self, key: Union[SupportsIndex, slice]) -> None:
+        del self.items[key]
+
+    def __contains__(self, key: object) -> bool:
+        return key in self.items
+
+    def __reversed__(self) -> Iterator[T]:
+        return reversed(self.items)
 
 
 class HTTPRequest(CozeModel, Generic[T]):
@@ -155,6 +198,8 @@ class NumberPagedResponse(Generic[T], abc.ABC):
 
 
 class NumberPaged(PagedBase[T]):
+    logid: Optional[str] = None
+
     def __init__(
         self,
         page_num: int,
@@ -211,9 +256,11 @@ class NumberPaged(PagedBase[T]):
             return
         request: HTTPRequest = self._request_maker(self.page_num, self.page_size)
         res: NumberPagedResponse[T] = self._requestor.send(request)
+        print("res", res)
         self._total = res.get_total()
         self._has_more = res.get_has_more()
         self._items = res.get_items()
+        self.logid = res.logid
 
     @staticmethod
     def _is_page_has_more(page: "NumberPaged[T]") -> bool:
@@ -228,6 +275,8 @@ class NumberPaged(PagedBase[T]):
 
 
 class AsyncNumberPaged(AsyncPagedBase[T]):
+    logid: Optional[str] = None
+
     def __init__(
         self,
         page_num: int,
@@ -290,6 +339,8 @@ class AsyncNumberPaged(AsyncPagedBase[T]):
         self._total = res.get_total()
         self._has_more = res.get_has_more()
         self._items = res.get_items()
+        if hasattr(res, "logid"):
+            self.logid = res.logid
 
     @staticmethod
     def _is_page_has_more(page: "AsyncNumberPaged[T]") -> bool:
@@ -333,6 +384,8 @@ class LastIDPagedResponse(Generic[T], abc.ABC):
 
 
 class LastIDPaged(PagedBase[T]):
+    logid: Optional[str] = None
+
     def __init__(
         self,
         before_id: str,
@@ -388,12 +441,15 @@ class LastIDPaged(PagedBase[T]):
             return
 
         request = self._request_maker(self.before_id, self.after_id)
+        print("request", request)
         res: LastIDPagedResponse[T] = self._requestor.send(request)
 
         self.first_id = res.get_first_id()
         self.last_id = res.get_last_id()
         self._has_more = res.get_has_more()
         self._items = res.get_items()
+        if hasattr(res, "logid"):
+            self.logid = res.logid
 
     def _check_has_more(self, has_more: Optional[bool] = None, last_id: Optional[str] = None) -> bool:
         if has_more is not None:
@@ -404,6 +460,8 @@ class LastIDPaged(PagedBase[T]):
 
 
 class AsyncLastIDPaged(AsyncPagedBase[T]):
+    logid: Optional[str] = None
+
     def __init__(
         self,
         before_id: str,
@@ -479,6 +537,8 @@ class AsyncLastIDPaged(AsyncPagedBase[T]):
         self.last_id = res.get_last_id()
         self._has_more = res.get_has_more()
         self._items = res.get_items()
+        if hasattr(res, "logid"):
+            self.logid = res.logid
 
     def _check_has_more(self, has_more: Optional[bool] = None, last_id: Optional[str] = None) -> bool:
         if has_more is not None:
@@ -495,13 +555,13 @@ class Stream(Generic[T]):
         self._iters = iters
         self._fields = fields
         self._handler = handler
-        self._logid = logid
+        self.logid = logid
 
     def __iter__(self):
         return self
 
     def __next__(self) -> T:
-        return self._handler(self._extra_event(), self._logid)
+        return self._handler(self._extra_event(), self.logid)
 
     def _extra_event(self) -> Dict[str, str]:
         data = dict(map(lambda x: (x, ""), self._fields))
@@ -512,7 +572,7 @@ class Stream(Generic[T]):
             if line == "":
                 continue
 
-            log_debug("receive event, logid=%s, event=%s", self._logid, line)
+            log_debug("receive event, logid=%s, event=%s", self.logid, line)
 
             field, value = self._extra_field_data(line, data)
             data[field] = value
@@ -525,8 +585,8 @@ class Stream(Generic[T]):
                 if data[field] == "":
                     return field, line[len(field) + 1 :].strip()
                 else:
-                    raise CozeInvalidEventError(field, line, self._logid)
-        raise CozeInvalidEventError("", line, self._logid)
+                    raise CozeInvalidEventError(field, line, self.logid)
+        raise CozeInvalidEventError("", line, self.logid)
 
 
 class AsyncStream(Generic[T]):

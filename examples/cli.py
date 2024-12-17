@@ -271,22 +271,19 @@ class RichWorkspaceList(object):
 
 
 class RichBotList(object):
-    def __init__(self, bots: List[Bot], total: int, page: int, size: int, json_output: bool):
+    def __init__(self, bots: List[Bot], total: int, page: int, size: int):
         self._bots = bots
         self._total = total
         self._page = page
         self._size = size
-        self._json_output = json_output
 
-    def __rich__(self) -> str:
-        if self._json_output:
-            return self._get_json()
-        table = self._get_table()
-        table.add_section()
-        table.add_row(
-            f"Total: {self._total} | Page: {self._page} | Size: {self._size}", style="bold cyan", end_section=True
-        )
-        return table
+    def print(self, json_output: bool = False):
+        if json_output:
+            print(self._get_json())
+            return
+
+        console.print(self._get_table())
+        console.print(f"Total: {self._total} | Page: {self._page} | Size: {self._size}")
 
     def _get_table(self) -> Table:
         table = Table(show_header=True, header_style="bold magenta")
@@ -538,22 +535,15 @@ class CozeAPI(object):
         workspace_id: str,
         page: int = 1,
         size: int = 10,
-        json_output: bool = False,
         all_pages: bool = False,
         name_filter: Optional[str] = None,
-    ):
+    ) -> RichBotList:
         """List bots in a workspace"""
-        bots = []
-        try:
-            # Get bot list
-            bots_page = self.client.bots.list(space_id=workspace_id, page_num=page, page_size=size)
-            if all_pages:
-                bots = [bot for bot in bots_page]
-            else:
-                bots = bots_page.items
-        except Exception as e:
-            console.print(f"[red]Get bot list failed: {str(e)}[/red]")
-            return
+        bots_page = self.client.bots.list(space_id=workspace_id, page_num=page, page_size=size)
+        if all_pages:
+            bots = [bot for bot in bots_page]
+        else:
+            bots = bots_page.items
 
         for bot in bots:
             self._set_bot_cache(bot)
@@ -561,8 +551,7 @@ class CozeAPI(object):
         if name_filter:
             bots = [bot for bot in bots if name_filter.lower() in bot.bot_name.lower()]
 
-        rich_bot_list = RichBotList(bots, bots_page.total, page, size, json_output)
-        console.print(rich_bot_list)
+        return RichBotList(bots, bots_page.total, page, size)
 
     def retrieve_bot(self, workspace_id: str, bot_id: str) -> Bot:
         """Show bot details"""
@@ -821,11 +810,16 @@ class CozeAPI(object):
 
 coze = CozeAPI()
 
+"""cli"""
+
 
 @click.group()
 def cli():
     """Coze CLI"""
     pass
+
+
+"""auth"""
 
 
 # logout or auth revoke
@@ -834,6 +828,9 @@ def logout():
     """Logout"""
     coze.logout()
     console.print("[green]Logout successfully[/green]")
+
+
+"""workspace"""
 
 
 @cli.group()
@@ -862,6 +859,9 @@ def list_workspaces(
         console.print(f"[red]Error: {str(e)}[/red]")
 
 
+"""bot"""
+
+
 @cli.group()
 def bot():
     """Bot"""
@@ -869,7 +869,7 @@ def bot():
 
 
 @bot.command("list")
-@click.argument("workspace_id")
+@click.option("--workspace_id", "workspace_id", help="Workspace ID")
 @click.option("--page", default=1, help="page number")
 @click.option("--size", default=10, help="page size")
 @click.option("--json", "json_output", is_flag=True, help="output in json format")
@@ -878,14 +878,15 @@ def bot():
 def list_bots(workspace_id: str, page: int, size: int, json_output: bool, all_pages: bool, name_filter: Optional[str]):
     """List all bots in a workspace"""
     try:
-        coze.list_bots(workspace_id, page, size, json_output, all_pages, name_filter)
+        res = coze.list_bots(workspace_id, page, size, all_pages, name_filter)
+        res.print(json_output)
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
 
 
 @bot.command("retrieve")
-@click.argument("workspace_id")
-@click.argument("bot_id")
+@click.option("--workspace_id", "workspace_id", help="Workspace ID")
+@click.option("--bot_id", "bot_id", help="Bot ID")
 @click.option("--json", "json_output", is_flag=True, help="output in json format")
 def retrieve_bot(workspace_id: str, bot_id: str, json_output: bool):
     """Retrieve bot details"""
@@ -894,6 +895,9 @@ def retrieve_bot(workspace_id: str, bot_id: str, json_output: bool):
         RichBot(bot).print(json_output)
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
+
+
+"""audio"""
 
 
 @cli.group()
@@ -932,7 +936,7 @@ def speech():
 
 
 @speech.command("create")
-@click.argument("text")
+@click.option("--text", "text", help="Text")
 @click.option("--voice_id", "voice_id", help="Voice ID")
 @click.option("--output", "-o", "output_file", help="Save audio file path")
 @click.option("--format", "response_format", help="Audio format", default="mp3")
@@ -1121,6 +1125,9 @@ def update_dataset_image(dataset_id: str, document_id: str, caption: str):
         console.print(f"[red]Error: {str(e)}[/red]")
 
 
+"""template"""
+
+
 @cli.group()
 def template():
     """Template"""
@@ -1148,4 +1155,29 @@ def duplicate_template(template_id: str, workspace_id: str, name: Optional[str])
 
 
 if __name__ == "__main__":
+    """
+    example:
+
+    # alias
+    alias first_workspace="./examples/cli.py workspace list --json | jq '.items[0].id' -r"
+    alias personal_workspace="./examples/cli.py workspace list --type personal --json | jq '.items[0].id' -r"
+    alias first_bot="./examples/cli.py bot list --workspace_id `personal_workspace` --json | jq '.items[0].bot_id' -r"
+
+    # workspace
+    ## list workspaces
+    ./examples/cli.py workspace list --page 1 --size 10 --json
+    ## get personal workspace id
+    ./examples/cli.py workspace list --type personal --json | jq '.items[0].id' -r
+    # bot
+    ## list personal workspace bots
+    ./examples/cli.py bot list --workspace_id `get_personal_workspace` --page 1 --size 10 --json
+    ## get bot details
+    ./examples/cli.py bot retrieve --workspace_id 1234567890 --bot_id 1234567890 --json
+    # dataset
+    ## list datasets
+    ./examples/cli.py dataset list --space_id 1234567890 --page 1 --size 10 --json
+    ## create dataset
+    ./examples/cli.py dataset create --name "test" --space_id 1234567890 --format 0 --description "test" --icon "https://www.coze.cn/favicon.ico"
+
+    """
     cli()

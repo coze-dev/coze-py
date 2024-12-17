@@ -1,5 +1,7 @@
+import os
 from typing import Any, AsyncIterator, List
 
+import httpx
 import pytest
 
 from cozepy import COZE_COM_BASE_URL
@@ -45,3 +47,24 @@ def test_remove_url_trailing_slash():
     assert remove_url_trailing_slash(COZE_COM_BASE_URL + "/") == COZE_COM_BASE_URL
     assert remove_url_trailing_slash(COZE_COM_BASE_URL + "//") == COZE_COM_BASE_URL
     assert remove_url_trailing_slash(COZE_COM_BASE_URL + "///") == COZE_COM_BASE_URL
+
+
+def logid_key():
+    return "x-tt-logid"
+
+
+def make_stream_response(content: str) -> httpx.Response:
+    return httpx.Response(
+        200,
+        headers={"content-type": "text/event-stream", logid_key(): "logid"},
+        content=content,
+    )
+
+
+def read_file(path: str):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_dir, path)
+
+    with open(file_path, "r") as file:
+        content = file.read()
+    return content

@@ -5,10 +5,21 @@ import tempfile
 import httpx
 import pytest
 
-from cozepy import AsyncCoze, Chat, ChatEvent, ChatEventType, ChatStatus, Coze, MessageObjectString, TokenAuth
-from cozepy.chat import ChatError, ChatUsage, Message
+from cozepy import (
+    AsyncCoze,
+    Chat,
+    ChatError,
+    ChatEvent,
+    ChatEventType,
+    ChatStatus,
+    ChatUsage,
+    Coze,
+    Message,
+    MessageObjectString,
+    TokenAuth,
+)
 from cozepy.util import random_hex, write_pcm_to_wav_file
-from tests.config import make_stream_response, read_file
+from tests.test_util import logid_key, make_stream_response, read_file
 
 
 def make_chat(conversation_id: str = "conversation_id", status: ChatStatus = ChatStatus.IN_PROGRESS) -> Chat:
@@ -21,7 +32,107 @@ def make_chat(conversation_id: str = "conversation_id", status: ChatStatus = Cha
         failed_at=123,
         meta_data={},
         status=status,
+        logid=random_hex(10),
     )
+
+
+def mock_chat_create(respx_mock, conversation_id: str, status: ChatStatus):
+    logid = random_hex(10)
+    respx_mock.post("/v3/chat").mock(
+        httpx.Response(
+            200, json={"data": make_chat(conversation_id, status).model_dump()}, headers={logid_key(): logid}
+        )
+    )
+    return logid
+
+
+def mock_chat_stream(respx_mock, content: str) -> str:
+    logid = random_hex(10)
+    respx_mock.post("/v3/chat").mock(
+        httpx.Response(
+            200,
+            headers={"content-type": "text/event-stream", logid_key(): logid},
+            content=content,
+        )
+    )
+    return logid
+
+
+def mock_chat_retrieve(respx_mock, conversation_id: str, status: ChatStatus):
+    logid = random_hex(10)
+    respx_mock.post("/v3/chat/retrieve").mock(
+        httpx.Response(
+            200,
+            json={"data": make_chat(conversation_id, status).model_dump()},
+            headers={logid_key(): logid},
+        )
+    )
+    return logid
+
+
+def mock_chat_submit_tool_outputs(respx_mock, conversation_id: str, status: ChatStatus):
+    logid = random_hex(10)
+    respx_mock.post("/v3/chat/submit_tool_outputs").mock(
+        httpx.Response(
+            200,
+            json={"data": make_chat(conversation_id, status).model_dump()},
+            headers={logid_key(): logid},
+        )
+    )
+    return logid
+
+
+def mock_chat_submit_tool_outputs_stream(respx_mock, content: str) -> str:
+    logid = random_hex(10)
+    respx_mock.post("/v3/chat/submit_tool_outputs").mock(
+        httpx.Response(
+            200,
+            headers={"content-type": "text/event-stream", logid_key(): logid},
+            content=content,
+        )
+    )
+    return logid
+
+
+def mock_chat_cancel(respx_mock, conversation_id: str, status: ChatStatus):
+    logid = random_hex(10)
+    respx_mock.post("/v3/chat/cancel").mock(
+        httpx.Response(
+            200, json={"data": make_chat(conversation_id, status).model_dump()}, headers={logid_key(): logid}
+        )
+    )
+    return logid
+
+
+def mock_chat_poll(
+    respx_mock,
+    conversation_id: str,
+):
+    respx_mock.post("/v3/chat").mock(
+        httpx.Response(
+            200,
+            json={"data": make_chat(conversation_id, ChatStatus.IN_PROGRESS).model_dump()},
+            headers={logid_key(): random_hex(10)},
+        )
+    )
+    chat = make_chat(conversation_id, ChatStatus.COMPLETED)
+    respx_mock.post("/v3/chat/retrieve").mock(
+        httpx.Response(
+            200,
+            json={"data": chat.model_dump()},
+            headers={logid_key(): chat.logid},
+        )
+    )
+    msg = Message.build_user_question_text("hi")
+    list_message_logid = random_hex(10)
+    respx_mock.get("/v3/chat/message/list").mock(
+        httpx.Response(
+            200,
+            json={"data": [msg.model_dump()]},
+            headers={logid_key(): list_message_logid},
+        )
+    )
+    return chat, list_message_logid
 
 
 chat_stream_testdata = make_stream_response("""
@@ -56,16 +167,6 @@ event:done
 data:"[DONE]"
         """)
 
-chat_failed_stream_testdata = make_stream_response("""
-event:conversation.chat.failed
-data:{"id":"7390342853760696354","conversation_id":"7390331532575195148","bot_id":"7374724495711502387","completed_at":1720698285,"failed_at":1720698286,"last_error":{"code":5000,"msg":"event interval error"},"status":"failed","usage":{"token_count":0,"output_count":0,"input_count":0}}
-        """)
-
-chat_error_stream_testdata = make_stream_response("""
-event:error
-data:{}
-        """)
-
 
 class TestMessageObjectString:
     def test_build_image(self):
@@ -82,29 +183,33 @@ class TestMessageObjectString:
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
-class TestChat:
+class TestSyncChat:
     def test_sync_chat_create(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         conversation_id = "conversation_id"
-        respx_mock.post("/v3/chat").mock(
-            httpx.Response(200, json={"data": make_chat(conversation_id, ChatStatus.FAILED).model_dump()})
-        )
+        mock_logid = mock_chat_create(respx_mock, conversation_id, ChatStatus.FAILED)
         res = coze.chat.create(bot_id="bot", user_id="user")
 
         assert res
+        assert res.logid is not None
+        assert res.logid == mock_logid
         assert res.conversation_id == conversation_id
 
     def test_sync_chat_stream(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/v3/chat").mock(chat_stream_testdata)
-        events = list(coze.chat.stream(bot_id="bot", user_id="user"))
+        mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_text_stream_resp.txt"))
+        stream = coze.chat.stream(bot_id="bot", user_id="user")
 
-        assert events
-        assert len(events) == 9
+        assert stream
+        assert stream.logid is not None
+        assert stream.logid == mock_logid
+
+        events = list(stream)
+        assert len(events) == 8
         assert events[0] == ChatEvent(
-            logid="logid",
+            logid=mock_logid,
             event=ChatEventType.CONVERSATION_CHAT_CREATED,
             chat=Chat(
                 id="7382159487131697202",
@@ -125,22 +230,23 @@ class TestChat:
     def test_sync_chat_audio_stream(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        chat_audio_stream_resp = make_stream_response(read_file("testdata/chat_audio_stream_resp.txt"))
-        respx_mock.post("/v3/chat").mock(chat_audio_stream_resp)
-        events = list(
-            coze.chat.stream(
-                bot_id="bot",
-                user_id="user",
-                additional_messages=[
-                    Message.build_user_question_objects(
-                        [
-                            MessageObjectString.build_audio(file_id="fake file id"),
-                        ]
-                    ),
-                ],
-            )
+        mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_audio_stream_resp.txt"))
+        stream = coze.chat.stream(
+            bot_id="bot",
+            user_id="user",
+            additional_messages=[
+                Message.build_user_question_objects(
+                    [
+                        MessageObjectString.build_audio(file_id="fake file id"),
+                    ]
+                ),
+            ],
         )
+        assert stream
+        assert stream.logid is not None
+        assert stream.logid == mock_logid
 
+        events = list(stream)
         assert events
         assert len(events) == 7
 
@@ -152,67 +258,84 @@ class TestChat:
     def test_sync_chat_stream_error(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/v3/chat").mock(chat_error_stream_testdata)
+        mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_error_resp.txt"))
+        stream = coze.chat.stream(bot_id="bot", user_id="user")
+        assert stream
+        assert stream.logid is not None
+        assert stream.logid == mock_logid
+
         with pytest.raises(Exception, match="error event"):
-            list(coze.chat.stream(bot_id="bot", user_id="user"))
+            list(stream)
 
     def test_sync_chat_stream_failed(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/v3/chat").mock(chat_failed_stream_testdata)
-        a = list(coze.chat.stream(bot_id="bot", user_id="user"))
-        assert a[0].chat.last_error.code == 5000
+        mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_failed_resp.txt"))
+        stream = coze.chat.stream(bot_id="bot", user_id="user")
+        assert stream
+        assert stream.logid is not None
+        assert stream.logid == mock_logid
 
-    def test_chat_stream_invalid_event(self, respx_mock):
+        events = list(stream)
+        assert events
+        assert len(events) == 1
+        assert events[0].chat.last_error.code == 5000
+
+    def test_sync_chat_stream_invalid_event(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/v3/chat").mock(
-            make_stream_response("""
-event:invalid
-data:{}
-        """)
-        )
-        with pytest.raises(Exception, match="invalid chat.event: invalid"):
-            list(coze.chat.stream(bot_id="bot", user_id="user"))
+        mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_invalid_resp.txt"))
 
-    def test_chat_retrieve(self, respx_mock):
+        stream = coze.chat.stream(bot_id="bot", user_id="user")
+        assert stream
+        assert stream.logid is not None
+        assert stream.logid == mock_logid
+
+        with pytest.raises(Exception, match="invalid chat.event: invalid"):
+            list(stream)
+
+    def test_sync_chat_retrieve(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         conversation_id = "conversation_id"
-        respx_mock.post("/v3/chat/retrieve").mock(
-            httpx.Response(200, json={"data": make_chat(conversation_id, ChatStatus.FAILED).model_dump()})
-        )
-        res = coze.chat.retrieve(conversation_id="conversation", chat_id="chat")
+        mock_logid = mock_chat_retrieve(respx_mock, conversation_id, ChatStatus.FAILED)
+        res = coze.chat.retrieve(conversation_id=conversation_id, chat_id="chat")
 
         assert res
+        assert res.logid is not None
+        assert res.logid == mock_logid
         assert res.conversation_id == conversation_id
 
-    def test_submit_tool_outputs_not_stream(self, respx_mock):
+    def test_sync_submit_tool_outputs_not_stream(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         conversation_id = "conversation_id"
-        respx_mock.post("/v3/chat/submit_tool_outputs").mock(
-            httpx.Response(200, json={"data": make_chat(conversation_id, ChatStatus.FAILED).model_dump()})
-        )
+        mock_logid = mock_chat_submit_tool_outputs(respx_mock, conversation_id, ChatStatus.FAILED)
         res = coze.chat.submit_tool_outputs(
-            conversation_id="conversation", chat_id="chat", tool_outputs=[], stream=False
+            conversation_id=conversation_id, chat_id="chat", tool_outputs=[], stream=False
         )
 
         assert res
+        assert res.logid is not None
+        assert res.logid == mock_logid
         assert res.conversation_id == conversation_id
 
     def test_sync_submit_tool_outputs_stream(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/v3/chat/submit_tool_outputs").mock(chat_stream_testdata)
-        events = list(
-            coze.chat.submit_tool_outputs(conversation_id="conversation", chat_id="chat", tool_outputs=[], stream=True)
+        mock_logid = mock_chat_submit_tool_outputs_stream(respx_mock, read_file("testdata/chat_text_stream_resp.txt"))
+        stream = coze.chat.submit_tool_outputs(
+            conversation_id="conversation", chat_id="chat", tool_outputs=[], stream=True
         )
+        assert stream
+        assert stream.logid is not None
+        assert stream.logid == mock_logid
 
+        events = list(stream)
         assert events
-        assert len(events) == 9
+        assert len(events) == 8
         assert events[0] == ChatEvent(
-            logid="logid",
+            logid=mock_logid,
             event=ChatEventType.CONVERSATION_CHAT_CREATED,
             chat=Chat(
                 id="7382159487131697202",
@@ -230,39 +353,31 @@ data:{}
         )
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
 
-    def test_cancel(self, respx_mock):
+    def test_sync_chat_cancel(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         conversation_id = "conversation_id"
-        respx_mock.post("/v3/chat/cancel").mock(
-            httpx.Response(200, json={"data": make_chat(conversation_id, ChatStatus.FAILED).model_dump()})
-        )
+        mock_logid = mock_chat_cancel(respx_mock, conversation_id, ChatStatus.FAILED)
         res = coze.chat.cancel(conversation_id="conversation", chat_id="chat")
 
         assert res
+        assert res.logid is not None
+        assert res.logid == mock_logid
         assert res.conversation_id == conversation_id
 
     def test_sync_chat_poll(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         conversation_id = "conversation_id"
-        respx_mock.post("/v3/chat").mock(
-            httpx.Response(200, json={"data": make_chat(conversation_id, ChatStatus.IN_PROGRESS).model_dump()})
-        )
-        respx_mock.post("/v3/chat/retrieve").mock(
-            httpx.Response(200, json={"data": make_chat(conversation_id, ChatStatus.COMPLETED).model_dump()})
-        )
-        msg = Message.build_user_question_text("hi")
-        respx_mock.get("/v3/chat/message/list").mock(
-            httpx.Response(
-                200,
-                json={"data": [msg.model_dump()]},
-            )
+        mock_chat, mock_logid = mock_chat_poll(
+            respx_mock,
+            conversation_id,
         )
 
         res = coze.chat.create_and_poll(bot_id="bot", user_id="user")
 
         assert res
+        assert res.chat.logid == mock_chat.logid
         assert res.chat.conversation_id == conversation_id
         assert res.messages
         assert res.messages[0].content == "hi"
@@ -275,24 +390,25 @@ class TestAsyncChatConversationMessage:
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         conversation_id = "conversation_id"
-        respx_mock.post("/v3/chat").mock(
-            httpx.Response(200, json={"data": make_chat(conversation_id, ChatStatus.FAILED).model_dump()})
-        )
+        mock_logid = mock_chat_create(respx_mock, conversation_id, ChatStatus.FAILED)
         res = await coze.chat.create(bot_id="bot", user_id="user")
 
         assert res
+        assert res.logid is not None
+        assert res.logid == mock_logid
         assert res.conversation_id == conversation_id
 
     async def test_async_chat_stream(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/v3/chat").mock(chat_stream_testdata)
-        events = [event async for event in coze.chat.stream(bot_id="bot", user_id="user")]
+        mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_text_stream_resp.txt"))
+        stream = coze.chat.stream(bot_id="bot", user_id="user")
+        events = [event async for event in stream]
 
-        assert events
-        assert len(events) == 9
+        assert stream
+        assert len(events) == 8
         assert events[0] == ChatEvent(
-            logid="logid",
+            logid=mock_logid,
             event=ChatEventType.CONVERSATION_CHAT_CREATED,
             chat=Chat(
                 id="7382159487131697202",
@@ -310,26 +426,23 @@ class TestAsyncChatConversationMessage:
         )
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
 
-    async def test_sync_chat_audio_stream(self, respx_mock):
+    async def test_async_chat_audio_stream(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        chat_audio_stream_resp = make_stream_response(read_file("testdata/chat_audio_stream_resp.txt"))
-        respx_mock.post("/v3/chat").mock(chat_audio_stream_resp)
-        events = [
-            event
-            async for event in coze.chat.stream(
-                bot_id="bot",
-                user_id="user",
-                additional_messages=[
-                    Message.build_user_question_objects(
-                        [
-                            MessageObjectString.build_audio(file_id="fake file id"),
-                        ]
-                    ),
-                ],
-            )
-        ]
-
+        mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_audio_stream_resp.txt"))  # noqa: F841
+        stream = coze.chat.stream(
+            bot_id="bot",
+            user_id="user",
+            additional_messages=[
+                Message.build_user_question_objects(
+                    [
+                        MessageObjectString.build_audio(file_id="fake file id"),
+                    ]
+                ),
+            ],
+        )
+        assert stream
+        events = [event async for event in stream]
         assert events
         assert len(events) == 7
 
@@ -341,70 +454,68 @@ class TestAsyncChatConversationMessage:
     async def test_async_chat_stream_error(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/v3/chat").mock(
-            make_stream_response("""
-event:error
-data:{}
-        """)
-        )
+        mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_error_resp.txt"))  # noqa: F841
+        stream = coze.chat.stream(bot_id="bot", user_id="user")
+        assert stream
         with pytest.raises(Exception, match="error event"):
-            async for event in coze.chat.stream(bot_id="bot", user_id="user"):
-                assert event
+            [event async for event in stream]
+
+    async def test_async_chat_stream_failed(self, respx_mock):
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
+
+        mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_failed_resp.txt"))  # noqa: F841
+        stream = coze.chat.stream(bot_id="bot", user_id="user")
+        assert stream
+        events = [event async for event in stream]
+        assert events
+        assert len(events) == 1
+        assert events[0].chat.last_error.code == 5000
 
     async def test_async_chat_stream_invalid_event(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/v3/chat").mock(
-            make_stream_response("""
-event:invalid
-data:{}
-        """)
-        )
-        with pytest.raises(Exception, match="invalid chat.event: invalid"):
-            async for event in coze.chat.stream(bot_id="bot", user_id="user"):
-                assert event
+        mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_invalid_resp.txt"))  # noqa: F841
 
-    async def test_retrieve(self, respx_mock):
+        stream = coze.chat.stream(bot_id="bot", user_id="user")
+        assert stream
+        with pytest.raises(Exception, match="invalid chat.event: invalid"):
+            [event async for event in stream]
+
+    async def test_async_chat_retrieve(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         conversation_id = "conversation_id"
-        respx_mock.post("/v3/chat/retrieve").mock(
-            httpx.Response(200, json={"data": make_chat(conversation_id, ChatStatus.FAILED).model_dump()})
-        )
-        res = await coze.chat.retrieve(conversation_id="conversation", chat_id="chat")
+        mock_logid = mock_chat_retrieve(respx_mock, conversation_id, ChatStatus.FAILED)
+        res = await coze.chat.retrieve(conversation_id=conversation_id, chat_id="chat")
 
         assert res
+        assert res.logid is not None
+        assert res.logid == mock_logid
         assert res.conversation_id == conversation_id
 
-    async def test_submit_tool_outputs_not_stream(self, respx_mock):
+    async def test_async_submit_tool_outputs_not_stream(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         conversation_id = "conversation_id"
-        respx_mock.post("/v3/chat/submit_tool_outputs").mock(
-            httpx.Response(200, json={"data": make_chat(conversation_id, ChatStatus.FAILED).model_dump()})
-        )
-        res = await coze.chat.submit_tool_outputs(conversation_id="conversation", chat_id="chat", tool_outputs=[])
+        mock_logid = mock_chat_submit_tool_outputs(respx_mock, conversation_id, ChatStatus.FAILED)
+        res = await coze.chat.submit_tool_outputs(conversation_id=conversation_id, chat_id="chat", tool_outputs=[])
 
         assert res
+        assert res.logid is not None
+        assert res.logid == mock_logid
         assert res.conversation_id == conversation_id
 
     async def test_async_submit_tool_outputs_stream(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/v3/chat/submit_tool_outputs").mock(chat_stream_testdata)
-        events = [
-            i
-            async for i in coze.chat.submit_tool_outputs_stream(
-                conversation_id="conversation",
-                chat_id="chat",
-                tool_outputs=[],
-            )
-        ]
-
+        mock_logid = mock_chat_submit_tool_outputs_stream(respx_mock, read_file("testdata/chat_text_stream_resp.txt"))
+        stream = coze.chat.submit_tool_outputs_stream(conversation_id="conversation", chat_id="chat", tool_outputs=[])
+        assert stream
+        events = [event async for event in stream]
         assert events
-        assert len(events) == 9
+        assert len(events) == 8
         assert events[0] == ChatEvent(
-            logid="logid",
+            logid=mock_logid,
             event=ChatEventType.CONVERSATION_CHAT_CREATED,
             chat=Chat(
                 id="7382159487131697202",
@@ -422,14 +533,14 @@ data:{}
         )
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
 
-    async def test_chat_cancel(self, respx_mock):
+    async def test_async_chat_cancel(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         conversation_id = "conversation_id"
-        respx_mock.post("/v3/chat/cancel").mock(
-            httpx.Response(200, json={"data": make_chat(conversation_id, ChatStatus.FAILED).model_dump()})
-        )
+        mock_logid = mock_chat_cancel(respx_mock, conversation_id, ChatStatus.FAILED)
         res = await coze.chat.cancel(conversation_id="conversation", chat_id="chat")
 
         assert res
+        assert res.logid is not None
+        assert res.logid == mock_logid
         assert res.conversation_id == conversation_id

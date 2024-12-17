@@ -3,15 +3,23 @@ import pytest
 
 from cozepy import AsyncCoze, Coze, CreateRoomResult, TokenAuth
 from cozepy.util import random_hex
+from tests.test_util import logid_key
 
 
 def mock_create_room(respx_mock):
-    res = CreateRoomResult(token=random_hex(10), uid=random_hex(10), room_id=random_hex(10), app_id=random_hex(10))
+    res = CreateRoomResult(
+        token=random_hex(10),
+        uid=random_hex(10),
+        room_id=random_hex(10),
+        app_id=random_hex(10),
+        logid=random_hex(10),
+    )
 
     respx_mock.post("/v1/audio/rooms").mock(
         httpx.Response(
             200,
             json={"data": res.model_dump()},
+            headers={logid_key(): res.logid},
         )
     )
 
@@ -29,6 +37,8 @@ class TestAudioRooms:
 
         res = coze.audio.rooms.create(bot_id=bot_id, voice_id=voice_id)
         assert res
+        assert res.logid is not None
+        assert res.logid == mock_res.logid
         assert res.token == mock_res.token
         assert res.room_id == mock_res.room_id
         assert res.uid == mock_res.uid
@@ -47,6 +57,8 @@ class TestAsyncAudioRooms:
 
         res = await coze.audio.rooms.create(bot_id=bot_id, voice_id=voice_id)
         assert res
+        assert res.logid is not None
+        assert res.logid == mock_res.logid
         assert res.token == mock_res.token
         assert res.room_id == mock_res.room_id
         assert res.uid == mock_res.uid

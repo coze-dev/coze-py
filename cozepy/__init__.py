@@ -26,6 +26,7 @@ from .bots import (
     BotPluginInfo,
     BotPromptInfo,
     SimpleBot,
+    UpdateBotRes,
 )
 from .chat import (
     Chat,
@@ -132,6 +133,7 @@ __all__ = [
     "BotPluginInfo",
     "Bot",
     "SimpleBot",
+    "UpdateBotRes",
     # chat
     "MessageRole",
     "MessageType",

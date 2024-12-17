@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, AsyncIterator, Dict, List, Optional, Union, ov
 from typing_extensions import Literal
 
 from cozepy.auth import Auth
-from cozepy.model import AsyncIteratorHTTPResponse, AsyncStream, CozeModel, IteratorHTTPResponse, Stream
+from cozepy.model import AsyncIteratorHTTPResponse, AsyncStream, CozeModel, IteratorHTTPResponse, ListResponse, Stream
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
@@ -311,7 +311,7 @@ class Chat(CozeModel):
 
 class ChatPoll(CozeModel):
     chat: Chat
-    messages: Optional[List[Message]] = None
+    messages: Optional[ListResponse[Message]] = None
 
 
 class ChatEventType(str, Enum):

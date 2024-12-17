@@ -17,6 +17,8 @@ from cozepy import (
     DocumentUpdateType,
     TokenAuth,
 )
+from cozepy.util import random_hex
+from tests.test_util import logid_key
 
 
 @pytest.fixture(autouse=True)
@@ -47,7 +49,38 @@ def make_document(id: int = 0) -> Document:
     )
 
 
-def mock_documents_list(respx_mock, total, page):
+def mock_create_datasets_documents(respx_mock) -> Document:
+    document = make_document()
+    document.logid = random_hex(10)
+    respx_mock.post("/open_api/knowledge/document/create").mock(
+        httpx.Response(
+            200,
+            json={"document_infos": [document.model_dump()]},
+            headers={logid_key(): document.logid},
+        )
+    )
+    return document
+
+
+def mock_update_datasets_documents(respx_mock) -> Document:
+    document = make_document()
+    document.logid = random_hex(10)
+    respx_mock.post("/open_api/knowledge/document/update").mock(
+        httpx.Response(200, json={"data": None}, headers={logid_key(): document.logid})
+    )
+    return document
+
+
+def mock_delete_datasets_documents(respx_mock) -> Document:
+    document = make_document()
+    document.logid = random_hex(10)
+    respx_mock.post("/open_api/knowledge/document/delete").mock(
+        httpx.Response(200, json={"data": None}, headers={logid_key(): document.logid})
+    )
+    return document
+
+
+def mock_list_datasets_documents(respx_mock, total_count, page):
     respx_mock.post(
         "/open_api/knowledge/document/list",
         json={
@@ -60,7 +93,7 @@ def mock_documents_list(respx_mock, total, page):
             200,
             json={
                 "data": {
-                    "total": total,
+                    "total": total_count,
                     "document_infos": [make_document(page).model_dump()],
                 }
             },
@@ -69,18 +102,13 @@ def mock_documents_list(respx_mock, total, page):
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
-class TestDatasetsDocuments:
-    def test_create_web_auto_update(self, respx_mock):
+class TestSyncDatasetsDocuments:
+    def test_sync_datasets_documents_create_web_auto_update(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/open_api/knowledge/document/create").mock(
-            httpx.Response(
-                200,
-                json={"document_infos": [make_document().model_dump()]},
-            )
-        )
+        mock_document = mock_create_datasets_documents(respx_mock)
 
-        documents = coze.knowledge.documents.create(
+        documents = coze.datasets.documents.create(
             dataset_id="dataset_id",
             document_bases=[
                 DocumentBase(
@@ -92,19 +120,15 @@ class TestDatasetsDocuments:
             chunk_strategy=DocumentChunkStrategy.build_auto(),
         )
         assert documents
+        assert documents.logid == mock_document.logid
         assert len(documents) == 1
 
-    def test_create_local_custom(self, respx_mock):
+    def test_sync_datasets_documents_create_local_custom(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/open_api/knowledge/document/create").mock(
-            httpx.Response(
-                200,
-                json={"document_infos": [make_document().model_dump()]},
-            )
-        )
+        mock_document = mock_create_datasets_documents(respx_mock)
 
-        documents = coze.knowledge.documents.create(
+        documents = coze.datasets.documents.create(
             dataset_id="dataset_id",
             document_bases=[
                 DocumentBase(
@@ -116,123 +140,69 @@ class TestDatasetsDocuments:
             chunk_strategy=DocumentChunkStrategy.build_custom(1, ",", False, True),
         )
         assert documents
+        assert documents.logid == mock_document.logid
         assert len(documents) == 1
 
-    def test_update(self, respx_mock):
+    def test_sync_datasets_documents_update(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/open_api/knowledge/document/update").mock(httpx.Response(200, json={"data": None}))
+        mock_document = mock_update_datasets_documents(respx_mock)
 
-        coze.knowledge.documents.update(document_id="id", document_name="name")
-
-    def test_knowledge_documents_delete(self, respx_mock):
-        coze = Coze(auth=TokenAuth(token="token"))
-
-        respx_mock.post("/open_api/knowledge/document/delete").mock(httpx.Response(200, json={"data": None}))
-
-        coze.knowledge.documents.delete(document_ids=["id"])
-
-    def test_sync_knowledge_documents_list(self, respx_mock):
-        coze = Coze(auth=TokenAuth(token="token"))
-
-        respx_mock.post("/open_api/knowledge/document/list").mock(
-            httpx.Response(
-                200,
-                json={
-                    "data": {
-                        "total": 1,
-                        "document_infos": [make_document().model_dump()],
-                    }
-                },
-            )
-        )
-
-        res = coze.knowledge.documents.list(dataset_id="id")
+        res = coze.datasets.documents.update(document_id="id", document_name="name")
         assert res
-        assert res.total == 1
+        assert res.logid == mock_document.logid
 
-    def test_sync_knowledge_documents_iterator(self, respx_mock):
+    def test_sync_datasets_documents_delete(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        mock_document = mock_delete_datasets_documents(respx_mock)
+
+        res = coze.datasets.documents.delete(document_ids=["id"])
+        assert res
+        assert res.logid == mock_document.logid
+
+    def test_sync_datasets_documents_list(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         total = 10
         size = 1
         for idx in range(total):
-            respx_mock.post(
-                "/open_api/knowledge/document/list",
-                json={
-                    "dataset_id": "id",
-                    "page": idx + 1,
-                    "size": size,
-                },
-            ).mock(
-                httpx.Response(
-                    200,
-                    json={
-                        "data": {
-                            "total": total,
-                            "document_infos": [make_document(idx + 1).model_dump()],
-                        }
-                    },
-                )
-            )
+            mock_list_datasets_documents(respx_mock, total_count=total, page=idx + 1)
 
+        # no iter
+        resp = coze.datasets.documents.list(dataset_id="id", page_num=1, page_size=1)
+        assert resp
+        assert resp.has_more is True
+
+        # iter dataset
         total_result = 0
-        for idx, document in enumerate(coze.knowledge.documents.list(dataset_id="id", page_size=size)):
+        for message in resp:
             total_result += 1
-            assert document
-            assert document.document_id == f"id_{idx + 1}"
+            assert message
+            assert message.document_id == f"id_{total_result}"
         assert total_result == total
 
-    def test_sync_knowledge_documents_page_iterator(self, respx_mock):
-        coze = Coze(auth=TokenAuth(token="token"))
-
-        total = 10
-        size = 1
-        for idx in range(total):
-            respx_mock.post(
-                "/open_api/knowledge/document/list",
-                json={
-                    "dataset_id": "id",
-                    "page": idx + 1,
-                    "size": size,
-                },
-            ).mock(
-                httpx.Response(
-                    200,
-                    json={
-                        "data": {
-                            "total": total,
-                            "document_infos": [make_document(idx + 1).model_dump()],
-                        }
-                    },
-                )
-            )
-
+        # iter page
         total_result = 0
-        for idx, page in enumerate(coze.knowledge.documents.list(dataset_id="id", page_size=size).iter_pages()):
+        for page in resp.iter_pages():
             total_result += 1
             assert page
-            assert page.total == total
+            assert page.has_more == (total_result < total)
             assert len(page.items) == size
             document = page.items[0]
-            assert document.document_id == f"id_{idx + 1}"
+            assert document.document_id == f"id_{total_result}"
         assert total_result == total
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
 class TestAsyncDatasetsDocuments:
-    async def test_sync_knowledge_documents_create_web_auto_update(self, respx_mock):
+    async def test_async_datasets_documents_create_web_auto_update(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/open_api/knowledge/document/create").mock(
-            httpx.Response(
-                200,
-                json={"document_infos": [make_document().model_dump()]},
-            )
-        )
+        mock_document = mock_create_datasets_documents(respx_mock)
 
-        documents = await coze.knowledge.documents.create(
+        documents = await coze.datasets.documents.create(
             dataset_id="dataset_id",
             document_bases=[
                 DocumentBase(
@@ -244,19 +214,15 @@ class TestAsyncDatasetsDocuments:
             chunk_strategy=DocumentChunkStrategy.build_auto(),
         )
         assert documents
+        assert documents.logid == mock_document.logid
         assert len(documents) == 1
 
-    async def test_sync_knowledge_documents_create_local_custom(self, respx_mock):
+    async def test_async_datasets_documents_create_local_custom(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/open_api/knowledge/document/create").mock(
-            httpx.Response(
-                200,
-                json={"document_infos": [make_document().model_dump()]},
-            )
-        )
+        mock_document = mock_create_datasets_documents(respx_mock)
 
-        documents = await coze.knowledge.documents.create(
+        documents = await coze.datasets.documents.create(
             dataset_id="dataset_id",
             document_bases=[
                 DocumentBase(
@@ -268,63 +234,55 @@ class TestAsyncDatasetsDocuments:
             chunk_strategy=DocumentChunkStrategy.build_custom(1, ",", False, True),
         )
         assert documents
+        assert documents.logid == mock_document.logid
         assert len(documents) == 1
 
-    async def test_sync_knowledge_documents_update(self, respx_mock):
+    async def test_async_datasets_documents_update(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/open_api/knowledge/document/update").mock(httpx.Response(200, json={"data": None}))
+        mock_document = mock_update_datasets_documents(respx_mock)
 
-        await coze.knowledge.documents.update(document_id="id", document_name="name")
+        res = await coze.datasets.documents.update(document_id="id", document_name="name")
+        assert res
+        assert res.logid == mock_document.logid
 
-    async def test_sync_knowledge_documents_delete(self, respx_mock):
+    async def test_async_datasets_documents_delete(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        respx_mock.post("/open_api/knowledge/document/delete").mock(httpx.Response(200, json={"data": None}))
+        mock_document = mock_delete_datasets_documents(respx_mock)
 
-        await coze.knowledge.documents.delete(document_ids=["id"])
+        res = await coze.datasets.documents.delete(document_ids=["id"])
+        assert res
+        assert res.logid == mock_document.logid
 
-    async def test_sync_knowledge_documents_list(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
-
-        total = 10
-        mock_documents_list(respx_mock, total, 1)
-
-        resp = await coze.knowledge.documents.list(dataset_id="id", page_num=1, page_size=1)
-        assert resp
-        assert resp.total == total
-
-    async def test_async_knowledge_documents_iterator(self, respx_mock):
+    async def test_async_datasets_documents_list(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         total = 10
+        size = 1
         for idx in range(total):
-            mock_documents_list(respx_mock, total, idx + 1)
+            mock_list_datasets_documents(respx_mock, total_count=total, page=idx + 1)
 
-        resp = await coze.knowledge.documents.list(dataset_id="id", page_num=1, page_size=1)
+        # no iter
+        resp = await coze.datasets.documents.list(dataset_id="id", page_num=1, page_size=1)
+        assert resp
+        assert resp.has_more is True
 
+        # iter dataset
         total_result = 0
-        async for document in resp:
+        async for message in resp:
             total_result += 1
-            assert document
-            assert document.document_id == f"id_{total_result}"
+            assert message
+            assert message.document_id == f"id_{total_result}"
         assert total_result == total
 
-    async def test_async_knowledge_documents_page_iterator(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
-
-        total = 10
-        for idx in range(total):
-            mock_documents_list(respx_mock, total, idx + 1)
-
-        resp = await coze.knowledge.documents.list(dataset_id="id", page_num=1, page_size=1)
-
+        # iter page
         total_result = 0
         async for page in resp.iter_pages():
             total_result += 1
             assert page
-            assert page.total == total
-            assert len(page.items) == 1
+            assert page.has_more == (total_result < total)
+            assert len(page.items) == size
             document = page.items[0]
             assert document.document_id == f"id_{total_result}"
         assert total_result == total

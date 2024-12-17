@@ -1,7 +1,6 @@
-from typing import List
-
 from cozepy.auth import Auth
 from cozepy.chat import Message
+from cozepy.model import ListResponse
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
@@ -17,7 +16,7 @@ class ChatMessagesClient(object):
         *,
         conversation_id: str,
         chat_id: str,
-    ) -> List[Message]:
+    ) -> ListResponse[Message]:
         """
         The information of messages in the specified conversation besides the Query, including model replies,
         intermediate results of the Bot's execution, and other messages.
@@ -34,7 +33,7 @@ class ChatMessagesClient(object):
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return self._requester.request("get", url, False, [Message], params=params)
+        return self._requester.request("get", url, False, ListResponse[Message], params=params)
 
 
 class AsyncChatMessagesClient(object):
@@ -48,7 +47,7 @@ class AsyncChatMessagesClient(object):
         *,
         conversation_id: str,
         chat_id: str,
-    ) -> List[Message]:
+    ) -> ListResponse[Message]:
         """
         The information of messages in the specified conversation besides the Query, including model replies,
         intermediate results of the Bot's execution, and other messages.
@@ -65,4 +64,4 @@ class AsyncChatMessagesClient(object):
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return await self._requester.arequest("get", url, False, [Message], params=params)
+        return await self._requester.arequest("get", url, False, ListResponse[Message], params=params)

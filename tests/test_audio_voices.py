@@ -3,13 +3,13 @@ import time
 import httpx
 import pytest
 
-from cozepy import AsyncCoze, Coze, CreateRoomResult, TokenAuth, Voice
+from cozepy import AsyncCoze, Coze, TokenAuth, Voice
 from cozepy.util import random_hex
+from tests.test_util import logid_key
 
 
 def mock_list_voices(respx_mock):
-    res = CreateRoomResult(token=random_hex(10), uid=random_hex(10), room_id=random_hex(10), app_id=random_hex(10))
-
+    logid = random_hex(10)
     respx_mock.get("/v1/audio/voices").mock(
         httpx.Response(
             200,
@@ -32,10 +32,11 @@ def mock_list_voices(respx_mock):
                     "has_more": False,
                 }
             },
+            headers={logid_key(): logid},
         )
     )
 
-    return res
+    return logid
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -43,9 +44,12 @@ class TestAudioVoices:
     def test_sync_voices_list(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        mock_list_voices(respx_mock)
+        mock_logid = mock_list_voices(respx_mock)
 
         voices = coze.audio.voices.list()
+        assert voices.logid is not None
+        assert voices.logid == mock_logid
+
         voices = [i for i in voices]
         assert voices
         assert len(voices) == 1
@@ -57,9 +61,12 @@ class TestAsyncAudioVoices:
     async def test_async_voices_list(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        mock_list_voices(respx_mock)
+        mock_logid = mock_list_voices(respx_mock)
 
         voices = await coze.audio.voices.list()
+        assert voices.logid is not None
+        assert voices.logid == mock_logid
+
         voices = [i async for i in voices]
         assert voices
         assert len(voices) == 1

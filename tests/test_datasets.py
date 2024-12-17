@@ -5,15 +5,20 @@ from cozepy import AsyncCoze, Coze, TokenAuth
 from cozepy.datasets import Dataset, DatasetStatus, DocumentFormatType, DocumentProgress
 from cozepy.datasets.documents import DocumentStatus, DocumentUpdateType
 from cozepy.util import random_hex
+from tests.test_util import logid_key
 
 
-def mock_create_dataset(respx_mock, dataset_id):
+def mock_create_datasets(respx_mock):
+    dataset_id = random_hex(10)
+    logid = random_hex(10)
     respx_mock.post("/v1/datasets").mock(
         httpx.Response(
             200,
             json={"data": {"dataset_id": dataset_id}},
+            headers={logid_key(): logid},
         )
     )
+    return dataset_id, logid
 
 
 def mock_list_dataset(respx_mock, total_count, page):
@@ -25,7 +30,7 @@ def mock_list_dataset(respx_mock, total_count, page):
     ).mock(
         httpx.Response(
             200,
-            headers={"x-tt-logid": "logid"},
+            headers={logid_key(): "logid"},
             json={
                 "data": {
                     "dataset_list": [
@@ -45,25 +50,38 @@ def mock_list_dataset(respx_mock, total_count, page):
     )
 
 
-def mock_update_dataset(respx_mock, dataset_id):
+def mock_update_datasets(respx_mock):
+    dataset_id = random_hex(10)
+    logid = random_hex(10)
     respx_mock.put(f"/v1/datasets/{dataset_id}").mock(
         httpx.Response(
             200,
             json={"data": {}},
+            headers={logid_key(): logid},
         )
     )
+    return dataset_id, logid
 
 
-def mock_delete_dataset(respx_mock, dataset_id):
+def mock_delete_datasets(respx_mock):
+    dataset_id = random_hex(10)
+    logid = random_hex(10)
     respx_mock.delete(f"/v1/datasets/{dataset_id}").mock(
         httpx.Response(
             200,
             json={"data": {}},
+            headers={logid_key(): logid},
         )
     )
+    return dataset_id, logid
 
 
-def mock_process_dataset(respx_mock, dataset_id, document_id):
+def mock_process_datasets(
+    respx_mock,
+):
+    dataset_id = random_hex(10)
+    document_id = random_hex(10)
+    logid = random_hex(10)
     respx_mock.post(f"/v1/datasets/{dataset_id}/process").mock(
         httpx.Response(
             200,
@@ -81,20 +99,22 @@ def mock_process_dataset(respx_mock, dataset_id, document_id):
                     ]
                 }
             },
+            headers={logid_key(): logid},
         )
     )
+    return dataset_id, document_id, logid
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
-class TestDataset:
-    def test_sync_dataset_create(self, respx_mock):
+class TestSyncDataset:
+    def test_sync_datasets_create(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        dataset_id = random_hex(10)
-        mock_create_dataset(respx_mock, dataset_id)
+        dataset_id, mock_logid = mock_create_datasets(respx_mock)
 
         dataset = coze.datasets.create(space_id="space id", name="name", format_type=DocumentFormatType.DOCUMENT)
         assert dataset
+        assert dataset.logid == mock_logid
         assert dataset.dataset_id == dataset_id
 
     def test_sync_datasets_list(self, respx_mock):
@@ -113,60 +133,62 @@ class TestDataset:
 
         # iter dataset
         total_result = 0
-        for idx, dataset in enumerate(coze.datasets.list(space_id=space_id, page_num=1, page_size=1)):
+        for dataset in resp:
             total_result += 1
             assert dataset
-            assert dataset.dataset_id == f"id_{idx + 1}"
+            assert dataset.dataset_id == f"id_{total_result}"
         assert total_result == total
 
         # iter page
         total_result = 0
-        for idx, page in enumerate(coze.datasets.list(space_id=space_id, page_num=1, page_size=1).iter_pages()):
+        for page in resp.iter_pages():
             total_result += 1
             assert page
-            assert page.has_more == (idx + 1 < total)
+            assert page.has_more == (total_result < total)
             assert len(page.items) == size
             dataset = page.items[0]
-            assert dataset.dataset_id == f"id_{idx + 1}"
+            assert dataset.dataset_id == f"id_{total_result}"
         assert total_result == total
 
-    def test_sync_dataset_update(self, respx_mock):
+    def test_sync_datasets_update(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        dataset_id = random_hex(10)
-        mock_update_dataset(respx_mock, dataset_id)
+        dataset_id, mock_logid = mock_update_datasets(respx_mock)
 
-        coze.datasets.update(dataset_id=dataset_id, name="name")
+        res = coze.datasets.update(dataset_id=dataset_id, name="name")
+        assert res
+        assert res.logid == mock_logid
 
-    def test_sync_dataset_delete(self, respx_mock):
+    def test_sync_datasets_delete(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        dataset_id = random_hex(10)
-        mock_delete_dataset(respx_mock, dataset_id)
+        dataset_id, mock_logid = mock_delete_datasets(respx_mock)
 
-        coze.datasets.delete(dataset_id=dataset_id)
+        res = coze.datasets.delete(dataset_id=dataset_id)
+        assert res
+        assert res.logid == mock_logid
 
-    def test_sync_dataset_process(self, respx_mock):
+    def test_sync_datasets_process(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        dataset_id = random_hex(10)
-        document_id = random_hex(10)
-        mock_process_dataset(respx_mock, dataset_id, document_id)
+        dataset_id, document_id, mock_logid = mock_process_datasets(respx_mock)
 
-        coze.datasets.process(dataset_id=dataset_id, document_ids=[document_id])
+        res = coze.datasets.process(dataset_id=dataset_id, document_ids=[document_id])
+        assert res
+        assert res.logid == mock_logid
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
 class TestAsyncDataset:
-    async def test_async_dataset_create(self, respx_mock):
+    async def test_async_datasets_create(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        dataset_id = random_hex(10)
-        mock_create_dataset(respx_mock, dataset_id)
+        dataset_id, mock_logid = mock_create_datasets(respx_mock)
 
         dataset = await coze.datasets.create(space_id="space id", name="name", format_type=DocumentFormatType.DOCUMENT)
         assert dataset
+        assert dataset.logid == mock_logid
         assert dataset.dataset_id == dataset_id
 
     async def test_async_datasets_list(self, respx_mock):
@@ -202,27 +224,29 @@ class TestAsyncDataset:
             assert dataset.dataset_id == f"id_{total_result}"
         assert total_result == total
 
-    async def test_async_dataset_update(self, respx_mock):
+    async def test_async_datasets_update(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        dataset_id = random_hex(10)
-        mock_update_dataset(respx_mock, dataset_id)
+        dataset_id, mock_logid = mock_update_datasets(respx_mock)
 
-        await coze.datasets.update(dataset_id=dataset_id, name="name")
+        res = await coze.datasets.update(dataset_id=dataset_id, name="name")
+        assert res
+        assert res.logid == mock_logid
 
-    async def test_async_dataset_delete(self, respx_mock):
+    async def test_async_datasets_delete(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        dataset_id = random_hex(10)
-        mock_delete_dataset(respx_mock, dataset_id)
+        dataset_id, mock_logid = mock_delete_datasets(respx_mock)
 
-        await coze.datasets.delete(dataset_id=dataset_id)
+        res = await coze.datasets.delete(dataset_id=dataset_id)
+        assert res
+        assert res.logid == mock_logid
 
-    async def test_async_dataset_process(self, respx_mock):
+    async def test_async_datasets_process(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        dataset_id = random_hex(10)
-        document_id = random_hex(10)
-        mock_process_dataset(respx_mock, dataset_id, document_id)
+        dataset_id, document_id, mock_logid = mock_process_datasets(respx_mock)
 
-        await coze.datasets.process(dataset_id=dataset_id, document_ids=[document_id])
+        res = await coze.datasets.process(dataset_id=dataset_id, document_ids=[document_id])
+        assert res
+        assert res.logid == mock_logid

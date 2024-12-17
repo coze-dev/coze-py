@@ -9,10 +9,21 @@ from cozepy import (
 from cozepy.datasets.documents import DocumentSourceType
 from cozepy.datasets.images import Photo, PhotoStatus
 from cozepy.util import random_hex
+from tests.test_util import logid_key
 
 
-def mock_datasets_images_update(respx_mock, dataset_id: str, document_id: str):
-    respx_mock.put(f"/v1/datasets/{dataset_id}/images/{document_id}").mock(httpx.Response(200, json={"data": None}))
+def mock_update_datasets_images(respx_mock):
+    dataset_id = random_hex(10)
+    document_id = random_hex(10)
+    logid = random_hex(10)
+    respx_mock.put(f"/v1/datasets/{dataset_id}/images/{document_id}").mock(
+        httpx.Response(
+            200,
+            headers={logid_key(): logid},
+            json={"data": None},
+        )
+    )
+    return dataset_id, document_id, logid
 
 
 def mock_list_dataset_images(respx_mock, dataset_id, total_count, page):
@@ -24,7 +35,7 @@ def mock_list_dataset_images(respx_mock, dataset_id, total_count, page):
     ).mock(
         httpx.Response(
             200,
-            headers={"x-tt-logid": "logid"},
+            headers={logid_key(): "logid"},
             json={
                 "data": {
                     "photo_infos": [
@@ -42,16 +53,15 @@ def mock_list_dataset_images(respx_mock, dataset_id, total_count, page):
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
-class TestDatasetsImages:
+class TestSyncDatasetsImages:
     def test_sync_datasets_images_update(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        dataset_id = random_hex(10)
-        document_id = random_hex(10)
+        dataset_id, document_id, mock_logid = mock_update_datasets_images(respx_mock)
 
-        mock_datasets_images_update(respx_mock, dataset_id, document_id)
-
-        coze.datasets.images.update(dataset_id=dataset_id, document_id=document_id, caption="caption")
+        res = coze.datasets.images.update(dataset_id=dataset_id, document_id=document_id, caption="caption")
+        assert res
+        assert res.logid == mock_logid
 
     def test_sync_datasets_images_list(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
@@ -69,40 +79,37 @@ class TestDatasetsImages:
 
         # iter dataset
         total_result = 0
-        for idx, dataset in enumerate(coze.datasets.images.list(dataset_id=dataset_id, page_num=1, page_size=1)):
+        for dataset in resp:
             total_result += 1
             assert dataset
-            assert dataset.document_id == f"id_{idx + 1}"
+            assert dataset.document_id == f"id_{total_result}"
         assert total_result == total
 
         # iter page
         total_result = 0
-        for idx, page in enumerate(
-            coze.datasets.images.list(dataset_id=dataset_id, page_num=1, page_size=1).iter_pages()
-        ):
+        for page in resp.iter_pages():
             total_result += 1
             assert page
-            assert page.has_more == (idx + 1 < total)
+            assert page.has_more == (total_result < total)
             assert len(page.items) == size
             dataset = page.items[0]
-            assert dataset.document_id == f"id_{idx + 1}"
+            assert dataset.document_id == f"id_{total_result}"
         assert total_result == total
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
 class TestAsyncDatasetsDocuments:
-    async def test_async_datasets_images_update(self, respx_mock):
+    async def test_sync_datasets_images_update(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        dataset_id = random_hex(10)
-        document_id = random_hex(10)
+        dataset_id, document_id, mock_logid = mock_update_datasets_images(respx_mock)
 
-        mock_datasets_images_update(respx_mock, dataset_id, document_id)
+        res = await coze.datasets.images.update(dataset_id=dataset_id, document_id=document_id, caption="caption")
+        assert res
+        assert res.logid == mock_logid
 
-        await coze.datasets.images.update(dataset_id=dataset_id, document_id=document_id, caption="caption")
-
-    async def test_async_datasets_images_list(self, respx_mock):
+    async def test_sync_datasets_images_list(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         dataset_id = random_hex(10)
