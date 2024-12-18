@@ -33,8 +33,16 @@ AsyncPage = TypeVar("AsyncPage", bound="AsyncPagedBase")
 
 
 class CozeModel(BaseModel):
-    model_config = ConfigDict(protected_namespaces=(), arbitrary_types_allowed=True)
+    model_config = ConfigDict(
+        protected_namespaces=(),
+        arbitrary_types_allowed=True,
+    )
     logid: Optional[str] = None
+
+    def model_dump(self, *args, **kwargs) -> Dict[str, Any]:
+        data = super().model_dump(*args, **kwargs)
+        data.pop("logid", None)
+        return data
 
 
 class HTTPResponse(Generic[T]):
@@ -256,7 +264,6 @@ class NumberPaged(PagedBase[T]):
             return
         request: HTTPRequest = self._request_maker(self.page_num, self.page_size)
         res: NumberPagedResponse[T] = self._requestor.send(request)
-        print("res", res)
         self._total = res.get_total()
         self._has_more = res.get_has_more()
         self._items = res.get_items()
