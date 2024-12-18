@@ -19,7 +19,7 @@ from cozepy import (
     TokenAuth,
 )
 from cozepy.util import random_hex, write_pcm_to_wav_file
-from tests.test_util import logid_key, make_stream_response, read_file
+from tests.test_util import logid_key, read_file
 
 
 def make_chat(conversation_id: str = "conversation_id", status: ChatStatus = ChatStatus.IN_PROGRESS) -> Chat:
@@ -38,11 +38,9 @@ def make_chat(conversation_id: str = "conversation_id", status: ChatStatus = Cha
 
 def mock_chat_create(respx_mock, conversation_id: str, status: ChatStatus):
     logid = random_hex(10)
-    respx_mock.post("/v3/chat").mock(
-        httpx.Response(
-            200, json={"data": make_chat(conversation_id, status).model_dump()}, headers={logid_key(): logid}
-        )
-    )
+    chat = make_chat(conversation_id, status)
+    chat._raw_response = httpx.Response(200, json={"data": chat.model_dump()}, headers={logid_key(): logid})
+    respx_mock.post("/v3/chat").mock(chat._raw_response)
     return logid
 
 
@@ -60,25 +58,25 @@ def mock_chat_stream(respx_mock, content: str) -> str:
 
 def mock_chat_retrieve(respx_mock, conversation_id: str, status: ChatStatus):
     logid = random_hex(10)
-    respx_mock.post("/v3/chat/retrieve").mock(
-        httpx.Response(
-            200,
-            json={"data": make_chat(conversation_id, status).model_dump()},
-            headers={logid_key(): logid},
-        )
+    chat = make_chat(conversation_id, status)
+    chat._raw_response = httpx.Response(
+        200,
+        json={"data": chat.model_dump()},
+        headers={logid_key(): logid},
     )
+    respx_mock.post("/v3/chat/retrieve").mock(chat._raw_response)
     return logid
 
 
 def mock_chat_submit_tool_outputs(respx_mock, conversation_id: str, status: ChatStatus):
     logid = random_hex(10)
-    respx_mock.post("/v3/chat/submit_tool_outputs").mock(
-        httpx.Response(
-            200,
-            json={"data": make_chat(conversation_id, status).model_dump()},
-            headers={logid_key(): logid},
-        )
+    chat = make_chat(conversation_id, status)
+    chat._raw_response = httpx.Response(
+        200,
+        json={"data": chat.model_dump()},
+        headers={logid_key(): logid},
     )
+    respx_mock.post("/v3/chat/submit_tool_outputs").mock(chat._raw_response)
     return logid
 
 
@@ -96,11 +94,13 @@ def mock_chat_submit_tool_outputs_stream(respx_mock, content: str) -> str:
 
 def mock_chat_cancel(respx_mock, conversation_id: str, status: ChatStatus):
     logid = random_hex(10)
-    respx_mock.post("/v3/chat/cancel").mock(
-        httpx.Response(
-            200, json={"data": make_chat(conversation_id, status).model_dump()}, headers={logid_key(): logid}
-        )
+    chat = make_chat(conversation_id, status)
+    chat._raw_response = httpx.Response(
+        200,
+        json={"data": chat.model_dump()},
+        headers={logid_key(): logid},
     )
+    respx_mock.post("/v3/chat/cancel").mock(chat._raw_response)
     return logid
 
 
@@ -108,14 +108,14 @@ def mock_chat_poll(
     respx_mock,
     conversation_id: str,
 ):
-    respx_mock.post("/v3/chat").mock(
-        httpx.Response(
-            200,
-            json={"data": make_chat(conversation_id, ChatStatus.IN_PROGRESS).model_dump()},
-            headers={logid_key(): random_hex(10)},
-        )
-    )
     chat = make_chat(conversation_id, ChatStatus.COMPLETED)
+    chat._raw_response = httpx.Response(
+        200,
+        json={"data": chat.model_dump()},
+        headers={logid_key(): chat.logid},
+    )
+    respx_mock.post("/v3/chat").mock(chat._raw_response)
+
     respx_mock.post("/v3/chat/retrieve").mock(
         httpx.Response(
             200,
@@ -133,39 +133,6 @@ def mock_chat_poll(
         )
     )
     return chat, list_message_logid
-
-
-chat_stream_testdata = make_stream_response("""
-event:conversation.chat.created
-data:{"id":"7382159487131697202","conversation_id":"7381473525342978089","bot_id":"7379462189365198898","completed_at":1718792949,"last_error":{"code":0,"msg":""},"status":"created","usage":{"token_count":0,"output_count":0,"input_count":0}}
-
-event:conversation.chat.in_progress
-data:{"id":"7382159487131697202","conversation_id":"7381473525342978089","bot_id":"7379462189365198898","completed_at":1718792949,"last_error":{"code":0,"msg":""},"status":"in_progress","usage":{"token_count":0,"output_count":0,"input_count":0}}
-
-event:conversation.message.delta
-data:{"id":"7382159494123470858","conversation_id":"7381473525342978089","bot_id":"7379462189365198898","role":"assistant","type":"answer","content":"2","content_type":"text","chat_id":"7382159487131697202"}
-
-event:conversation.message.delta
-data:{"id":"7382159494123470858","conversation_id":"7381473525342978089","bot_id":"7379462189365198898","role":"assistant","type":"answer","content":"0","content_type":"text","chat_id":"7382159487131697202"}
-
-event:conversation.message.delta
-data:{"id":"7382159494123470858","conversation_id":"7381473525342978089","bot_id":"7379462189365198898","role":"assistant","type":"answer","content":"星期三","content_type":"text","chat_id":"7382159487131697202"}
-
-event:conversation.message.delta
-data:{"id":"7382159494123470858","conversation_id":"7381473525342978089","bot_id":"7379462189365198898","role":"assistant","type":"answer","content":"。","content_type":"text","chat_id":"7382159487131697202"}
-
-event:conversation.message.completed
-data:{"id":"7382159494123470858","conversation_id":"7381473525342978089","bot_id":"7379462189365198898","role":"assistant","type":"answer","content":"2024 年 10 月 1 日是星期三。","content_type":"text","chat_id":"7382159487131697202"}
-
-event:conversation.message.completed
-data:{"id":"7382159494123552778","conversation_id":"7381473525342978089","bot_id":"7379462189365198898","role":"assistant","type":"verbose","content":"{\\"msg_type\\":\\"generate_answer_finish\\",\\"data\\":\\"\\",\\"from_module\\":null,\\"from_unit\\":null}","content_type":"text","chat_id":"7382159487131697202"}
-
-event:conversation.chat.completed
-data:{"id":"7382159487131697202","conversation_id":"7381473525342978089","bot_id":"7379462189365198898","completed_at":1718792949,"last_error":{"code":0,"msg":""},"status":"completed","usage":{"token_count":633,"output_count":19,"input_count":614}}
-
-event:done
-data:"[DONE]"
-        """)
 
 
 class TestMessageObjectString:

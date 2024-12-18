@@ -441,17 +441,14 @@ class Requester(object):
             return [item_cast.model_validate(item) for item in data]
         elif hasattr(cast, "__origin__") and cast.__origin__ is ListResponse:  # type: ignore
             item_cast = get_args(cast)[0]
-            return ListResponse(
-                items=[item_cast.model_validate(item) for item in data],
-                logid=logid,
-            )
+            return ListResponse(response, [item_cast.model_validate(item) for item in data])
         else:
             if cast is None:
                 return None
 
             res = cast.model_validate(data) if data is not None else cast()  # type: ignore
-            if hasattr(res, "logid"):
-                res.logid = logid  # type: ignore
+            if hasattr(res, "_raw_response"):
+                res._raw_response = response  # type: ignore
             return res  # type: ignore
 
     def _parse_requests_code_msg(

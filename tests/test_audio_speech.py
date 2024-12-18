@@ -8,17 +8,16 @@ from tests.test_util import logid_key
 
 def mock_create_speech(respx_mock):
     logid = random_hex(10)
-
-    respx_mock.post("/v1/audio/speech").mock(
-        httpx.Response(
-            200,
-            content="file content",
-            headers={
-                "content-type": "audio/mpeg",
-                logid_key(): logid,
-            },
-        )
+    raw_response = httpx.Response(
+        200,
+        content="file content",
+        headers={
+            "content-type": "audio/mpeg",
+            logid_key(): logid,
+        },
     )
+
+    respx_mock.post("/v1/audio/speech").mock(raw_response)
 
     return logid
 

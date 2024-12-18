@@ -9,7 +9,7 @@ from tests.test_util import logid_key
 def mock_create_bot(
     respx_mock,
 ) -> Bot:
-    res = Bot(
+    bot = Bot(
         bot_id="bot_id",
         name="name",
         description="description",
@@ -19,26 +19,26 @@ def mock_create_bot(
         version="version",
         logid=random_hex(10),
     )
-    respx_mock.post("/v1/bot/create").mock(
-        httpx.Response(
-            200,
-            json={"data": res.model_dump()},
-            headers={logid_key(): res.logid},
-        )
+    bot._raw_response = httpx.Response(
+        200,
+        json={"data": bot.model_dump()},
+        headers={logid_key(): random_hex(10)},
     )
-    return res
+    respx_mock.post("/v1/bot/create").mock(bot._raw_response)
+    return bot
 
 
 def mock_update_bot(
     respx_mock,
 ):
     logid = random_hex(10)
-    respx_mock.post("/v1/bot/update").mock(httpx.Response(200, json={"data": None}, headers={logid_key(): logid}))
+    raw_response = httpx.Response(200, json={"data": None}, headers={logid_key(): logid})
+    respx_mock.post("/v1/bot/update").mock(raw_response)
     return logid
 
 
 def mock_publish_bot(respx_mock) -> Bot:
-    res = Bot(
+    bot = Bot(
         bot_id="bot_id",
         name="name",
         description="description",
@@ -48,18 +48,17 @@ def mock_publish_bot(respx_mock) -> Bot:
         version="version",
         logid=random_hex(10),
     )
-    respx_mock.post("/v1/bot/publish").mock(
-        httpx.Response(
-            200,
-            json={"data": res.model_dump()},
-            headers={logid_key(): res.logid},
-        )
+    bot._raw_response = httpx.Response(
+        200,
+        json={"data": bot.model_dump()},
+        headers={logid_key(): random_hex(10)},
     )
-    return res
+    respx_mock.post("/v1/bot/publish").mock(bot._raw_response)
+    return bot
 
 
 def mock_retrieve_bot(respx_mock) -> Bot:
-    res = Bot(
+    bot = Bot(
         bot_id="bot_id",
         name="name",
         description="description",
@@ -69,14 +68,13 @@ def mock_retrieve_bot(respx_mock) -> Bot:
         version="version",
         logid=random_hex(10),
     )
-    respx_mock.get("/v1/bot/get_online_info").mock(
-        httpx.Response(
-            200,
-            json={"data": res.model_dump()},
-            headers={logid_key(): res.logid},
-        )
+    bot._raw_response = httpx.Response(
+        200,
+        json={"data": bot.model_dump()},
+        headers={logid_key(): random_hex(10)},
     )
-    return res
+    respx_mock.get("/v1/bot/get_online_info").mock(bot._raw_response)
+    return bot
 
 
 def mock_list_bot(respx_mock, total_count, page):
@@ -118,7 +116,6 @@ class TestSyncBots:
 
         bot = coze.bots.create(space_id="space id", name="name")
         assert bot
-        assert bot.logid is not None
         assert bot.logid == mock_bot.logid
         assert bot.bot_id == mock_bot.bot_id
 

@@ -55,7 +55,7 @@ class TestAsyncStream:
 
 class TestListResponse:
     def test_slice(self):
-        res = ListResponse([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        res = ListResponse(None, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
         # len
         assert len(res) == 10
         # iter
