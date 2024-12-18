@@ -108,21 +108,22 @@ def mock_chat_poll(
     respx_mock,
     conversation_id: str,
 ):
-    chat = make_chat(conversation_id, ChatStatus.COMPLETED)
-    chat._raw_response = httpx.Response(
+    chat_in_progress = make_chat(conversation_id, ChatStatus.IN_PROGRESS)
+    chat_in_progress._raw_response = httpx.Response(
         200,
-        json={"data": chat.model_dump()},
-        headers={logid_key(): chat.logid},
+        json={"data": chat_in_progress.model_dump()},
+        headers={logid_key(): random_hex(10)},
     )
-    respx_mock.post("/v3/chat").mock(chat._raw_response)
+    respx_mock.post("/v3/chat").mock(chat_in_progress._raw_response)
 
-    respx_mock.post("/v3/chat/retrieve").mock(
-        httpx.Response(
-            200,
-            json={"data": chat.model_dump()},
-            headers={logid_key(): chat.logid},
-        )
+    chat_completed = make_chat(conversation_id, ChatStatus.COMPLETED)
+    chat_completed._raw_response = httpx.Response(
+        200,
+        json={"data": chat_completed.model_dump()},
+        headers={logid_key(): random_hex(10)},
     )
+    respx_mock.post("/v3/chat/retrieve").mock(chat_completed._raw_response)
+
     msg = Message.build_user_question_text("hi")
     list_message_logid = random_hex(10)
     respx_mock.get("/v3/chat/message/list").mock(
@@ -132,7 +133,7 @@ def mock_chat_poll(
             headers={logid_key(): list_message_logid},
         )
     )
-    return chat, list_message_logid
+    return chat_completed, list_message_logid
 
 
 class TestMessageObjectString:
@@ -170,7 +171,6 @@ class TestSyncChat:
         stream = coze.chat.stream(bot_id="bot", user_id="user")
 
         assert stream
-        assert stream.logid is not None
         assert stream.logid == mock_logid
 
         events = list(stream)

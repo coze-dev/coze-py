@@ -631,7 +631,12 @@ class ChatClient(object):
             headers=headers,
             body=body,
         )
-        return Stream(response.data, fields=["event", "data"], handler=_sync_chat_stream_handler, logid=response.logid)
+        return Stream(
+            response._raw_response,
+            response.data,
+            fields=["event", "data"],
+            handler=_sync_chat_stream_handler,
+        )
 
     def retrieve(
         self,
@@ -703,7 +708,7 @@ class ChatClient(object):
             params=params,
             body=body,
         )
-        return Stream(resp.data, fields=["event", "data"], handler=_sync_chat_stream_handler, logid=resp.logid)
+        return Stream(resp._raw_response, resp.data, fields=["event", "data"], handler=_sync_chat_stream_handler)
 
     def cancel(
         self,

@@ -37,9 +37,9 @@ class HTTPResponse(object):
         self._raw_response = raw_response
 
     @property
-    def logid(self) -> Optional[str]:
+    def logid(self) -> str:
         if self._raw_response is None:
-            return None
+            return ""
         return self._raw_response.headers.get("x-tt-logid")
 
 
@@ -51,10 +51,18 @@ class CozeModel(BaseModel):
     _raw_response: Optional[httpx.Response] = None
 
     @property
-    def logid(self) -> Optional[str]:
+    def logid(self) -> str:
+        if hasattr(self, "__dict__") and "logid" in self.__dict__:
+            return self.__dict__["logid"]
+        if self._raw_response is None:
+            return ""
+        return self._raw_response.headers.get("x-tt-logid")
+
+    @property
+    def raw_response(self) -> Optional[HTTPResponse]:
         if self._raw_response is None:
             return None
-        return self._raw_response.headers.get("x-tt-logid")
+        return FileHTTPResponse(self._raw_response)
 
 
 class IteratorHTTPResponse(HTTPResponse, Generic[T]):
@@ -80,7 +88,7 @@ class FileHTTPResponse(HTTPResponse):
 
 
 class ListResponse(HTTPResponse, Generic[T]):
-    def __init__(self, raw_response: Optional[httpx.Response], data: List[T]):
+    def __init__(self, raw_response: httpx.Response, data: List[T]):
         super().__init__(raw_response=raw_response)
         self.data = data
 
@@ -554,14 +562,18 @@ class AsyncLastIDPaged(AsyncPagedBase[T]):
         return False
 
 
-class Stream(Generic[T]):
+class Stream(Generic[T], HTTPResponse):
     def __init__(
-        self, iters: Iterator[str], fields: List[str], handler: Callable[[Dict[str, str], str], T], logid: str
+        self,
+        raw_response: httpx.Response,
+        iters: Iterator[str],
+        fields: List[str],
+        handler: Callable[[Dict[str, str], str], T],
     ):
+        super().__init__(raw_response)
         self._iters = iters
         self._fields = fields
         self._handler = handler
-        self.logid = logid
 
     def __iter__(self):
         return self
