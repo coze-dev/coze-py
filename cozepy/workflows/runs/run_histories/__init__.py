@@ -2,7 +2,7 @@ from enum import Enum, IntEnum
 from typing import Optional
 
 from cozepy.auth import Auth
-from cozepy.model import CozeModel
+from cozepy.model import CozeModel, ListResponse
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
@@ -92,8 +92,10 @@ class WorkflowsRunsRunHistoriesClient(object):
         :return: The result of the workflow execution
         """
         url = f"{self._base_url}/v1/workflows/{workflow_id}/run_histories/{execute_id}"
-        items = self._requester.request("get", url, False, [WorkflowRunHistory])
-        return items[0]
+        res = self._requester.request("get", url, False, ListResponse[WorkflowRunHistory])
+        data = res.data[0]
+        data._raw_response = res._raw_response
+        return data
 
 
 class AsyncWorkflowsRunsRunHistoriesClient(object):
@@ -113,5 +115,7 @@ class AsyncWorkflowsRunsRunHistoriesClient(object):
         :return: The result of the workflow execution
         """
         url = f"{self._base_url}/v1/workflows/{workflow_id}/run_histories/{execute_id}"
-        items = await self._requester.arequest("get", url, False, [WorkflowRunHistory])
-        return items[0]
+        res = await self._requester.arequest("get", url, False, ListResponse[WorkflowRunHistory])
+        data = res.data[0]
+        data._raw_response = res._raw_response
+        return data

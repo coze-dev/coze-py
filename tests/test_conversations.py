@@ -23,14 +23,12 @@ def make_section(conversation_id: str) -> Section:
 
 def mock_create_conversations(respx_mock) -> Conversation:
     conversation = make_conversation()
-    conversation.logid = random_hex(10)
-    respx_mock.post("/v1/conversation/create").mock(
-        httpx.Response(
-            200,
-            json={"data": conversation.model_dump()},
-            headers={logid_key(): conversation.logid},
-        )
+    conversation._raw_response = httpx.Response(
+        200,
+        json={"data": conversation.model_dump()},
+        headers={logid_key(): random_hex(10)},
     )
+    respx_mock.post("/v1/conversation/create").mock(conversation._raw_response)
     return conversation
 
 
@@ -60,29 +58,24 @@ def mock_list_conversations(respx_mock, total_count, page):
 
 def mock_retrieve_conversation(respx_mock) -> Conversation:
     conversation = make_conversation()
-    conversation.logid = random_hex(10)
-    respx_mock.get("/v1/conversation/retrieve").mock(
-        httpx.Response(
-            200,
-            json={"data": conversation.model_dump()},
-            headers={logid_key(): conversation.logid},
-        )
+    conversation._raw_response = httpx.Response(
+        200,
+        json={"data": conversation.model_dump()},
+        headers={logid_key(): random_hex(10)},
     )
-
+    respx_mock.get("/v1/conversation/retrieve").mock(conversation._raw_response)
     return conversation
 
 
 def mock_clear_conversation(respx_mock) -> Section:
     conversation = make_conversation()
     section = make_section(conversation.id)
-    section.logid = random_hex(10)
-    respx_mock.post(f"/v1/conversations/{conversation.id}/clear").mock(
-        httpx.Response(
-            200,
-            json={"data": section.model_dump()},
-            headers={logid_key(): section.logid},
-        )
+    section._raw_response = httpx.Response(
+        200,
+        json={"data": section.model_dump()},
+        headers={logid_key(): random_hex(10)},
     )
+    respx_mock.post(f"/v1/conversations/{conversation.id}/clear").mock(section._raw_response)
     return section
 
 

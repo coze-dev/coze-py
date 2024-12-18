@@ -20,7 +20,7 @@ def mock_create_workflows_runs(respx_mock, is_async: bool):
         data="data" if not is_async else None,
         execute_id="execute_id" if is_async else None,
     )
-    res.logid = random_hex(10)
+    res._raw_response = httpx.Response(200, json={"data": res.model_dump()}, headers={logid_key(): random_hex(10)})
     respx_mock.post(
         "/v1/workflow/run",
         json={
@@ -30,7 +30,7 @@ def mock_create_workflows_runs(respx_mock, is_async: bool):
             "is_async": is_async,
             "ext": None,
         },
-    ).mock(httpx.Response(200, json={"data": res.model_dump()}, headers={logid_key(): res.logid}))
+    ).mock(res._raw_response)
     return res
 
 
@@ -59,36 +59,33 @@ def mock_create_workflows_runs_resume(respx_mock, content: str):
 
 
 def mock_create_workflows_runs_run_histories_retrieve(respx_mock):
-    logid = random_hex(10)
+    current_logid = "current_logid"
+    execute_logid = "execute_logid"
     workflow_id = random_hex(10)
     execute_id = random_hex(10)
-    url = f"/v1/workflows/{workflow_id}/run_histories/{execute_id}"
-    respx_mock.get(url).mock(
-        httpx.Response(
-            200,
-            json={
-                "data": [
-                    WorkflowRunHistory(
-                        execute_id=execute_id,
-                        execute_status=WorkflowExecuteStatus.RUNNING,
-                        bot_id="bot_id",
-                        connector_id="connector_id",
-                        connector_uid="connector_uid",
-                        run_mode=WorkflowRunMode.SYNCHRONOUS,
-                        logid=logid,
-                        create_time=0,
-                        update_time=0,
-                        output="output",
-                        error_code=0,
-                        error_message="error_message",
-                        debug_url="debug_url",
-                    ).model_dump()
-                ]
-            },
-            headers={logid_key(): logid},
-        )
+    workflow_run_result = WorkflowRunHistory(
+        execute_id=execute_id,
+        execute_status=WorkflowExecuteStatus.RUNNING,
+        bot_id="bot_id",
+        connector_id="connector_id",
+        connector_uid="connector_uid",
+        run_mode=WorkflowRunMode.SYNCHRONOUS,
+        logid=execute_logid,
+        create_time=0,
+        update_time=0,
+        output="output",
+        error_code=0,
+        error_message="error_message",
+        debug_url="debug_url",
     )
-    return workflow_id, execute_id, logid
+    workflow_run_result._raw_response = httpx.Response(
+        200,
+        json={"data": [workflow_run_result.model_dump()]},
+        headers={logid_key(): current_logid},
+    )
+    url = f"/v1/workflows/{workflow_id}/run_histories/{execute_id}"
+    respx_mock.get(url).mock(workflow_run_result._raw_response)
+    return workflow_id, execute_id, current_logid, execute_logid
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -158,11 +155,14 @@ class TestSyncWorkflowsRuns:
     def test_sync_workflows_runs_run_histories_retrieve(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        workflow_id, execute_id, mock_logid = mock_create_workflows_runs_run_histories_retrieve(respx_mock)
+        workflow_id, execute_id, current_logid, execute_logid = mock_create_workflows_runs_run_histories_retrieve(
+            respx_mock
+        )
 
         res = coze.workflows.runs.run_histories.retrieve(workflow_id=workflow_id, execute_id=execute_id)
         assert res
-        assert res.logid == mock_logid
+        assert res.logid == execute_logid
+        assert res.raw_response.logid == current_logid
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -228,8 +228,11 @@ class TestAsyncWorkflowsRuns:
     async def test_async_workflows_runs_run_histories_retrieve(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        workflow_id, execute_id, mock_logid = mock_create_workflows_runs_run_histories_retrieve(respx_mock)
+        workflow_id, execute_id, current_logid, execute_logid = mock_create_workflows_runs_run_histories_retrieve(
+            respx_mock
+        )
 
         res = await coze.workflows.runs.run_histories.retrieve(workflow_id=workflow_id, execute_id=execute_id)
         assert res
-        assert res.logid == mock_logid
+        assert res.logid == execute_logid
+        assert res.raw_response.logid == current_logid

@@ -32,73 +32,80 @@ SyncPage = TypeVar("SyncPage", bound="PagedBase")
 AsyncPage = TypeVar("AsyncPage", bound="AsyncPagedBase")
 
 
+class HTTPResponse(object):
+    def __init__(self, raw_response: httpx.Response):
+        self._raw_response = raw_response
+
+    @property
+    def logid(self) -> str:
+        if self._raw_response is None:
+            return ""
+        return self._raw_response.headers.get("x-tt-logid")
+
+
 class CozeModel(BaseModel):
     model_config = ConfigDict(
         protected_namespaces=(),
         arbitrary_types_allowed=True,
     )
-    logid: Optional[str] = None
-
-    def model_dump(self, *args, **kwargs) -> Dict[str, Any]:
-        data = super().model_dump(*args, **kwargs)
-        data.pop("logid", None)
-        return data
-
-
-class HTTPResponse(Generic[T]):
-    def __init__(self, response: httpx.Response, data: T):
-        self.response = response
-        self.data = data
+    _raw_response: Optional[httpx.Response] = None
 
     @property
-    def logid(self):
-        return self.response.headers.get("x-tt-logid")
+    def logid(self) -> str:
+        if hasattr(self, "__dict__") and "logid" in self.__dict__:
+            return self.__dict__["logid"]
+        if self._raw_response is None:
+            return ""
+        return self._raw_response.headers.get("x-tt-logid")
+
+    @property
+    def raw_response(self) -> Optional[HTTPResponse]:
+        if self._raw_response is None:
+            return None
+        return FileHTTPResponse(self._raw_response)
 
 
-class IteratorHTTPResponse(HTTPResponse[Iterator[T]]):
-    def __init__(self, response: httpx.Response, data: Iterator[T]):
-        super().__init__(response, data)
+class IteratorHTTPResponse(HTTPResponse, Generic[T]):
+    def __init__(self, raw_response: httpx.Response, data: Iterator[T]):
+        super().__init__(raw_response)
+        self.data = data
 
 
-class AsyncIteratorHTTPResponse(HTTPResponse[AsyncIterator[T]]):
-    def __init__(self, response: httpx.Response, data: AsyncIterator[T]):
-        super().__init__(response, data)
+class AsyncIteratorHTTPResponse(HTTPResponse, Generic[T]):
+    def __init__(self, raw_response: httpx.Response, data: AsyncIterator[T]):
+        super().__init__(raw_response)
+        self.data = data
 
 
-class FileHTTPResponse(HTTPResponse[None]):
-    def __init__(self, response: httpx.Response):
-        super().__init__(response, None)
+class FileHTTPResponse(HTTPResponse):
+    def __init__(self, raw_response: httpx.Response):
+        super().__init__(raw_response)
 
-    def write_to_file(
-        self,
-        file: Union[str],
-    ) -> None:
+    def write_to_file(self, file: Union[str]) -> None:
         with open(file, mode="wb") as f:
-            for data in self.response.iter_bytes():
+            for data in self._raw_response.iter_bytes():
                 f.write(data)
 
 
-class ListResponse(Generic[T]):
-    logid: str
-    items: List[T]
-
-    def __init__(self, items: List[T], **kwargs):
-        self.logid = kwargs.get("logid") or ""
-        self.items = items
+class ListResponse(HTTPResponse, Generic[T]):
+    def __init__(self, raw_response: httpx.Response, data: List[T]):
+        super().__init__(raw_response=raw_response)
+        self.data = data
 
     def __len__(self) -> int:
-        return len(self.items)
+        return len(self.data)
 
     def __iter__(self) -> Iterator[T]:
-        return iter(self.items)
+        return iter(self.data)
 
     @overload
     def __getitem__(self, key: SupportsIndex) -> T: ...
+
     @overload
     def __getitem__(self, key: slice) -> List[T]: ...
 
     def __getitem__(self, key: Union[SupportsIndex, slice]) -> Union[T, List[T]]:
-        return self.items[key]
+        return self.data[key]
 
     @overload
     def __setitem__(self, key: SupportsIndex, value: T) -> None: ...
@@ -110,20 +117,20 @@ class ListResponse(Generic[T]):
         if isinstance(key, slice):
             if not isinstance(value, Iterable):
                 raise TypeError("Can only assign an iterable to slice")
-            self.items[key] = value  # type: ignore
+            self.data[key] = value  # type: ignore
         else:
             if isinstance(value, Iterable):
                 raise TypeError("Can only assign a single value to index")
-            self.items[key] = value
+            self.data[key] = value
 
     def __delitem__(self, key: Union[SupportsIndex, slice]) -> None:
-        del self.items[key]
+        del self.data[key]
 
     def __contains__(self, key: object) -> bool:
-        return key in self.items
+        return key in self.data
 
     def __reversed__(self) -> Iterator[T]:
-        return reversed(self.items)
+        return reversed(self.data)
 
 
 class HTTPRequest(CozeModel, Generic[T]):
@@ -555,14 +562,18 @@ class AsyncLastIDPaged(AsyncPagedBase[T]):
         return False
 
 
-class Stream(Generic[T]):
+class Stream(Generic[T], HTTPResponse):
     def __init__(
-        self, iters: Iterator[str], fields: List[str], handler: Callable[[Dict[str, str], str], T], logid: str
+        self,
+        raw_response: httpx.Response,
+        iters: Iterator[str],
+        fields: List[str],
+        handler: Callable[[Dict[str, str], str], T],
     ):
+        super().__init__(raw_response)
         self._iters = iters
         self._fields = fields
         self._handler = handler
-        self.logid = logid
 
     def __iter__(self):
         return self

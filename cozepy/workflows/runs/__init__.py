@@ -226,7 +226,7 @@ class WorkflowsRunsClient(object):
             body=body,
         )
         return Stream(
-            resp.data, fields=["id", "event", "data"], handler=_sync_workflow_stream_handler, logid=resp.logid
+            resp._raw_response, resp.data, fields=["id", "event", "data"], handler=_sync_workflow_stream_handler
         )
 
     def resume(
@@ -261,7 +261,7 @@ class WorkflowsRunsClient(object):
             body=body,
         )
         return Stream(
-            resp.data, fields=["id", "event", "data"], handler=_sync_workflow_stream_handler, logid=resp.logid
+            resp._raw_response, resp.data, fields=["id", "event", "data"], handler=_sync_workflow_stream_handler
         )
 
     @property

@@ -51,32 +51,34 @@ def make_document(id: int = 0) -> Document:
 
 def mock_create_datasets_documents(respx_mock) -> Document:
     document = make_document()
-    document.logid = random_hex(10)
-    respx_mock.post("/open_api/knowledge/document/create").mock(
-        httpx.Response(
-            200,
-            json={"document_infos": [document.model_dump()]},
-            headers={logid_key(): document.logid},
-        )
+    document._raw_response = httpx.Response(
+        200,
+        json={"document_infos": [document.model_dump()]},
+        headers={logid_key(): random_hex(10)},
     )
+    respx_mock.post("/open_api/knowledge/document/create").mock(document._raw_response)
     return document
 
 
 def mock_update_datasets_documents(respx_mock) -> Document:
     document = make_document()
-    document.logid = random_hex(10)
-    respx_mock.post("/open_api/knowledge/document/update").mock(
-        httpx.Response(200, json={"data": None}, headers={logid_key(): document.logid})
+    document._raw_response = httpx.Response(
+        200,
+        json={"data": None},
+        headers={logid_key(): random_hex(10)},
     )
+    respx_mock.post("/open_api/knowledge/document/update").mock(document._raw_response)
     return document
 
 
 def mock_delete_datasets_documents(respx_mock) -> Document:
     document = make_document()
-    document.logid = random_hex(10)
-    respx_mock.post("/open_api/knowledge/document/delete").mock(
-        httpx.Response(200, json={"data": None}, headers={logid_key(): document.logid})
+    document._raw_response = httpx.Response(
+        200,
+        json={"data": None},
+        headers={logid_key(): random_hex(10)},
     )
+    respx_mock.post("/open_api/knowledge/document/delete").mock(document._raw_response)
     return document
 
 

@@ -11,19 +11,15 @@ from tests.test_util import logid_key
 
 def mock_upload_files(respx_mock):
     file = File(id="1", bytes=2, created_at=3, file_name="name")
-    file.logid = random_hex(10)
-    respx_mock.post("/v1/files/upload").mock(
-        httpx.Response(200, json={"data": file.model_dump()}, headers={logid_key(): file.logid})
-    )
+    file._raw_response = httpx.Response(200, json={"data": file.model_dump()}, headers={logid_key(): random_hex(10)})
+    respx_mock.post("/v1/files/upload").mock(file._raw_response)
     return file
 
 
 def mock_retrieve_files(respx_mock):
     file = File(id="1", bytes=2, created_at=3, file_name="name")
-    file.logid = random_hex(10)
-    respx_mock.get("/v1/files/retrieve").mock(
-        httpx.Response(200, json={"data": file.model_dump()}, headers={logid_key(): file.logid})
-    )
+    file._raw_response = httpx.Response(200, json={"data": file.model_dump()}, headers={logid_key(): random_hex(10)})
+    respx_mock.get("/v1/files/retrieve").mock(file._raw_response)
     return file
 
 

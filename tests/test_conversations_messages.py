@@ -7,50 +7,42 @@ from tests.test_util import logid_key
 
 
 def mock_create_conversations_messages(respx_mock, msg: Message) -> Message:
-    msg.logid = random_hex(10)
-    respx_mock.post("/v1/conversation/message/create").mock(
-        httpx.Response(
-            200,
-            json={"data": msg.model_dump()},
-            headers={logid_key(): msg.logid},
-        )
+    msg._raw_response = httpx.Response(
+        200,
+        json={"data": msg.model_dump()},
+        headers={logid_key(): random_hex(10)},
     )
+    respx_mock.post("/v1/conversation/message/create").mock(msg._raw_response)
     return msg
 
 
 def mock_retrieve_conversations_messages(respx_mock, msg: Message) -> Message:
-    msg.logid = random_hex(10)
-    respx_mock.get("/v1/conversation/message/retrieve").mock(
-        httpx.Response(
-            200,
-            json=msg.model_dump(),
-            headers={logid_key(): msg.logid},
-        )
+    msg._raw_response = httpx.Response(
+        200,
+        json=msg.model_dump(),
+        headers={logid_key(): random_hex(10)},
     )
+    respx_mock.get("/v1/conversation/message/retrieve").mock(msg._raw_response)
     return msg
 
 
 def mock_update_conversations_messages(respx_mock, msg: Message) -> Message:
-    msg.logid = random_hex(10)
-    respx_mock.post("/v1/conversation/message/modify").mock(
-        httpx.Response(
-            200,
-            json=msg.model_dump(),
-            headers={logid_key(): msg.logid},
-        )
+    msg._raw_response = httpx.Response(
+        200,
+        json=msg.model_dump(),
+        headers={logid_key(): random_hex(10)},
     )
+    respx_mock.post("/v1/conversation/message/modify").mock(msg._raw_response)
     return msg
 
 
 def mock_delete_conversations_messages(respx_mock, msg: Message) -> Message:
-    msg.logid = random_hex(10)
-    respx_mock.post("/v1/conversation/message/delete").mock(
-        httpx.Response(
-            200,
-            json=msg.model_dump(),
-            headers={logid_key(): msg.logid},
-        )
+    msg._raw_response = httpx.Response(
+        200,
+        json=msg.model_dump(),
+        headers={logid_key(): random_hex(10)},
     )
+    respx_mock.post("/v1/conversation/message/delete").mock(msg._raw_response)
     return msg
 
 

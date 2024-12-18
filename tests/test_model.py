@@ -1,36 +1,41 @@
-from typing import Dict
+from typing import Dict, Tuple
 
+import httpx
 import pytest
 
 from cozepy import AsyncStream, CozeInvalidEventError, ListResponse, Stream
-from cozepy.util import anext
+from cozepy.util import anext, random_hex
 
-from .test_util import to_async_iterator
+from .test_util import logid_key, to_async_iterator
 
 
-def mock_sync_handler(d: Dict[str, str]):
+def mock_raw_response() -> Tuple[httpx.Response, str]:
+    logid = random_hex(10)
+    return httpx.Response(200, headers={logid_key(): logid}), logid
+
+
+def mock_sync_handler(d: Dict[str, str], logid: str):
     return d
 
 
-async def mock_async_handler(d: Dict[str, str]):
+async def mock_async_handler(d: Dict[str, str], logid: str):
     return d
 
 
 class TestStream:
     def test_stream_invalid_event(self):
         items = ["event:x"]
-        s = Stream(iter(items), ["field"], mock_sync_handler, "mocked-logid")
-
-        with pytest.raises(CozeInvalidEventError, match="invalid event, data: event:x, logid: mocked-logid"):
+        raw_response, logid = mock_raw_response()
+        s = Stream(raw_response, iter(items), ["field"], mock_sync_handler)
+        with pytest.raises(CozeInvalidEventError, match="invalid event, data: event:x, logid: " + logid):
             next(s)
 
     def test_stream_invalid_field(self):
         items = ["event:x1", "event:x2"]
-        s = Stream(iter(items), ["event", "second"], mock_sync_handler, "mocked-logid")
+        raw_response, logid = mock_raw_response()
+        s = Stream(raw_response, iter(items), ["event", "second"], mock_sync_handler)
 
-        with pytest.raises(
-            CozeInvalidEventError, match="invalid event, field: event, data: event:x2, logid: mocked-logid"
-        ):
+        with pytest.raises(CozeInvalidEventError, match="invalid event, field: event, data: event:x2, logid: " + logid):
             next(s)
 
 
@@ -55,7 +60,7 @@ class TestAsyncStream:
 
 class TestListResponse:
     def test_slice(self):
-        res = ListResponse([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        res = ListResponse(httpx.Response(200), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
         # len
         assert len(res) == 10
         # iter
