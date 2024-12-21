@@ -32,7 +32,6 @@ def make_chat(conversation_id: str = "conversation_id", status: ChatStatus = Cha
         failed_at=123,
         meta_data={},
         status=status,
-        logid=random_hex(10),
     )
 
 
@@ -175,22 +174,24 @@ class TestSyncChat:
 
         events = list(stream)
         assert len(events) == 8
-        assert events[0] == ChatEvent(
-            logid=mock_logid,
-            event=ChatEventType.CONVERSATION_CHAT_CREATED,
-            chat=Chat(
-                id="7382159487131697202",
-                conversation_id="7381473525342978089",
-                bot_id="7379462189365198898",
-                created_at=None,
-                completed_at=1718792949,
-                failed_at=None,
-                meta_data=None,
-                last_error=ChatError(code=0, msg=""),
-                status=ChatStatus.CREATED,
-                required_action=None,
-                usage=ChatUsage(token_count=0, output_count=0, input_count=0),
-            ),
+        assert (
+            events[0].model_dump()
+            == ChatEvent(
+                event=ChatEventType.CONVERSATION_CHAT_CREATED,
+                chat=Chat(
+                    id="7382159487131697202",
+                    conversation_id="7381473525342978089",
+                    bot_id="7379462189365198898",
+                    created_at=None,
+                    completed_at=1718792949,
+                    failed_at=None,
+                    meta_data=None,
+                    last_error=ChatError(code=0, msg=""),
+                    status=ChatStatus.CREATED,
+                    required_action=None,
+                    usage=ChatUsage(token_count=0, output_count=0, input_count=0),
+                ),
+            ).model_dump()
         )
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
 
@@ -301,22 +302,24 @@ class TestSyncChat:
         events = list(stream)
         assert events
         assert len(events) == 8
-        assert events[0] == ChatEvent(
-            logid=mock_logid,
-            event=ChatEventType.CONVERSATION_CHAT_CREATED,
-            chat=Chat(
-                id="7382159487131697202",
-                conversation_id="7381473525342978089",
-                bot_id="7379462189365198898",
-                created_at=None,
-                completed_at=1718792949,
-                failed_at=None,
-                meta_data=None,
-                last_error=ChatError(code=0, msg=""),
-                status=ChatStatus.CREATED,
-                required_action=None,
-                usage=ChatUsage(token_count=0, output_count=0, input_count=0),
-            ),
+        assert (
+            events[0].model_dump()
+            == ChatEvent(
+                event=ChatEventType.CONVERSATION_CHAT_CREATED,
+                chat=Chat(
+                    id="7382159487131697202",
+                    conversation_id="7381473525342978089",
+                    bot_id="7379462189365198898",
+                    created_at=None,
+                    completed_at=1718792949,
+                    failed_at=None,
+                    meta_data=None,
+                    last_error=ChatError(code=0, msg=""),
+                    status=ChatStatus.CREATED,
+                    required_action=None,
+                    usage=ChatUsage(token_count=0, output_count=0, input_count=0),
+                ),
+            ).model_dump()
         )
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
 
@@ -368,28 +371,30 @@ class TestAsyncChatConversationMessage:
     async def test_async_chat_stream(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_text_stream_resp.txt"))
+        mock_chat_stream(respx_mock, read_file("testdata/chat_text_stream_resp.txt"))
         stream = coze.chat.stream(bot_id="bot", user_id="user")
         events = [event async for event in stream]
 
         assert stream
         assert len(events) == 8
-        assert events[0] == ChatEvent(
-            logid=mock_logid,
-            event=ChatEventType.CONVERSATION_CHAT_CREATED,
-            chat=Chat(
-                id="7382159487131697202",
-                conversation_id="7381473525342978089",
-                bot_id="7379462189365198898",
-                created_at=None,
-                completed_at=1718792949,
-                failed_at=None,
-                meta_data=None,
-                last_error=ChatError(code=0, msg=""),
-                status=ChatStatus.CREATED,
-                required_action=None,
-                usage=ChatUsage(token_count=0, output_count=0, input_count=0),
-            ),
+        assert (
+            events[0].model_dump()
+            == ChatEvent(
+                event=ChatEventType.CONVERSATION_CHAT_CREATED,
+                chat=Chat(
+                    id="7382159487131697202",
+                    conversation_id="7381473525342978089",
+                    bot_id="7379462189365198898",
+                    created_at=None,
+                    completed_at=1718792949,
+                    failed_at=None,
+                    meta_data=None,
+                    last_error=ChatError(code=0, msg=""),
+                    status=ChatStatus.CREATED,
+                    required_action=None,
+                    usage=ChatUsage(token_count=0, output_count=0, input_count=0),
+                ),
+            ).model_dump()
         )
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
 
@@ -475,28 +480,30 @@ class TestAsyncChatConversationMessage:
     async def test_async_submit_tool_outputs_stream(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        mock_logid = mock_chat_submit_tool_outputs_stream(respx_mock, read_file("testdata/chat_text_stream_resp.txt"))
+        mock_chat_submit_tool_outputs_stream(respx_mock, read_file("testdata/chat_text_stream_resp.txt"))
         stream = coze.chat.submit_tool_outputs_stream(conversation_id="conversation", chat_id="chat", tool_outputs=[])
         assert stream
         events = [event async for event in stream]
         assert events
         assert len(events) == 8
-        assert events[0] == ChatEvent(
-            logid=mock_logid,
-            event=ChatEventType.CONVERSATION_CHAT_CREATED,
-            chat=Chat(
-                id="7382159487131697202",
-                conversation_id="7381473525342978089",
-                bot_id="7379462189365198898",
-                created_at=None,
-                completed_at=1718792949,
-                failed_at=None,
-                meta_data=None,
-                last_error=ChatError(code=0, msg=""),
-                status=ChatStatus.CREATED,
-                required_action=None,
-                usage=ChatUsage(token_count=0, output_count=0, input_count=0),
-            ),
+        assert (
+            events[0].model_dump()
+            == ChatEvent(
+                event=ChatEventType.CONVERSATION_CHAT_CREATED,
+                chat=Chat(
+                    id="7382159487131697202",
+                    conversation_id="7381473525342978089",
+                    bot_id="7379462189365198898",
+                    created_at=None,
+                    completed_at=1718792949,
+                    failed_at=None,
+                    meta_data=None,
+                    last_error=ChatError(code=0, msg=""),
+                    status=ChatStatus.CREATED,
+                    required_action=None,
+                    usage=ChatUsage(token_count=0, output_count=0, input_count=0),
+                ),
+            ).model_dump()
         )
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
 

@@ -1,11 +1,12 @@
 import os
-from typing import Any, AsyncIterator, List
+from typing import Any, AsyncIterator, List, Optional
 
 import httpx
 import pytest
 
 from cozepy import COZE_COM_BASE_URL
-from cozepy.util import anext, base64_encode_string, remove_url_trailing_slash
+from cozepy.model import HTTPResponse
+from cozepy.util import anext, base64_encode_string, random_hex, remove_url_trailing_slash
 
 
 class ListAsyncIterator:
@@ -53,14 +54,6 @@ def logid_key():
     return "x-tt-logid"
 
 
-def make_stream_response(content: str) -> httpx.Response:
-    return httpx.Response(
-        200,
-        headers={"content-type": "text/event-stream", logid_key(): "logid"},
-        content=content,
-    )
-
-
 def read_file(path: str):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(current_dir, path)
@@ -68,3 +61,9 @@ def read_file(path: str):
     with open(file_path, "r", encoding="utf-8") as file:
         content = file.read()
     return content
+
+
+def mock_response(content: Optional[str] = None) -> HTTPResponse:
+    if content:
+        return HTTPResponse(httpx.Response(200, content=content, headers={logid_key(): random_hex(10)}))
+    return HTTPResponse(httpx.Response(200, headers={logid_key(): random_hex(10)}))

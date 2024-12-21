@@ -1,17 +1,12 @@
-from typing import Dict, Tuple
+from typing import Dict
 
 import httpx
 import pytest
 
 from cozepy import AsyncStream, CozeInvalidEventError, ListResponse, Stream
-from cozepy.util import anext, random_hex
+from cozepy.util import anext
 
-from .test_util import logid_key, to_async_iterator
-
-
-def mock_raw_response() -> Tuple[httpx.Response, str]:
-    logid = random_hex(10)
-    return httpx.Response(200, headers={logid_key(): logid}), logid
+from .test_util import mock_response, to_async_iterator
 
 
 def mock_sync_handler(d: Dict[str, str], logid: str):
@@ -22,38 +17,42 @@ async def mock_async_handler(d: Dict[str, str], logid: str):
     return d
 
 
-class TestStream:
-    def test_stream_invalid_event(self):
+class TestSyncStream:
+    def test_sync_stream_invalid_event(self):
         items = ["event:x"]
-        raw_response, logid = mock_raw_response()
-        s = Stream(raw_response, iter(items), ["field"], mock_sync_handler)
-        with pytest.raises(CozeInvalidEventError, match="invalid event, data: event:x, logid: " + logid):
+        response = mock_response()
+        s = Stream(response._raw_response, iter(items), ["field"], mock_sync_handler)
+        with pytest.raises(CozeInvalidEventError, match="invalid event, data: event:x, logid: " + response.logid):
             next(s)
 
     def test_stream_invalid_field(self):
         items = ["event:x1", "event:x2"]
-        raw_response, logid = mock_raw_response()
-        s = Stream(raw_response, iter(items), ["event", "second"], mock_sync_handler)
+        response = mock_response()
+        s = Stream(response._raw_response, iter(items), ["event", "second"], mock_sync_handler)
 
-        with pytest.raises(CozeInvalidEventError, match="invalid event, field: event, data: event:x2, logid: " + logid):
+        with pytest.raises(
+            CozeInvalidEventError, match="invalid event, field: event, data: event:x2, logid: " + response.logid
+        ):
             next(s)
 
 
 @pytest.mark.asyncio
 class TestAsyncStream:
-    async def test_stream_invalid_event(self):
+    async def test_asynv_stream_invalid_event(self):
+        response = mock_response()
         items = ["event:x"]
-        s = AsyncStream(to_async_iterator(items), ["field"], mock_async_handler, "mocked-logid")
+        s = AsyncStream(to_async_iterator(items), ["field"], mock_async_handler, response._raw_response)
 
-        with pytest.raises(CozeInvalidEventError, match="invalid event, data: event:x, logid: mocked-logid"):
+        with pytest.raises(CozeInvalidEventError, match="invalid event, data: event:x, logid: " + response.logid):
             await anext(s)
 
     async def test_stream_invalid_field(self):
+        response = mock_response()
         items = ["event:x1", "event:x2"]
-        s = AsyncStream(to_async_iterator(items), ["event", "second"], mock_async_handler, "mocked-logid")
+        s = AsyncStream(to_async_iterator(items), ["event", "second"], mock_async_handler, response._raw_response)
 
         with pytest.raises(
-            CozeInvalidEventError, match="invalid event, field: event, data: event:x2, logid: mocked-logid"
+            CozeInvalidEventError, match="invalid event, field: event, data: event:x2, logid: " + response.logid
         ):
             await anext(s)
 
