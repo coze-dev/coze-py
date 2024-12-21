@@ -78,9 +78,11 @@ def mock_create_workflows_runs_run_histories_retrieve(respx_mock):
         error_message="error_message",
         debug_url="debug_url",
     )
+    workflow_run_result_dump = workflow_run_result.model_dump()
+    workflow_run_result_dump["logid"] = workflow_run_result_dump["execute_logid"]
     workflow_run_result._raw_response = httpx.Response(
         200,
-        json={"data": [workflow_run_result.model_dump()]},
+        json={"data": [workflow_run_result_dump]},
         headers={logid_key(): current_logid},
     )
     url = f"/v1/workflows/{workflow_id}/run_histories/{execute_id}"
@@ -161,8 +163,8 @@ class TestSyncWorkflowsRuns:
 
         res = coze.workflows.runs.run_histories.retrieve(workflow_id=workflow_id, execute_id=execute_id)
         assert res
-        assert res.logid == execute_logid
-        assert res.raw_response.logid == current_logid
+        assert res.execute_logid == execute_logid
+        assert res.logid == current_logid
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -234,5 +236,5 @@ class TestAsyncWorkflowsRuns:
 
         res = await coze.workflows.runs.run_histories.retrieve(workflow_id=workflow_id, execute_id=execute_id)
         assert res
-        assert res.logid == execute_logid
-        assert res.raw_response.logid == current_logid
+        assert res.execute_logid == execute_logid
+        assert res.logid == current_logid

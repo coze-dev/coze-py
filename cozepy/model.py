@@ -58,12 +58,6 @@ class CozeModel(BaseModel):
             return ""
         return self._raw_response.headers.get("x-tt-logid")
 
-    @property
-    def raw_response(self) -> Optional[HTTPResponse]:
-        if self._raw_response is None:
-            return None
-        return FileHTTPResponse(self._raw_response)
-
 
 class IteratorHTTPResponse(HTTPResponse, Generic[T]):
     def __init__(self, raw_response: httpx.Response, data: Iterator[T]):
@@ -568,7 +562,7 @@ class Stream(Generic[T], HTTPResponse):
         raw_response: httpx.Response,
         iters: Iterator[str],
         fields: List[str],
-        handler: Callable[[Dict[str, str], str], T],
+        handler: Callable[[Dict[str, str], httpx.Response], T],
     ):
         super().__init__(raw_response)
         self._iters = iters
@@ -579,7 +573,7 @@ class Stream(Generic[T], HTTPResponse):
         return self
 
     def __next__(self) -> T:
-        return self._handler(self._extra_event(), self.logid)
+        return self._handler(self._extra_event(), self._raw_response)
 
     def _extra_event(self) -> Dict[str, str]:
         data = dict(map(lambda x: (x, ""), self._fields))
@@ -607,18 +601,18 @@ class Stream(Generic[T], HTTPResponse):
         raise CozeInvalidEventError("", line, self.logid)
 
 
-class AsyncStream(Generic[T]):
+class AsyncStream(Generic[T], HTTPResponse):
     def __init__(
         self,
         iters: AsyncIterator[str],
         fields: List[str],
-        handler: Callable[[Dict[str, str], str], T],
-        logid: str,
+        handler: Callable[[Dict[str, str], httpx.Response], T],
+        raw_response: httpx.Response,
     ):
+        super().__init__(raw_response)
         self._iters = iters
         self._fields = fields
         self._handler = handler
-        self._logid = logid
         self._iterator = self.__stream__()
 
     async def __aiter__(self) -> AsyncIterator[T]:
@@ -637,7 +631,7 @@ class AsyncStream(Generic[T]):
             if line == "":
                 continue
 
-            log_debug("async receive event, logid=%s, event=%s", self._logid, line)
+            log_debug("async receive event, logid=%s, event=%s", self.logid, line)
 
             field, value = self._extra_field_data(line, data)
             data[field] = value
@@ -645,7 +639,7 @@ class AsyncStream(Generic[T]):
 
             if times >= len(self._fields):
                 try:
-                    yield self._handler(data, self._logid)
+                    yield self._handler(data, self._raw_response)
                 except StopAsyncIteration:
                     return
                 data = self._make_data()
@@ -657,8 +651,8 @@ class AsyncStream(Generic[T]):
                 if data[field] == "":
                     return field, line[len(field) + 1 :].strip()
                 else:
-                    raise CozeInvalidEventError(field, line, self._logid)
-        raise CozeInvalidEventError("", line, self._logid)
+                    raise CozeInvalidEventError(field, line, self.logid)
+        raise CozeInvalidEventError("", line, self.logid)
 
     def _make_data(self):
         return dict(map(lambda x: (x, ""), self._fields))

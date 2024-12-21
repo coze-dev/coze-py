@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import TYPE_CHECKING, Any, AsyncIterator, Dict, Optional
 
+import httpx
+
 from cozepy.auth import Auth
 from cozepy.model import AsyncIteratorHTTPResponse, AsyncStream, CozeModel, IteratorHTTPResponse, Stream
 from cozepy.request import Requester
@@ -111,7 +113,9 @@ class WorkflowEvent(CozeModel):
     error: Optional[WorkflowEventError] = None
 
 
-def _workflow_stream_handler(data: Dict[str, str], logid: str, is_async: bool = False) -> WorkflowEvent:
+def _workflow_stream_handler(
+    data: Dict[str, str], raw_response: httpx.Response, is_async: bool = False
+) -> WorkflowEvent:
     id = int(data["id"])
     event = data["event"]
     event_data = data["data"]  # type: str
@@ -137,12 +141,12 @@ def _workflow_stream_handler(data: Dict[str, str], logid: str, is_async: bool = 
         raise ValueError(f"invalid workflows.event: {event}, {event_data}")
 
 
-def _sync_workflow_stream_handler(data: Dict[str, str], logid: str) -> WorkflowEvent:
-    return _workflow_stream_handler(data, logid=logid, is_async=False)
+def _sync_workflow_stream_handler(data: Dict[str, str], raw_response: httpx.Response) -> WorkflowEvent:
+    return _workflow_stream_handler(data, raw_response=raw_response, is_async=False)
 
 
-def _async_workflow_stream_handler(data: Dict[str, str], logid: str) -> WorkflowEvent:
-    return _workflow_stream_handler(data, logid=logid, is_async=True)
+def _async_workflow_stream_handler(data: Dict[str, str], raw_response: httpx.Response) -> WorkflowEvent:
+    return _workflow_stream_handler(data, raw_response=raw_response, is_async=True)
 
 
 class WorkflowsRunsClient(object):
@@ -354,7 +358,10 @@ class AsyncWorkflowsRunsClient(object):
             body=body,
         )
         async for item in AsyncStream(
-            resp.data, fields=["id", "event", "data"], handler=_async_workflow_stream_handler, logid=resp.logid
+            resp.data,
+            fields=["id", "event", "data"],
+            handler=_async_workflow_stream_handler,
+            raw_response=resp._raw_response,
         ):
             yield item
 
@@ -390,7 +397,10 @@ class AsyncWorkflowsRunsClient(object):
             body=body,
         )
         async for item in AsyncStream(
-            resp.data, fields=["id", "event", "data"], handler=_async_workflow_stream_handler, logid=resp.logid
+            resp.data,
+            fields=["id", "event", "data"],
+            handler=_async_workflow_stream_handler,
+            raw_response=resp._raw_response,
         ):
             yield item
 

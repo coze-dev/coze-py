@@ -3,6 +3,7 @@ import time
 from enum import Enum
 from typing import TYPE_CHECKING, AsyncIterator, Dict, List, Optional, Union, overload
 
+import httpx
 from typing_extensions import Literal
 
 from cozepy.auth import Auth
@@ -360,13 +361,13 @@ class ChatEventType(str, Enum):
 
 
 class ChatEvent(CozeModel):
-    logid: str
+    # logid: str
     event: ChatEventType
     chat: Optional[Chat] = None
     message: Optional[Message] = None
 
 
-def _chat_stream_handler(data: Dict, logid: str, is_async: bool = False) -> ChatEvent:
+def _chat_stream_handler(data: Dict, raw_response: httpx.Response, is_async: bool = False) -> ChatEvent:
     event = data["event"]
     event_data = data["data"]  # type: str
     if event == ChatEventType.DONE:
@@ -380,7 +381,9 @@ def _chat_stream_handler(data: Dict, logid: str, is_async: bool = False) -> Chat
         ChatEventType.CONVERSATION_MESSAGE_COMPLETED,
         ChatEventType.CONVERSATION_AUDIO_DELTA,
     ]:
-        return ChatEvent(logid=logid, event=event, message=Message.model_validate_json(event_data))
+        event = ChatEvent(event=event, message=Message.model_validate_json(event_data))
+        event._raw_response = raw_response
+        return event
     elif event in [
         ChatEventType.CONVERSATION_CHAT_CREATED,
         ChatEventType.CONVERSATION_CHAT_IN_PROGRESS,
@@ -388,17 +391,19 @@ def _chat_stream_handler(data: Dict, logid: str, is_async: bool = False) -> Chat
         ChatEventType.CONVERSATION_CHAT_FAILED,
         ChatEventType.CONVERSATION_CHAT_REQUIRES_ACTION,
     ]:
-        return ChatEvent(logid=logid, event=event, chat=Chat.model_validate_json(event_data))
+        event = ChatEvent(event=event, chat=Chat.model_validate_json(event_data))
+        event._raw_response = raw_response
+        return event
     else:
         raise ValueError(f"invalid chat.event: {event}, {data}")
 
 
-def _sync_chat_stream_handler(data: Dict, logid: str) -> ChatEvent:
-    return _chat_stream_handler(data, logid=logid, is_async=False)
+def _sync_chat_stream_handler(data: Dict, raw_response: httpx.Response) -> ChatEvent:
+    return _chat_stream_handler(data, raw_response=raw_response, is_async=False)
 
 
-def _async_chat_stream_handler(data: Dict, logid: str) -> ChatEvent:
-    return _chat_stream_handler(data, logid=logid, is_async=True)
+def _async_chat_stream_handler(data: Dict, raw_response: httpx.Response) -> ChatEvent:
+    return _chat_stream_handler(data, raw_response=raw_response, is_async=True)
 
 
 class ToolOutput(CozeModel):
@@ -907,7 +912,10 @@ class AsyncChatClient(object):
             params=params,
             body=body,
         )
-        return AsyncStream(resp.data, fields=["event", "data"], handler=_async_chat_stream_handler, logid=resp.logid)
+
+        return AsyncStream(
+            resp.data, fields=["event", "data"], handler=_async_chat_stream_handler, raw_response=resp._raw_response
+        )
 
     async def retrieve(
         self,
@@ -1010,7 +1018,9 @@ class AsyncChatClient(object):
         resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
             "post", url, True, None, params=params, body=body
         )
-        return AsyncStream(resp.data, fields=["event", "data"], handler=_async_chat_stream_handler, logid=resp.logid)
+        return AsyncStream(
+            resp.data, fields=["event", "data"], handler=_async_chat_stream_handler, raw_response=resp._raw_response
+        )
 
     async def cancel(
         self,

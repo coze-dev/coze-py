@@ -6,7 +6,7 @@ import time
 import warnings
 from datetime import datetime
 from functools import lru_cache
-from typing import List, Optional, Type, TypeVar
+from typing import List, Optional, Tuple, Type, TypeVar, Union
 
 from pydantic import BaseModel
 
@@ -771,6 +771,9 @@ class CozeAPI(object):
             raise ValueError("Please specify document id")
         self.client.datasets.images.update(dataset_id=dataset_id, document_id=document_id, caption=caption)
 
+    def upload_file(self, file: Union[os.PathLike, Tuple[str, bytes]]):
+        return self.client.files.upload(file=file)
+
     def _set_workspace_cache(self, workspace: Workspace):
         self._file_cache.set_typed(f"workspace_{workspace.id}.json", workspace)
 
@@ -1150,6 +1153,34 @@ def duplicate_template(template_id: str, workspace_id: str, name: Optional[str])
         if res.entity_type == TemplateEntityType.AGENT:
             agent_url = f"https://www.coze.cn/space/{workspace_id}/bot/{res.entity_id}"
             console.print(f"[green]Agent URL: {agent_url}[/green]")
+    except Exception as e:
+        console.print(f"[red]Error: {str(e)}[/red]")
+
+
+"""files"""
+
+
+@cli.group()
+def files():
+    """Files"""
+    pass
+
+
+@files.command("upload")
+@click.option("--file", "file", help="File")
+@click.option("--filename", "filename", help="Filename")
+@click.option("--content", "content", help="Content")
+def upload_file(file: Optional[str], filename: Optional[str], content: Optional[str]):
+    """Upload a file"""
+    try:
+        if file:
+            res = coze.upload_file(file)
+            print("File: ", res.id, res.file_name)
+        elif filename and content:
+            res = coze.upload_file((filename, content))
+            print("File: ", res.id, res.file_name)
+        else:
+            raise ValueError("file or filename and content must be provided")
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
 
