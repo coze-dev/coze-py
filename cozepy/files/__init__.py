@@ -1,10 +1,19 @@
+import os
 from pathlib import Path
-from typing import Optional, Union
+from typing import IO, Optional, Tuple, Union
 
 from cozepy.auth import Auth
 from cozepy.model import CozeModel
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
+
+FileContent = Union[IO[bytes], bytes, str, Path]
+FileTypes = Union[
+    # file (or bytes)
+    FileContent,
+    # (filename, file (or bytes))
+    Tuple[Optional[str], FileContent],
+]
 
 
 class File(CozeModel):
@@ -25,13 +34,27 @@ class File(CozeModel):
     file_name: Optional[str] = None
 
 
+def _try_fix_file(file: FileTypes) -> FileTypes:
+    if isinstance(file, Path):
+        if not file.exists():
+            raise ValueError(f"File not found: {file}")
+        return open(file, "rb")
+
+    if isinstance(file, str):
+        if not os.path.isfile(file):
+            raise ValueError(f"File not found: {file}")
+        return open(file, "rb")
+
+    return file
+
+
 class FilesClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
 
-    def upload(self, *, file: Union[Path]) -> File:
+    def upload(self, *, file: FileTypes) -> File:
         """
         Upload files to Coze platform.
 
@@ -49,7 +72,7 @@ class FilesClient(object):
         :return: file info
         """
         url = f"{self._base_url}/v1/files/upload"
-        files = {"file": open(file, "rb")}
+        files = {"file": _try_fix_file(file)}
         return self._requester.request("post", url, False, File, files=files)
 
     def retrieve(self, *, file_id: str):
@@ -75,7 +98,7 @@ class AsyncFilesClient(object):
         self._auth = auth
         self._requester = requester
 
-    async def upload(self, *, file: Union[Path]) -> File:
+    async def upload(self, *, file: FileTypes) -> File:
         """
         Upload files to Coze platform.
 
@@ -93,7 +116,7 @@ class AsyncFilesClient(object):
         :return: file info
         """
         url = f"{self._base_url}/v1/files/upload"
-        files = {"file": open(file, "rb")}
+        files = {"file": _try_fix_file(file)}
         return await self._requester.arequest("post", url, False, File, files=files)
 
     async def retrieve(self, *, file_id: str):
