@@ -281,7 +281,7 @@ class Chat(CozeModel):
     # The ID of the conversation.
     conversation_id: str
     # The ID of the bot.
-    bot_id: str
+    bot_id: Optional[str] = None
     # Indicates the create time of the chat. The value format is Unix timestamp in seconds.
     created_at: Optional[int] = None
     # Indicates the end time of the chat. The value format is Unix timestamp in seconds.

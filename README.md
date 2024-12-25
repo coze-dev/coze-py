@@ -46,6 +46,7 @@ pip install cozepy
 | non-stream workflow chat     | [examples/workflow_no_stream.py](examples/workflow_no_stream.py)             |
 | stream workflow chat         | [examples/workflow_stream.py](examples/workflow_stream.py)                   |
 | async workflow run           | [examples/workflow_async.py](examples/workflow_async.py)                     |
+| workflow chat                | [examples/workflow_chat_stream.py](examples/workflow_chat_stream.py)         |
 | conversation                 | [examples/conversation.py](examples/conversation.py)                         |
 | workspace                    | [examples/workspace.py](examples/workspace.py)                               |
 | timeout config               | [examples/timeout.py](examples/timeout.py)                                   |

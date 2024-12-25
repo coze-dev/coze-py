@@ -44,6 +44,10 @@ def remove_url_trailing_slash(base_url: str) -> str:
     return base_url
 
 
+def remove_none_values(d: dict) -> dict:
+    return {k: v for k, v in d.items() if v is not None}
+
+
 def write_pcm_to_wav_file(
     pcm_data: bytes, filepath: str, channels: int = 1, sample_width: int = 2, frame_rate: int = 24000
 ):

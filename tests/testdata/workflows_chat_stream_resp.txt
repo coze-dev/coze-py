@@ -1,0 +1,26 @@
+event: conversation.chat.created
+data: {"id":"id_1111","conversation_id":"conv_111111111","created_at":1735115982,"last_error":{"code":0,"msg":""},"status":"created","usage":{"token_count":0,"output_count":0,"input_count":0},"section_id":"conv_111111111"}
+
+event: conversation.chat.in_progress
+data: {"id":"id_1111","conversation_id":"conv_111111111","created_at":1735115982,"last_error":{"code":0,"msg":""},"status":"in_progress","usage":{"token_count":0,"output_count":0,"input_count":0},"section_id":"conv_111111111"}
+
+event: conversation.message.delta
+data: {"id":"id_2222","conversation_id":"conv_111111111","role":"assistant","type":"answer","content":"I","content_type":"text","chat_id":"id_1111","section_id":"conv_111111111"}
+
+event: conversation.message.delta
+data: {"id":"id_2222","conversation_id":"conv_111111111","role":"assistant","type":"answer","content":"'m fine, thank you. How about you","content_type":"text","chat_id":"id_1111","section_id":"conv_111111111"}
+
+event: conversation.message.delta
+data: {"id":"id_2222","conversation_id":"conv_111111111","role":"assistant","type":"answer","content":"?","content_type":"text","chat_id":"id_1111","section_id":"conv_111111111","created_at":1735115983}
+
+event: conversation.message.completed
+data: {"id":"id_2222","conversation_id":"conv_111111111","role":"assistant","type":"answer","content":"I'm fine, thank you. How about you?","content_type":"text","chat_id":"id_1111","section_id":"conv_111111111","created_at":1735115983}
+
+event: conversation.message.completed
+data: {"id":"id_3333","conversation_id":"conv_111111111","role":"assistant","type":"verbose","content":"{\"msg_type\":\"generate_answer_finish\",\"data\":\"{\\\"finish_reason\\\":0,\\\"FinData\\\":\\\"\\\"}\",\"from_module\":null,\"from_unit\":null}","content_type":"text","chat_id":"id_1111","section_id":"conv_111111111","created_at":1735115983,"updated_at":1735115983}
+
+event: conversation.chat.completed
+data: {"id":"id_1111","conversation_id":"conv_111111111","created_at":1735115982,"completed_at":1735115983,"last_error":{"code":0,"msg":""},"status":"completed","usage":{"token_count":32,"output_count":11,"input_count":21},"section_id":"conv_111111111"}
+
+event: done
+data: {"debug_url":"https://www.coze.cn/work_flow?execute_id=execute_1111\u0026space_id=space_111\u0026workflow_id=workflow_1111"}
