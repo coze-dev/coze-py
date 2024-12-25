@@ -89,7 +89,7 @@ class TestConversationMessage:
             content_type=mock_msg.content_type,
         )
         assert message
-        assert message.logid == mock_msg.logid
+        assert message.response.logid == mock_msg.response.logid
         assert message.content == mock_msg.content
 
     def test_sync_conversations_messages_list(self, respx_mock):
@@ -131,7 +131,7 @@ class TestConversationMessage:
 
         message = coze.conversations.messages.retrieve(conversation_id="conversation id", message_id="message id")
         assert message
-        assert message.logid == mock_msg.logid
+        assert message.response.logid == mock_msg.response.logid
         assert message.content == mock_msg.content
 
     def test_sync_conversations_messages_update(self, respx_mock):
@@ -141,7 +141,7 @@ class TestConversationMessage:
 
         message = coze.conversations.messages.update(conversation_id="conversation id", message_id="message id")
         assert message
-        assert message.logid == mock_msg.logid
+        assert message.response.logid == mock_msg.response.logid
         assert message.content == mock_msg.content
 
     def test_sync_conversations_messages_delete(self, respx_mock):
@@ -151,7 +151,7 @@ class TestConversationMessage:
 
         message = coze.conversations.messages.delete(conversation_id="conversation id", message_id="message id")
         assert message
-        assert message.logid == mock_msg.logid
+        assert message.response.logid == mock_msg.response.logid
         assert message.content == mock_msg.content
 
 
@@ -170,7 +170,7 @@ class TestAsyncConversationMessage:
             content_type=mock_msg.content_type,
         )
         assert message
-        assert message.logid == mock_msg.logid
+        assert message.response.logid == mock_msg.response.logid
         assert message.content == mock_msg.content
 
     async def test_async_conversations_messages_list(self, respx_mock):
@@ -212,7 +212,7 @@ class TestAsyncConversationMessage:
 
         message = await coze.conversations.messages.retrieve(conversation_id="conversation id", message_id="message id")
         assert message
-        assert message.logid == mock_msg.logid
+        assert message.response.logid == mock_msg.response.logid
         assert message.content == mock_msg.content
 
     async def test_async_conversations_messages_update(self, respx_mock):
@@ -222,7 +222,7 @@ class TestAsyncConversationMessage:
 
         message = await coze.conversations.messages.update(conversation_id="conversation id", message_id="message id")
         assert message
-        assert message.logid == mock_msg.logid
+        assert message.response.logid == mock_msg.response.logid
         assert message.content == mock_msg.content
 
     async def test_async_conversations_messages_delete(self, respx_mock):
@@ -232,5 +232,5 @@ class TestAsyncConversationMessage:
 
         message = await coze.conversations.messages.delete(conversation_id="conversation id", message_id="message id")
         assert message
-        assert message.logid == mock_msg.logid
+        assert message.response.logid == mock_msg.response.logid
         assert message.content == mock_msg.content

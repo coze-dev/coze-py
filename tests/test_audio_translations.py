@@ -33,8 +33,8 @@ class TestAudioTranslation:
 
         res = coze.audio.translations.create(file=("filename", "content"))
         assert res
-        assert res.logid is not None
-        assert res.logid == mock_logid
+        assert res.response.logid is not None
+        assert res.response.logid == mock_logid
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -47,5 +47,4 @@ class TestAsyncAudioTranslation:
 
         res = await coze.audio.translations.create(file=("filename", "content"))
         assert res
-        assert res.logid is not None
-        assert res.logid == mock_logid
+        assert res.response.logid == mock_logid

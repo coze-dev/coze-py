@@ -122,7 +122,7 @@ class TestSyncDatasetsDocuments:
             chunk_strategy=DocumentChunkStrategy.build_auto(),
         )
         assert documents
-        assert documents.logid == mock_document.logid
+        assert documents.response.logid == mock_document.response.logid
         assert len(documents) == 1
 
     def test_sync_datasets_documents_create_local_custom(self, respx_mock):
@@ -142,7 +142,7 @@ class TestSyncDatasetsDocuments:
             chunk_strategy=DocumentChunkStrategy.build_custom(1, ",", False, True),
         )
         assert documents
-        assert documents.logid == mock_document.logid
+        assert documents.response.logid == mock_document.response.logid
         assert len(documents) == 1
 
     def test_sync_datasets_documents_update(self, respx_mock):
@@ -152,7 +152,7 @@ class TestSyncDatasetsDocuments:
 
         res = coze.datasets.documents.update(document_id="id", document_name="name")
         assert res
-        assert res.logid == mock_document.logid
+        assert res.response.logid == mock_document.response.logid
 
     def test_sync_datasets_documents_delete(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
@@ -161,7 +161,7 @@ class TestSyncDatasetsDocuments:
 
         res = coze.datasets.documents.delete(document_ids=["id"])
         assert res
-        assert res.logid == mock_document.logid
+        assert res.response.logid == mock_document.response.logid
 
     def test_sync_datasets_documents_list(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
@@ -216,7 +216,7 @@ class TestAsyncDatasetsDocuments:
             chunk_strategy=DocumentChunkStrategy.build_auto(),
         )
         assert documents
-        assert documents.logid == mock_document.logid
+        assert documents.response.logid == mock_document.response.logid
         assert len(documents) == 1
 
     async def test_async_datasets_documents_create_local_custom(self, respx_mock):
@@ -236,7 +236,7 @@ class TestAsyncDatasetsDocuments:
             chunk_strategy=DocumentChunkStrategy.build_custom(1, ",", False, True),
         )
         assert documents
-        assert documents.logid == mock_document.logid
+        assert documents.response.logid == mock_document.response.logid
         assert len(documents) == 1
 
     async def test_async_datasets_documents_update(self, respx_mock):
@@ -246,7 +246,7 @@ class TestAsyncDatasetsDocuments:
 
         res = await coze.datasets.documents.update(document_id="id", document_name="name")
         assert res
-        assert res.logid == mock_document.logid
+        assert res.response.logid == mock_document.response.logid
 
     async def test_async_datasets_documents_delete(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
@@ -255,7 +255,7 @@ class TestAsyncDatasetsDocuments:
 
         res = await coze.datasets.documents.delete(document_ids=["id"])
         assert res
-        assert res.logid == mock_document.logid
+        assert res.response.logid == mock_document.response.logid
 
     async def test_async_datasets_documents_list(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))

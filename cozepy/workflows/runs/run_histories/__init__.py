@@ -1,8 +1,6 @@
 from enum import Enum, IntEnum
 from typing import Optional
 
-from pydantic import Field
-
 from cozepy.auth import Auth
 from cozepy.model import CozeModel, ListResponse
 from cozepy.request import Requester
@@ -53,7 +51,7 @@ class WorkflowRunHistory(CozeModel):
 
     # The Log ID of the asynchronously running workflow. If the workflow is executed abnormally,
     # you can contact the service team to troubleshoot the problem through the Log ID.
-    execute_logid: str = Field(alias="logid")
+    logid: str
 
     # The start time of the workflow, in Unix time timestamp format, in seconds.
     create_time: int

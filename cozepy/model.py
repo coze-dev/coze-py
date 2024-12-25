@@ -51,12 +51,8 @@ class CozeModel(BaseModel):
     _raw_response: Optional[httpx.Response] = None
 
     @property
-    def logid(self) -> str:
-        if hasattr(self, "__dict__") and "logid" in self.__dict__:
-            return self.__dict__["logid"]
-        if self._raw_response is None:
-            return ""
-        return self._raw_response.headers.get("x-tt-logid")
+    def response(self) -> HTTPResponse:
+        return HTTPResponse(self._raw_response)  # type: ignore
 
 
 class IteratorHTTPResponse(HTTPResponse, Generic[T]):
@@ -71,9 +67,13 @@ class AsyncIteratorHTTPResponse(HTTPResponse, Generic[T]):
         self.data = data
 
 
-class FileHTTPResponse(HTTPResponse):
+class FileHTTPResponse(object):
     def __init__(self, raw_response: httpx.Response):
-        super().__init__(raw_response)
+        self._raw_response = raw_response
+
+    @property
+    def response(self) -> HTTPResponse:
+        return HTTPResponse(self._raw_response)
 
     def write_to_file(self, file: Union[str]) -> None:
         with open(file, mode="wb") as f:
@@ -81,10 +81,14 @@ class FileHTTPResponse(HTTPResponse):
                 f.write(data)
 
 
-class ListResponse(HTTPResponse, Generic[T]):
+class ListResponse(Generic[T]):
     def __init__(self, raw_response: httpx.Response, data: List[T]):
-        super().__init__(raw_response=raw_response)
         self.data = data
+        self._raw_response = raw_response
+
+    @property
+    def response(self) -> HTTPResponse:
+        return HTTPResponse(self._raw_response)
 
     def __len__(self) -> int:
         return len(self.data)
@@ -175,6 +179,11 @@ class PagedBase(Generic[T], abc.ABC):
     def has_more(self) -> bool:
         raise NotImplementedError
 
+    @property
+    @abc.abstractmethod
+    def response(self) -> HTTPResponse:
+        raise NotImplementedError
+
 
 class AsyncPagedBase(Generic[T], abc.ABC):
     @abc.abstractmethod
@@ -191,6 +200,11 @@ class AsyncPagedBase(Generic[T], abc.ABC):
     def has_more(self) -> bool:
         raise NotImplementedError
 
+    @property
+    @abc.abstractmethod
+    def response(self) -> HTTPResponse:
+        raise NotImplementedError
+
 
 class NumberPagedResponse(Generic[T], abc.ABC):
     @abc.abstractmethod
@@ -205,10 +219,13 @@ class NumberPagedResponse(Generic[T], abc.ABC):
     def get_items(self) -> List[T]:
         raise NotImplementedError
 
+    @property
+    @abc.abstractmethod
+    def response(self) -> HTTPResponse:
+        raise NotImplementedError
+
 
 class NumberPaged(PagedBase[T]):
-    logid: Optional[str] = None
-
     def __init__(
         self,
         page_num: int,
@@ -222,6 +239,7 @@ class NumberPaged(PagedBase[T]):
         self._total = None
         self._has_more = None
         self._items = None
+        self._http_response: Optional[HTTPResponse] = None
 
         self._requestor = requestor
         self._request_maker = request_maker
@@ -249,6 +267,10 @@ class NumberPaged(PagedBase[T]):
             yield current_page
 
     @property
+    def response(self) -> HTTPResponse:
+        return self._http_response  # type: ignore
+
+    @property
     def items(self) -> List[T]:
         return self._items or cast(List[T], [])
 
@@ -268,7 +290,7 @@ class NumberPaged(PagedBase[T]):
         self._total = res.get_total()
         self._has_more = res.get_has_more()
         self._items = res.get_items()
-        self.logid = res.logid
+        self._http_response = res.response
 
     @staticmethod
     def _is_page_has_more(page: "NumberPaged[T]") -> bool:
@@ -283,8 +305,6 @@ class NumberPaged(PagedBase[T]):
 
 
 class AsyncNumberPaged(AsyncPagedBase[T]):
-    logid: Optional[str] = None
-
     def __init__(
         self,
         page_num: int,
@@ -298,6 +318,7 @@ class AsyncNumberPaged(AsyncPagedBase[T]):
         self._total = None
         self._has_more = None
         self._items = None
+        self._raw_response: Optional[httpx.Response] = None
 
         self._requestor = requestor
         self._request_maker = request_maker
@@ -324,6 +345,10 @@ class AsyncNumberPaged(AsyncPagedBase[T]):
             yield page
 
     @property
+    def response(self) -> HTTPResponse:
+        return HTTPResponse(self._raw_response)  # type: ignore
+
+    @property
     def items(self) -> List[T]:
         return self._items or cast(List[T], [])
 
@@ -347,8 +372,7 @@ class AsyncNumberPaged(AsyncPagedBase[T]):
         self._total = res.get_total()
         self._has_more = res.get_has_more()
         self._items = res.get_items()
-        if hasattr(res, "logid"):
-            self.logid = res.logid
+        self._raw_response = res._raw_response
 
     @staticmethod
     def _is_page_has_more(page: "AsyncNumberPaged[T]") -> bool:
@@ -392,8 +416,6 @@ class LastIDPagedResponse(Generic[T], abc.ABC):
 
 
 class LastIDPaged(PagedBase[T]):
-    logid: Optional[str] = None
-
     def __init__(
         self,
         before_id: str,
@@ -407,6 +429,7 @@ class LastIDPaged(PagedBase[T]):
         self.last_id: Optional[str] = None
         self._has_more: Optional[bool] = None
         self._items: Optional[List[T]] = None
+        self._raw_response: Optional[httpx.Response] = None
 
         self._requestor = requestor
         self._request_maker = request_maker
@@ -435,6 +458,10 @@ class LastIDPaged(PagedBase[T]):
             yield page
 
     @property
+    def response(self) -> HTTPResponse:
+        return HTTPResponse(self._raw_response)  # type: ignore
+
+    @property
     def items(self) -> List[T]:
         return self._items or []
 
@@ -456,8 +483,7 @@ class LastIDPaged(PagedBase[T]):
         self.last_id = res.get_last_id()
         self._has_more = res.get_has_more()
         self._items = res.get_items()
-        if hasattr(res, "logid"):
-            self.logid = res.logid
+        self._raw_response = res._raw_response
 
     def _check_has_more(self, has_more: Optional[bool] = None, last_id: Optional[str] = None) -> bool:
         if has_more is not None:
@@ -468,8 +494,6 @@ class LastIDPaged(PagedBase[T]):
 
 
 class AsyncLastIDPaged(AsyncPagedBase[T]):
-    logid: Optional[str] = None
-
     def __init__(
         self,
         before_id: str,
@@ -483,6 +507,7 @@ class AsyncLastIDPaged(AsyncPagedBase[T]):
         self.last_id = None
         self._has_more = None
         self._items: List[T] = []
+        self._raw_response: Optional[httpx.Response] = None
 
         self._requestor = requestor
         self._request_maker = request_maker
@@ -507,6 +532,10 @@ class AsyncLastIDPaged(AsyncPagedBase[T]):
             has_more = page.has_more
             last_id = page.last_id
             yield page
+
+    @property
+    def response(self) -> HTTPResponse:
+        return HTTPResponse(self._raw_response)  # type: ignore
 
     @property
     def items(self) -> List[T]:
@@ -545,8 +574,7 @@ class AsyncLastIDPaged(AsyncPagedBase[T]):
         self.last_id = res.get_last_id()
         self._has_more = res.get_has_more()
         self._items = res.get_items()
-        if hasattr(res, "logid"):
-            self.logid = res.logid
+        self._raw_response = res._raw_response
 
     def _check_has_more(self, has_more: Optional[bool] = None, last_id: Optional[str] = None) -> bool:
         if has_more is not None:

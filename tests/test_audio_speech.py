@@ -31,8 +31,8 @@ class TestAudioSpeech:
 
         res = coze.audio.speech.create(input=random_hex(10), voice_id=random_hex(10), speed=1.5, sample_rate=32000)
         assert res
-        assert res.logid is not None
-        assert res.logid == mock_logid
+        assert res.response.logid is not None
+        assert res.response.logid == mock_logid
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -45,5 +45,5 @@ class TestAsyncAudioSpeech:
 
         res = await coze.audio.speech.create(input=random_hex(10), voice_id=random_hex(10))
         assert res
-        assert res.logid is not None
-        assert res.logid == mock_logid
+        assert res.response.logid is not None
+        assert res.response.logid == mock_logid

@@ -79,6 +79,7 @@ class Requester(object):
     ) -> HTTPRequest:
         if headers is None:
             headers = {}
+        print(user_agent())
         headers["User-Agent"] = user_agent()
         headers["X-Coze-Client-User-Agent"] = coze_client_user_agent()
         if self._auth:

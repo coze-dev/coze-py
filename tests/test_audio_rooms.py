@@ -34,7 +34,7 @@ class TestSyncAudioRooms:
 
         res = coze.audio.rooms.create(bot_id=bot_id, voice_id=voice_id)
         assert res
-        assert res.logid == mock_res.logid
+        assert res.response.logid == mock_res.response.logid
         assert res.token == mock_res.token
         assert res.room_id == mock_res.room_id
         assert res.uid == mock_res.uid
@@ -53,8 +53,8 @@ class TestAsyncAudioRooms:
 
         res = await coze.audio.rooms.create(bot_id=bot_id, voice_id=voice_id)
         assert res
-        assert res.logid is not None
-        assert res.logid == mock_res.logid
+        assert res.response.logid is not None
+        assert res.response.logid == mock_res.response.logid
         assert res.token == mock_res.token
         assert res.room_id == mock_res.room_id
         assert res.uid == mock_res.uid

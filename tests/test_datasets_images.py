@@ -61,7 +61,7 @@ class TestSyncDatasetsImages:
 
         res = coze.datasets.images.update(dataset_id=dataset_id, document_id=document_id, caption="caption")
         assert res
-        assert res.logid == mock_logid
+        assert res.response.logid == mock_logid
 
     def test_sync_datasets_images_list(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
@@ -107,7 +107,7 @@ class TestAsyncDatasetsDocuments:
 
         res = await coze.datasets.images.update(dataset_id=dataset_id, document_id=document_id, caption="caption")
         assert res
-        assert res.logid == mock_logid
+        assert res.response.logid == mock_logid
 
     async def test_sync_datasets_images_list(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))

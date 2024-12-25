@@ -47,8 +47,7 @@ class TestSyncAudioVoices:
         mock_logid = mock_list_voices(respx_mock)
 
         voices = coze.audio.voices.list()
-        assert voices.logid is not None
-        assert voices.logid == mock_logid
+        assert voices.response.logid == mock_logid
 
         voices = [i for i in voices]
         assert voices
@@ -64,8 +63,7 @@ class TestAsyncAudioVoices:
         mock_logid = mock_list_voices(respx_mock)
 
         voices = await coze.audio.voices.list()
-        assert voices.logid is not None
-        assert voices.logid == mock_logid
+        assert voices.response.logid == mock_logid
 
         voices = [i async for i in voices]
         assert voices
