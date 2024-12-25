@@ -659,6 +659,31 @@ coze = Coze(auth=TokenAuth(oauth_token.access_token))
 oauth_token = device_oauth_app.refresh_access_token(oauth_token.refresh_token)
 ```
 
+### Debug
+
+The SDK support returning the logid of the request, which can be used to debug the request.
+You can get the logid from the response of the request and submit it to the coze support team for further assistance.
+
+```python
+import os
+from cozepy import Coze, AsyncCoze, TokenAuth
+
+coze = Coze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
+
+bot = coze.bots.retrieve(bot_id='bot id')
+print(bot.response.logid) # support for CozeModel
+
+stream = coze.chat.stream(bot_id='bot id', user_id='user id')
+print(stream.response.logid) # support for stream
+
+workspaces = coze.workspaces.list()
+print(workspaces.response.logid) # support for paged
+
+messages = coze.chat.messages.list(conversation_id='conversation id', chat_id='chat id')
+print(messages.response.logid) # support for list(simple list, not paged)
+```
+
+
 ### Async usage
 
 cozepy supports asynchronous calls through `httpx.AsyncClient`.
