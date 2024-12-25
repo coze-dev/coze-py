@@ -78,11 +78,9 @@ def mock_create_workflows_runs_run_histories_retrieve(respx_mock):
         error_message="error_message",
         debug_url="debug_url",
     )
-    workflow_run_result_dump = workflow_run_result.model_dump()
-    workflow_run_result_dump["logid"] = workflow_run_result_dump["execute_logid"]
     workflow_run_result._raw_response = httpx.Response(
         200,
-        json={"data": [workflow_run_result_dump]},
+        json={"data": [workflow_run_result.model_dump()]},
         headers={logid_key(): current_logid},
     )
     url = f"/v1/workflows/{workflow_id}/run_histories/{execute_id}"
@@ -99,7 +97,7 @@ class TestSyncWorkflowsRuns:
 
         res = coze.workflows.runs.create(workflow_id="id")
         assert res
-        assert res.logid == mock_res.logid
+        assert res.response.logid == mock_res.response.logid
         assert res.data == "data"
 
     def test_sync_workflows_runs_create_async(self, respx_mock):
@@ -109,7 +107,7 @@ class TestSyncWorkflowsRuns:
 
         res = coze.workflows.runs.create(workflow_id="id", is_async=True)
         assert res
-        assert res.logid == mock_res.logid
+        assert res.response.logid == mock_res.response.logid
         assert not res.data
         assert res.execute_id == mock_res.execute_id
 
@@ -163,8 +161,8 @@ class TestSyncWorkflowsRuns:
 
         res = coze.workflows.runs.run_histories.retrieve(workflow_id=workflow_id, execute_id=execute_id)
         assert res
-        assert res.execute_logid == execute_logid
-        assert res.logid == current_logid
+        assert res.logid == execute_logid
+        assert res.response.logid == current_logid
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -177,7 +175,7 @@ class TestAsyncWorkflowsRuns:
 
         res = await coze.workflows.runs.create(workflow_id="id")
         assert res
-        assert res.logid == mock_res.logid
+        assert res.response.logid == mock_res.response.logid
         assert res.data == "data"
 
     async def test_async_workflows_runs_create_async(self, respx_mock):
@@ -187,7 +185,7 @@ class TestAsyncWorkflowsRuns:
 
         res = await coze.workflows.runs.create(workflow_id="id", is_async=True)
         assert res
-        assert res.logid == mock_res.logid
+        assert res.response.logid == mock_res.response.logid
         assert not res.data
         assert res.execute_id == mock_res.execute_id
 
@@ -236,5 +234,5 @@ class TestAsyncWorkflowsRuns:
 
         res = await coze.workflows.runs.run_histories.retrieve(workflow_id=workflow_id, execute_id=execute_id)
         assert res
-        assert res.execute_logid == execute_logid
-        assert res.logid == current_logid
+        assert res.logid == execute_logid
+        assert res.response.logid == current_logid

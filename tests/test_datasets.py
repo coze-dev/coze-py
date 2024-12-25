@@ -114,7 +114,7 @@ class TestSyncDataset:
 
         dataset = coze.datasets.create(space_id="space id", name="name", format_type=DocumentFormatType.DOCUMENT)
         assert dataset
-        assert dataset.logid == mock_logid
+        assert dataset.response.logid == mock_logid
         assert dataset.dataset_id == dataset_id
 
     def test_sync_datasets_list(self, respx_mock):
@@ -157,7 +157,7 @@ class TestSyncDataset:
 
         res = coze.datasets.update(dataset_id=dataset_id, name="name")
         assert res
-        assert res.logid == mock_logid
+        assert res.response.logid == mock_logid
 
     def test_sync_datasets_delete(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
@@ -166,7 +166,7 @@ class TestSyncDataset:
 
         res = coze.datasets.delete(dataset_id=dataset_id)
         assert res
-        assert res.logid == mock_logid
+        assert res.response.logid == mock_logid
 
     def test_sync_datasets_process(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
@@ -175,7 +175,7 @@ class TestSyncDataset:
 
         res = coze.datasets.process(dataset_id=dataset_id, document_ids=[document_id])
         assert res
-        assert res.logid == mock_logid
+        assert res.response.logid == mock_logid
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -188,7 +188,7 @@ class TestAsyncDataset:
 
         dataset = await coze.datasets.create(space_id="space id", name="name", format_type=DocumentFormatType.DOCUMENT)
         assert dataset
-        assert dataset.logid == mock_logid
+        assert dataset.response.logid == mock_logid
         assert dataset.dataset_id == dataset_id
 
     async def test_async_datasets_list(self, respx_mock):
@@ -231,7 +231,7 @@ class TestAsyncDataset:
 
         res = await coze.datasets.update(dataset_id=dataset_id, name="name")
         assert res
-        assert res.logid == mock_logid
+        assert res.response.logid == mock_logid
 
     async def test_async_datasets_delete(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
@@ -240,7 +240,7 @@ class TestAsyncDataset:
 
         res = await coze.datasets.delete(dataset_id=dataset_id)
         assert res
-        assert res.logid == mock_logid
+        assert res.response.logid == mock_logid
 
     async def test_async_datasets_process(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
@@ -249,4 +249,4 @@ class TestAsyncDataset:
 
         res = await coze.datasets.process(dataset_id=dataset_id, document_ids=[document_id])
         assert res
-        assert res.logid == mock_logid
+        assert res.response.logid == mock_logid

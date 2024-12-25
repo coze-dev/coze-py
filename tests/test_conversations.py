@@ -89,7 +89,7 @@ class TestSyncConversation:
 
         res = coze.conversations.create(bot_id=bot_id)
         assert res
-        assert res.logid == mock_conversation.logid
+        assert res.response.logid == mock_conversation.response.logid
         assert res.id == mock_conversation.id
         assert res.last_section_id == mock_conversation.last_section_id
 
@@ -132,7 +132,7 @@ class TestSyncConversation:
 
         res = coze.conversations.retrieve(conversation_id=mock_conversation.id)
         assert res
-        assert res.logid == mock_conversation.logid
+        assert res.response.logid == mock_conversation.response.logid
         assert res.id == mock_conversation.id
         assert res.last_section_id == mock_conversation.last_section_id
 
@@ -143,7 +143,7 @@ class TestSyncConversation:
 
         res = coze.conversations.clear(conversation_id=mock_section.conversation_id)
         assert res
-        assert res.logid == mock_section.logid
+        assert res.response.logid == mock_section.response.logid
         assert res.id == mock_section.id
         assert res.conversation_id == mock_section.conversation_id
 
@@ -159,7 +159,7 @@ class TestAsyncConversation:
 
         res = await coze.conversations.create(bot_id=bot_id)
         assert res
-        assert res.logid == mock_conversation.logid
+        assert res.response.logid == mock_conversation.response.logid
         assert res.id == mock_conversation.id
         assert res.last_section_id == mock_conversation.last_section_id
 
@@ -202,7 +202,7 @@ class TestAsyncConversation:
 
         res = await coze.conversations.retrieve(conversation_id=mock_conversation.id)
         assert res
-        assert res.logid == mock_conversation.logid
+        assert res.response.logid == mock_conversation.response.logid
         assert res.id == mock_conversation.id
         assert res.last_section_id == mock_conversation.last_section_id
 
@@ -213,6 +213,6 @@ class TestAsyncConversation:
 
         res = await coze.conversations.clear(conversation_id=mock_section.conversation_id)
         assert res
-        assert res.logid == mock_section.logid
+        assert res.response.logid == mock_section.response.logid
         assert res.id == mock_section.id
         assert res.conversation_id == mock_section.conversation_id

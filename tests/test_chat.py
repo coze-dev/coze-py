@@ -159,8 +159,8 @@ class TestSyncChat:
         res = coze.chat.create(bot_id="bot", user_id="user")
 
         assert res
-        assert res.logid is not None
-        assert res.logid == mock_logid
+        assert res.response.logid is not None
+        assert res.response.logid == mock_logid
         assert res.conversation_id == conversation_id
 
     def test_sync_chat_stream(self, respx_mock):
@@ -270,8 +270,8 @@ class TestSyncChat:
         res = coze.chat.retrieve(conversation_id=conversation_id, chat_id="chat")
 
         assert res
-        assert res.logid is not None
-        assert res.logid == mock_logid
+        assert res.response.logid is not None
+        assert res.response.logid == mock_logid
         assert res.conversation_id == conversation_id
 
     def test_sync_submit_tool_outputs_not_stream(self, respx_mock):
@@ -284,8 +284,8 @@ class TestSyncChat:
         )
 
         assert res
-        assert res.logid is not None
-        assert res.logid == mock_logid
+        assert res.response.logid is not None
+        assert res.response.logid == mock_logid
         assert res.conversation_id == conversation_id
 
     def test_sync_submit_tool_outputs_stream(self, respx_mock):
@@ -331,8 +331,8 @@ class TestSyncChat:
         res = coze.chat.cancel(conversation_id="conversation", chat_id="chat")
 
         assert res
-        assert res.logid is not None
-        assert res.logid == mock_logid
+        assert res.response.logid is not None
+        assert res.response.logid == mock_logid
         assert res.conversation_id == conversation_id
 
     def test_sync_chat_poll(self, respx_mock):
@@ -347,7 +347,7 @@ class TestSyncChat:
         res = coze.chat.create_and_poll(bot_id="bot", user_id="user")
 
         assert res
-        assert res.chat.logid == mock_chat.logid
+        assert res.chat.response.logid == mock_chat.response.logid
         assert res.chat.conversation_id == conversation_id
         assert res.messages
         assert res.messages[0].content == "hi"
@@ -364,8 +364,8 @@ class TestAsyncChatConversationMessage:
         res = await coze.chat.create(bot_id="bot", user_id="user")
 
         assert res
-        assert res.logid is not None
-        assert res.logid == mock_logid
+        assert res.response.logid is not None
+        assert res.response.logid == mock_logid
         assert res.conversation_id == conversation_id
 
     async def test_async_chat_stream(self, respx_mock):
@@ -461,8 +461,8 @@ class TestAsyncChatConversationMessage:
         res = await coze.chat.retrieve(conversation_id=conversation_id, chat_id="chat")
 
         assert res
-        assert res.logid is not None
-        assert res.logid == mock_logid
+        assert res.response.logid is not None
+        assert res.response.logid == mock_logid
         assert res.conversation_id == conversation_id
 
     async def test_async_submit_tool_outputs_not_stream(self, respx_mock):
@@ -473,8 +473,8 @@ class TestAsyncChatConversationMessage:
         res = await coze.chat.submit_tool_outputs(conversation_id=conversation_id, chat_id="chat", tool_outputs=[])
 
         assert res
-        assert res.logid is not None
-        assert res.logid == mock_logid
+        assert res.response.logid is not None
+        assert res.response.logid == mock_logid
         assert res.conversation_id == conversation_id
 
     async def test_async_submit_tool_outputs_stream(self, respx_mock):
@@ -515,6 +515,6 @@ class TestAsyncChatConversationMessage:
         res = await coze.chat.cancel(conversation_id="conversation", chat_id="chat")
 
         assert res
-        assert res.logid is not None
-        assert res.logid == mock_logid
+        assert res.response.logid is not None
+        assert res.response.logid == mock_logid
         assert res.conversation_id == conversation_id

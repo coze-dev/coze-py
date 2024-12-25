@@ -52,7 +52,7 @@ class TestSyncFiles:
         with patch("builtins.open", mock_open(read_data="data")):
             file = coze.files.upload(file=Path(__file__))
             assert file
-            assert file.logid == mock_file.logid
+            assert file.response.logid == mock_file.response.logid
             assert file.file_name == "name"
 
     def test_sync_files_retrieve(self, respx_mock):
@@ -62,7 +62,7 @@ class TestSyncFiles:
 
         file = coze.files.retrieve(file_id="id")
         assert file
-        assert file.logid == mock_file.logid
+        assert file.response.logid == mock_file.response.logid
         assert file.file_name == "name"
 
 
@@ -77,7 +77,7 @@ class TestAsyncFiles:
         with patch("builtins.open", mock_open(read_data="data")):
             file = await coze.files.upload(file=Path(__file__))
             assert file
-            assert file.logid == mock_file.logid
+            assert file.response.logid == mock_file.response.logid
             assert file.file_name == "name"
 
     async def test_async_files_retrieve(self, respx_mock):
@@ -87,5 +87,5 @@ class TestAsyncFiles:
 
         file = await coze.files.retrieve(file_id="id")
         assert file
-        assert file.logid == mock_file.logid
+        assert file.response.logid == mock_file.response.logid
         assert file.file_name == "name"

@@ -116,7 +116,7 @@ class TestSyncBots:
 
         bot = coze.bots.create(space_id="space id", name="name")
         assert bot
-        assert bot.logid == mock_bot.logid
+        assert bot.response.logid == mock_bot.response.logid
         assert bot.bot_id == mock_bot.bot_id
 
     def test_sync_bots_update(self, respx_mock):
@@ -126,8 +126,8 @@ class TestSyncBots:
 
         res = coze.bots.update(bot_id="bot id", name="name")
         assert res
-        assert res.logid is not None
-        assert res.logid == mock_logid
+        assert res.response.logid is not None
+        assert res.response.logid == mock_logid
 
     def test_sync_bots_publish(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
@@ -136,8 +136,8 @@ class TestSyncBots:
 
         bot = coze.bots.publish(bot_id="bot id")
         assert bot
-        assert bot.logid is not None
-        assert bot.logid == mock_bot.logid
+        assert bot.response.logid is not None
+        assert bot.response.logid == mock_bot.response.logid
         assert bot.bot_id == mock_bot.bot_id
 
     def test_sync_bots_retrieve(self, respx_mock):
@@ -147,8 +147,8 @@ class TestSyncBots:
 
         bot = coze.bots.retrieve(bot_id="bot id")
         assert bot
-        assert bot.logid is not None
-        assert bot.logid == mock_bot.logid
+        assert bot.response.logid is not None
+        assert bot.response.logid == mock_bot.response.logid
         assert bot.bot_id == mock_bot.bot_id
 
     def test_sync_bots_list(self, respx_mock):
@@ -195,8 +195,8 @@ class TestAsyncBots:
 
         bot = await coze.bots.create(space_id="space id", name="name")
         assert bot
-        assert bot.logid is not None
-        assert bot.logid == mock_bot.logid
+        assert bot.response.logid is not None
+        assert bot.response.logid == mock_bot.response.logid
         assert bot.bot_id == mock_bot.bot_id
 
     async def test_async_bots_update(self, respx_mock):
@@ -206,8 +206,8 @@ class TestAsyncBots:
 
         res = await coze.bots.update(bot_id="bot id", name="name")
         assert res
-        assert res.logid is not None
-        assert res.logid == mock_logid
+        assert res.response.logid is not None
+        assert res.response.logid == mock_logid
 
     async def test_async_bots_publish(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
@@ -216,8 +216,8 @@ class TestAsyncBots:
 
         bot = await coze.bots.publish(bot_id="bot id")
         assert bot
-        assert bot.logid is not None
-        assert bot.logid == mock_bot.logid
+        assert bot.response.logid is not None
+        assert bot.response.logid == mock_bot.response.logid
         assert bot.bot_id == mock_bot.bot_id
 
     async def test_async_bots_retrieve(self, respx_mock):
@@ -227,8 +227,8 @@ class TestAsyncBots:
 
         bot = await coze.bots.retrieve(bot_id="bot id")
         assert bot
-        assert bot.logid is not None
-        assert bot.logid == mock_bot.logid
+        assert bot.response.logid is not None
+        assert bot.response.logid == mock_bot.response.logid
         assert bot.bot_id == mock_bot.bot_id
 
     async def test_async_bots_list(self, respx_mock):

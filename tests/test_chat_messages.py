@@ -29,8 +29,8 @@ class TestSyncChatMessages:
 
         res = coze.chat.messages.list(conversation_id="conversation id", chat_id="chat id")
         assert res
-        assert res.logid is not None
-        assert res.logid == logid
+        assert res.response.logid is not None
+        assert res.response.logid == logid
         assert res[0].content == msg.content
         assert res[1].content == msg2.content
 
@@ -45,7 +45,7 @@ class TestAsyncChatMessages:
 
         res = await coze.chat.messages.list(conversation_id="conversation id", chat_id="chat id")
         assert res
-        assert res.logid is not None
-        assert res.logid == logid
+        assert res.response.logid is not None
+        assert res.response.logid == logid
         assert res[0].content == msg.content
         assert res[1].content == msg2.content
