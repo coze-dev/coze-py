@@ -7,6 +7,7 @@ from cozepy.util import remove_url_trailing_slash
 if TYPE_CHECKING:
     from .rooms import AsyncRoomsClient, RoomsClient
     from .speech import AsyncSpeechClient, SpeechClient
+    from .translations import AsyncTranslationsClient, TranslationsClient
     from .voices import AsyncVoicesClient, VoicesClient
 
 
@@ -19,6 +20,7 @@ class AudioClient(object):
         self._rooms: Optional[RoomsClient] = None
         self._voices: Optional[VoicesClient] = None
         self._speech: Optional[SpeechClient] = None
+        self._translations: Optional[TranslationsClient] = None
 
     @property
     def rooms(self) -> "RoomsClient":
@@ -35,6 +37,14 @@ class AudioClient(object):
 
             self._speech = SpeechClient(base_url=self._base_url, auth=self._auth, requester=self._requester)
         return self._speech
+
+    @property
+    def translations(self) -> "TranslationsClient":
+        if self._translations is None:
+            from .translations import TranslationsClient
+
+            self._translations = TranslationsClient(base_url=self._base_url, auth=self._auth, requester=self._requester)
+        return self._translations
 
     @property
     def voices(self) -> "VoicesClient":
@@ -54,6 +64,7 @@ class AsyncAudioClient(object):
         self._rooms: Optional[AsyncRoomsClient] = None
         self._voices: Optional[AsyncVoicesClient] = None
         self._speech: Optional[AsyncSpeechClient] = None
+        self._translations: Optional[AsyncTranslationsClient] = None
 
     @property
     def rooms(self) -> "AsyncRoomsClient":
@@ -78,3 +89,13 @@ class AsyncAudioClient(object):
 
             self._voices = AsyncVoicesClient(base_url=self._base_url, auth=self._auth, requester=self._requester)
         return self._voices
+
+    @property
+    def translations(self) -> "AsyncTranslationsClient":
+        if self._translations is None:
+            from .translations import AsyncTranslationsClient
+
+            self._translations = AsyncTranslationsClient(
+                base_url=self._base_url, auth=self._auth, requester=self._requester
+            )
+        return self._translations
