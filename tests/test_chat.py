@@ -170,7 +170,7 @@ class TestSyncChat:
         stream = coze.chat.stream(bot_id="bot", user_id="user")
 
         assert stream
-        assert stream.logid == mock_logid
+        assert stream.response.logid == mock_logid
 
         events = list(stream)
         assert len(events) == 8
@@ -211,8 +211,8 @@ class TestSyncChat:
             ],
         )
         assert stream
-        assert stream.logid is not None
-        assert stream.logid == mock_logid
+        assert stream.response.logid is not None
+        assert stream.response.logid == mock_logid
 
         events = list(stream)
         assert events
@@ -229,8 +229,8 @@ class TestSyncChat:
         mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_error_resp.txt"))
         stream = coze.chat.stream(bot_id="bot", user_id="user")
         assert stream
-        assert stream.logid is not None
-        assert stream.logid == mock_logid
+        assert stream.response.logid is not None
+        assert stream.response.logid == mock_logid
 
         with pytest.raises(Exception, match="error event"):
             list(stream)
@@ -241,8 +241,8 @@ class TestSyncChat:
         mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_failed_resp.txt"))
         stream = coze.chat.stream(bot_id="bot", user_id="user")
         assert stream
-        assert stream.logid is not None
-        assert stream.logid == mock_logid
+        assert stream.response.logid is not None
+        assert stream.response.logid == mock_logid
 
         events = list(stream)
         assert events
@@ -256,8 +256,8 @@ class TestSyncChat:
 
         stream = coze.chat.stream(bot_id="bot", user_id="user")
         assert stream
-        assert stream.logid is not None
-        assert stream.logid == mock_logid
+        assert stream.response.logid is not None
+        assert stream.response.logid == mock_logid
 
         with pytest.raises(Exception, match="invalid chat.event: invalid"):
             list(stream)
@@ -296,8 +296,8 @@ class TestSyncChat:
             conversation_id="conversation", chat_id="chat", tool_outputs=[], stream=True
         )
         assert stream
-        assert stream.logid is not None
-        assert stream.logid == mock_logid
+        assert stream.response.logid is not None
+        assert stream.response.logid == mock_logid
 
         events = list(stream)
         assert events

@@ -116,7 +116,7 @@ class TestSyncWorkflowsRuns:
 
         mock_logid = mock_create_workflows_runs_stream(respx_mock, read_file("testdata/workflow_run_stream_resp.txt"))
         stream = coze.workflows.runs.stream(workflow_id="id")
-        assert stream.logid == mock_logid
+        assert stream.response.logid == mock_logid
         events = list(stream)
         assert events
         assert len(events) == 9
@@ -131,7 +131,7 @@ class TestSyncWorkflowsRuns:
             resume_data="resume_data",
             interrupt_type=123,
         )
-        assert stream.logid == mock_logid
+        assert stream.response.logid == mock_logid
         events = list(stream)
         assert events
         assert len(events) == 9
@@ -148,7 +148,7 @@ class TestSyncWorkflowsRuns:
             resume_data="resume_data",
             interrupt_type=123,
         )
-        assert stream.logid == mock_logid
+        assert stream.response.logid == mock_logid
         with pytest.raises(Exception, match="invalid workflows.event: invalid"):
             list(stream)
 
