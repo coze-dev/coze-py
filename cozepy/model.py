@@ -476,7 +476,6 @@ class LastIDPaged(PagedBase[T]):
             return
 
         request = self._request_maker(self.before_id, self.after_id)
-        print("request", request)
         res: LastIDPagedResponse[T] = self._requestor.send(request)
 
         self.first_id = res.get_first_id()
