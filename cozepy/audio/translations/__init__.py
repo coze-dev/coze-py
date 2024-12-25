@@ -7,7 +7,7 @@ from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
 
-class CreateTranslationRes(CozeModel):
+class CreateTranslationResp(CozeModel):
     # The text of translation
     text: str
 
@@ -23,7 +23,7 @@ class TranslationsClient(object):
         *,
         file: FileTypes,
         **kwargs,
-    ) -> CreateTranslationRes:
+    ) -> CreateTranslationResp:
         """
         create translation
 
@@ -34,7 +34,7 @@ class TranslationsClient(object):
         headers: Optional[dict] = kwargs.get("headers")
         files = {"file": _try_fix_file(file)}
         return self._requester.request(
-            "post", url, stream=False, cast=CreateTranslationRes, headers=headers, files=files
+            "post", url, stream=False, cast=CreateTranslationResp, headers=headers, files=files
         )
 
 
@@ -53,7 +53,7 @@ class AsyncTranslationsClient(object):
         *,
         file: FileTypes,
         **kwargs,
-    ) -> CreateTranslationRes:
+    ) -> CreateTranslationResp:
         """
         create translation
 
@@ -64,5 +64,5 @@ class AsyncTranslationsClient(object):
         files = {"file": _try_fix_file(file)}
         headers: Optional[dict] = kwargs.get("headers")
         return await self._requester.arequest(
-            "post", url, stream=False, cast=CreateTranslationRes, headers=headers, files=files
+            "post", url, stream=False, cast=CreateTranslationResp, headers=headers, files=files
         )

@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from cozepy import AsyncCoze, Coze, TemplateDuplicateRes, TokenAuth
+from cozepy import AsyncCoze, Coze, TemplateDuplicateResp, TokenAuth
 from cozepy.util import random_hex
 
 
@@ -10,7 +10,7 @@ def mock_template_duplicate(respx_mock, entity_id, entity_type):
         httpx.Response(
             200,
             json={
-                "data": TemplateDuplicateRes(
+                "data": TemplateDuplicateResp(
                     entity_id=entity_id,
                     entity_type=entity_type,
                 ).model_dump()
