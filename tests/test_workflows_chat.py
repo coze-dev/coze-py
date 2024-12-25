@@ -50,7 +50,7 @@ class TestSyncWorkflowsChat:
         stream = coze.workflows.chat.stream(workflow_id="workflow", bot_id="bot")
 
         assert stream
-        assert stream.logid == mock_logid
+        assert stream.response.logid == mock_logid
 
         events = list(stream)
         assert len(events) == 8
@@ -80,8 +80,8 @@ class TestSyncWorkflowsChat:
         mock_logid = mock_workflows_chat_stream(respx_mock, read_file("testdata/chat_error_resp.txt"))
         stream = coze.workflows.chat.stream(workflow_id="workflow", bot_id="bot")
         assert stream
-        assert stream.logid is not None
-        assert stream.logid == mock_logid
+        assert stream.response.logid is not None
+        assert stream.response.logid == mock_logid
 
         with pytest.raises(Exception, match="error event"):
             list(stream)
@@ -92,8 +92,8 @@ class TestSyncWorkflowsChat:
         mock_logid = mock_workflows_chat_stream(respx_mock, read_file("testdata/chat_failed_resp.txt"))
         stream = coze.workflows.chat.stream(workflow_id="workflow", bot_id="bot")
         assert stream
-        assert stream.logid is not None
-        assert stream.logid == mock_logid
+        assert stream.response.logid is not None
+        assert stream.response.logid == mock_logid
 
         events = list(stream)
         assert events
@@ -107,8 +107,8 @@ class TestSyncWorkflowsChat:
 
         stream = coze.workflows.chat.stream(workflow_id="workflow", bot_id="bot")
         assert stream
-        assert stream.logid is not None
-        assert stream.logid == mock_logid
+        assert stream.response.logid is not None
+        assert stream.response.logid == mock_logid
 
         with pytest.raises(Exception, match="invalid chat.event: invalid"):
             list(stream)
