@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from .images import AsyncDatasetsImagesClient, DatasetsImagesClient
 
 
-class CreateDatasetRes(CozeModel):
+class CreateDatasetResp(CozeModel):
     dataset_id: str
 
 
@@ -119,7 +119,7 @@ class DatasetsClient(object):
         format_type: DocumentFormatType,
         description: Optional[str] = None,
         icon_file_id: Optional[str] = None,
-    ) -> CreateDatasetRes:
+    ) -> CreateDatasetResp:
         """
         Create Dataset
 
@@ -144,7 +144,7 @@ class DatasetsClient(object):
             "post",
             url,
             False,
-            CreateDatasetRes,
+            CreateDatasetResp,
             body=body,
         )
 
@@ -323,7 +323,7 @@ class AsyncDatasetsClient(object):
         format_type: DocumentFormatType,
         description: Optional[str] = None,
         icon_file_id: Optional[str] = None,
-    ) -> CreateDatasetRes:
+    ) -> CreateDatasetResp:
         """
         Create Dataset
 
@@ -345,7 +345,7 @@ class AsyncDatasetsClient(object):
             "post",
             url,
             False,
-            CreateDatasetRes,
+            CreateDatasetResp,
             body=body,
         )
 

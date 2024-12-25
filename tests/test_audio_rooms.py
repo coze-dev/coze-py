@@ -1,13 +1,13 @@
 import httpx
 import pytest
 
-from cozepy import AsyncCoze, Coze, CreateRoomResult, TokenAuth
+from cozepy import AsyncCoze, Coze, CreateRoomResp, TokenAuth
 from cozepy.util import random_hex
 from tests.test_util import logid_key
 
 
 def mock_create_room(respx_mock):
-    create_room_res = CreateRoomResult(
+    create_room_res = CreateRoomResp(
         token=random_hex(10),
         uid=random_hex(10),
         room_id=random_hex(10),

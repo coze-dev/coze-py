@@ -1,6 +1,6 @@
-from .audio.rooms import CreateRoomResult
+from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
-from .audio.translations import CreateTranslationRes
+from .audio.translations import CreateTranslationResp
 from .audio.voices import Voice
 from .auth import (
     AsyncDeviceOAuthApp,
@@ -27,7 +27,7 @@ from .bots import (
     BotPluginInfo,
     BotPromptInfo,
     SimpleBot,
-    UpdateBotRes,
+    UpdateBotResp,
 )
 from .chat import (
     Chat,
@@ -59,7 +59,7 @@ from .config import (
 )
 from .conversations import Conversation, Section
 from .coze import AsyncCoze, Coze
-from .datasets import CreateDatasetRes, Dataset, DatasetStatus, DocumentProgress
+from .datasets import CreateDatasetResp, Dataset, DatasetStatus, DocumentProgress
 from .datasets.documents import (
     Document,
     DocumentBase,
@@ -89,7 +89,7 @@ from .model import (
     Stream,
 )
 from .request import AsyncHTTPClient, SyncHTTPClient
-from .templates import TemplateDuplicateRes, TemplateEntityType
+from .templates import TemplateDuplicateResp, TemplateEntityType
 from .version import VERSION
 from .workflows.runs import (
     WorkflowEvent,
@@ -106,12 +106,12 @@ from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
 __all__ = [
     "VERSION",
     # audio.rooms
-    "CreateRoomResult",
+    "CreateRoomResp",
     # audio.voices
     "Voice",
     "AudioFormat",
     # audio.translations
-    "CreateTranslationRes",
+    "CreateTranslationResp",
     # auth
     "AsyncDeviceOAuthApp",
     "AsyncJWTOAuthApp",
@@ -136,7 +136,7 @@ __all__ = [
     "BotPluginInfo",
     "Bot",
     "SimpleBot",
-    "UpdateBotRes",
+    "UpdateBotResp",
     # chat
     "MessageRole",
     "MessageType",
@@ -167,7 +167,7 @@ __all__ = [
     "Dataset",
     "DatasetStatus",
     "DocumentProgress",
-    "CreateDatasetRes",
+    "CreateDatasetResp",
     # datasets.images
     "Photo",
     # datasets.documents
@@ -197,7 +197,7 @@ __all__ = [
     "WorkspaceType",
     "Workspace",
     # templates
-    "TemplateDuplicateRes",
+    "TemplateDuplicateResp",
     "TemplateEntityType",
     # log
     "setup_logging",

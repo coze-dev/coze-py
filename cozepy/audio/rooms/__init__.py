@@ -6,7 +6,7 @@ from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
 
-class CreateRoomResult(CozeModel):
+class CreateRoomResp(CozeModel):
     # Token to join the room
     token: str
     # The id of user
@@ -34,7 +34,7 @@ class RoomsClient(object):
         voice_id: Optional[str] = None,
         conversation_id: Optional[str] = None,
         uid: Optional[str] = None,
-    ) -> CreateRoomResult:
+    ) -> CreateRoomResp:
         """
         create rtc room
 
@@ -51,7 +51,7 @@ class RoomsClient(object):
             "conversation_id": conversation_id,
             "uid": uid,
         }
-        return self._requester.request("post", url, stream=False, cast=CreateRoomResult, body=body)
+        return self._requester.request("post", url, stream=False, cast=CreateRoomResp, body=body)
 
 
 class AsyncRoomsClient(object):
@@ -71,7 +71,7 @@ class AsyncRoomsClient(object):
         voice_id: Optional[str] = None,
         conversation_id: Optional[str] = None,
         uid: Optional[str] = None,
-    ) -> CreateRoomResult:
+    ) -> CreateRoomResp:
         """
         create rtc room
 
@@ -88,4 +88,4 @@ class AsyncRoomsClient(object):
             "conversation_id": conversation_id,
             "uid": uid,
         }
-        return await self._requester.arequest("post", url, stream=False, cast=CreateRoomResult, body=body)
+        return await self._requester.arequest("post", url, stream=False, cast=CreateRoomResp, body=body)

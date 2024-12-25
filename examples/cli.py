@@ -14,7 +14,7 @@ from cozepy import (
     COZE_CN_BASE_URL,
     Bot,
     Coze,
-    CreateDatasetRes,
+    CreateDatasetResp,
     Dataset,
     DeviceOAuthApp,
     Document,
@@ -624,7 +624,7 @@ class CozeAPI(object):
 
     def create_dataset(
         self, name: str, space_id: str, format_type: DocumentFormatType, description: Optional[str], icon: Optional[str]
-    ) -> CreateDatasetRes:
+    ) -> CreateDatasetResp:
         if not name:
             raise ValueError("Please specify dataset name")
         if not space_id:
