@@ -1,4 +1,4 @@
-from typing import AsyncIterator, Dict, List, Optional
+from typing import Any, AsyncIterator, Dict, List, Optional
 
 from cozepy.auth import Auth
 from cozepy.chat import (
@@ -23,7 +23,7 @@ class WorkflowsChatClient(object):
         *,
         workflow_id: str,
         additional_messages: Optional[List[Message]] = None,
-        parameters: Optional[Dict[str, str]] = None,
+        parameters: Optional[Dict[str, Any]] = None,
         app_id: Optional[str] = None,
         bot_id: Optional[str] = None,
         conversation_id: Optional[str] = None,
@@ -62,7 +62,7 @@ class WorkflowsChatClient(object):
         *,
         workflow_id: str,
         additional_messages: Optional[List[Message]] = None,
-        parameters: Optional[Dict[str, str]] = None,
+        parameters: Optional[Dict[str, Any]] = None,
         app_id: Optional[str] = None,
         bot_id: Optional[str] = None,
         conversation_id: Optional[str] = None,
@@ -109,7 +109,7 @@ class AsyncWorkflowsChatClient(object):
         *,
         workflow_id: str,
         additional_messages: Optional[List[Message]] = None,
-        parameters: Optional[Dict[str, str]] = None,
+        parameters: Optional[Dict[str, Any]] = None,
         app_id: Optional[str] = None,
         bot_id: Optional[str] = None,
         conversation_id: Optional[str] = None,
@@ -149,7 +149,7 @@ class AsyncWorkflowsChatClient(object):
         *,
         workflow_id: str,
         additional_messages: Optional[List[Message]] = None,
-        parameters: Optional[Dict[str, str]] = None,
+        parameters: Optional[Dict[str, Any]] = None,
         app_id: Optional[str] = None,
         bot_id: Optional[str] = None,
         conversation_id: Optional[str] = None,
