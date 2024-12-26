@@ -1,10 +1,11 @@
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from cozepy import AudioFormat
 from cozepy.auth import Auth
+from cozepy.files import FileTypes, _try_fix_file
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
-from cozepy.util import remove_url_trailing_slash
+from cozepy.util import remove_none_values, remove_url_trailing_slash
 
 
 class Voice(CozeModel):
@@ -63,12 +64,14 @@ class VoicesClient(object):
         self,
         *,
         voice_name: str,
-        file: Union[str],
+        file: FileTypes,
         audio_format: AudioFormat,
         language: Optional[str] = None,
         voice_id: Optional[str] = None,
         preview_text: Optional[str] = None,
         text: Optional[str] = None,
+        space_id: Optional[str] = None,
+        description: Optional[str] = None,
         **kwargs,
     ) -> Voice:
         """
@@ -86,19 +89,25 @@ class VoicesClient(object):
          Otherwise, the default text "你好，我是你的专属AI克隆声音，希望未来可以一起好好相处哦".
         :param text: Users can recite the text, and the service will compare the audio with the text.
          If the difference is too large, an error will be returned.
+        :param space_id: The space id of the voice.
+        :param description: The description of the voice.
         :return: Voice of the cloned.
         """
         url = f"{self._base_url}/v1/audio/voices/clone"
         headers: Optional[dict] = kwargs.get("headers")
-        body = {
-            "voice_name": voice_name,
-            "audio_format": audio_format,
-            "language": language,
-            "voice_id": voice_id,
-            "preview_text": preview_text,
-            "text": text,
-        }
-        files = {"file": file}
+        body = remove_none_values(
+            {
+                "voice_name": voice_name,
+                "audio_format": audio_format,
+                "language": language,
+                "voice_id": voice_id,
+                "preview_text": preview_text,
+                "text": text,
+                "space_id": space_id,
+                "description": description,
+            }
+        )
+        files = {"file": _try_fix_file(file)}
 
         return self._requester.request("post", url, False, Voice, headers=headers, body=body, files=files)
 
@@ -153,12 +162,14 @@ class AsyncVoicesClient(object):
         self,
         *,
         voice_name: str,
-        file: Union[str],
+        file: FileTypes,
         audio_format: AudioFormat,
         language: Optional[str] = None,
         voice_id: Optional[str] = None,
         preview_text: Optional[str] = None,
         text: Optional[str] = None,
+        space_id: Optional[str] = None,
+        description: Optional[str] = None,
         **kwargs,
     ) -> Voice:
         """
@@ -176,19 +187,25 @@ class AsyncVoicesClient(object):
          Otherwise, the default text "你好，我是你的专属AI克隆声音，希望未来可以一起好好相处哦".
         :param text: Users can recite the text, and the service will compare the audio with the text.
          If the difference is too large, an error will be returned.
+        :param space_id: The space id of the voice.
+        :param description: The description of the voice.
         :return: Voice of the cloned.
         """
         url = f"{self._base_url}/v1/audio/voices/clone"
         headers: Optional[dict] = kwargs.get("headers")
-        body = {
-            "voice_name": voice_name,
-            "audio_format": audio_format,
-            "language": language,
-            "voice_id": voice_id,
-            "preview_text": preview_text,
-            "text": text,
-        }
-        files = {"file": file}
+        body = remove_none_values(
+            {
+                "voice_name": voice_name,
+                "audio_format": audio_format,
+                "language": language,
+                "voice_id": voice_id,
+                "preview_text": preview_text,
+                "text": text,
+                "space_id": space_id,
+                "description": description,
+            }
+        )
+        files = {"file": _try_fix_file(file)}
 
         return await self._requester.arequest("post", url, False, Voice, headers=headers, body=body, files=files)
 
