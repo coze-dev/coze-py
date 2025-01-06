@@ -1,3 +1,4 @@
+import base64
 import json
 import time
 from enum import Enum
@@ -24,6 +25,8 @@ class MessageRole(str, Enum):
 
 
 class MessageType(str, Enum):
+    UNKNOWN = ""
+
     # User input content.
     # 用户输入内容。
     QUESTION = "question"
@@ -51,8 +54,6 @@ class MessageType(str, Enum):
     # In the scenario of multiple answers, the server will return a verbose package, and the corresponding content is in JSON format. content.msg_type = generate_answer_finish represents that all answers have been replied to.
     # 多 answer 场景下，服务端会返回一个 verbose 包，对应的 content 为 JSON 格式，content.msg_type =generate_answer_finish 代表全部 answer 回复完成。不支持在请求中作为入参。
     VERBOSE = "verbose"
-
-    UNKNOWN = ""
 
 
 class MessageContentType(str, Enum):
@@ -187,11 +188,18 @@ class Message(CozeModel):
             meta_data=meta_data,
         )
 
+    def get_audio(self) -> Optional[bytes]:
+        if self.content_type == MessageContentType.AUDIO:
+            return base64.b64decode(self.content)
+        return None
+
 
 class ChatStatus(str, Enum):
     """
     The running status of the session
     """
+
+    UNKNOWN = ""
 
     # The session has been created.
     CREATED = "created"
@@ -214,9 +222,9 @@ class ChatStatus(str, Enum):
 
 class ChatError(CozeModel):
     # The error code. An integer type. 0 indicates success, other values indicate failure.
-    code: int
+    code: int = 0
     # The error message. A string type.
-    msg: str
+    msg: str = ""
 
 
 class ChatRequiredActionType(str, Enum):
@@ -266,13 +274,13 @@ class ChatRequiredAction(CozeModel):
 class ChatUsage(CozeModel):
     # The total number of Tokens consumed in this chat, including the consumption for both the input
     # and output parts.
-    token_count: int
+    token_count: int = 0
 
     # The total number of Tokens consumed for the output part.
-    output_count: int
+    output_count: int = 0
 
     # The total number of Tokens consumed for the input part.
-    input_count: int
+    input_count: int = 0
 
 
 class Chat(CozeModel):
@@ -301,7 +309,7 @@ class Chat(CozeModel):
     # completed: The Bot has finished processing, and the session has ended.
     # failed: The session has failed.
     # requires_action: The session is interrupted and requires further processing.
-    status: ChatStatus
+    status: ChatStatus = ChatStatus.UNKNOWN
 
     # Details of the information needed for execution.
     required_action: Optional[ChatRequiredAction] = None

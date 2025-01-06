@@ -12,7 +12,7 @@ class CreateTranslationResp(CozeModel):
     text: str
 
 
-class TranslationsClient(object):
+class TranscriptionsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
@@ -30,7 +30,7 @@ class TranslationsClient(object):
         :param file: The file to be translated.
         :return: create translation result
         """
-        url = f"{self._base_url}/v1/audio/translations"
+        url = f"{self._base_url}/v1/audio/transcriptions"
         headers: Optional[dict] = kwargs.get("headers")
         files = {"file": _try_fix_file(file)}
         return self._requester.request(
@@ -38,7 +38,7 @@ class TranslationsClient(object):
         )
 
 
-class AsyncTranslationsClient(object):
+class AsyncTranscriptionsClient(object):
     """
     Room service async client.
     """
@@ -60,7 +60,7 @@ class AsyncTranslationsClient(object):
         :param file: The file to be translated.
         :return: create translation result
         """
-        url = f"{self._base_url}/v1/audio/translations"
+        url = f"{self._base_url}/v1/audio/transcriptions"
         files = {"file": _try_fix_file(file)}
         headers: Optional[dict] = kwargs.get("headers")
         return await self._requester.arequest(

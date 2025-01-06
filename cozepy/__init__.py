@@ -1,6 +1,6 @@
 from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
-from .audio.translations import CreateTranslationResp
+from .audio.transcriptions import CreateTranslationResp
 from .audio.voices import Voice
 from .auth import (
     AsyncDeviceOAuthApp,
@@ -91,6 +91,38 @@ from .model import (
 from .request import AsyncHTTPClient, SyncHTTPClient
 from .templates import TemplateDuplicateResp, TemplateEntityType
 from .version import VERSION
+from .websockets.audio.speech import (
+    AsyncWebsocketsAudioSpeechCreateClient,
+    AsyncWebsocketsAudioSpeechEventHandler,
+    InputTextBufferAppendEvent,
+    InputTextBufferCommitEvent,
+    InputTextBufferCommittedEvent,
+    SpeechAudioCompletedEvent,
+    SpeechAudioUpdateEvent,
+    SpeechUpdateEvent,
+)
+from .websockets.audio.transcriptions import (
+    AsyncWebsocketsAudioTranscriptionsCreateClient,
+    AsyncWebsocketsAudioTranscriptionsEventHandler,
+    InputAudioBufferAppendEvent,
+    InputAudioBufferCommitEvent,
+    InputAudioBufferCommittedEvent,
+    TranscriptionsMessageCompletedEvent,
+    TranscriptionsMessageUpdateEvent,
+    TranscriptionsUpdateEvent,
+)
+from .websockets.chat import (
+    AsyncWebsocketsChatCreateClient,
+    AsyncWebsocketsChatEventHandler,
+    ConversationAudioDeltaEvent,
+    ConversationChatCompletedEvent,
+    ConversationChatCreatedEvent,
+    ConversationMessageDeltaEvent,
+)
+from .websockets.ws import (
+    WebsocketsEvent,
+    WebsocketsEventType,
+)
 from .workflows.runs import (
     WorkflowEvent,
     WorkflowEventError,
@@ -110,7 +142,7 @@ __all__ = [
     # audio.voices
     "Voice",
     "AudioFormat",
-    # audio.translations
+    # audio.transcriptions
     "CreateTranslationResp",
     # auth
     "AsyncDeviceOAuthApp",
@@ -180,6 +212,34 @@ __all__ = [
     "DocumentSourceInfo",
     "DocumentUpdateRule",
     "DocumentBase",
+    # websockets
+    "WebsocketsEventType",
+    "WebsocketsEvent",
+    # websockets.audio.speech
+    "InputTextBufferAppendEvent",
+    "InputTextBufferCommitEvent",
+    "SpeechUpdateEvent",
+    "InputTextBufferCommittedEvent",
+    "SpeechAudioUpdateEvent",
+    "SpeechAudioCompletedEvent",
+    "AsyncWebsocketsAudioSpeechEventHandler",
+    "AsyncWebsocketsAudioSpeechCreateClient",
+    # websockets.audio.transcriptions
+    "InputAudioBufferAppendEvent",
+    "InputAudioBufferCommitEvent",
+    "TranscriptionsUpdateEvent",
+    "InputAudioBufferCommittedEvent",
+    "TranscriptionsMessageUpdateEvent",
+    "TranscriptionsMessageCompletedEvent",
+    "AsyncWebsocketsAudioTranscriptionsEventHandler",
+    "AsyncWebsocketsAudioTranscriptionsCreateClient",
+    # websockets.chat
+    "ConversationChatCreatedEvent",
+    "ConversationMessageDeltaEvent",
+    "ConversationAudioDeltaEvent",
+    "ConversationChatCompletedEvent",
+    "AsyncWebsocketsChatEventHandler",
+    "AsyncWebsocketsChatCreateClient",
     # workflows.runs
     "WorkflowRunResult",
     "WorkflowEventType",

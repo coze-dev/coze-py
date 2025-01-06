@@ -7,7 +7,7 @@ from cozepy.util import remove_url_trailing_slash
 if TYPE_CHECKING:
     from .rooms import AsyncRoomsClient, RoomsClient
     from .speech import AsyncSpeechClient, SpeechClient
-    from .translations import AsyncTranslationsClient, TranslationsClient
+    from .transcriptions import AsyncTranscriptionsClient, TranscriptionsClient
     from .voices import AsyncVoicesClient, VoicesClient
 
 
@@ -20,7 +20,7 @@ class AudioClient(object):
         self._rooms: Optional[RoomsClient] = None
         self._voices: Optional[VoicesClient] = None
         self._speech: Optional[SpeechClient] = None
-        self._translations: Optional[TranslationsClient] = None
+        self._transcriptions: Optional[TranscriptionsClient] = None
 
     @property
     def rooms(self) -> "RoomsClient":
@@ -39,12 +39,14 @@ class AudioClient(object):
         return self._speech
 
     @property
-    def translations(self) -> "TranslationsClient":
-        if self._translations is None:
-            from .translations import TranslationsClient
+    def transcriptions(self) -> "TranscriptionsClient":
+        if self._transcriptions is None:
+            from .transcriptions import TranscriptionsClient
 
-            self._translations = TranslationsClient(base_url=self._base_url, auth=self._auth, requester=self._requester)
-        return self._translations
+            self._transcriptions = TranscriptionsClient(
+                base_url=self._base_url, auth=self._auth, requester=self._requester
+            )
+        return self._transcriptions
 
     @property
     def voices(self) -> "VoicesClient":
@@ -64,7 +66,7 @@ class AsyncAudioClient(object):
         self._rooms: Optional[AsyncRoomsClient] = None
         self._voices: Optional[AsyncVoicesClient] = None
         self._speech: Optional[AsyncSpeechClient] = None
-        self._translations: Optional[AsyncTranslationsClient] = None
+        self._transcriptions: Optional[AsyncTranscriptionsClient] = None
 
     @property
     def rooms(self) -> "AsyncRoomsClient":
@@ -91,11 +93,11 @@ class AsyncAudioClient(object):
         return self._voices
 
     @property
-    def translations(self) -> "AsyncTranslationsClient":
-        if self._translations is None:
-            from .translations import AsyncTranslationsClient
+    def transcriptions(self) -> "AsyncTranscriptionsClient":
+        if self._transcriptions is None:
+            from .transcriptions import AsyncTranscriptionsClient
 
-            self._translations = AsyncTranslationsClient(
+            self._transcriptions = AsyncTranscriptionsClient(
                 base_url=self._base_url, auth=self._auth, requester=self._requester
             )
-        return self._translations
+        return self._transcriptions

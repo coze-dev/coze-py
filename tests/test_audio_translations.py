@@ -19,7 +19,7 @@ def mock_create_translation(respx_mock):
         },
     )
 
-    respx_mock.post("/v1/audio/translations").mock(raw_response)
+    respx_mock.post("/v1/audio/transcriptions").mock(raw_response)
 
     return logid
 
@@ -31,7 +31,7 @@ class TestAudioTranslation:
 
         mock_logid = mock_create_translation(respx_mock)
 
-        res = coze.audio.translations.create(file=("filename", "content"))
+        res = coze.audio.transcriptions.create(file=("filename", "content"))
         assert res
         assert res.response.logid is not None
         assert res.response.logid == mock_logid
@@ -45,6 +45,6 @@ class TestAsyncAudioTranslation:
 
         mock_logid = mock_create_translation(respx_mock)
 
-        res = await coze.audio.translations.create(file=("filename", "content"))
+        res = await coze.audio.transcriptions.create(file=("filename", "content"))
         assert res
         assert res.response.logid == mock_logid

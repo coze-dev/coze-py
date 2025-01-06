@@ -44,6 +44,18 @@ def remove_url_trailing_slash(base_url: str) -> str:
     return base_url
 
 
+def http_base_url_to_ws(base_url: str) -> str:
+    if not base_url:
+        raise ValueError("base_url cannot be empty")
+    if not base_url.startswith("https://"):
+        raise ValueError("base_url must start with 'https://'")
+    base_url = base_url.replace("https://", "wss://")
+
+    if "api-" in base_url:
+        return base_url.replace("api-", "ws-")
+    return base_url.replace("api.", "ws.")
+
+
 def remove_none_values(d: dict) -> dict:
     return {k: v for k, v in d.items() if v is not None}
 
@@ -55,7 +67,7 @@ def write_pcm_to_wav_file(
     Save PCM binary data to WAV file
 
     :param pcm_data: PCM binary data (24kHz, 16-bit, 1 channel, little-endian)
-    :param output_filename: Output WAV filename
+    :param filepath: Output WAV filename
     """
 
     with wave.open(filepath, "wb") as wav_file:

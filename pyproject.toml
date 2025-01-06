@@ -16,6 +16,10 @@ httpx = [
 ]
 typing-extensions = "^4.3.0"
 distro = "^1.9.0"
+websockets = [
+    { version = "^14.1.0", python = ">=3.9" },
+    { version = "^13.1.0", python = ">=3.8,<3.9" },
+]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.0.0"
