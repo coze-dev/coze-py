@@ -6,7 +6,7 @@ from cozepy.util import random_hex
 from tests.test_util import logid_key
 
 
-def mock_create_translation(respx_mock):
+def mock_create_transcriptions(respx_mock):
     logid = random_hex(10)
     raw_response = httpx.Response(
         200,
@@ -19,19 +19,19 @@ def mock_create_translation(respx_mock):
         },
     )
 
-    respx_mock.post("/v1/audio/translations").mock(raw_response)
+    respx_mock.post("/v1/audio/transcriptions").mock(raw_response)
 
     return logid
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
-class TestAudioTranslation:
-    def test_sync_translation_create(self, respx_mock):
+class TestSyncAudioTranscriptions:
+    def test_sync_transcriptions_create(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        mock_logid = mock_create_translation(respx_mock)
+        mock_logid = mock_create_transcriptions(respx_mock)
 
-        res = coze.audio.translations.create(file=("filename", "content"))
+        res = coze.audio.transcriptions.create(file=("filename", "content"))
         assert res
         assert res.response.logid is not None
         assert res.response.logid == mock_logid
@@ -39,12 +39,12 @@ class TestAudioTranslation:
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
-class TestAsyncAudioTranslation:
-    async def test_async_translation_create(self, respx_mock):
+class TestAsyncAudioTranscriptions:
+    async def test_async_transcriptions_create(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
 
-        mock_logid = mock_create_translation(respx_mock)
+        mock_logid = mock_create_transcriptions(respx_mock)
 
-        res = await coze.audio.translations.create(file=("filename", "content"))
+        res = await coze.audio.transcriptions.create(file=("filename", "content"))
         assert res
         assert res.response.logid == mock_logid
