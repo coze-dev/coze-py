@@ -5,13 +5,16 @@ import os
 
 from cozepy import (
     AsyncCoze,
-    AsyncWebsocketsAudioTranscriptionsCreateClient,
+    AsyncWebsocketsAudioTranscriptionsClient,
     AsyncWebsocketsAudioTranscriptionsEventHandler,
     AudioFormat,
+    InputAudioBufferAppendEvent,
+    InputAudioBufferCompletedEvent,
     TokenAuth,
     TranscriptionsMessageUpdateEvent,
     setup_logging,
 )
+from cozepy.log import log_info
 from examples.utils import get_coze_api_base, get_coze_api_token
 
 coze_log = os.getenv("COZE_LOG")
@@ -25,16 +28,21 @@ class AudioTranscriptionsEventHandlerSub(AsyncWebsocketsAudioTranscriptionsEvent
     Class is not required, you can also use Dict to set callback
     """
 
-    async def on_closed(self, cli: "AsyncWebsocketsAudioTranscriptionsCreateClient"):
-        print("Connection closed")
+    async def on_closed(self, cli: "AsyncWebsocketsAudioTranscriptionsClient"):
+        log_info("[examples] Connect closed")
 
-    async def on_error(self, cli: "AsyncWebsocketsAudioTranscriptionsCreateClient", e: Exception):
-        print(f"Error occurred: {e}")
+    async def on_error(self, cli: "AsyncWebsocketsAudioTranscriptionsClient", e: Exception):
+        log_info("[examples] Error occurred: %s", e)
 
     async def on_transcriptions_message_update(
-        self, cli: "AsyncWebsocketsAudioTranscriptionsCreateClient", event: TranscriptionsMessageUpdateEvent
+        self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: TranscriptionsMessageUpdateEvent
     ):
-        print("Received:", event.data.content)
+        log_info("[examples] Received: %s", event.data.content)
+
+    async def on_input_audio_buffer_completed(
+        self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: InputAudioBufferCompletedEvent
+    ):
+        log_info("[examples] Input audio buffer completed")
 
 
 def wrap_coze_speech_to_iterator(coze: AsyncCoze, text: str):
@@ -72,9 +80,15 @@ async def main():
 
     # Create and connect WebSocket client
     async with transcriptions() as client:
-        async for data in speech_stream():
-            await client.append(data)
-        await client.commit()
+        async for delta in speech_stream():
+            await client.input_audio_buffer_append(
+                InputAudioBufferAppendEvent.Data.model_validate(
+                    {
+                        "delta": delta,
+                    }
+                )
+            )
+        await client.input_audio_buffer_complete()
         await client.wait()
 
 

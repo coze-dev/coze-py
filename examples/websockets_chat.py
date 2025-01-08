@@ -5,13 +5,15 @@ import os
 
 from cozepy import (
     AsyncCoze,
-    AsyncWebsocketsAudioTranscriptionsCreateClient,
-    AsyncWebsocketsChatCreateClient,
+    AsyncWebsocketsAudioTranscriptionsClient,
+    AsyncWebsocketsChatClient,
     AsyncWebsocketsChatEventHandler,
     AudioFormat,
     ConversationAudioDeltaEvent,
+    ConversationChatCompletedEvent,
     ConversationChatCreatedEvent,
     ConversationMessageDeltaEvent,
+    InputAudioBufferAppendEvent,
     TokenAuth,
     setup_logging,
 )
@@ -27,30 +29,32 @@ kwargs = json.loads(os.getenv("COZE_KWARGS") or "{}")
 
 
 class AsyncWebsocketsChatEventHandlerSub(AsyncWebsocketsChatEventHandler):
+    """
+    Class is not required, you can also use Dict to set callback
+    """
+
     delta = []
 
-    async def on_conversation_chat_created(
-        self, cli: AsyncWebsocketsChatCreateClient, event: ConversationChatCreatedEvent
-    ):
-        log_info("ChatCreated")
+    async def on_error(self, cli: AsyncWebsocketsAudioTranscriptionsClient, e: Exception):
+        import traceback
 
-    async def on_conversation_message_delta(
-        self, cli: AsyncWebsocketsChatCreateClient, event: ConversationMessageDeltaEvent
-    ):
+        log_info(f"Error occurred: {str(e)}")
+        log_info(f"Stack trace:\n{traceback.format_exc()}")
+
+    async def on_conversation_chat_created(self, cli: AsyncWebsocketsChatClient, event: ConversationChatCreatedEvent):
+        log_info("[examples] Chat created, means the AST completed and sent to LLM")
+
+    async def on_conversation_message_delta(self, cli: AsyncWebsocketsChatClient, event: ConversationMessageDeltaEvent):
         print("Received:", event.data.content)
 
-    async def on_conversation_audio_delta(
-        self, cli: AsyncWebsocketsChatCreateClient, event: ConversationAudioDeltaEvent
-    ):
+    async def on_conversation_audio_delta(self, cli: AsyncWebsocketsChatClient, event: ConversationAudioDeltaEvent):
         self.delta.append(event.data.get_audio())
 
-    async def on_error(self, cli: AsyncWebsocketsAudioTranscriptionsCreateClient, e: Exception):
-        log_info(f"Error occurred: {str(e)}")
-
-    async def on_closed(self, cli: AsyncWebsocketsAudioTranscriptionsCreateClient):
-        print("Chat connection closed, saving audio data to output.wav")
-        audio_data = b"".join(self.delta)
-        write_pcm_to_wav_file(audio_data, "output.wav")
+    async def on_conversation_chat_completed(
+        self, cli: "AsyncWebsocketsChatClient", event: ConversationChatCompletedEvent
+    ):
+        log_info("[examples] Saving audio data to output.wav")
+        write_pcm_to_wav_file(b"".join(self.delta), "output.wav")
 
 
 def wrap_coze_speech_to_iterator(coze: AsyncCoze, text: str):
@@ -91,10 +95,15 @@ async def main():
     # Create and connect WebSocket client
     async with chat() as client:
         # Read and send audio data
-        async for data in speech_stream():
-            await client.append(data)
-        await client.commit()
-        log_info("Audio Committed")
+        async for delta in speech_stream():
+            await client.input_audio_buffer_append(
+                InputAudioBufferAppendEvent.Data.model_validate(
+                    {
+                        "delta": delta,
+                    }
+                )
+            )
+        await client.input_audio_buffer_complete()
         await client.wait()
 
 

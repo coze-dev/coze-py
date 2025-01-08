@@ -217,7 +217,6 @@ class TestAsyncConversationMessage:
 
     async def test_async_conversations_messages_update(self, respx_mock):
         coze = AsyncCoze(auth=TokenAuth(token="token"))
-
         mock_msg = mock_update_conversations_messages(respx_mock, Message.build_user_question_text("hi"))
 
         message = await coze.conversations.messages.update(conversation_id="conversation id", message_id="message id")

@@ -10,6 +10,8 @@ from cozepy.util import remove_url_trailing_slash
 from cozepy.websockets.ws import (
     AsyncWebsocketsBaseClient,
     AsyncWebsocketsBaseEventHandler,
+    WebsocketsBaseClient,
+    WebsocketsBaseEventHandler,
     WebsocketsEvent,
     WebsocketsEventType,
 )
@@ -25,28 +27,28 @@ class InputTextBufferAppendEvent(WebsocketsEvent):
 
 
 # req
-class InputTextBufferCommitEvent(WebsocketsEvent):
-    type: WebsocketsEventType = WebsocketsEventType.INPUT_TEXT_BUFFER_COMMIT
+class InputTextBufferCompleteEvent(WebsocketsEvent):
+    type: WebsocketsEventType = WebsocketsEventType.INPUT_TEXT_BUFFER_COMPLETE
 
 
 # req
 class SpeechUpdateEvent(WebsocketsEvent):
-    class OpusConfig(object):
+    class OpusConfig(BaseModel):
         bitrate: Optional[int] = None
         use_cbr: Optional[bool] = None
         frame_size_ms: Optional[float] = None
 
-    class PCMConfig(object):
+    class PCMConfig(BaseModel):
         sample_rate: Optional[int] = None
 
-    class OutputAudio(object):
+    class OutputAudio(BaseModel):
         codec: Optional[str]
-        pcm_config: Optional["SpeechUpdateEvent.PCMConfig"]
-        opus_config: Optional["SpeechUpdateEvent.OpusConfig"]
-        speech_rate: Optional[int]
-        voice_id: Optional[str]
+        pcm_config: Optional["SpeechUpdateEvent.PCMConfig"] = None
+        opus_config: Optional["SpeechUpdateEvent.OpusConfig"] = None
+        speech_rate: Optional[int] = None
+        voice_id: Optional[str] = None
 
-    class Data:
+    class Data(BaseModel):
         output_audio: "SpeechUpdateEvent.OutputAudio"
 
     type: WebsocketsEventType = WebsocketsEventType.SPEECH_UPDATE
@@ -54,8 +56,8 @@ class SpeechUpdateEvent(WebsocketsEvent):
 
 
 # resp
-class InputTextBufferCommittedEvent(WebsocketsEvent):
-    type: WebsocketsEventType = WebsocketsEventType.INPUT_TEXT_BUFFER_COMMITTED
+class InputTextBufferCompletedEvent(WebsocketsEvent):
+    type: WebsocketsEventType = WebsocketsEventType.INPUT_TEXT_BUFFER_COMPLETED
 
 
 # resp
@@ -76,40 +78,34 @@ class SpeechAudioCompletedEvent(WebsocketsEvent):
     type: WebsocketsEventType = WebsocketsEventType.SPEECH_AUDIO_COMPLETED
 
 
-class AsyncWebsocketsAudioSpeechEventHandler(AsyncWebsocketsBaseEventHandler):
-    async def on_input_text_buffer_committed(
-        self, cli: "AsyncWebsocketsAudioSpeechEventHandler", event: InputTextBufferCommittedEvent
-    ):
+class WebsocketsAudioSpeechEventHandler(WebsocketsBaseEventHandler):
+    def on_input_text_buffer_completed(self, cli: "WebsocketsAudioSpeechClient", event: InputTextBufferCompletedEvent):
         pass
 
-    async def on_speech_audio_update(
-        self, cli: "AsyncWebsocketsAudioSpeechEventHandler", event: SpeechAudioUpdateEvent
-    ):
+    def on_speech_audio_update(self, cli: "WebsocketsAudioSpeechClient", event: SpeechAudioUpdateEvent):
         pass
 
-    async def on_speech_audio_completed(
-        self, cli: "AsyncWebsocketsAudioSpeechEventHandler", event: SpeechAudioCompletedEvent
-    ):
+    def on_speech_audio_completed(self, cli: "WebsocketsAudioSpeechClient", event: SpeechAudioCompletedEvent):
         pass
 
 
-class AsyncWebsocketsAudioSpeechCreateClient(AsyncWebsocketsBaseClient):
+class WebsocketsAudioSpeechClient(WebsocketsBaseClient):
     def __init__(
         self,
         base_url: str,
         auth: Auth,
         requester: Requester,
-        on_event: Union[AsyncWebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]],
+        on_event: Union[WebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]],
         **kwargs,
     ):
-        if isinstance(on_event, AsyncWebsocketsAudioSpeechEventHandler):
-            on_event = {
-                WebsocketsEventType.ERROR: on_event.on_error,
-                WebsocketsEventType.CLOSED: on_event.on_closed,
-                WebsocketsEventType.INPUT_TEXT_BUFFER_COMMITTED: on_event.on_input_text_buffer_committed,
-                WebsocketsEventType.SPEECH_AUDIO_UPDATE: on_event.on_speech_audio_update,
-                WebsocketsEventType.SPEECH_AUDIO_COMPLETED: on_event.on_speech_audio_completed,
-            }
+        if isinstance(on_event, WebsocketsAudioSpeechEventHandler):
+            on_event = on_event.to_dict(
+                {
+                    WebsocketsEventType.INPUT_TEXT_BUFFER_COMPLETED: on_event.on_input_text_buffer_completed,
+                    WebsocketsEventType.SPEECH_AUDIO_UPDATE: on_event.on_speech_audio_update,
+                    WebsocketsEventType.SPEECH_AUDIO_COMPLETED: on_event.on_speech_audio_completed,
+                }
+            )
         super().__init__(
             base_url=base_url,
             auth=auth,
@@ -120,31 +116,27 @@ class AsyncWebsocketsAudioSpeechCreateClient(AsyncWebsocketsBaseClient):
             **kwargs,
         )
 
-    async def append(self, text: str) -> None:
-        await self._input_queue.put(
-            InputTextBufferAppendEvent.model_validate(
-                {
-                    "data": InputTextBufferAppendEvent.Data.model_validate(
-                        {
-                            "delta": text,
-                        }
-                    )
-                }
-            )
-        )
+    def input_text_buffer_append(self, data: InputTextBufferAppendEvent) -> None:
+        self._input_queue.put(InputTextBufferAppendEvent.model_validate({"data": data}))
 
-    async def commit(self) -> None:
-        await self._input_queue.put(InputTextBufferCommitEvent.model_validate({}))
+    def input_text_buffer_complete(self) -> None:
+        self._input_queue.put(InputTextBufferCompleteEvent.model_validate({}))
 
-    async def update(self, event: SpeechUpdateEvent) -> None:
-        await self._input_queue.put(event)
+    def speech_update(self, event: SpeechUpdateEvent) -> None:
+        self._input_queue.put(event)
 
     def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]:
         event_id = message.get("event_id") or ""
+        logid = message.get("logid") or ""
         event_type = message.get("type") or ""
         data = message.get("data") or {}
-        if event_type == WebsocketsEventType.INPUT_TEXT_BUFFER_COMMITTED:
-            return InputTextBufferCommittedEvent.model_validate({"event_id": event_id})
+        if event_type == WebsocketsEventType.INPUT_TEXT_BUFFER_COMPLETED:
+            return InputTextBufferCompletedEvent.model_validate(
+                {
+                    "event_id": event_id,
+                    "logid": logid,
+                }
+            )
         if event_type == WebsocketsEventType.SPEECH_AUDIO_UPDATE.value:
             delta_base64 = data.get("delta")
             if delta_base64 is None:
@@ -152,6 +144,7 @@ class AsyncWebsocketsAudioSpeechCreateClient(AsyncWebsocketsBaseClient):
             return SpeechAudioUpdateEvent.model_validate(
                 {
                     "event_id": event_id,
+                    "logid": logid,
                     "data": SpeechAudioUpdateEvent.Data.model_validate(
                         {
                             "delta": base64.b64decode(delta_base64),
@@ -160,22 +153,147 @@ class AsyncWebsocketsAudioSpeechCreateClient(AsyncWebsocketsBaseClient):
                 }
             )
         elif event_type == WebsocketsEventType.SPEECH_AUDIO_COMPLETED.value:
-            return SpeechAudioCompletedEvent.model_validate({"event_id": event_id})
+            return SpeechAudioCompletedEvent.model_validate(
+                {
+                    "event_id": event_id,
+                    "logid": logid,
+                }
+            )
         else:
-            log_warning("[%s] unknown event=%s", self._path, event_type)
+            log_warning("[%s] unknown event, type=%s, logid=%s", self._path, event_type, logid)
         return None
 
 
-class AsyncWebsocketsAudioSpeechClient:
+class WebsocketsAudioSpeechBuildClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
 
     def create(
-        self, *, on_event: Union[AsyncWebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]], **kwargs
-    ) -> AsyncWebsocketsAudioSpeechCreateClient:
-        return AsyncWebsocketsAudioSpeechCreateClient(
+        self, *, on_event: Union[WebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]], **kwargs
+    ) -> WebsocketsAudioSpeechClient:
+        return WebsocketsAudioSpeechClient(
+            base_url=self._base_url,
+            auth=self._auth,
+            requester=self._requester,
+            on_event=on_event,
+            **kwargs,
+        )
+
+
+class AsyncWebsocketsAudioSpeechEventHandler(AsyncWebsocketsBaseEventHandler):
+    async def on_input_text_buffer_completed(
+        self, cli: "AsyncWebsocketsAudioSpeechClient", event: InputTextBufferCompletedEvent
+    ):
+        pass
+
+    async def on_speech_audio_update(self, cli: "AsyncWebsocketsAudioSpeechClient", event: SpeechAudioUpdateEvent):
+        pass
+
+    async def on_speech_audio_completed(
+        self, cli: "AsyncWebsocketsAudioSpeechClient", event: SpeechAudioCompletedEvent
+    ):
+        pass
+
+
+class AsyncWebsocketsAudioSpeechClient(AsyncWebsocketsBaseClient):
+    class EventHandler(AsyncWebsocketsBaseEventHandler):
+        async def on_input_text_buffer_completed(
+            self, cli: "AsyncWebsocketsAudioSpeechClient", event: InputTextBufferCompletedEvent
+        ):
+            pass
+
+        async def on_speech_audio_update(self, cli: "AsyncWebsocketsAudioSpeechClient", event: SpeechAudioUpdateEvent):
+            pass
+
+        async def on_speech_audio_completed(
+            self, cli: "AsyncWebsocketsAudioSpeechClient", event: SpeechAudioCompletedEvent
+        ):
+            pass
+
+    def __init__(
+        self,
+        base_url: str,
+        auth: Auth,
+        requester: Requester,
+        on_event: Union["AsyncWebsocketsAudioSpeechClient.EventHandler", Dict[WebsocketsEventType, Callable]],
+        **kwargs,
+    ):
+        if isinstance(on_event, AsyncWebsocketsAudioSpeechClient.EventHandler):
+            on_event = on_event.to_dict(
+                {
+                    WebsocketsEventType.INPUT_TEXT_BUFFER_COMPLETED: on_event.on_input_text_buffer_completed,
+                    WebsocketsEventType.SPEECH_AUDIO_UPDATE: on_event.on_speech_audio_update,
+                    WebsocketsEventType.SPEECH_AUDIO_COMPLETED: on_event.on_speech_audio_completed,
+                }
+            )
+        super().__init__(
+            base_url=base_url,
+            auth=auth,
+            requester=requester,
+            path="v1/audio/speech",
+            on_event=on_event,
+            wait_events=[WebsocketsEventType.SPEECH_AUDIO_COMPLETED],
+            **kwargs,
+        )
+
+    async def input_text_buffer_append(self, data: InputTextBufferAppendEvent) -> None:
+        await self._input_queue.put(InputTextBufferAppendEvent.model_validate({"data": data}))
+
+    async def input_text_buffer_complete(self) -> None:
+        await self._input_queue.put(InputTextBufferCompleteEvent.model_validate({}))
+
+    async def speech_update(self, data: SpeechUpdateEvent.Data) -> None:
+        await self._input_queue.put(SpeechUpdateEvent.model_validate({"data": data}))
+
+    def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]:
+        event_id = message.get("event_id") or ""
+        logid = message.get("logid") or ""
+        event_type = message.get("type") or ""
+        data = message.get("data") or {}
+        if event_type == WebsocketsEventType.INPUT_TEXT_BUFFER_COMPLETED:
+            return InputTextBufferCompletedEvent.model_validate({"event_id": event_id, "logid": logid})
+        if event_type == WebsocketsEventType.SPEECH_AUDIO_UPDATE.value:
+            delta_base64 = data.get("delta")
+            if delta_base64 is None:
+                raise ValueError("Missing 'delta' in event data")
+            return SpeechAudioUpdateEvent.model_validate(
+                {
+                    "event_id": event_id,
+                    "logid": logid,
+                    "data": SpeechAudioUpdateEvent.Data.model_validate(
+                        {
+                            "delta": base64.b64decode(delta_base64),
+                        }
+                    ),
+                }
+            )
+        elif event_type == WebsocketsEventType.SPEECH_AUDIO_COMPLETED.value:
+            return SpeechAudioCompletedEvent.model_validate(
+                {
+                    "event_id": event_id,
+                    "logid": logid,
+                }
+            )
+        else:
+            log_warning("[%s] unknown event, type=%s, logid=%s", self._path, event_type, logid)
+        return None
+
+
+class AsyncWebsocketsAudioSpeechBuildClient(object):
+    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+        self._base_url = remove_url_trailing_slash(base_url)
+        self._auth = auth
+        self._requester = requester
+
+    def create(
+        self,
+        *,
+        on_event: Union[AsyncWebsocketsAudioSpeechClient.EventHandler, Dict[WebsocketsEventType, Callable]],
+        **kwargs,
+    ) -> AsyncWebsocketsAudioSpeechClient:
+        return AsyncWebsocketsAudioSpeechClient(
             base_url=self._base_url,
             auth=self._auth,
             requester=self._requester,

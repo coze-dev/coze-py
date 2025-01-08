@@ -5,12 +5,15 @@ import os
 
 from cozepy import (
     AsyncCoze,
-    AsyncWebsocketsAudioSpeechCreateClient,
-    AsyncWebsocketsAudioSpeechEventHandler,
+    AsyncWebsocketsAudioSpeechClient,
+    InputTextBufferAppendEvent,
+    InputTextBufferCompletedEvent,
+    SpeechAudioCompletedEvent,
     SpeechAudioUpdateEvent,
     TokenAuth,
     setup_logging,
 )
+from cozepy.log import log_info
 from cozepy.util import write_pcm_to_wav_file
 from examples.utils import get_coze_api_base, get_coze_api_token
 
@@ -21,19 +24,31 @@ if coze_log:
 kwargs = json.loads(os.getenv("COZE_KWARGS") or "{}")
 
 
-class AsyncWebsocketsAudioSpeechEventHandlerSub(AsyncWebsocketsAudioSpeechEventHandler):
+# todo review
+class AsyncWebsocketsAudioSpeechEventHandlerSub(AsyncWebsocketsAudioSpeechClient.EventHandler):
+    """
+    Class is not required, you can also use Dict to set callback
+    """
+
     delta = []
 
-    async def on_speech_audio_update(self, cli: AsyncWebsocketsAudioSpeechCreateClient, event: SpeechAudioUpdateEvent):
+    async def on_input_text_buffer_completed(
+        self, cli: "AsyncWebsocketsAudioSpeechClient", event: InputTextBufferCompletedEvent
+    ):
+        log_info("[examples] Input text buffer completed")
+
+    async def on_speech_audio_update(self, cli: AsyncWebsocketsAudioSpeechClient, event: SpeechAudioUpdateEvent):
         self.delta.append(event.data.delta)
 
-    async def on_error(self, cli: AsyncWebsocketsAudioSpeechCreateClient, e: Exception):
-        print(f"Error occurred: {e}")
+    async def on_error(self, cli: AsyncWebsocketsAudioSpeechClient, e: Exception):
+        log_info("[examples] Error occurred: %s", e)
 
-    async def on_closed(self, cli: AsyncWebsocketsAudioSpeechCreateClient):
-        print("Speech connection closed, saving audio data to output.wav")
-        audio_data = b"".join(self.delta)
-        write_pcm_to_wav_file(audio_data, "output.wav")
+    async def on_speech_audio_completed(
+        self, cli: "AsyncWebsocketsAudioSpeechClient", event: SpeechAudioCompletedEvent
+    ):
+        log_info("[examples] Saving audio data to output.wav")
+        write_pcm_to_wav_file(b"".join(self.delta), "output.wav")
+        self.delta = []
 
 
 async def main():
@@ -55,8 +70,14 @@ async def main():
     text = "你今天好吗? 今天天气不错呀"
 
     async with speech() as client:
-        await client.append(text)
-        await client.commit()
+        await client.input_text_buffer_append(
+            InputTextBufferAppendEvent.Data.model_validate(
+                {
+                    "delta": text,
+                }
+            )
+        )
+        await client.input_text_buffer_complete()
         await client.wait()
 
 
