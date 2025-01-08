@@ -1,7 +1,8 @@
+import logging
 import os
 from typing import Optional
 
-from cozepy import COZE_CN_BASE_URL, DeviceOAuthApp
+from cozepy import COZE_CN_BASE_URL, DeviceOAuthApp, setup_logging
 
 
 def get_coze_api_base() -> str:
@@ -26,3 +27,9 @@ def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
     device_code = device_oauth_app.get_device_code(workspace_id)
     print(f"Please Open: {device_code.verification_url} to get the access token")
     return device_oauth_app.get_access_token(device_code=device_code.device_code, poll=True).access_token
+
+
+def setup_examples_logger():
+    coze_log = os.getenv("COZE_LOG")
+    if coze_log:
+        setup_logging(logging.getLevelNamesMapping().get(coze_log.upper(), logging.INFO))

@@ -1,6 +1,6 @@
 from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
-from .audio.transcriptions import CreateTranslationResp
+from .audio.transcriptions import CreateTranscriptionsResp
 from .audio.voices import Voice
 from .auth import (
     AsyncDeviceOAuthApp,
@@ -92,34 +92,48 @@ from .request import AsyncHTTPClient, SyncHTTPClient
 from .templates import TemplateDuplicateResp, TemplateEntityType
 from .version import VERSION
 from .websockets.audio.speech import (
-    AsyncWebsocketsAudioSpeechCreateClient,
+    AsyncWebsocketsAudioSpeechClient,
     AsyncWebsocketsAudioSpeechEventHandler,
     InputTextBufferAppendEvent,
-    InputTextBufferCommitEvent,
-    InputTextBufferCommittedEvent,
+    InputTextBufferCompletedEvent,
+    InputTextBufferCompleteEvent,
     SpeechAudioCompletedEvent,
     SpeechAudioUpdateEvent,
     SpeechUpdateEvent,
+    WebsocketsAudioSpeechClient,
+    WebsocketsAudioSpeechEventHandler,
 )
 from .websockets.audio.transcriptions import (
-    AsyncWebsocketsAudioTranscriptionsCreateClient,
+    AsyncWebsocketsAudioTranscriptionsClient,
     AsyncWebsocketsAudioTranscriptionsEventHandler,
     InputAudioBufferAppendEvent,
-    InputAudioBufferCommitEvent,
-    InputAudioBufferCommittedEvent,
+    InputAudioBufferCompletedEvent,
+    InputAudioBufferCompleteEvent,
     TranscriptionsMessageCompletedEvent,
     TranscriptionsMessageUpdateEvent,
     TranscriptionsUpdateEvent,
+    WebsocketsAudioTranscriptionsClient,
+    WebsocketsAudioTranscriptionsEventHandler,
 )
 from .websockets.chat import (
-    AsyncWebsocketsChatCreateClient,
+    AsyncWebsocketsChatClient,
     AsyncWebsocketsChatEventHandler,
+    ChatUpdateEvent,
     ConversationAudioDeltaEvent,
     ConversationChatCompletedEvent,
     ConversationChatCreatedEvent,
+    ConversationChatRequiresActionEvent,
+    ConversationChatSubmitToolOutputsEvent,
     ConversationMessageDeltaEvent,
+    WebsocketsChatClient,
+    WebsocketsChatEventHandler,
 )
 from .websockets.ws import (
+    InputAudio,
+    OpusConfig,
+    OutputAudio,
+    PCMConfig,
+    WebsocketsErrorEvent,
     WebsocketsEvent,
     WebsocketsEventType,
 )
@@ -143,7 +157,7 @@ __all__ = [
     "Voice",
     "AudioFormat",
     # audio.transcriptions
-    "CreateTranslationResp",
+    "CreateTranscriptionsResp",
     # auth
     "AsyncDeviceOAuthApp",
     "AsyncJWTOAuthApp",
@@ -212,34 +226,48 @@ __all__ = [
     "DocumentSourceInfo",
     "DocumentUpdateRule",
     "DocumentBase",
+    # websockets.audio.speech
+    "InputTextBufferAppendEvent",
+    "InputTextBufferCompleteEvent",
+    "SpeechUpdateEvent",
+    "InputTextBufferCompletedEvent",
+    "SpeechAudioUpdateEvent",
+    "SpeechAudioCompletedEvent",
+    "WebsocketsAudioSpeechEventHandler",
+    "WebsocketsAudioSpeechClient",
+    "AsyncWebsocketsAudioSpeechEventHandler",
+    "AsyncWebsocketsAudioSpeechClient",
+    # websockets.audio.transcriptions
+    "InputAudioBufferAppendEvent",
+    "InputAudioBufferCompleteEvent",
+    "TranscriptionsUpdateEvent",
+    "InputAudioBufferCompletedEvent",
+    "TranscriptionsMessageUpdateEvent",
+    "TranscriptionsMessageCompletedEvent",
+    "WebsocketsAudioTranscriptionsEventHandler",
+    "WebsocketsAudioTranscriptionsClient",
+    "AsyncWebsocketsAudioTranscriptionsEventHandler",
+    "AsyncWebsocketsAudioTranscriptionsClient",
+    # websockets.chat
+    "ChatUpdateEvent",
+    "ConversationChatSubmitToolOutputsEvent",
+    "ConversationChatCreatedEvent",
+    "ConversationMessageDeltaEvent",
+    "ConversationChatRequiresActionEvent",
+    "ConversationAudioDeltaEvent",
+    "ConversationChatCompletedEvent",
+    "WebsocketsChatEventHandler",
+    "WebsocketsChatClient",
+    "AsyncWebsocketsChatEventHandler",
+    "AsyncWebsocketsChatClient",
     # websockets
     "WebsocketsEventType",
     "WebsocketsEvent",
-    # websockets.audio.speech
-    "InputTextBufferAppendEvent",
-    "InputTextBufferCommitEvent",
-    "SpeechUpdateEvent",
-    "InputTextBufferCommittedEvent",
-    "SpeechAudioUpdateEvent",
-    "SpeechAudioCompletedEvent",
-    "AsyncWebsocketsAudioSpeechEventHandler",
-    "AsyncWebsocketsAudioSpeechCreateClient",
-    # websockets.audio.transcriptions
-    "InputAudioBufferAppendEvent",
-    "InputAudioBufferCommitEvent",
-    "TranscriptionsUpdateEvent",
-    "InputAudioBufferCommittedEvent",
-    "TranscriptionsMessageUpdateEvent",
-    "TranscriptionsMessageCompletedEvent",
-    "AsyncWebsocketsAudioTranscriptionsEventHandler",
-    "AsyncWebsocketsAudioTranscriptionsCreateClient",
-    # websockets.chat
-    "ConversationChatCreatedEvent",
-    "ConversationMessageDeltaEvent",
-    "ConversationAudioDeltaEvent",
-    "ConversationChatCompletedEvent",
-    "AsyncWebsocketsChatEventHandler",
-    "AsyncWebsocketsChatCreateClient",
+    "WebsocketsErrorEvent",
+    "InputAudio",
+    "OpusConfig",
+    "PCMConfig",
+    "OutputAudio",
     # workflows.runs
     "WorkflowRunResult",
     "WorkflowEventType",
