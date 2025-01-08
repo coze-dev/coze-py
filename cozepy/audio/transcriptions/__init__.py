@@ -7,12 +7,12 @@ from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
 
-class CreateTranslationResp(CozeModel):
+class CreateTranscriptionsResp(CozeModel):
     # The text of translation
     text: str
 
 
-class TranslationsClient(object):
+class TranscriptionsClient(object):
     def __init__(self, base_url: str, auth: Auth, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
@@ -23,22 +23,22 @@ class TranslationsClient(object):
         *,
         file: FileTypes,
         **kwargs,
-    ) -> CreateTranslationResp:
+    ) -> CreateTranscriptionsResp:
         """
-        create translation
+        create transcriptions
 
         :param file: The file to be translated.
-        :return: create translation result
+        :return: create transcriptions result
         """
-        url = f"{self._base_url}/v1/audio/translations"
+        url = f"{self._base_url}/v1/audio/transcriptions"
         headers: Optional[dict] = kwargs.get("headers")
         files = {"file": _try_fix_file(file)}
         return self._requester.request(
-            "post", url, stream=False, cast=CreateTranslationResp, headers=headers, files=files
+            "post", url, stream=False, cast=CreateTranscriptionsResp, headers=headers, files=files
         )
 
 
-class AsyncTranslationsClient(object):
+class AsyncTranscriptionsClient(object):
     """
     Room service async client.
     """
@@ -53,16 +53,16 @@ class AsyncTranslationsClient(object):
         *,
         file: FileTypes,
         **kwargs,
-    ) -> CreateTranslationResp:
+    ) -> CreateTranscriptionsResp:
         """
-        create translation
+        create transcriptions
 
         :param file: The file to be translated.
-        :return: create translation result
+        :return: create transcriptions result
         """
-        url = f"{self._base_url}/v1/audio/translations"
+        url = f"{self._base_url}/v1/audio/transcriptions"
         files = {"file": _try_fix_file(file)}
         headers: Optional[dict] = kwargs.get("headers")
         return await self._requester.arequest(
-            "post", url, stream=False, cast=CreateTranslationResp, headers=headers, files=files
+            "post", url, stream=False, cast=CreateTranscriptionsResp, headers=headers, files=files
         )

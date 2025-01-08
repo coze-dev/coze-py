@@ -1,6 +1,6 @@
 from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
-from .audio.translations import CreateTranslationResp
+from .audio.transcriptions import CreateTranscriptionsResp
 from .audio.voices import Voice
 from .auth import (
     AsyncDeviceOAuthApp,
@@ -110,8 +110,8 @@ __all__ = [
     # audio.voices
     "Voice",
     "AudioFormat",
-    # audio.translations
-    "CreateTranslationResp",
+    # audio.transcriptions
+    "CreateTranscriptionsResp",
     # auth
     "AsyncDeviceOAuthApp",
     "AsyncJWTOAuthApp",
