@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from .files import AsyncFilesClient, FilesClient
     from .knowledge import AsyncKnowledgeClient, KnowledgeClient  # deprecated
     from .templates import AsyncTemplatesClient, TemplatesClient
+    from .websockets import AsyncWebsocketsClient
     from .workflows import AsyncWorkflowsClient, WorkflowsClient
     from .workspaces import AsyncWorkspacesClient, WorkspacesClient
 
@@ -151,6 +152,7 @@ class AsyncCoze(object):
         self._workspaces: Optional[AsyncWorkspacesClient] = None
         self._audio: Optional[AsyncAudioClient] = None
         self._templates: Optional[AsyncTemplatesClient] = None
+        self._websockets: Optional[AsyncWebsocketsClient] = None
 
     @property
     def bots(self) -> "AsyncBotsClient":
@@ -237,3 +239,11 @@ class AsyncCoze(object):
 
             self._templates = AsyncTemplatesClient(self._base_url, self._auth, self._requester)
         return self._templates
+
+    @property
+    def websockets(self) -> "AsyncWebsocketsClient":
+        if not self._websockets:
+            from .websockets import AsyncWebsocketsClient
+
+            self._websockets = AsyncWebsocketsClient(self._base_url, self._auth, self._requester)
+        return self._websockets

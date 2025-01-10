@@ -253,7 +253,7 @@ class WorkflowsRunsClient(object):
         url = f"{self._base_url}/v1/workflow/stream_resume"
         body = {
             "workflow_id": workflow_id,
-            "event_id": event_id,
+            "id": event_id,
             "resume_data": resume_data,
             "interrupt_type": interrupt_type,
         }
@@ -385,7 +385,7 @@ class AsyncWorkflowsRunsClient(object):
         url = f"{self._base_url}/v1/workflow/stream_resume"
         body = {
             "workflow_id": workflow_id,
-            "event_id": event_id,
+            "id": event_id,
             "resume_data": resume_data,
             "interrupt_type": interrupt_type,
         }

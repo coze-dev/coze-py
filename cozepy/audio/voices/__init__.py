@@ -210,11 +210,7 @@ class AsyncVoicesClient(object):
         return await self._requester.arequest("post", url, False, Voice, headers=headers, body=body, files=files)
 
     async def list(
-        self,
-        *,
-        filter_system_voice: bool = False,
-        page_num: int = 1,
-        page_size: int = 100,
+        self, *, filter_system_voice: bool = False, page_num: int = 1, page_size: int = 100, **kwargs
     ) -> AsyncNumberPaged[Voice]:
         """
         Get available voices, including system voices + user cloned voices
@@ -227,6 +223,7 @@ class AsyncVoicesClient(object):
         :return: list of Voice
         """
         url = f"{self._base_url}/v1/audio/voices"
+        headers: Optional[dict] = kwargs.get("headers")
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
@@ -237,6 +234,7 @@ class AsyncVoicesClient(object):
                     "page_num": i_page_num,
                     "page_size": i_page_size,
                 },
+                headers=headers,
                 cast=_PrivateListVoiceData,
                 is_async=False,
                 stream=False,
