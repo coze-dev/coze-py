@@ -121,7 +121,7 @@ class WebsocketsAudioSpeechClient(WebsocketsBaseClient):
         self._input_queue.put(event)
 
     def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]:
-        event_id = message.get("event_id") or ""
+        event_id = message.get("id") or ""
         detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
         event_type = message.get("event_type") or ""
         data = message.get("data") or {}
@@ -235,7 +235,7 @@ class AsyncWebsocketsAudioSpeechClient(AsyncWebsocketsBaseClient):
         await self._input_queue.put(SpeechUpdateEvent.model_validate({"data": data}))
 
     def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]:
-        event_id = message.get("event_id") or ""
+        event_id = message.get("id") or ""
         detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
         event_type = message.get("event_type") or ""
         data = message.get("data") or {}

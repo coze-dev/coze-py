@@ -59,6 +59,12 @@ class ChatCreatedEvent(WebsocketsEvent):
 
 
 # resp
+class ChatUpdatedEvent(WebsocketsEvent):
+    event_type: WebsocketsEventType = WebsocketsEventType.CHAT_UPDATED
+    data: ChatUpdateEvent.Data
+
+
+# resp
 class ConversationChatCreatedEvent(WebsocketsEvent):
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_CREATED
     data: Chat
@@ -107,6 +113,9 @@ class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
     def on_chat_created(self, cli: "WebsocketsChatClient", event: ChatCreatedEvent):
         pass
 
+    def on_chat_updated(self, cli: "WebsocketsChatClient", event: ChatUpdatedEvent):
+        pass
+
     def on_input_audio_buffer_completed(self, cli: "WebsocketsChatClient", event: InputAudioBufferCompletedEvent):
         pass
 
@@ -151,6 +160,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
             on_event = on_event.to_dict(
                 {
                     WebsocketsEventType.CHAT_CREATED: on_event.on_chat_created,
+                    WebsocketsEventType.CHAT_UPDATED: on_event.on_chat_updated,
                     WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED: on_event.on_input_audio_buffer_completed,
                     WebsocketsEventType.CONVERSATION_CHAT_CREATED: on_event.on_conversation_chat_created,
                     WebsocketsEventType.CONVERSATION_CHAT_IN_PROGRESS: on_event.on_conversation_chat_in_progress,
@@ -188,7 +198,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
         self._input_queue.put(InputAudioBufferCompleteEvent.model_validate({}))
 
     def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]:
-        event_id = message.get("event_id") or ""
+        event_id = message.get("id") or ""
         detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
         event_type = message.get("event_type") or ""
         data = message.get("data") or {}
@@ -197,6 +207,14 @@ class WebsocketsChatClient(WebsocketsBaseClient):
                 {
                     "id": event_id,
                     "detail": detail,
+                }
+            )
+        elif event_type == WebsocketsEventType.CHAT_UPDATED.value:
+            return ChatUpdatedEvent.model_validate(
+                {
+                    "id": event_id,
+                    "detail": detail,
+                    "data": ChatUpdateEvent.Data.model_validate(data),
                 }
             )
         elif event_type == WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED.value:
@@ -299,6 +317,9 @@ class AsyncWebsocketsChatEventHandler(AsyncWebsocketsBaseEventHandler):
     async def on_chat_created(self, cli: "AsyncWebsocketsChatClient", event: ChatCreatedEvent):
         pass
 
+    async def on_chat_updated(self, cli: "AsyncWebsocketsChatClient", event: ChatUpdatedEvent):
+        pass
+
     async def on_input_audio_buffer_completed(
         self, cli: "AsyncWebsocketsChatClient", event: InputAudioBufferCompletedEvent
     ):
@@ -355,6 +376,7 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
             on_event = on_event.to_dict(
                 {
                     WebsocketsEventType.CHAT_CREATED: on_event.on_chat_created,
+                    WebsocketsEventType.CHAT_UPDATED: on_event.on_chat_updated,
                     WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED: on_event.on_input_audio_buffer_completed,
                     WebsocketsEventType.CONVERSATION_CHAT_CREATED: on_event.on_conversation_chat_created,
                     WebsocketsEventType.CONVERSATION_CHAT_IN_PROGRESS: on_event.on_conversation_chat_in_progress,
@@ -392,7 +414,7 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
         await self._input_queue.put(InputAudioBufferCompleteEvent.model_validate({}))
 
     def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]:
-        event_id = message.get("event_id") or ""
+        event_id = message.get("id") or ""
         detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
         event_type = message.get("event_type") or ""
         data = message.get("data") or {}
@@ -401,6 +423,14 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
                 {
                     "id": event_id,
                     "detail": detail,
+                }
+            )
+        elif event_type == WebsocketsEventType.CHAT_UPDATED.value:
+            return ChatUpdatedEvent.model_validate(
+                {
+                    "id": event_id,
+                    "detail": detail,
+                    "data": ChatUpdateEvent.Data.model_validate(data),
                 }
             )
         elif event_type == WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED.value:

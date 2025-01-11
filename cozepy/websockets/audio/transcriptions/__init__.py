@@ -30,6 +30,16 @@ class InputAudioBufferAppendEvent(WebsocketsEvent):
     event_type: WebsocketsEventType = WebsocketsEventType.INPUT_AUDIO_BUFFER_APPEND
     data: Data
 
+    def _dump_without_delta(self):
+        return {
+            "id": self.id,
+            "type": self.event_type.value,
+            "detail": self.detail,
+            "data": {
+                "delta_length": len(self.data.delta) if self.data and self.data.delta else 0,
+            },
+        }
+
 
 # req
 class InputAudioBufferCompleteEvent(WebsocketsEvent):
@@ -127,7 +137,7 @@ class WebsocketsAudioTranscriptionsClient(WebsocketsBaseClient):
         self._input_queue.put(InputAudioBufferCompleteEvent.model_validate({}))
 
     def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]:
-        event_id = message.get("event_id") or ""
+        event_id = message.get("id") or ""
         event_type = message.get("event_type") or ""
         detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
         data = message.get("data") or {}
@@ -250,7 +260,7 @@ class AsyncWebsocketsAudioTranscriptionsClient(AsyncWebsocketsBaseClient):
         await self._input_queue.put(InputAudioBufferCompleteEvent.model_validate({}))
 
     def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]:
-        event_id = message.get("event_id") or ""
+        event_id = message.get("id") or ""
         event_type = message.get("event_type") or ""
         detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
         data = message.get("data") or {}
