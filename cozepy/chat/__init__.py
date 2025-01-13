@@ -191,7 +191,7 @@ class Message(CozeModel):
     def get_audio(self) -> Optional[bytes]:
         if self.content_type == MessageContentType.AUDIO:
             return base64.b64decode(self.content)
-        return None
+        return b""
 
 
 class ChatStatus(str, Enum):

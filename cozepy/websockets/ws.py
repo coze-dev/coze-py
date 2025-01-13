@@ -93,6 +93,7 @@ class WebsocketsEventType(str, Enum):
     CONVERSATION_CHAT_SUBMIT_TOOL_OUTPUTS = "conversation.chat.submit_tool_outputs"  # send tool outputs to server
     # resp
     CHAT_CREATED = "chat.created"
+    CHAT_UPDATED = "chat.updated"
     # INPUT_AUDIO_BUFFER_COMPLETED = "input_audio_buffer.completed" # received `input_audio_buffer.complete` event
     CONVERSATION_CHAT_CREATED = "conversation.chat.created"  # audio ast completed, chat started
     CONVERSATION_CHAT_IN_PROGRESS = "conversation.chat.in_progress"
@@ -109,7 +110,7 @@ class WebsocketsEvent(CozeModel, ABC):
         logid: Optional[str] = None
 
     event_type: WebsocketsEventType
-    event_id: Optional[str] = None
+    id: Optional[str] = None
     detail: Optional[Detail] = None
 
 
@@ -118,7 +119,7 @@ class WebsocketsErrorEvent(WebsocketsEvent):
     data: CozeAPIError
 
 
-class InputAudio(CozeModel):
+class InputAudio(BaseModel):
     format: Optional[str]
     codec: Optional[str]
     sample_rate: Optional[int]
@@ -266,7 +267,7 @@ class WebsocketsBaseClient(abc.ABC):
             self._handle_error(e)
 
     def _load_all_event(self, message: Dict) -> Optional[WebsocketsEvent]:
-        event_id = message.get("event_id") or ""
+        event_id = message.get("id") or ""
         event_type = message.get("event_type") or ""
         detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
         data = message.get("data") or {}
@@ -466,7 +467,7 @@ class AsyncWebsocketsBaseClient(abc.ABC):
             await self._handle_error(e)
 
     def _load_all_event(self, message: Dict) -> Optional[WebsocketsEvent]:
-        event_id = message.get("event_id") or ""
+        event_id = message.get("id") or ""
         event_type = message.get("event_type") or ""
         detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
         data = message.get("data") or {}
@@ -553,7 +554,15 @@ class AsyncWebsocketsBaseClient(abc.ABC):
     async def _send_event(self, event: Optional[WebsocketsEvent] = None) -> None:
         if not event or not self._ws:
             return
-        log_debug("[%s] send event, type=%s", self._path, event.event_type.value)
+        if event.event_type == WebsocketsEventType.INPUT_AUDIO_BUFFER_APPEND:
+            log_debug(
+                "[%s] send event, type=%s, event=%s",
+                self._path,
+                event.event_type.value,
+                json.dumps(event._dump_without_delta()),  # type: ignore
+            )
+        else:
+            log_debug("[%s] send event, type=%s, event=%s", self._path, event.event_type.value, event.model_dump_json())
         await self._ws.send(event.model_dump_json())
 
 
