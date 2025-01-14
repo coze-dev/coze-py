@@ -18,6 +18,7 @@ from .auth import (
     Scope,
     TokenAuth,
     WebOAuthApp,
+    load_oauth_app_from_config,
 )
 from .bots import (
     Bot,
@@ -159,6 +160,7 @@ __all__ = [
     # audio.transcriptions
     "CreateTranscriptionsResp",
     # auth
+    "load_oauth_app_from_config",
     "AsyncDeviceOAuthApp",
     "AsyncJWTOAuthApp",
     "AsyncPKCEOAuthApp",

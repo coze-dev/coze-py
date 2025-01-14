@@ -1,6 +1,7 @@
 import abc
+import json
 import time
-from typing import List, Optional
+from typing import List, Optional, Union
 from urllib.parse import quote_plus, urlparse
 
 from authlib.jose import jwt  # type: ignore
@@ -658,6 +659,28 @@ class AsyncDeviceOAuthApp(OAuthApp):
 
     async def refresh_access_token(self, refresh_token: str) -> OAuthToken:
         return await self._arefresh_access_token(refresh_token)
+
+
+def load_oauth_app_from_config(conf: str) -> Union[PKCEOAuthApp, JWTOAuthApp, DeviceOAuthApp, WebOAuthApp]:
+    config = json.loads(conf)
+    client_id = config.get("client_id", "")
+    client_type = config.get("client_type", "")
+    coze_api_base = config.get("coze_api_base", "")
+    coze_www_base = config.get("coze_www_base", "")
+
+    if client_type == "single_page":
+        return PKCEOAuthApp(client_id, coze_api_base, coze_www_base)
+    elif client_type == "server":
+        private_key = config.get("private_key", "")
+        public_key_id = config.get("public_key_id", "")
+        return JWTOAuthApp(client_id, private_key, public_key_id, coze_api_base)
+    elif client_type == "device":
+        return DeviceOAuthApp(client_id, coze_api_base, coze_www_base)
+    elif client_type == "web":
+        client_secret = config.get("client_secret", "")
+        return WebOAuthApp(client_id, client_secret, coze_api_base, coze_www_base)
+    else:
+        raise ValueError(f"Invalid OAuth client_type: {client_type}")
 
 
 class Auth(abc.ABC):

@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 import os
 import queue
 import threading
@@ -18,11 +19,11 @@ from cozepy import (
     ChatUpdateEvent,
     ConversationAudioDeltaEvent,
     ConversationChatCompletedEvent,
+    InputAudio,
     InputAudioBufferAppendEvent,
     TokenAuth,
+    setup_logging,
 )
-from cozepy.websockets.ws import InputAudio
-from examples.utils import setup_examples_logger
 
 # 音频参数设置
 CHUNK = 1024
@@ -30,6 +31,13 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 24000
 INPUT_BLOCK_TIME = 0.05  # 50ms per block
+
+
+def setup_examples_logger():
+    coze_log = os.getenv("COZE_LOG")
+    if coze_log:
+        setup_logging(logging.getLevelNamesMapping().get(coze_log.upper(), logging.INFO))
+
 
 setup_examples_logger()
 
