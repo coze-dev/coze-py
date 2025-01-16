@@ -668,9 +668,9 @@ def load_oauth_app_from_config(conf: str) -> Union[PKCEOAuthApp, JWTOAuthApp, De
     coze_api_base = config.get("coze_api_base", "")
     coze_www_base = config.get("coze_www_base", "")
 
-    if client_type == "single_page":
+    if client_type == "pkce":
         return PKCEOAuthApp(client_id, coze_api_base, coze_www_base)
-    elif client_type == "server":
+    elif client_type == "jwt":
         private_key = config.get("private_key", "")
         public_key_id = config.get("public_key_id", "")
         return JWTOAuthApp(client_id, private_key, public_key_id, coze_api_base)
