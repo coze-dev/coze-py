@@ -1,5 +1,4 @@
 import abc
-import json
 import time
 from typing import List, Optional, Union
 from urllib.parse import quote_plus, urlparse
@@ -661,8 +660,7 @@ class AsyncDeviceOAuthApp(OAuthApp):
         return await self._arefresh_access_token(refresh_token)
 
 
-def load_oauth_app_from_config(conf: str) -> Union[PKCEOAuthApp, JWTOAuthApp, DeviceOAuthApp, WebOAuthApp]:
-    config = json.loads(conf)
+def load_oauth_app_from_config(config: dict) -> Union[PKCEOAuthApp, JWTOAuthApp, DeviceOAuthApp, WebOAuthApp]:
     client_id = config.get("client_id", "")
     client_type = config.get("client_type", "")
     coze_api_base = config.get("coze_api_base", "")
