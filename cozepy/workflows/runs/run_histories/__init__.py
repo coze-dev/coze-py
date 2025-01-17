@@ -68,7 +68,7 @@ class WorkflowRunHistory(CozeModel):
     error_code: int
 
     # Status message. You can get detailed error information when the API call fails.
-    error_message: Optional[str]
+    error_message: Optional[str] = ""
 
     # Workflow trial run debugging page. Visit this page to view the running results, input
     # and output information of each workflow node.
