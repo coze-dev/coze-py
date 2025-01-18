@@ -283,6 +283,10 @@ class ChatUsage(CozeModel):
     input_count: int = 0
 
 
+class ChatInsertedAdditionalMessage(CozeModel):
+    id: str
+
+
 class Chat(CozeModel):
     # The ID of the chat.
     id: str
@@ -317,6 +321,7 @@ class Chat(CozeModel):
     # Detailed information about Token consumption.
     usage: Optional[ChatUsage] = None
 
+    inserted_additional_messages: Optional[List[ChatInsertedAdditionalMessage]] = None
 
 class ChatPoll(CozeModel):
     chat: Chat
