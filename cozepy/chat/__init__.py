@@ -323,6 +323,7 @@ class Chat(CozeModel):
 
     inserted_additional_messages: Optional[List[ChatInsertedAdditionalMessage]] = None
 
+
 class ChatPoll(CozeModel):
     chat: Chat
     messages: Optional[ListResponse[Message]] = None
