@@ -130,6 +130,10 @@ class MessageObjectString(CozeModel):
         return MessageObjectString(type=MessageObjectStringType.AUDIO, file_id=file_id, file_url=file_url)
 
 
+class InsertedMessage(CozeModel):
+    id: str  # Inserted message id
+
+
 class Message(CozeModel):
     # The entity that sent this message.
     role: MessageRole
@@ -283,10 +287,6 @@ class ChatUsage(CozeModel):
     input_count: int = 0
 
 
-class ChatInsertedAdditionalMessage(CozeModel):
-    id: str
-
-
 class Chat(CozeModel):
     # The ID of the chat.
     id: str
@@ -321,7 +321,7 @@ class Chat(CozeModel):
     # Detailed information about Token consumption.
     usage: Optional[ChatUsage] = None
 
-    inserted_additional_messages: Optional[List[ChatInsertedAdditionalMessage]] = None
+    inserted_additional_messages: Optional[List[InsertedMessage]] = None
 
 
 class ChatPoll(CozeModel):
