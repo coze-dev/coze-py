@@ -24,7 +24,7 @@ class BotKnowledge(CozeModel):
     # Configured dataset ids of the bot.
     dataset_ids: List[str] = []
     # Whether to call knowledge base automatically.
-    auto_call: bool = False
+    auto_call: bool = True
     # Configured search strategy of the bot, values: 0: semantic search, 1: hybrid search, 20: full-text search.
     search_strategy: int = 0
 
