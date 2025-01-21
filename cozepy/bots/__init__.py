@@ -20,6 +20,15 @@ class BotOnboardingInfo(CozeModel):
     suggested_questions: List[str] = []
 
 
+class BotKnowledge(CozeModel):
+    # Configured dataset ids of the bot.
+    dataset_ids: List[str] = []
+    # Whether to call knowledge base automatically.
+    auto_call: bool = False
+    # Configured search strategy of the bot, values: 0: semantic search, 1: hybrid search, 20: full-text search.
+    search_strategy: int = 0
+
+
 class BotModelInfo(CozeModel):
     # The ID of the model.
     model_id: str
@@ -74,6 +83,8 @@ class Bot(CozeModel):
     prompt_info: Optional[BotPromptInfo] = None
     # The onboarding message configuration for the bot. For more information, see Onboarding object.
     onboarding_info: Optional[BotOnboardingInfo] = None
+    # The knowledge configuration for the bot. For more information, see Knowledge object.
+    knowledge: Optional[BotKnowledge] = None
     # The mode of the Bot, values: 0: Single Agent mode, 1: Multi Agent mode, 3: Single Agent Workflow mode.
     bot_mode: Optional[BotMode] = None
     # The plugins configured for the bot. For more information, see  Plugin object.
@@ -125,14 +136,14 @@ class BotsClient(object):
         self._requester = requester
 
     def create(
-        self,
-        *,
-        space_id: str,
-        name: str,
-        description: Optional[str] = None,
-        icon_file_id: Optional[str] = None,
-        prompt_info: Optional[BotPromptInfo] = None,
-        onboarding_info: Optional[BotOnboardingInfo] = None,
+            self,
+            *,
+            space_id: str,
+            name: str,
+            description: Optional[str] = None,
+            icon_file_id: Optional[str] = None,
+            prompt_info: Optional[BotPromptInfo] = None,
+            onboarding_info: Optional[BotOnboardingInfo] = None,
     ) -> Bot:
         url = f"{self._base_url}/v1/bot/create"
         body = {
@@ -147,14 +158,15 @@ class BotsClient(object):
         return self._requester.request("post", url, False, Bot, body=body)
 
     def update(
-        self,
-        *,
-        bot_id: str,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        icon_file_id: Optional[str] = None,
-        prompt_info: Optional[BotPromptInfo] = None,
-        onboarding_info: Optional[BotOnboardingInfo] = None,
+            self,
+            *,
+            bot_id: str,
+            name: Optional[str] = None,
+            description: Optional[str] = None,
+            icon_file_id: Optional[str] = None,
+            prompt_info: Optional[BotPromptInfo] = None,
+            onboarding_info: Optional[BotOnboardingInfo] = None,
+            knowledge: Optional[BotKnowledge] = None
     ) -> UpdateBotResp:
         """
         Update the configuration of a bot.
@@ -173,6 +185,7 @@ class BotsClient(object):
         file interface and obtain the file ID from the interface response.
         :param prompt_info: The personality and reply logic of the bot.
         :param onboarding_info: The settings related to the bot's opening remarks.
+        :param knowledge: The knowledge base that the bot uses to answer user queries.
         :return: None
         """
         url = f"{self._base_url}/v1/bot/update"
@@ -183,6 +196,7 @@ class BotsClient(object):
             "icon_file_id": icon_file_id,
             "prompt_info": prompt_info.model_dump() if prompt_info else None,
             "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
+            "knowledge": knowledge.model_dump() if knowledge else None,
         }
 
         return self._requester.request(
@@ -277,14 +291,14 @@ class AsyncBotsClient(object):
         self._requester = requester
 
     async def create(
-        self,
-        *,
-        space_id: str,
-        name: str,
-        description: Optional[str] = None,
-        icon_file_id: Optional[str] = None,
-        prompt_info: Optional[BotPromptInfo] = None,
-        onboarding_info: Optional[BotOnboardingInfo] = None,
+            self,
+            *,
+            space_id: str,
+            name: str,
+            description: Optional[str] = None,
+            icon_file_id: Optional[str] = None,
+            prompt_info: Optional[BotPromptInfo] = None,
+            onboarding_info: Optional[BotOnboardingInfo] = None,
     ) -> Bot:
         url = f"{self._base_url}/v1/bot/create"
         body = {
@@ -299,14 +313,15 @@ class AsyncBotsClient(object):
         return await self._requester.arequest("post", url, False, Bot, body=body)
 
     async def update(
-        self,
-        *,
-        bot_id: str,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        icon_file_id: Optional[str] = None,
-        prompt_info: Optional[BotPromptInfo] = None,
-        onboarding_info: Optional[BotOnboardingInfo] = None,
+            self,
+            *,
+            bot_id: str,
+            name: Optional[str] = None,
+            description: Optional[str] = None,
+            icon_file_id: Optional[str] = None,
+            prompt_info: Optional[BotPromptInfo] = None,
+            onboarding_info: Optional[BotOnboardingInfo] = None,
+            knowledge: Optional[BotKnowledge] = None
     ) -> UpdateBotResp:
         """
         Update the configuration of a bot.
@@ -325,6 +340,7 @@ class AsyncBotsClient(object):
         file interface and obtain the file ID from the interface response.
         :param prompt_info: The personality and reply logic of the bot.
         :param onboarding_info: The settings related to the bot's opening remarks.
+        :param knowledge: The knowledge base that the bot uses to answer user queries.
         :return: None
         """
         url = f"{self._base_url}/v1/bot/update"
@@ -335,16 +351,17 @@ class AsyncBotsClient(object):
             "icon_file_id": icon_file_id,
             "prompt_info": prompt_info.model_dump() if prompt_info else None,
             "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
+            "knowledge": knowledge.model_dump() if knowledge else None,
         }
 
         return await self._requester.arequest("post", url, False, cast=UpdateBotResp, body=body)
 
     async def publish(
-        self,
-        *,
-        bot_id: str,
-        connector_ids: Optional[List[str]] = None,
-        **kwargs,
+            self,
+            *,
+            bot_id: str,
+            connector_ids: Optional[List[str]] = None,
+            **kwargs,
     ) -> Bot:
         url = f"{self._base_url}/v1/bot/publish"
         headers: Optional[dict] = kwargs.get("headers")

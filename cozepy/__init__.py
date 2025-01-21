@@ -24,6 +24,7 @@ from .bots import (
     Bot,
     BotModelInfo,
     BotOnboardingInfo,
+    BotKnowledge,
     BotPluginAPIInfo,
     BotPluginInfo,
     BotPromptInfo,
@@ -179,6 +180,7 @@ __all__ = [
     # bots
     "BotPromptInfo",
     "BotOnboardingInfo",
+    "BotKnowledge",
     "BotModelInfo",
     "BotPluginAPIInfo",
     "BotPluginInfo",
