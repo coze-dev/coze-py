@@ -136,14 +136,14 @@ class BotsClient(object):
         self._requester = requester
 
     def create(
-            self,
-            *,
-            space_id: str,
-            name: str,
-            description: Optional[str] = None,
-            icon_file_id: Optional[str] = None,
-            prompt_info: Optional[BotPromptInfo] = None,
-            onboarding_info: Optional[BotOnboardingInfo] = None,
+        self,
+        *,
+        space_id: str,
+        name: str,
+        description: Optional[str] = None,
+        icon_file_id: Optional[str] = None,
+        prompt_info: Optional[BotPromptInfo] = None,
+        onboarding_info: Optional[BotOnboardingInfo] = None,
     ) -> Bot:
         url = f"{self._base_url}/v1/bot/create"
         body = {
@@ -158,15 +158,15 @@ class BotsClient(object):
         return self._requester.request("post", url, False, Bot, body=body)
 
     def update(
-            self,
-            *,
-            bot_id: str,
-            name: Optional[str] = None,
-            description: Optional[str] = None,
-            icon_file_id: Optional[str] = None,
-            prompt_info: Optional[BotPromptInfo] = None,
-            onboarding_info: Optional[BotOnboardingInfo] = None,
-            knowledge: Optional[BotKnowledge] = None
+        self,
+        *,
+        bot_id: str,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        icon_file_id: Optional[str] = None,
+        prompt_info: Optional[BotPromptInfo] = None,
+        onboarding_info: Optional[BotOnboardingInfo] = None,
+        knowledge: Optional[BotKnowledge] = None,
     ) -> UpdateBotResp:
         """
         Update the configuration of a bot.
@@ -291,14 +291,14 @@ class AsyncBotsClient(object):
         self._requester = requester
 
     async def create(
-            self,
-            *,
-            space_id: str,
-            name: str,
-            description: Optional[str] = None,
-            icon_file_id: Optional[str] = None,
-            prompt_info: Optional[BotPromptInfo] = None,
-            onboarding_info: Optional[BotOnboardingInfo] = None,
+        self,
+        *,
+        space_id: str,
+        name: str,
+        description: Optional[str] = None,
+        icon_file_id: Optional[str] = None,
+        prompt_info: Optional[BotPromptInfo] = None,
+        onboarding_info: Optional[BotOnboardingInfo] = None,
     ) -> Bot:
         url = f"{self._base_url}/v1/bot/create"
         body = {
@@ -313,15 +313,15 @@ class AsyncBotsClient(object):
         return await self._requester.arequest("post", url, False, Bot, body=body)
 
     async def update(
-            self,
-            *,
-            bot_id: str,
-            name: Optional[str] = None,
-            description: Optional[str] = None,
-            icon_file_id: Optional[str] = None,
-            prompt_info: Optional[BotPromptInfo] = None,
-            onboarding_info: Optional[BotOnboardingInfo] = None,
-            knowledge: Optional[BotKnowledge] = None
+        self,
+        *,
+        bot_id: str,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        icon_file_id: Optional[str] = None,
+        prompt_info: Optional[BotPromptInfo] = None,
+        onboarding_info: Optional[BotOnboardingInfo] = None,
+        knowledge: Optional[BotKnowledge] = None,
     ) -> UpdateBotResp:
         """
         Update the configuration of a bot.
@@ -357,11 +357,11 @@ class AsyncBotsClient(object):
         return await self._requester.arequest("post", url, False, cast=UpdateBotResp, body=body)
 
     async def publish(
-            self,
-            *,
-            bot_id: str,
-            connector_ids: Optional[List[str]] = None,
-            **kwargs,
+        self,
+        *,
+        bot_id: str,
+        connector_ids: Optional[List[str]] = None,
+        **kwargs,
     ) -> Bot:
         url = f"{self._base_url}/v1/bot/publish"
         headers: Optional[dict] = kwargs.get("headers")
