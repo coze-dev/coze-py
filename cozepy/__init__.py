@@ -22,9 +22,9 @@ from .auth import (
 )
 from .bots import (
     Bot,
+    BotKnowledge,
     BotModelInfo,
     BotOnboardingInfo,
-    BotKnowledge,
     BotPluginAPIInfo,
     BotPluginInfo,
     BotPromptInfo,
