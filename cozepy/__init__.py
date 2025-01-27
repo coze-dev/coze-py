@@ -92,6 +92,7 @@ from .model import (
 )
 from .request import AsyncHTTPClient, SyncHTTPClient
 from .templates import TemplateDuplicateResp, TemplateEntityType
+from .users import User
 from .version import VERSION
 from .websockets.audio.speech import (
     AsyncWebsocketsAudioSpeechClient,
@@ -291,6 +292,8 @@ __all__ = [
     # templates
     "TemplateDuplicateResp",
     "TemplateEntityType",
+    # users
+    "User",
     # log
     "setup_logging",
     # config
