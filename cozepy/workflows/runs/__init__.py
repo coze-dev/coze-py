@@ -199,6 +199,7 @@ class WorkflowsRunsClient(object):
         workflow_id: str,
         parameters: Optional[Dict[str, Any]] = None,
         bot_id: Optional[str] = None,
+        app_id: Optional[str] = None,
         ext: Optional[Dict[str, Any]] = None,
     ) -> Stream[WorkflowEvent]:
         """
@@ -219,6 +220,7 @@ class WorkflowsRunsClient(object):
         body = {
             "workflow_id": workflow_id,
             "parameters": parameters,
+            "app_id": app_id,
             "bot_id": bot_id,
             "ext": ext,
         }
