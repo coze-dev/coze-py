@@ -22,6 +22,7 @@ from .auth import (
 )
 from .bots import (
     Bot,
+    BotKnowledge,
     BotModelInfo,
     BotOnboardingInfo,
     BotPluginAPIInfo,
@@ -180,6 +181,7 @@ __all__ = [
     # bots
     "BotPromptInfo",
     "BotOnboardingInfo",
+    "BotKnowledge",
     "BotModelInfo",
     "BotPluginAPIInfo",
     "BotPluginInfo",
