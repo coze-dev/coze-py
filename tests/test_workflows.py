@@ -25,10 +25,7 @@ def mock_create_workflows_runs(respx_mock, is_async: bool):
         "/v1/workflow/run",
         json={
             "workflow_id": "id",
-            "parameters": None,
-            "bot_id": None,
             "is_async": is_async,
-            "ext": None,
         },
     ).mock(res._raw_response)
     return res

@@ -6,7 +6,7 @@ import httpx
 from cozepy.auth import Auth
 from cozepy.model import AsyncIteratorHTTPResponse, AsyncStream, CozeModel, IteratorHTTPResponse, Stream
 from cozepy.request import Requester
-from cozepy.util import remove_url_trailing_slash
+from cozepy.util import remove_none_values, remove_url_trailing_slash
 
 if TYPE_CHECKING:
     from .run_histories import AsyncWorkflowsRunsRunHistoriesClient, WorkflowsRunsRunHistoriesClient
@@ -163,6 +163,7 @@ class WorkflowsRunsClient(object):
         workflow_id: str,
         parameters: Optional[Dict[str, Any]] = None,
         bot_id: Optional[str] = None,
+        app_id: Optional[str] = None,
         is_async: bool = False,
         ext: Optional[Dict[str, Any]] = None,
     ) -> WorkflowRunResult:
@@ -179,6 +180,7 @@ class WorkflowsRunsClient(object):
         list of parameters on the arrangement page of the specified workflow.
         :param bot_id: The associated Bot ID required for some workflow executions,
         such as workflows with database nodes, variable nodes, etc.
+        :param app_id: The app_id is required for some workflow executions,
         :param is_async: Whether to run asynchronously.
         :param ext: Used to specify some additional fields in the format of Map[String][String].
         :return: The result of the workflow execution
@@ -188,10 +190,11 @@ class WorkflowsRunsClient(object):
             "workflow_id": workflow_id,
             "parameters": parameters,
             "bot_id": bot_id,
+            "app_id": app_id,
             "is_async": is_async,
             "ext": ext,
         }
-        return self._requester.request("post", url, False, WorkflowRunResult, body=body)
+        return self._requester.request("post", url, False, WorkflowRunResult, body=remove_none_values(body))
 
     def stream(
         self,
@@ -213,6 +216,7 @@ class WorkflowsRunsClient(object):
         list of parameters on the arrangement page of the specified workflow.
         :param bot_id: The associated Bot ID required for some workflow executions,
         such as workflows with database nodes, variable nodes, etc.
+        :param app_id: The app_id is required for some workflow executions,
         :param ext: Used to specify some additional fields in the format of Map[String][String].
         :return: The result of the workflow execution
         """
@@ -220,8 +224,8 @@ class WorkflowsRunsClient(object):
         body = {
             "workflow_id": workflow_id,
             "parameters": parameters,
-            "app_id": app_id,
             "bot_id": bot_id,
+            "app_id": app_id,
             "ext": ext,
         }
         resp: IteratorHTTPResponse[str] = self._requester.request(
@@ -229,7 +233,7 @@ class WorkflowsRunsClient(object):
             url,
             True,
             None,
-            body=body,
+            body=remove_none_values(body),
         )
         return Stream(
             resp._raw_response, resp.data, fields=["id", "event", "data"], handler=_sync_workflow_stream_handler
@@ -293,6 +297,7 @@ class AsyncWorkflowsRunsClient(object):
         workflow_id: str,
         parameters: Optional[Dict[str, Any]] = None,
         bot_id: Optional[str] = None,
+        app_id: Optional[str] = None,
         is_async: bool = False,
         ext: Optional[Dict[str, Any]] = None,
     ) -> WorkflowRunResult:
@@ -309,6 +314,7 @@ class AsyncWorkflowsRunsClient(object):
         list of parameters on the arrangement page of the specified workflow.
         :param bot_id: The associated Bot ID required for some workflow executions,
         such as workflows with database nodes, variable nodes, etc.
+        :param app_id: The app_id is required for some workflow executions,
         :param is_async: Whether to run asynchronously.
         :param ext: Used to specify some additional fields in the format of Map[String][String].
         :return: The result of the workflow execution
@@ -318,10 +324,11 @@ class AsyncWorkflowsRunsClient(object):
             "workflow_id": workflow_id,
             "parameters": parameters,
             "bot_id": bot_id,
+            "app_id": app_id,
             "is_async": is_async,
             "ext": ext,
         }
-        return await self._requester.arequest("post", url, False, WorkflowRunResult, body=body)
+        return await self._requester.arequest("post", url, False, WorkflowRunResult, body=remove_none_values(body))
 
     async def stream(
         self,
@@ -329,6 +336,7 @@ class AsyncWorkflowsRunsClient(object):
         workflow_id: str,
         parameters: Optional[Dict[str, Any]] = None,
         bot_id: Optional[str] = None,
+        app_id: Optional[str] = None,
         ext: Optional[Dict[str, Any]] = None,
     ) -> AsyncIterator[WorkflowEvent]:
         """
@@ -342,6 +350,7 @@ class AsyncWorkflowsRunsClient(object):
         list of parameters on the arrangement page of the specified workflow.
         :param bot_id: The associated Bot ID required for some workflow executions,
         such as workflows with database nodes, variable nodes, etc.
+        :param app_id: The app_id is required for some workflow executions,
         :param ext: Used to specify some additional fields in the format of Map[String][String].
         :return: The result of the workflow execution
         """
@@ -350,6 +359,7 @@ class AsyncWorkflowsRunsClient(object):
             "workflow_id": workflow_id,
             "parameters": parameters,
             "bot_id": bot_id,
+            "app_id": app_id,
             "ext": ext,
         }
         resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
@@ -357,7 +367,7 @@ class AsyncWorkflowsRunsClient(object):
             url,
             True,
             None,
-            body=body,
+            body=remove_none_values(body),
         )
         async for item in AsyncStream(
             resp.data,

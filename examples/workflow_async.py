@@ -6,7 +6,7 @@ import logging
 import os
 import time
 
-from cozepy import COZE_COM_BASE_URL, WorkflowExecuteStatus, setup_logging
+from cozepy import COZE_COM_BASE_URL, Coze, TokenAuth, WorkflowExecuteStatus, setup_logging
 
 # Get an access_token through personal access token or oauth.
 coze_api_token = os.getenv("COZE_API_TOKEN")
@@ -18,8 +18,6 @@ is_debug = os.getenv("DEBUG")
 
 if is_debug:
     setup_logging(logging.DEBUG)
-
-from cozepy import Coze, TokenAuth, Message, ChatStatus, MessageContentType  # noqa
 
 # Init the Coze client through the access_token.
 coze = Coze(auth=TokenAuth(token=coze_api_token), base_url=coze_api_base)
