@@ -14,10 +14,13 @@ def setup_logging(level: int = logging.WARNING) -> None:
     ]:
         raise ValueError(f"invalid log level: {level}")
 
-    logging.basicConfig(
-        format="[cozepy][%(levelname)s][%(asctime)s] %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(level)
+
+    formatter = logging.Formatter("[%(name)s][%(levelname)s][%(asctime)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+    console_handler.setFormatter(formatter)
+
+    logger.addHandler(console_handler)
     logger.setLevel(level)
 
 
