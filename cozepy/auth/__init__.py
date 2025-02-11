@@ -110,6 +110,21 @@ class OAuthApp(object):
         }
         return self._requester.request("post", url, False, OAuthToken, headers=headers, body=body)
 
+    def _gen_jwt(self, public_key_id: str, private_key: str, ttl: int, session_name: Optional[str] = None):
+        now = int(time.time())
+        header = {"alg": "RS256", "typ": "JWT", "kid": public_key_id}
+        payload = {
+            "iss": self._client_id,
+            "aud": self._api_endpoint,
+            "iat": now,
+            "exp": now + ttl,
+            "jti": random_hex(16),
+        }
+        if session_name:
+            payload["session_name"] = session_name
+        s = jwt.encode(header, payload, private_key)
+        return s.decode("utf-8")
+
     async def _arefresh_access_token(self, refresh_token: str, secret: str = "") -> OAuthToken:
         url = f"{self._base_url}/api/permission/oauth2/token"
         headers = {"Authorization": f"Bearer {secret}"} if secret else {}
@@ -285,7 +300,7 @@ class JWTOAuthApp(OAuthApp):
         :param scope:
         :param session_name: Isolate different sub-resources under the same jwt account
         """
-        jwt_token = self._gen_jwt(3600, session_name)
+        jwt_token = self._gen_jwt(self._public_key_id, self._private_key, 3600, session_name)
         url = f"{self._base_url}/api/permission/oauth2/token"
         headers = {"Authorization": f"Bearer {jwt_token}"}
         body = {
@@ -294,21 +309,6 @@ class JWTOAuthApp(OAuthApp):
             "scope": scope.model_dump() if scope else None,
         }
         return self._requester.request("post", url, False, OAuthToken, headers=headers, body=body)
-
-    def _gen_jwt(self, ttl: int, session_name: Optional[str] = None):
-        now = int(time.time())
-        header = {"alg": "RS256", "typ": "JWT", "kid": self._public_key_id}
-        payload = {
-            "iss": self._client_id,
-            "aud": self._api_endpoint,
-            "iat": now,
-            "exp": now + ttl,
-            "jti": random_hex(16),
-        }
-        if session_name:
-            payload["session_name"] = session_name
-        s = jwt.encode(header, payload, self._private_key)
-        return s.decode("utf-8")
 
 
 class AsyncJWTOAuthApp(OAuthApp):
@@ -331,11 +331,16 @@ class AsyncJWTOAuthApp(OAuthApp):
         self._public_key_id = public_key_id
         super().__init__(client_id, base_url, www_base_url="")
 
-    async def get_access_token(self, ttl: int, scope: Optional[Scope] = None) -> OAuthToken:
+    async def get_access_token(
+        self, ttl: int, scope: Optional[Scope] = None, session_name: Optional[str] = None
+    ) -> OAuthToken:
         """
         Get the token by jwt with jwt auth flow.
+        :param ttl:
+        :param scope:
+        :param session_name: Isolate different sub-resources under the same jwt account
         """
-        jwt_token = self._gen_jwt(3600)
+        jwt_token = self._gen_jwt(self._public_key_id, self._private_key, 3600, session_name)
         url = f"{self._base_url}/api/permission/oauth2/token"
         headers = {"Authorization": f"Bearer {jwt_token}"}
         body = {
@@ -344,19 +349,6 @@ class AsyncJWTOAuthApp(OAuthApp):
             "scope": scope.model_dump() if scope else None,
         }
         return await self._requester.arequest("post", url, False, OAuthToken, headers=headers, body=body)
-
-    def _gen_jwt(self, ttl: int):
-        now = int(time.time())
-        header = {"alg": "RS256", "typ": "JWT", "kid": self._public_key_id}
-        payload = {
-            "iss": self._client_id,
-            "aud": self._api_endpoint,
-            "iat": now,
-            "exp": now + ttl,
-            "jti": random_hex(16),
-        }
-        s = jwt.encode(header, payload, self._private_key)
-        return s.decode("utf-8")
 
 
 class PKCEOAuthApp(OAuthApp):
