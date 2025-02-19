@@ -2,6 +2,13 @@ import logging
 
 logger = logging.getLogger("cozepy")
 
+# config logger
+formatter = logging.Formatter("[cozepy][%(levelname)s][%(asctime)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+logger.propagate = False
+logger.addHandler(handler)
+
 
 def setup_logging(level: int = logging.WARNING) -> None:
     if level not in [
@@ -14,10 +21,6 @@ def setup_logging(level: int = logging.WARNING) -> None:
     ]:
         raise ValueError(f"invalid log level: {level}")
 
-    logging.basicConfig(
-        format="[cozepy][%(levelname)s][%(asctime)s] %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
     logger.setLevel(level)
 
 
