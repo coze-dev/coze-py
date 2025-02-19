@@ -2,11 +2,12 @@ import logging
 
 logger = logging.getLogger("cozepy")
 
-console_handler = logging.StreamHandler()
+# config logger
 formatter = logging.Formatter("[cozepy][%(levelname)s][%(asctime)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-console_handler.setFormatter(formatter)
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
 logger.propagate = False
-logger.addHandler(console_handler)
+logger.addHandler(handler)
 
 def setup_logging(level: int = logging.WARNING) -> None:
     if level not in [
