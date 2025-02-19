@@ -9,6 +9,7 @@ handler.setFormatter(formatter)
 logger.propagate = False
 logger.addHandler(handler)
 
+
 def setup_logging(level: int = logging.WARNING) -> None:
     if level not in [
         logging.FATAL,
