@@ -21,7 +21,6 @@ def setup_logging(level: int = logging.WARNING) -> None:
         raise ValueError(f"invalid log level: {level}")
 
     logger.setLevel(level)
-    if not logger.handlers:
         logger.addHandler(console_handler)
 
 
