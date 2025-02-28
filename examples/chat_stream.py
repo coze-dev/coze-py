@@ -67,7 +67,7 @@ for event in coze.chat.stream(
                 print("----- reasoning_content start -----\n> ", end="", flush=True)
             print(event.message.reasoning_content, end="", flush=True)
         else:
-            if is_first_content:
+            if is_first_content and not is_first_reasoning_content:
                 is_first_content = not is_first_content
                 print("----- reasoning_content end -----")
             print(event.message.content, end="", flush=True)
