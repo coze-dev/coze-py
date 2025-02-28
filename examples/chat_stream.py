@@ -3,10 +3,11 @@ This example is about how to use the streaming interface to start a chat request
 and handle chat events
 """
 
+import logging
 import os
 from typing import Optional
 
-from cozepy import COZE_CN_BASE_URL, ChatEventType, Coze, DeviceOAuthApp, Message, TokenAuth  # noqa
+from cozepy import COZE_CN_BASE_URL, ChatEventType, Coze, DeviceOAuthApp, Message, TokenAuth, setup_logging  # noqa
 
 
 def get_coze_api_base() -> str:
@@ -41,10 +42,17 @@ bot_id = os.getenv("COZE_BOT_ID") or "bot id"
 # The user id identifies the identity of a user. Developers can use a custom business ID
 # or a random string.
 user_id = "user id"
+# Whether to print detailed logs
+is_debug = os.getenv("DEBUG")
+
+if is_debug:
+    setup_logging(logging.DEBUG)
 
 # Call the coze.chat.stream method to create a chat. The create method is a streaming
 # chat and will return a Chat Iterator. Developers should iterate the iterator to get
 # chat event and handle them.
+is_first_reasoning_content = True
+is_first_content = True
 for event in coze.chat.stream(
     bot_id=bot_id,
     user_id=user_id,
@@ -53,7 +61,16 @@ for event in coze.chat.stream(
     ],
 ):
     if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
-        print(event.message.content, end="", flush=True)
+        if event.message.reasoning_content:
+            if is_first_reasoning_content:
+                is_first_reasoning_content = not is_first_reasoning_content
+                print("----- reasoning_content start -----\n> ", end="", flush=True)
+            print(event.message.reasoning_content, end="", flush=True)
+        else:
+            if is_first_content and not is_first_reasoning_content:
+                is_first_content = not is_first_content
+                print("----- reasoning_content end -----")
+            print(event.message.content, end="", flush=True)
 
     if event.event == ChatEventType.CONVERSATION_CHAT_COMPLETED:
         print()

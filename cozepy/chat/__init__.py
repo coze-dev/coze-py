@@ -140,15 +140,11 @@ class Message(CozeModel):
     # The type of message.
     type: MessageType = MessageType.UNKNOWN
     # The content of the message. It supports various types of content, including plain text, multimodal (a mix of text, images, and files), message cards, and more.
-    # 消息的内容，支持纯文本、多模态（文本、图片、文件混合输入）、卡片等多种类型的内容。
     content: str
     # The type of message content.
-    # 消息内容的类型
     content_type: MessageContentType
     # Additional information when creating a message, and this additional information will also be returned when retrieving messages.
     # Custom key-value pairs should be specified in Map object format, with a length of 16 key-value pairs. The length of the key should be between 1 and 64 characters, and the length of the value should be between 1 and 512 characters.
-    # 创建消息时的附加消息，获取消息时也会返回此附加消息。
-    # 自定义键值对，应指定为 Map 对象格式。长度为 16 对键值对，其中键（key）的长度范围为 1～64 个字符，值（value）的长度范围为 1～512 个字符。
     meta_data: Optional[Dict[str, str]] = None
 
     id: Optional[str] = None
@@ -159,6 +155,7 @@ class Message(CozeModel):
     chat_id: Optional[str] = None
     created_at: Optional[int] = None
     updated_at: Optional[int] = None
+    reasoning_content: Optional[str] = None
 
     @staticmethod
     def build_user_question_text(content: str, meta_data: Optional[Dict[str, str]] = None) -> "Message":
