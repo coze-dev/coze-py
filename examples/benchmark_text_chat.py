@@ -83,7 +83,7 @@ async def main():
     coze_api_token = get_coze_api_token()
     coze_api_base = get_coze_api_base()
     bot_id = os.getenv("COZE_BOT_ID")
-    text = os.getenv("COZE_TEXT") or "为什么深圳比北京大"
+    text = os.getenv("COZE_TEXT") or "讲个笑话"
 
     # Initialize Coze client
     coze = Coze(
