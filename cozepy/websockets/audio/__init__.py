@@ -1,4 +1,4 @@
-from cozepy.auth import Auth
+from cozepy.auth import Auth, AsyncAuth
 from cozepy.request import Requester
 
 from .speech import AsyncWebsocketsAudioSpeechBuildClient, WebsocketsAudioSpeechBuildClient
@@ -29,7 +29,7 @@ class WebsocketsAudioClient(object):
 
 
 class AsyncWebsocketsAudioClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, auth: AsyncAuth, requester: Requester):
         self._base_url = base_url
         self._auth = auth
         self._requester = requester

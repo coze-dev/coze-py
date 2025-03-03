@@ -89,7 +89,6 @@ class ConversationsClient(object):
                     "page_size": i_page_size,
                 },
                 cast=_PrivateListConversationResp,
-                is_async=False,
                 stream=False,
             )
 
@@ -174,8 +173,8 @@ class AsyncConversationsClient(object):
     ):
         url = f"{self._base_url}/v1/conversations"
 
-        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
-            return self._requester.make_request(
+        async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return await self._requester.amake_request(
                 "GET",
                 url,
                 params={
@@ -184,7 +183,6 @@ class AsyncConversationsClient(object):
                     "page_size": i_page_size,
                 },
                 cast=_PrivateListConversationResp,
-                is_async=False,
                 stream=False,
             )
 

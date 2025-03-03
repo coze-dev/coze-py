@@ -68,7 +68,6 @@ class WorkspacesClient(object):
                     "page_num": i_page_num,
                 },
                 cast=_PrivateListWorkspacesData,
-                is_async=False,
                 stream=False,
             )
 
@@ -93,8 +92,8 @@ class AsyncWorkspacesClient(object):
     async def list(self, *, page_num: int = 1, page_size: int = 20, headers=None) -> AsyncNumberPaged[Workspace]:
         url = f"{self._base_url}/v1/workspaces"
 
-        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
-            return self._requester.make_request(
+        async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return await self._requester.amake_request(
                 "GET",
                 url,
                 headers=headers,
@@ -103,7 +102,6 @@ class AsyncWorkspacesClient(object):
                     "page_num": i_page_num,
                 },
                 cast=_PrivateListWorkspacesData,
-                is_async=False,
                 stream=False,
             )
 

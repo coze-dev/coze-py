@@ -3,7 +3,7 @@ from typing import Callable, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from cozepy import Chat, Message, ToolOutput
-from cozepy.auth import Auth
+from cozepy.auth import Auth, AsyncAuth
 from cozepy.log import log_warning
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
@@ -132,7 +132,7 @@ class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
         pass
 
     def on_conversation_chat_requires_action(
-        self, cli: "WebsocketsChatClient", event: ConversationChatRequiresActionEvent
+            self, cli: "WebsocketsChatClient", event: ConversationChatRequiresActionEvent
     ):
         pass
 
@@ -148,13 +148,13 @@ class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
 
 class WebsocketsChatClient(WebsocketsBaseClient):
     def __init__(
-        self,
-        base_url: str,
-        auth: Auth,
-        requester: Requester,
-        bot_id: str,
-        on_event: Union[WebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
-        **kwargs,
+            self,
+            base_url: str,
+            auth: Auth,
+            requester: Requester,
+            bot_id: str,
+            on_event: Union[WebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
+            **kwargs,
     ):
         if isinstance(on_event, WebsocketsChatEventHandler):
             on_event = on_event.to_dict(
@@ -297,11 +297,11 @@ class WebsocketsChatBuildClient(object):
         self._requester = requester
 
     def create(
-        self,
-        *,
-        bot_id: str,
-        on_event: Union[WebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
-        **kwargs,
+            self,
+            *,
+            bot_id: str,
+            on_event: Union[WebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
+            **kwargs,
     ) -> WebsocketsChatClient:
         return WebsocketsChatClient(
             base_url=self._base_url,
@@ -321,7 +321,7 @@ class AsyncWebsocketsChatEventHandler(AsyncWebsocketsBaseEventHandler):
         pass
 
     async def on_input_audio_buffer_completed(
-        self, cli: "AsyncWebsocketsChatClient", event: InputAudioBufferCompletedEvent
+            self, cli: "AsyncWebsocketsChatClient", event: InputAudioBufferCompletedEvent
     ):
         pass
 
@@ -329,22 +329,22 @@ class AsyncWebsocketsChatEventHandler(AsyncWebsocketsBaseEventHandler):
         pass
 
     async def on_conversation_chat_in_progress(
-        self, cli: "AsyncWebsocketsChatClient", event: ConversationChatInProgressEvent
+            self, cli: "AsyncWebsocketsChatClient", event: ConversationChatInProgressEvent
     ):
         pass
 
     async def on_conversation_message_delta(
-        self, cli: "AsyncWebsocketsChatClient", event: ConversationMessageDeltaEvent
+            self, cli: "AsyncWebsocketsChatClient", event: ConversationMessageDeltaEvent
     ):
         pass
 
     async def on_conversation_chat_requires_action(
-        self, cli: "AsyncWebsocketsChatClient", event: ConversationChatRequiresActionEvent
+            self, cli: "AsyncWebsocketsChatClient", event: ConversationChatRequiresActionEvent
     ):
         pass
 
     async def on_conversation_message_completed(
-        self, cli: "AsyncWebsocketsChatClient", event: ConversationMessageCompletedEvent
+            self, cli: "AsyncWebsocketsChatClient", event: ConversationMessageCompletedEvent
     ):
         pass
 
@@ -352,25 +352,25 @@ class AsyncWebsocketsChatEventHandler(AsyncWebsocketsBaseEventHandler):
         pass
 
     async def on_conversation_audio_completed(
-        self, cli: "AsyncWebsocketsChatClient", event: ConversationAudioCompletedEvent
+            self, cli: "AsyncWebsocketsChatClient", event: ConversationAudioCompletedEvent
     ):
         pass
 
     async def on_conversation_chat_completed(
-        self, cli: "AsyncWebsocketsChatClient", event: ConversationChatCompletedEvent
+            self, cli: "AsyncWebsocketsChatClient", event: ConversationChatCompletedEvent
     ):
         pass
 
 
 class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
     def __init__(
-        self,
-        base_url: str,
-        auth: Auth,
-        requester: Requester,
-        bot_id: str,
-        on_event: Union[AsyncWebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
-        **kwargs,
+            self,
+            base_url: str,
+            auth: AsyncAuth,
+            requester: Requester,
+            bot_id: str,
+            on_event: Union[AsyncWebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
+            **kwargs,
     ):
         if isinstance(on_event, AsyncWebsocketsChatEventHandler):
             on_event = on_event.to_dict(
@@ -507,17 +507,17 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
 
 
 class AsyncWebsocketsChatBuildClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, auth: AsyncAuth, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
 
     def create(
-        self,
-        *,
-        bot_id: str,
-        on_event: Union[AsyncWebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
-        **kwargs,
+            self,
+            *,
+            bot_id: str,
+            on_event: Union[AsyncWebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
+            **kwargs,
     ) -> AsyncWebsocketsChatClient:
         return AsyncWebsocketsChatClient(
             base_url=self._base_url,

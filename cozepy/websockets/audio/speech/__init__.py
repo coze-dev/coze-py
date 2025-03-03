@@ -3,7 +3,7 @@ from typing import Callable, Dict, Optional, Union
 
 from pydantic import BaseModel, field_serializer
 
-from cozepy.auth import Auth
+from cozepy.auth import Auth, AsyncAuth
 from cozepy.log import log_warning
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
@@ -85,12 +85,12 @@ class WebsocketsAudioSpeechEventHandler(WebsocketsBaseEventHandler):
 
 class WebsocketsAudioSpeechClient(WebsocketsBaseClient):
     def __init__(
-        self,
-        base_url: str,
-        auth: Auth,
-        requester: Requester,
-        on_event: Union[WebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]],
-        **kwargs,
+            self,
+            base_url: str,
+            auth: Auth,
+            requester: Requester,
+            on_event: Union[WebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]],
+            **kwargs,
     ):
         if isinstance(on_event, WebsocketsAudioSpeechEventHandler):
             on_event = on_event.to_dict(
@@ -168,7 +168,7 @@ class WebsocketsAudioSpeechBuildClient(object):
         self._requester = requester
 
     def create(
-        self, *, on_event: Union[WebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]], **kwargs
+            self, *, on_event: Union[WebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]], **kwargs
     ) -> WebsocketsAudioSpeechClient:
         return WebsocketsAudioSpeechClient(
             base_url=self._base_url,
@@ -184,7 +184,7 @@ class AsyncWebsocketsAudioSpeechEventHandler(AsyncWebsocketsBaseEventHandler):
         pass
 
     async def on_input_text_buffer_completed(
-        self, cli: "AsyncWebsocketsAudioSpeechClient", event: InputTextBufferCompletedEvent
+            self, cli: "AsyncWebsocketsAudioSpeechClient", event: InputTextBufferCompletedEvent
     ):
         pass
 
@@ -192,19 +192,19 @@ class AsyncWebsocketsAudioSpeechEventHandler(AsyncWebsocketsBaseEventHandler):
         pass
 
     async def on_speech_audio_completed(
-        self, cli: "AsyncWebsocketsAudioSpeechClient", event: SpeechAudioCompletedEvent
+            self, cli: "AsyncWebsocketsAudioSpeechClient", event: SpeechAudioCompletedEvent
     ):
         pass
 
 
 class AsyncWebsocketsAudioSpeechClient(AsyncWebsocketsBaseClient):
     def __init__(
-        self,
-        base_url: str,
-        auth: Auth,
-        requester: Requester,
-        on_event: Union[AsyncWebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]],
-        **kwargs,
+            self,
+            base_url: str,
+            auth: AsyncAuth,
+            requester: Requester,
+            on_event: Union[AsyncWebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]],
+            **kwargs,
     ):
         if isinstance(on_event, AsyncWebsocketsAudioSpeechEventHandler):
             on_event = on_event.to_dict(
@@ -271,16 +271,16 @@ class AsyncWebsocketsAudioSpeechClient(AsyncWebsocketsBaseClient):
 
 
 class AsyncWebsocketsAudioSpeechBuildClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, auth: AsyncAuth, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester
 
     def create(
-        self,
-        *,
-        on_event: Union[AsyncWebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]],
-        **kwargs,
+            self,
+            *,
+            on_event: Union[AsyncWebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]],
+            **kwargs,
     ) -> AsyncWebsocketsAudioSpeechClient:
         return AsyncWebsocketsAudioSpeechClient(
             base_url=self._base_url,

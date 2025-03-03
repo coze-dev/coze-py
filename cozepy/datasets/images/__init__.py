@@ -117,7 +117,6 @@ class DatasetsImagesClient(object):
                     "has_caption": has_caption,
                 },
                 cast=_PrivateListPhotosData,
-                is_async=False,
                 stream=False,
             )
 
@@ -188,8 +187,8 @@ class AsyncDatasetsImagesClient(object):
         url = f"{self._base_url}/v1/datasets/{dataset_id}/images"
         headers: Optional[dict] = kwargs.get("headers")
 
-        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
-            return self._requester.make_request(
+        async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return await self._requester.amake_request(
                 "get",
                 url,
                 headers=headers,
@@ -200,7 +199,6 @@ class AsyncDatasetsImagesClient(object):
                     "has_caption": has_caption,
                 },
                 cast=_PrivateListPhotosData,
-                is_async=False,
                 stream=False,
             )
 

@@ -112,13 +112,13 @@ class DatasetsClient(object):
         return self._images
 
     def create(
-        self,
-        *,
-        name: str,
-        space_id: str,
-        format_type: DocumentFormatType,
-        description: Optional[str] = None,
-        icon_file_id: Optional[str] = None,
+            self,
+            *,
+            name: str,
+            space_id: str,
+            format_type: DocumentFormatType,
+            description: Optional[str] = None,
+            icon_file_id: Optional[str] = None,
     ) -> CreateDatasetResp:
         """
         Create Dataset
@@ -149,14 +149,14 @@ class DatasetsClient(object):
         )
 
     def list(
-        self,
-        *,
-        space_id: str,
-        name: Optional[str] = None,
-        format_type: Optional[DocumentFormatType] = None,
-        page_num: int = 1,
-        page_size: int = 10,
-        **kwargs,
+            self,
+            *,
+            space_id: str,
+            name: Optional[str] = None,
+            format_type: Optional[DocumentFormatType] = None,
+            page_num: int = 1,
+            page_size: int = 10,
+            **kwargs,
     ) -> NumberPaged[Dataset]:
         """
         List Datasets
@@ -187,7 +187,6 @@ class DatasetsClient(object):
                     "page_num": i_page_num,
                 },
                 cast=_PrivateListDatasetsData,
-                is_async=False,
                 stream=False,
             )
 
@@ -199,12 +198,12 @@ class DatasetsClient(object):
         )
 
     def update(
-        self,
-        *,
-        dataset_id: str,
-        name: str,
-        description: Optional[str] = None,
-        icon_file_id: Optional[str] = None,
+            self,
+            *,
+            dataset_id: str,
+            name: str,
+            description: Optional[str] = None,
+            icon_file_id: Optional[str] = None,
     ) -> UpdateDatasetRes:
         """
         Update Dataset
@@ -233,9 +232,9 @@ class DatasetsClient(object):
         )
 
     def delete(
-        self,
-        *,
-        dataset_id: str,
+            self,
+            *,
+            dataset_id: str,
     ) -> DeleteDatasetRes:
         """
         Delete Dataset
@@ -256,10 +255,10 @@ class DatasetsClient(object):
         )
 
     def process(
-        self,
-        *,
-        dataset_id: str,
-        document_ids: List[str],
+            self,
+            *,
+            dataset_id: str,
+            document_ids: List[str],
     ) -> ListResponse[DocumentProgress]:
         """
         Check the upload progress
@@ -316,13 +315,13 @@ class AsyncDatasetsClient(object):
         return self._images
 
     async def create(
-        self,
-        *,
-        name: str,
-        space_id: str,
-        format_type: DocumentFormatType,
-        description: Optional[str] = None,
-        icon_file_id: Optional[str] = None,
+            self,
+            *,
+            name: str,
+            space_id: str,
+            format_type: DocumentFormatType,
+            description: Optional[str] = None,
+            icon_file_id: Optional[str] = None,
     ) -> CreateDatasetResp:
         """
         Create Dataset
@@ -350,14 +349,14 @@ class AsyncDatasetsClient(object):
         )
 
     async def list(
-        self,
-        *,
-        space_id: str,
-        name: Optional[str] = None,
-        format_type: Optional[DocumentFormatType] = None,
-        page_num: int = 1,
-        page_size: int = 10,
-        **kwargs,
+            self,
+            *,
+            space_id: str,
+            name: Optional[str] = None,
+            format_type: Optional[DocumentFormatType] = None,
+            page_num: int = 1,
+            page_size: int = 10,
+            **kwargs,
     ) -> AsyncNumberPaged[Dataset]:
         """
         List Datasets
@@ -375,8 +374,8 @@ class AsyncDatasetsClient(object):
         url = f"{self._base_url}/v1/datasets"
         headers: Optional[dict] = kwargs.get("headers")
 
-        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
-            return self._requester.make_request(
+        async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return await self._requester.amake_request(
                 "GET",
                 url,
                 headers=headers,
@@ -388,7 +387,6 @@ class AsyncDatasetsClient(object):
                     "page_num": i_page_num,
                 },
                 cast=_PrivateListDatasetsData,
-                is_async=False,
                 stream=False,
             )
 
@@ -400,12 +398,12 @@ class AsyncDatasetsClient(object):
         )
 
     async def update(
-        self,
-        *,
-        dataset_id: str,
-        name: str,
-        description: Optional[str] = None,
-        icon_file_id: Optional[str] = None,
+            self,
+            *,
+            dataset_id: str,
+            name: str,
+            description: Optional[str] = None,
+            icon_file_id: Optional[str] = None,
     ) -> UpdateDatasetRes:
         """
         Update Dataset
@@ -434,9 +432,9 @@ class AsyncDatasetsClient(object):
         )
 
     async def delete(
-        self,
-        *,
-        dataset_id: str,
+            self,
+            *,
+            dataset_id: str,
     ) -> DeleteDatasetRes:
         """
         Delete Dataset
@@ -457,10 +455,10 @@ class AsyncDatasetsClient(object):
         )
 
     async def process(
-        self,
-        *,
-        dataset_id: str,
-        document_ids: List[str],
+            self,
+            *,
+            dataset_id: str,
+            document_ids: List[str],
     ) -> ListResponse[DocumentProgress]:
         """
         Check the upload progress

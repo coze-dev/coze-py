@@ -77,12 +77,12 @@ class OAuthApp(object):
         self._requester = Requester()
 
     def _get_oauth_url(
-        self,
-        redirect_uri: str,
-        code_challenge: Optional[str] = None,
-        code_challenge_method: Optional[str] = None,
-        state: str = "",
-        workspace_id: Optional[str] = None,
+            self,
+            redirect_uri: str,
+            code_challenge: Optional[str] = None,
+            code_challenge_method: Optional[str] = None,
+            state: str = "",
+            workspace_id: Optional[str] = None,
     ):
         params = {
             "response_type": "code",
@@ -163,10 +163,10 @@ class WebOAuthApp(OAuthApp):
         super().__init__(client_id, base_url, www_base_url=www_base_url)
 
     def get_oauth_url(
-        self,
-        redirect_uri: str,
-        state: str = "",
-        workspace_id: Optional[str] = None,
+            self,
+            redirect_uri: str,
+            state: str = "",
+            workspace_id: Optional[str] = None,
     ):
         """
         Get the pkce flow authorized url.
@@ -185,9 +185,9 @@ class WebOAuthApp(OAuthApp):
         )
 
     def get_access_token(
-        self,
-        redirect_uri: str,
-        code: str,
+            self,
+            redirect_uri: str,
+            code: str,
     ) -> OAuthToken:
         """
         Get the token by jwt with jwt auth flow.
@@ -225,10 +225,10 @@ class AsyncWebOAuthApp(OAuthApp):
         super().__init__(client_id, base_url, www_base_url=www_base_url)
 
     def get_oauth_url(
-        self,
-        redirect_uri: str,
-        state: str = "",
-        workspace_id: Optional[str] = None,
+            self,
+            redirect_uri: str,
+            state: str = "",
+            workspace_id: Optional[str] = None,
     ):
         """
         Get the pkce flow authorized url.
@@ -247,9 +247,9 @@ class AsyncWebOAuthApp(OAuthApp):
         )
 
     async def get_access_token(
-        self,
-        redirect_uri: str,
-        code: str,
+            self,
+            redirect_uri: str,
+            code: str,
     ) -> OAuthToken:
         """
         Get the token by jwt with jwt auth flow.
@@ -289,7 +289,7 @@ class JWTOAuthApp(OAuthApp):
         super().__init__(client_id, base_url, www_base_url="")
 
     def get_access_token(
-        self, ttl: int = 900, scope: Optional[Scope] = None, session_name: Optional[str] = None
+            self, ttl: int = 900, scope: Optional[Scope] = None, session_name: Optional[str] = None
     ) -> OAuthToken:
         """
         Get the token by jwt with jwt auth flow.
@@ -332,7 +332,7 @@ class AsyncJWTOAuthApp(OAuthApp):
         super().__init__(client_id, base_url, www_base_url="")
 
     async def get_access_token(
-        self, ttl: int, scope: Optional[Scope] = None, session_name: Optional[str] = None
+            self, ttl: int, scope: Optional[Scope] = None, session_name: Optional[str] = None
     ) -> OAuthToken:
         """
         Get the token by jwt with jwt auth flow.
@@ -366,12 +366,12 @@ class PKCEOAuthApp(OAuthApp):
         )
 
     def get_oauth_url(
-        self,
-        redirect_uri: str,
-        code_verifier: str,
-        code_challenge_method: Literal["plain", "S256"] = "plain",
-        state: str = "",
-        workspace_id: Optional[str] = None,
+            self,
+            redirect_uri: str,
+            code_verifier: str,
+            code_challenge_method: Literal["plain", "S256"] = "plain",
+            state: str = "",
+            workspace_id: Optional[str] = None,
     ):
         """
         Get the pkce flow authorized url.
@@ -433,12 +433,12 @@ class AsyncPKCEOAuthApp(OAuthApp):
         )
 
     def get_oauth_url(
-        self,
-        redirect_uri: str,
-        code_verifier: str,
-        code_challenge_method: Literal["plain", "S256"] = "plain",
-        state: str = "",
-        workspace_id: Optional[str] = None,
+            self,
+            redirect_uri: str,
+            code_verifier: str,
+            code_challenge_method: Literal["plain", "S256"] = "plain",
+            state: str = "",
+            workspace_id: Optional[str] = None,
     ):
         """
         Get the pkce flow authorized url.
@@ -500,8 +500,8 @@ class DeviceOAuthApp(OAuthApp):
         )
 
     def get_device_code(
-        self,
-        workspace_id: Optional[str] = None,
+            self,
+            workspace_id: Optional[str] = None,
     ) -> DeviceAuthCode:
         """
         Get the pkce flow authorized url.
@@ -680,7 +680,6 @@ class Auth(abc.ABC):
     It provides the abstract methods for getting the token type and token.
     """
 
-    @property
     @abc.abstractmethod
     def token_type(self) -> str:
         """
@@ -691,7 +690,6 @@ class Auth(abc.ABC):
         :return: token type
         """
 
-    @property
     @abc.abstractmethod
     def token(self) -> str:
         """
@@ -707,7 +705,7 @@ class Auth(abc.ABC):
         :param headers: http headers
         :return: None
         """
-        headers["Authorization"] = f"{self.token_type} {self.token}"
+        headers["Authorization"] = f"{self.token_type()} {self.token()}"
 
 
 class TokenAuth(Auth):
@@ -720,11 +718,9 @@ class TokenAuth(Auth):
         assert len(token) > 0
         self._token = token
 
-    @property
     def token_type(self) -> str:
         return "Bearer"
 
-    @property
     def token(self) -> str:
         return self._token
 
@@ -735,13 +731,13 @@ class JWTAuth(Auth):
     """
 
     def __init__(
-        self,
-        client_id: Optional[str] = None,
-        private_key: Optional[str] = None,
-        public_key_id: Optional[str] = None,
-        ttl: int = 7200,
-        base_url: str = COZE_COM_BASE_URL,
-        oauth_app: Optional[JWTOAuthApp] = None,
+            self,
+            client_id: Optional[str] = None,
+            private_key: Optional[str] = None,
+            public_key_id: Optional[str] = None,
+            ttl: int = 7200,
+            base_url: str = COZE_COM_BASE_URL,
+            oauth_app: Optional[JWTOAuthApp] = None,
     ):
         assert ttl > 0
         self._ttl = ttl
@@ -759,11 +755,9 @@ class JWTAuth(Auth):
                 client_id, private_key, public_key_id, base_url=remove_url_trailing_slash(base_url)
             )
 
-    @property
     def token_type(self) -> str:
         return "Bearer"
 
-    @property
     def token(self) -> str:
         token = self._generate_token()
         return token.access_token
@@ -772,4 +766,100 @@ class JWTAuth(Auth):
         if self._token is not None and int(time.time()) < self._token.expires_in:
             return self._token
         self._token = self._oauth_cli.get_access_token(self._ttl)
+        return self._token
+
+
+class AsyncAuth(abc.ABC):
+    """
+    This class is the base class for all authorization types.
+
+    It provides the abstract methods for getting the token type and token.
+    """
+
+    @abc.abstractmethod
+    async def token_type(self) -> str:
+        """
+        The authorization type used in the http request header.
+
+        eg: Bearer, Basic, etc.
+
+        :return: token type
+        """
+
+    @abc.abstractmethod
+    async def token(self) -> str:
+        """
+        The token used in the http request header.
+
+        :return: token
+        """
+
+    async def authentication(self, headers: dict) -> None:
+        """
+        Construct the authorization header in the http headers.
+
+        :param headers: http headers
+        :return: None
+        """
+        headers["Authorization"] = f"{await self.token_type()} {await self.token()}"
+
+
+class AsyncTokenAuth(AsyncAuth):
+    """
+    The fixed access token auth flow.
+    """
+
+    def __init__(self, token: str):
+        assert isinstance(token, str)
+        assert len(token) > 0
+        self._token = token
+
+    async def token_type(self) -> str:
+        return "Bearer"
+
+    async def token(self) -> str:
+        return self._token
+
+
+class AsyncJWTAuth(AsyncAuth):
+    """
+    The JWT auth flow.
+    """
+
+    def __init__(
+            self,
+            client_id: Optional[str] = None,
+            private_key: Optional[str] = None,
+            public_key_id: Optional[str] = None,
+            ttl: int = 7200,
+            base_url: str = COZE_COM_BASE_URL,
+            oauth_app: Optional[AsyncJWTOAuthApp] = None,
+    ):
+        assert ttl > 0
+        self._ttl = ttl
+        self._token = None
+
+        if oauth_app:
+            self._oauth_cli = oauth_app
+        else:
+            assert isinstance(client_id, str)
+            assert isinstance(private_key, str)
+            assert isinstance(public_key_id, str)
+            assert isinstance(ttl, int)
+            assert isinstance(base_url, str)
+            self._oauth_cli = AsyncJWTOAuthApp(
+                client_id, private_key, public_key_id, base_url=remove_url_trailing_slash(base_url)
+            )
+
+    async def token_type(self) -> str:
+        return "Bearer"
+
+    async def token(self) -> str:
+        token = await self._generate_token()
+        return token.access_token
+
+    async def _generate_token(self):
+        if self._token is not None and int(time.time()) < self._token.expires_in:
+            return self._token
+        self._token = await self._oauth_cli.get_access_token(self._ttl)
         return self._token

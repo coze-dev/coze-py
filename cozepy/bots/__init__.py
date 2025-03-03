@@ -268,7 +268,6 @@ class BotsClient(object):
                     "page_index": i_page_num,
                 },
                 cast=_PrivateListBotsData,
-                is_async=False,
                 stream=False,
             )
 
@@ -413,8 +412,8 @@ class AsyncBotsClient(object):
         """
         url = f"{self._base_url}/v1/space/published_bots_list"
 
-        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
-            return self._requester.make_request(
+        async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return await self._requester.amake_request(
                 "GET",
                 url,
                 params={
@@ -423,7 +422,6 @@ class AsyncBotsClient(object):
                     "page_index": i_page_num,
                 },
                 cast=_PrivateListBotsData,
-                is_async=False,
                 stream=False,
             )
 

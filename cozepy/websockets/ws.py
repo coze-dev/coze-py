@@ -10,6 +10,8 @@ from contextlib import asynccontextmanager, contextmanager
 from enum import Enum
 from typing import Callable, Dict, List, Optional, Set
 
+from cozepy.auth import AsyncAuth
+
 if sys.version_info >= (3, 8):
     # note: >=3.7,<3.8 not support asyncio
     from websockets import InvalidStatus
@@ -22,6 +24,7 @@ else:
 
     warnings.warn("asyncio websockets requires Python >= 3.8")
 
+
     class AsyncWebsocketClientConnection(object):
         def recv(self, *args, **kwargs):
             pass
@@ -32,12 +35,13 @@ else:
         def close(self, *args, **kwargs):
             pass
 
+
     def asyncio_connect(*args, **kwargs):
         pass
 
+
     class InvalidStatus(object):
         pass
-
 
 import websockets.sync.client
 from pydantic import BaseModel
@@ -158,15 +162,15 @@ class WebsocketsBaseClient(abc.ABC):
         CLOSED = "closed"
 
     def __init__(
-        self,
-        base_url: str,
-        auth: Auth,
-        requester: Requester,
-        path: str,
-        query: Optional[Dict[str, str]] = None,
-        on_event: Optional[Dict[WebsocketsEventType, Callable]] = None,
-        wait_events: Optional[List[WebsocketsEventType]] = None,
-        **kwargs,
+            self,
+            base_url: str,
+            auth: Auth,
+            requester: Requester,
+            path: str,
+            query: Optional[Dict[str, str]] = None,
+            on_event: Optional[Dict[WebsocketsEventType, Callable]] = None,
+            wait_events: Optional[List[WebsocketsEventType]] = None,
+            **kwargs,
     ):
         self._state = self.State.INITIALIZED
         self._base_url = remove_url_trailing_slash(base_url)
@@ -200,7 +204,7 @@ class WebsocketsBaseClient(abc.ABC):
             raise ValueError(f"Cannot connect in {self._state.value} state")
         self._state = self.State.CONNECTING
         headers = {
-            "Authorization": f"Bearer {self._auth.token}",
+            "Authorization": f"Bearer {self._auth.token()}",
             "X-Coze-Client-User-Agent": coze_client_user_agent(),
             **(self._headers or {}),
         }
@@ -283,7 +287,8 @@ class WebsocketsBaseClient(abc.ABC):
         return self._load_event(message)
 
     @abc.abstractmethod
-    def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]: ...
+    def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]:
+        ...
 
     def _wait_completed(self, events: List[WebsocketsEventType], wait_all: bool) -> None:
         while True:
@@ -365,15 +370,15 @@ class AsyncWebsocketsBaseClient(abc.ABC):
         CLOSED = "closed"
 
     def __init__(
-        self,
-        base_url: str,
-        auth: Auth,
-        requester: Requester,
-        path: str,
-        query: Optional[Dict[str, str]] = None,
-        on_event: Optional[Dict[WebsocketsEventType, Callable]] = None,
-        wait_events: Optional[List[WebsocketsEventType]] = None,
-        **kwargs,
+            self,
+            base_url: str,
+            auth: AsyncAuth,
+            requester: Requester,
+            path: str,
+            query: Optional[Dict[str, str]] = None,
+            on_event: Optional[Dict[WebsocketsEventType, Callable]] = None,
+            wait_events: Optional[List[WebsocketsEventType]] = None,
+            **kwargs,
     ):
         self._state = self.State.INITIALIZED
         self._base_url = remove_url_trailing_slash(base_url)
@@ -405,7 +410,7 @@ class AsyncWebsocketsBaseClient(abc.ABC):
             raise ValueError(f"Cannot connect in {self._state.value} state")
         self._state = self.State.CONNECTING
         headers = {
-            "Authorization": f"Bearer {self._auth.token}",
+            "Authorization": f"Bearer {await self._auth.token()}",
             "X-Coze-Client-User-Agent": coze_client_user_agent(),
             **(self._headers or {}),
         }
@@ -483,7 +488,8 @@ class AsyncWebsocketsBaseClient(abc.ABC):
         return self._load_event(message)
 
     @abc.abstractmethod
-    def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]: ...
+    def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]:
+        ...
 
     async def _wait_completed(self, wait_events: List[WebsocketsEventType], wait_all: bool) -> None:
         future: asyncio.Future[None] = asyncio.Future()

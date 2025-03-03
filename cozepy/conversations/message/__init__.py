@@ -115,7 +115,6 @@ class MessagesClient(object):
                 },
                 params=params,
                 cast=_PrivateListMessageResp,
-                is_async=False,
                 stream=False,
             )
 
@@ -287,8 +286,8 @@ class AsyncMessagesClient(object):
             "conversation_id": conversation_id,
         }
 
-        def request_maker(i_before_id: str, i_after_id: str) -> HTTPRequest:
-            return self._requester.make_request(
+        async def request_maker(i_before_id: str, i_after_id: str) -> HTTPRequest:
+            return await self._requester.amake_request(
                 "POST",
                 url,
                 json={
@@ -300,7 +299,6 @@ class AsyncMessagesClient(object):
                 },
                 params=params,
                 cast=_PrivateListMessageResp,
-                is_async=False,
                 stream=False,
             )
 

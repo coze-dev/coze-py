@@ -200,7 +200,6 @@ class DocumentsClient(object):
                     "size": i_page_size,
                 },
                 cast=_PrivateListDocumentsData,
-                is_async=False,
                 stream=False,
             )
 
@@ -369,8 +368,8 @@ class AsyncDocumentsClient(object):
         url = f"{self._base_url}/open_api/knowledge/document/list"
         headers = {"Agw-Js-Conv": "str"}
 
-        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
-            return self._requester.make_request(
+        async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return await self._requester.amake_request(
                 "POST",
                 url,
                 headers=headers,
@@ -380,7 +379,6 @@ class AsyncDocumentsClient(object):
                     "size": i_page_size,
                 },
                 cast=_PrivateListDocumentsData,
-                is_async=False,
                 stream=False,
             )
 

@@ -1,7 +1,7 @@
 import warnings
 from typing import TYPE_CHECKING, Optional
 
-from cozepy.auth import Auth
+from cozepy.auth import Auth, AsyncAuth
 from cozepy.config import COZE_COM_BASE_URL
 from cozepy.request import AsyncHTTPClient, Requester, SyncHTTPClient
 from cozepy.util import remove_url_trailing_slash
@@ -143,7 +143,7 @@ class Coze(object):
 class AsyncCoze(object):
     def __init__(
         self,
-        auth: Auth,
+        auth: AsyncAuth,
         base_url: str = COZE_COM_BASE_URL,
         http_client: Optional[AsyncHTTPClient] = None,
     ):

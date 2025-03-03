@@ -4,6 +4,7 @@ from cozepy.util import http_base_url_to_ws, remove_url_trailing_slash
 
 from .audio import AsyncWebsocketsAudioClient, WebsocketsAudioClient
 from .chat import AsyncWebsocketsChatBuildClient, WebsocketsChatBuildClient
+from ..auth import AsyncAuth
 
 
 class WebsocketsClient(object):
@@ -30,7 +31,7 @@ class WebsocketsClient(object):
 
 
 class AsyncWebsocketsClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, auth: AsyncAuth, requester: Requester):
         self._base_url = http_base_url_to_ws(remove_url_trailing_slash(base_url))
         self._auth = auth
         self._requester = requester
