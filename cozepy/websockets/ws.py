@@ -99,6 +99,7 @@ class WebsocketsEventType(str, Enum):
     CONVERSATION_CHAT_IN_PROGRESS = "conversation.chat.in_progress"
     CONVERSATION_MESSAGE_DELTA = "conversation.message.delta"  # get agent text message update
     CONVERSATION_CHAT_REQUIRES_ACTION = "conversation.chat.requires_action"  # need plugin submit
+    CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED = "conversation.audio_transcript.completed"
     CONVERSATION_MESSAGE_COMPLETED = "conversation.message.completed"
     CONVERSATION_AUDIO_DELTA = "conversation.audio.delta"  # get agent audio message update
     CONVERSATION_AUDIO_COMPLETED = "conversation.audio.completed"

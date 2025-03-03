@@ -82,6 +82,15 @@ class ConversationMessageDeltaEvent(WebsocketsEvent):
 
 
 # resp
+class ConversationAudioTranscriptCompletedEvent(WebsocketsEvent):
+    class Data(BaseModel):
+        content: str
+
+    event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED
+    data: Data
+
+
+# resp
 class ConversationMessageCompletedEvent(WebsocketsEvent):
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_MESSAGE_COMPLETED
 
@@ -128,6 +137,11 @@ class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
     def on_conversation_message_delta(self, cli: "WebsocketsChatClient", event: ConversationMessageDeltaEvent):
         pass
 
+    def on_conversation_audio_transcript_completed(
+        self, cli: "WebsocketsChatClient", event: ConversationAudioTranscriptCompletedEvent
+    ):
+        pass
+
     def on_conversation_message_completed(self, cli: "WebsocketsChatClient", event: ConversationMessageCompletedEvent):
         pass
 
@@ -165,6 +179,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
                     WebsocketsEventType.CONVERSATION_CHAT_CREATED: on_event.on_conversation_chat_created,
                     WebsocketsEventType.CONVERSATION_CHAT_IN_PROGRESS: on_event.on_conversation_chat_in_progress,
                     WebsocketsEventType.CONVERSATION_MESSAGE_DELTA: on_event.on_conversation_message_delta,
+                    WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED: on_event.on_conversation_audio_transcript_completed,
                     WebsocketsEventType.CONVERSATION_CHAT_REQUIRES_ACTION: on_event.on_conversation_chat_requires_action,
                     WebsocketsEventType.CONVERSATION_MESSAGE_COMPLETED: on_event.on_conversation_message_completed,
                     WebsocketsEventType.CONVERSATION_AUDIO_DELTA: on_event.on_conversation_audio_delta,
@@ -245,6 +260,14 @@ class WebsocketsChatClient(WebsocketsBaseClient):
                     "id": event_id,
                     "detail": detail,
                     "data": Message.model_validate(data),
+                }
+            )
+        elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED.value:
+            return ConversationAudioTranscriptCompletedEvent.model_validate(
+                {
+                    "id": event_id,
+                    "detail": detail,
+                    "data": ConversationAudioTranscriptCompletedEvent.Data.model_validate(data),
                 }
             )
         elif event_type == WebsocketsEventType.CONVERSATION_CHAT_REQUIRES_ACTION.value:
@@ -338,6 +361,11 @@ class AsyncWebsocketsChatEventHandler(AsyncWebsocketsBaseEventHandler):
     ):
         pass
 
+    async def on_conversation_audio_transcript_completed(
+        self, cli: "AsyncWebsocketsChatClient", event: ConversationAudioTranscriptCompletedEvent
+    ):
+        pass
+
     async def on_conversation_chat_requires_action(
         self, cli: "AsyncWebsocketsChatClient", event: ConversationChatRequiresActionEvent
     ):
@@ -381,6 +409,7 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
                     WebsocketsEventType.CONVERSATION_CHAT_CREATED: on_event.on_conversation_chat_created,
                     WebsocketsEventType.CONVERSATION_CHAT_IN_PROGRESS: on_event.on_conversation_chat_in_progress,
                     WebsocketsEventType.CONVERSATION_MESSAGE_DELTA: on_event.on_conversation_message_delta,
+                    WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED: on_event.on_conversation_audio_transcript_completed,
                     WebsocketsEventType.CONVERSATION_CHAT_REQUIRES_ACTION: on_event.on_conversation_chat_requires_action,
                     WebsocketsEventType.CONVERSATION_MESSAGE_COMPLETED: on_event.on_conversation_message_completed,
                     WebsocketsEventType.CONVERSATION_AUDIO_DELTA: on_event.on_conversation_audio_delta,
@@ -461,6 +490,14 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
                     "id": event_id,
                     "detail": detail,
                     "data": Message.model_validate(data),
+                }
+            )
+        elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED.value:
+            return ConversationAudioTranscriptCompletedEvent.model_validate(
+                {
+                    "id": event_id,
+                    "detail": detail,
+                    "data": ConversationAudioTranscriptCompletedEvent.Data.model_validate(data),
                 }
             )
         elif event_type == WebsocketsEventType.CONVERSATION_CHAT_REQUIRES_ACTION.value:
