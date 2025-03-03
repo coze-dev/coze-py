@@ -6,7 +6,7 @@ from cozepy import Chat, Message, ToolOutput
 from cozepy.auth import Auth
 from cozepy.log import log_warning
 from cozepy.request import Requester
-from cozepy.util import remove_url_trailing_slash
+from cozepy.util import remove_none_values, remove_url_trailing_slash
 from cozepy.websockets.audio.transcriptions import (
     InputAudioBufferAppendEvent,
     InputAudioBufferCompletedEvent,
@@ -167,6 +167,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
         auth: Auth,
         requester: Requester,
         bot_id: str,
+        workflow_id: str,
         on_event: Union[WebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
         **kwargs,
     ):
@@ -192,9 +193,12 @@ class WebsocketsChatClient(WebsocketsBaseClient):
             auth=auth,
             requester=requester,
             path="v1/chat",
-            query={
-                "bot_id": bot_id,
-            },
+            query=remove_none_values(
+                {
+                    "bot_id": bot_id,
+                    "workflow_id": workflow_id,
+                }
+            ),
             on_event=on_event,  # type: ignore
             wait_events=[WebsocketsEventType.CONVERSATION_CHAT_COMPLETED],
             **kwargs,
@@ -323,6 +327,7 @@ class WebsocketsChatBuildClient(object):
         self,
         *,
         bot_id: str,
+        workflow_id: str,
         on_event: Union[WebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
         **kwargs,
     ) -> WebsocketsChatClient:
@@ -331,6 +336,7 @@ class WebsocketsChatBuildClient(object):
             auth=self._auth,
             requester=self._requester,
             bot_id=bot_id,
+            workflow_id=workflow_id,
             on_event=on_event,  # type: ignore
             **kwargs,
         )
@@ -397,6 +403,7 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
         auth: Auth,
         requester: Requester,
         bot_id: str,
+        workflow_id: str,
         on_event: Union[AsyncWebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
         **kwargs,
     ):
@@ -422,9 +429,12 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
             auth=auth,
             requester=requester,
             path="v1/chat",
-            query={
-                "bot_id": bot_id,
-            },
+            query=remove_none_values(
+                {
+                    "bot_id": bot_id,
+                    "workflow_id": workflow_id,
+                }
+            ),
             on_event=on_event,  # type: ignore
             wait_events=[WebsocketsEventType.CONVERSATION_CHAT_COMPLETED],
             **kwargs,
@@ -553,6 +563,7 @@ class AsyncWebsocketsChatBuildClient(object):
         self,
         *,
         bot_id: str,
+        workflow_id: str,
         on_event: Union[AsyncWebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
         **kwargs,
     ) -> AsyncWebsocketsChatClient:
@@ -561,6 +572,7 @@ class AsyncWebsocketsChatBuildClient(object):
             auth=self._auth,
             requester=self._requester,
             bot_id=bot_id,
+            workflow_id=workflow_id,
             on_event=on_event,  # type: ignore
             **kwargs,
         )
