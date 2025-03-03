@@ -166,8 +166,6 @@ async def main():
     # Initialize Audio
     audios = await generate_audio(coze, text)
 
-    exit(0)
-
     times = 50
     text_latency = []
     audio_latency = []
