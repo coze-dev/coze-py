@@ -3,7 +3,6 @@ import json
 import logging
 import os
 import time
-from time import sleep
 from typing import List, Optional
 
 from cozepy import (
@@ -109,6 +108,7 @@ async def generate_audio(coze: AsyncCoze, text: str) -> List[bytes]:
         sample_rate=24000,
         **kwargs,
     )
+    content.write_to_file("test.wav")
     return [data for data in content._raw_response.iter_bytes(chunk_size=1024)]
 
 
@@ -141,8 +141,8 @@ async def test_latency(coze: AsyncCoze, bot_id: str, audios: List[bytes]) -> Asy
                     }
                 )
             )
-            # sleep(len(delta)*1.0/24000/2) # ms
-        sleep(1.5)
+            await asyncio.sleep(len(delta) * 1.0 / 24000 / 2)
+
         await client.input_audio_buffer_complete()
         handler.input_audio_buffer_completed_at = int(time.time() * 1000)
         await client.wait(
@@ -165,6 +165,8 @@ async def main():
     )
     # Initialize Audio
     audios = await generate_audio(coze, text)
+
+    exit(0)
 
     times = 50
     text_latency = []
