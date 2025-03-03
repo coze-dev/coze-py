@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -33,6 +33,7 @@ class ChatUpdateEvent(WebsocketsEvent):
         custom_variables: Optional[Dict[str, str]] = None
         extra_params: Optional[Dict[str, str]] = None
         auto_save_history: Optional[bool] = None
+        parameters: Optional[Dict[str, Any]] = None
 
     class Data(BaseModel):
         output_audio: Optional[OutputAudio] = None
