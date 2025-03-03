@@ -108,7 +108,7 @@ async def generate_audio(coze: AsyncCoze, text: str) -> List[bytes]:
         sample_rate=24000,
         **kwargs,
     )
-    content.write_to_file("test.wav")
+    # content.write_to_file("test.wav")
     return [data for data in content._raw_response.iter_bytes(chunk_size=1024)]
 
 
