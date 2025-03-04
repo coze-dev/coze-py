@@ -1,7 +1,6 @@
 from enum import Enum, IntEnum
 from typing import Optional
 
-from cozepy.auth import Auth
 from cozepy.model import CozeModel, ListResponse
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
@@ -76,9 +75,8 @@ class WorkflowRunHistory(CozeModel):
 
 
 class WorkflowsRunsRunHistoriesClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     def retrieve(self, *, workflow_id: str, execute_id: str) -> WorkflowRunHistory:
@@ -99,9 +97,8 @@ class WorkflowsRunsRunHistoriesClient(object):
 
 
 class AsyncWorkflowsRunsRunHistoriesClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     async def retrieve(self, *, workflow_id: str, execute_id: str) -> WorkflowRunHistory:

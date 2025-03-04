@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING, Optional
 
-from cozepy.auth import Auth
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
@@ -10,9 +9,8 @@ if TYPE_CHECKING:
 
 
 class WorkflowsClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
         self._runs: Optional[WorkflowsRunsClient] = None
         self._chat: Optional[WorkflowsChatClient] = None
@@ -22,7 +20,7 @@ class WorkflowsClient(object):
         if not self._runs:
             from .runs import WorkflowsRunsClient
 
-            self._runs = WorkflowsRunsClient(self._base_url, self._auth, self._requester)
+            self._runs = WorkflowsRunsClient(self._base_url, self._requester)
         return self._runs
 
     @property
@@ -30,14 +28,13 @@ class WorkflowsClient(object):
         if not self._chat:
             from .chat import WorkflowsChatClient
 
-            self._chat = WorkflowsChatClient(self._base_url, self._auth, self._requester)
+            self._chat = WorkflowsChatClient(self._base_url, self._requester)
         return self._chat
 
 
 class AsyncWorkflowsClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
         self._runs: Optional[AsyncWorkflowsRunsClient] = None
         self._chat: Optional[AsyncWorkflowsChatClient] = None
@@ -47,7 +44,7 @@ class AsyncWorkflowsClient(object):
         if not self._runs:
             from .runs import AsyncWorkflowsRunsClient
 
-            self._runs = AsyncWorkflowsRunsClient(self._base_url, self._auth, self._requester)
+            self._runs = AsyncWorkflowsRunsClient(self._base_url, self._requester)
         return self._runs
 
     @property
@@ -55,5 +52,5 @@ class AsyncWorkflowsClient(object):
         if not self._chat:
             from .chat import AsyncWorkflowsChatClient
 
-            self._chat = AsyncWorkflowsChatClient(self._base_url, self._auth, self._requester)
+            self._chat = AsyncWorkflowsChatClient(self._base_url, self._requester)
         return self._chat

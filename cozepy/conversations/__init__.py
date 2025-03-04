@@ -1,6 +1,5 @@
 from typing import Any, Dict, List, Optional
 
-from cozepy.auth import Auth
 from cozepy.chat import Message
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged
 from cozepy.request import Requester
@@ -35,9 +34,8 @@ class _PrivateListConversationResp(CozeModel):
 
 
 class ConversationsClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
         self._messages = None
 
@@ -89,7 +87,6 @@ class ConversationsClient(object):
                     "page_size": i_page_size,
                 },
                 cast=_PrivateListConversationResp,
-                is_async=False,
                 stream=False,
             )
 
@@ -125,14 +122,13 @@ class ConversationsClient(object):
         if not self._messages:
             from .message import MessagesClient
 
-            self._messages = MessagesClient(self._base_url, self._auth, self._requester)
+            self._messages = MessagesClient(self._base_url, self._requester)
         return self._messages
 
 
 class AsyncConversationsClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
         self._messages = None
 
@@ -174,8 +170,8 @@ class AsyncConversationsClient(object):
     ):
         url = f"{self._base_url}/v1/conversations"
 
-        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
-            return self._requester.make_request(
+        async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return await self._requester.amake_request(
                 "GET",
                 url,
                 params={
@@ -184,7 +180,6 @@ class AsyncConversationsClient(object):
                     "page_size": i_page_size,
                 },
                 cast=_PrivateListConversationResp,
-                is_async=False,
                 stream=False,
             )
 
@@ -220,5 +215,5 @@ class AsyncConversationsClient(object):
         if not self._messages:
             from .message import AsyncMessagesClient
 
-            self._messages = AsyncMessagesClient(self._base_url, self._auth, self._requester)
+            self._messages = AsyncMessagesClient(self._base_url, self._requester)
         return self._messages

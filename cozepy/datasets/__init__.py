@@ -1,7 +1,6 @@
 from enum import IntEnum
 from typing import TYPE_CHECKING, List, Optional
 
-from cozepy.auth import Auth
 from cozepy.datasets.documents import DocumentChunkStrategy, DocumentFormatType, DocumentStatus, DocumentUpdateType
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, ListResponse, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
@@ -86,9 +85,8 @@ class DeleteDatasetRes(CozeModel):
 
 
 class DatasetsClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
         self._documents: Optional[DatasetsDocumentsClient] = None
         self._images: Optional[DatasetsImagesClient] = None
@@ -99,7 +97,7 @@ class DatasetsClient(object):
             from .documents import DatasetsDocumentsClient
 
             self._documents = DatasetsDocumentsClient(
-                base_url=self._base_url, auth=self._auth, requester=self._requester
+                base_url=self._base_url, requester=self._requester
             )
         return self._documents
 
@@ -108,17 +106,17 @@ class DatasetsClient(object):
         if self._images is None:
             from .images import DatasetsImagesClient
 
-            self._images = DatasetsImagesClient(base_url=self._base_url, auth=self._auth, requester=self._requester)
+            self._images = DatasetsImagesClient(base_url=self._base_url, requester=self._requester)
         return self._images
 
     def create(
-        self,
-        *,
-        name: str,
-        space_id: str,
-        format_type: DocumentFormatType,
-        description: Optional[str] = None,
-        icon_file_id: Optional[str] = None,
+            self,
+            *,
+            name: str,
+            space_id: str,
+            format_type: DocumentFormatType,
+            description: Optional[str] = None,
+            icon_file_id: Optional[str] = None,
     ) -> CreateDatasetResp:
         """
         Create Dataset
@@ -149,14 +147,14 @@ class DatasetsClient(object):
         )
 
     def list(
-        self,
-        *,
-        space_id: str,
-        name: Optional[str] = None,
-        format_type: Optional[DocumentFormatType] = None,
-        page_num: int = 1,
-        page_size: int = 10,
-        **kwargs,
+            self,
+            *,
+            space_id: str,
+            name: Optional[str] = None,
+            format_type: Optional[DocumentFormatType] = None,
+            page_num: int = 1,
+            page_size: int = 10,
+            **kwargs,
     ) -> NumberPaged[Dataset]:
         """
         List Datasets
@@ -187,7 +185,6 @@ class DatasetsClient(object):
                     "page_num": i_page_num,
                 },
                 cast=_PrivateListDatasetsData,
-                is_async=False,
                 stream=False,
             )
 
@@ -199,12 +196,12 @@ class DatasetsClient(object):
         )
 
     def update(
-        self,
-        *,
-        dataset_id: str,
-        name: str,
-        description: Optional[str] = None,
-        icon_file_id: Optional[str] = None,
+            self,
+            *,
+            dataset_id: str,
+            name: str,
+            description: Optional[str] = None,
+            icon_file_id: Optional[str] = None,
     ) -> UpdateDatasetRes:
         """
         Update Dataset
@@ -233,9 +230,9 @@ class DatasetsClient(object):
         )
 
     def delete(
-        self,
-        *,
-        dataset_id: str,
+            self,
+            *,
+            dataset_id: str,
     ) -> DeleteDatasetRes:
         """
         Delete Dataset
@@ -256,10 +253,10 @@ class DatasetsClient(object):
         )
 
     def process(
-        self,
-        *,
-        dataset_id: str,
-        document_ids: List[str],
+            self,
+            *,
+            dataset_id: str,
+            document_ids: List[str],
     ) -> ListResponse[DocumentProgress]:
         """
         Check the upload progress
@@ -288,9 +285,8 @@ class DatasetsClient(object):
 
 
 class AsyncDatasetsClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
         self._documents: Optional[AsyncDatasetsDocumentsClient] = None
         self._images: Optional[AsyncDatasetsImagesClient] = None
@@ -301,7 +297,7 @@ class AsyncDatasetsClient(object):
             from .documents import AsyncDatasetsDocumentsClient
 
             self._documents = AsyncDatasetsDocumentsClient(
-                base_url=self._base_url, auth=self._auth, requester=self._requester
+                base_url=self._base_url, requester=self._requester
             )
         return self._documents
 
@@ -311,18 +307,18 @@ class AsyncDatasetsClient(object):
             from .images import AsyncDatasetsImagesClient
 
             self._images = AsyncDatasetsImagesClient(
-                base_url=self._base_url, auth=self._auth, requester=self._requester
+                base_url=self._base_url, requester=self._requester
             )
         return self._images
 
     async def create(
-        self,
-        *,
-        name: str,
-        space_id: str,
-        format_type: DocumentFormatType,
-        description: Optional[str] = None,
-        icon_file_id: Optional[str] = None,
+            self,
+            *,
+            name: str,
+            space_id: str,
+            format_type: DocumentFormatType,
+            description: Optional[str] = None,
+            icon_file_id: Optional[str] = None,
     ) -> CreateDatasetResp:
         """
         Create Dataset
@@ -350,14 +346,14 @@ class AsyncDatasetsClient(object):
         )
 
     async def list(
-        self,
-        *,
-        space_id: str,
-        name: Optional[str] = None,
-        format_type: Optional[DocumentFormatType] = None,
-        page_num: int = 1,
-        page_size: int = 10,
-        **kwargs,
+            self,
+            *,
+            space_id: str,
+            name: Optional[str] = None,
+            format_type: Optional[DocumentFormatType] = None,
+            page_num: int = 1,
+            page_size: int = 10,
+            **kwargs,
     ) -> AsyncNumberPaged[Dataset]:
         """
         List Datasets
@@ -375,8 +371,8 @@ class AsyncDatasetsClient(object):
         url = f"{self._base_url}/v1/datasets"
         headers: Optional[dict] = kwargs.get("headers")
 
-        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
-            return self._requester.make_request(
+        async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return await self._requester.amake_request(
                 "GET",
                 url,
                 headers=headers,
@@ -388,7 +384,6 @@ class AsyncDatasetsClient(object):
                     "page_num": i_page_num,
                 },
                 cast=_PrivateListDatasetsData,
-                is_async=False,
                 stream=False,
             )
 
@@ -400,12 +395,12 @@ class AsyncDatasetsClient(object):
         )
 
     async def update(
-        self,
-        *,
-        dataset_id: str,
-        name: str,
-        description: Optional[str] = None,
-        icon_file_id: Optional[str] = None,
+            self,
+            *,
+            dataset_id: str,
+            name: str,
+            description: Optional[str] = None,
+            icon_file_id: Optional[str] = None,
     ) -> UpdateDatasetRes:
         """
         Update Dataset
@@ -434,9 +429,9 @@ class AsyncDatasetsClient(object):
         )
 
     async def delete(
-        self,
-        *,
-        dataset_id: str,
+            self,
+            *,
+            dataset_id: str,
     ) -> DeleteDatasetRes:
         """
         Delete Dataset
@@ -457,10 +452,10 @@ class AsyncDatasetsClient(object):
         )
 
     async def process(
-        self,
-        *,
-        dataset_id: str,
-        document_ids: List[str],
+            self,
+            *,
+            dataset_id: str,
+            document_ids: List[str],
     ) -> ListResponse[DocumentProgress]:
         """
         Check the upload progress
