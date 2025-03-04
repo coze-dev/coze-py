@@ -19,6 +19,7 @@ from cozepy import (
     ChatUpdateEvent,
     ConversationAudioDeltaEvent,
     ConversationChatCompletedEvent,
+    ConversationChatCanceledEvent,
     InputAudio,
     InputAudioBufferAppendEvent,
     TokenAuth,
@@ -294,6 +295,14 @@ class ModernAudioChatGUI:
                         self.gui.root.after(1000, self.gui.resume_recording)
                     except Exception as e:
                         print(f"完成对话错误: {e}")
+
+                async def on_conversation_chat_canceled(
+                    self, cli: AsyncWebsocketsChatClient, event: ConversationChatCanceledEvent
+                ):
+                    try:
+                        print("打断")
+                    except Exception as e:
+                        print(f"对话打断错误: {e}")
 
             kwargs = json.loads(os.getenv("COZE_KWARGS") or "{}")
             self.chat_client = self.coze.websockets.chat.create(
