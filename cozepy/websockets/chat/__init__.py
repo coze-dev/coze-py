@@ -200,6 +200,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
                     WebsocketsEventType.CONVERSATION_AUDIO_DELTA: on_event.on_conversation_audio_delta,
                     WebsocketsEventType.CONVERSATION_AUDIO_COMPLETED: on_event.on_conversation_audio_completed,
                     WebsocketsEventType.CONVERSATION_CHAT_COMPLETED: on_event.on_conversation_chat_completed,
+                    WebsocketsEventType.CONVERSATION_CHAT_CANCELED: on_event.on_conversation_chat_canceled,
                 }
             )
         super().__init__(
@@ -329,7 +330,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
                     "data": Chat.model_validate(data),
                 }
             )
-        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_CREATED.value:
+        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_CANCELED.value:
             return ConversationChatCanceledEvent.model_validate(
                 {
                     "id": event_id,
@@ -451,6 +452,7 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
                     WebsocketsEventType.CONVERSATION_AUDIO_DELTA: on_event.on_conversation_audio_delta,
                     WebsocketsEventType.CONVERSATION_AUDIO_COMPLETED: on_event.on_conversation_audio_completed,
                     WebsocketsEventType.CONVERSATION_CHAT_COMPLETED: on_event.on_conversation_chat_completed,
+                    WebsocketsEventType.CONVERSATION_CHAT_CANCELED: on_event.on_conversation_chat_canceled,
                 }
             )
         super().__init__(
