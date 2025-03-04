@@ -1,17 +1,16 @@
 import warnings
 from typing import List, Optional
 
-from cozepy.auth import Auth, AsyncAuth
 from cozepy.datasets.documents import (
     Document,  # noqa
     DocumentBase,  # noqa
     DocumentChunkStrategy,  # noqa
-    DocumentFormatType,  # noqa
-    DocumentSourceInfo,  # noqa
-    DocumentSourceType,  # noqa
-    DocumentStatus,  # noqa
+    # noqa
+    # noqa
+    # noqa
+    # noqa
     DocumentUpdateRule,  # noqa
-    DocumentUpdateType,  # noqa
+    # noqa
 )
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
@@ -33,7 +32,7 @@ class _PrivateListDocumentsData(CozeModel, NumberPagedResponse[Document]):
 
 
 class DocumentsClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         warnings.warn(
             "The 'coze.knowledge.documents' module is deprecated and will be removed in a future version. "
             "Please use 'coze.datasets' instead.",
@@ -41,7 +40,6 @@ class DocumentsClient(object):
             stacklevel=2,
         )
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     def create(
@@ -212,7 +210,7 @@ class DocumentsClient(object):
 
 
 class AsyncDocumentsClient(object):
-    def __init__(self, base_url: str, auth: AsyncAuth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         warnings.warn(
             "The 'coze.knowledge.documents' module is deprecated and will be removed in a future version. "
             "Please use 'coze.datasets.documents' instead.",
@@ -220,7 +218,6 @@ class AsyncDocumentsClient(object):
             stacklevel=2,
         )
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     async def create(

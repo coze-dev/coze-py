@@ -1,6 +1,5 @@
 from typing import Any, AsyncIterator, Dict, List, Optional
 
-from cozepy.auth import Auth
 from cozepy.chat import (
     ChatEvent,
     Message,
@@ -13,9 +12,8 @@ from cozepy.util import remove_none_values, remove_url_trailing_slash
 
 
 class WorkflowsChatClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     def stream(
@@ -99,9 +97,8 @@ class WorkflowsChatClient(object):
 
 
 class AsyncWorkflowsChatClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     async def stream(

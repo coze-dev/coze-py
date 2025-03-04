@@ -2,7 +2,6 @@ import httpx
 import pytest
 
 from cozepy import AsyncCoze, Coze, TokenAuth, User
-from cozepy.auth import AsyncTokenAuth
 from cozepy.util import random_hex
 from tests.test_util import logid_key
 
@@ -42,7 +41,7 @@ class TestSyncUsers:
 @pytest.mark.asyncio
 class TestAsyncUsers:
     async def test_async_users_retrieve_me(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         mock_user = mock_retrieve_users_me(respx_mock)
 

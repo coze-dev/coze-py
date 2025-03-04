@@ -2,7 +2,6 @@ import httpx
 import pytest
 
 from cozepy import AsyncCoze, Coze, Message, TokenAuth
-from cozepy.auth import AsyncTokenAuth
 from cozepy.util import random_hex
 from tests.test_util import logid_key
 
@@ -160,7 +159,7 @@ class TestConversationMessage:
 @pytest.mark.asyncio
 class TestAsyncConversationMessage:
     async def test_async_conversations_messages_create(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         mock_msg = mock_create_conversations_messages(respx_mock, Message.build_assistant_answer("hi"))
 
@@ -175,7 +174,7 @@ class TestAsyncConversationMessage:
         assert message.content == mock_msg.content
 
     async def test_async_conversations_messages_list(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         total = 10
         size = 1
@@ -207,7 +206,7 @@ class TestAsyncConversationMessage:
         assert total_result == total
 
     async def test_async_conversations_messages_retrieve(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         mock_msg = mock_retrieve_conversations_messages(respx_mock, Message.build_user_question_text("hi"))
 
@@ -217,7 +216,7 @@ class TestAsyncConversationMessage:
         assert message.content == mock_msg.content
 
     async def test_async_conversations_messages_update(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
         mock_msg = mock_update_conversations_messages(respx_mock, Message.build_user_question_text("hi"))
 
         message = await coze.conversations.messages.update(conversation_id="conversation id", message_id="message id")
@@ -226,7 +225,7 @@ class TestAsyncConversationMessage:
         assert message.content == mock_msg.content
 
     async def test_async_conversations_messages_delete(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         mock_msg = mock_delete_conversations_messages(respx_mock, Message.build_user_question_text("hi"))
 

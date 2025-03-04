@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, Any, AsyncIterator, Dict, Optional
 
 import httpx
 
-from cozepy.auth import Auth
 from cozepy.model import AsyncIteratorHTTPResponse, AsyncStream, CozeModel, IteratorHTTPResponse, Stream
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
@@ -150,9 +149,8 @@ def _async_workflow_stream_handler(data: Dict[str, str], raw_response: httpx.Res
 
 
 class WorkflowsRunsClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
         self._run_histories: Optional[WorkflowsRunsRunHistoriesClient] = None
@@ -279,14 +277,13 @@ class WorkflowsRunsClient(object):
         if not self._run_histories:
             from .run_histories import WorkflowsRunsRunHistoriesClient
 
-            self._run_histories = WorkflowsRunsRunHistoriesClient(self._base_url, self._auth, self._requester)
+            self._run_histories = WorkflowsRunsRunHistoriesClient(self._base_url, self._requester)
         return self._run_histories
 
 
 class AsyncWorkflowsRunsClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
         self._run_histories: Optional[AsyncWorkflowsRunsRunHistoriesClient] = None
@@ -421,5 +418,5 @@ class AsyncWorkflowsRunsClient(object):
         if not self._run_histories:
             from .run_histories import AsyncWorkflowsRunsRunHistoriesClient
 
-            self._run_histories = AsyncWorkflowsRunsRunHistoriesClient(self._base_url, self._auth, self._requester)
+            self._run_histories = AsyncWorkflowsRunsRunHistoriesClient(self._base_url, self._requester)
         return self._run_histories

@@ -50,7 +50,7 @@ class Coze(object):
         if not self._bots:
             from cozepy.bots import BotsClient
 
-            self._bots = BotsClient(self._base_url, self._auth, self._requester)
+            self._bots = BotsClient(self._base_url, self._requester)
         return self._bots
 
     @property
@@ -58,7 +58,7 @@ class Coze(object):
         if not self._workspaces:
             from .workspaces import WorkspacesClient
 
-            self._workspaces = WorkspacesClient(self._base_url, self._auth, self._requester)
+            self._workspaces = WorkspacesClient(self._base_url, self._requester)
         return self._workspaces
 
     @property
@@ -66,7 +66,7 @@ class Coze(object):
         if not self._conversations:
             from .conversations import ConversationsClient
 
-            self._conversations = ConversationsClient(self._base_url, self._auth, self._requester)
+            self._conversations = ConversationsClient(self._base_url, self._requester)
         return self._conversations
 
     @property
@@ -74,7 +74,7 @@ class Coze(object):
         if not self._chat:
             from cozepy.chat import ChatClient
 
-            self._chat = ChatClient(self._base_url, self._auth, self._requester)
+            self._chat = ChatClient(self._base_url, self._requester)
         return self._chat
 
     @property
@@ -82,7 +82,7 @@ class Coze(object):
         if not self._files:
             from .files import FilesClient
 
-            self._files = FilesClient(self._base_url, self._auth, self._requester)
+            self._files = FilesClient(self._base_url, self._requester)
         return self._files
 
     @property
@@ -90,7 +90,7 @@ class Coze(object):
         if not self._workflows:
             from .workflows import WorkflowsClient
 
-            self._workflows = WorkflowsClient(self._base_url, self._auth, self._requester)
+            self._workflows = WorkflowsClient(self._base_url, self._requester)
         return self._workflows
 
     @property
@@ -104,7 +104,7 @@ class Coze(object):
         if not self._knowledge:
             from .knowledge import KnowledgeClient
 
-            self._knowledge = KnowledgeClient(self._base_url, self._auth, self._requester)
+            self._knowledge = KnowledgeClient(self._base_url, self._requester)
         return self._knowledge
 
     @property
@@ -112,7 +112,7 @@ class Coze(object):
         if not self._datasets:
             from .datasets import DatasetsClient
 
-            self._datasets = DatasetsClient(self._base_url, self._auth, self._requester)
+            self._datasets = DatasetsClient(self._base_url, self._requester)
         return self._datasets
 
     @property
@@ -120,7 +120,7 @@ class Coze(object):
         if not self._audio:
             from .audio import AudioClient
 
-            self._audio = AudioClient(self._base_url, self._auth, self._requester)
+            self._audio = AudioClient(self._base_url, self._requester)
         return self._audio
 
     @property
@@ -128,7 +128,7 @@ class Coze(object):
         if not self._templates:
             from .templates import TemplatesClient
 
-            self._templates = TemplatesClient(self._base_url, self._auth, self._requester)
+            self._templates = TemplatesClient(self._base_url, self._requester)
         return self._templates
 
     @property
@@ -136,20 +136,29 @@ class Coze(object):
         if not self._users:
             from .users import UsersClient
 
-            self._users = UsersClient(self._base_url, self._auth, self._requester)
+            self._users = UsersClient(self._base_url, self._requester)
         return self._users
 
 
 class AsyncCoze(object):
     def __init__(
         self,
-        auth: AsyncAuth,
+        auth: Auth | AsyncAuth,
         base_url: str = COZE_COM_BASE_URL,
         http_client: Optional[AsyncHTTPClient] = None,
     ):
         self._auth = auth
         self._base_url = remove_url_trailing_slash(base_url)
-        self._requester = Requester(async_auth=auth, async_client=http_client)
+        if isinstance(auth, Auth):
+            warnings.warn(
+                "The 'coze.Auth' use for AsyncCoze is deprecated and will be removed in a future version. "
+                "Please use 'coze.AsyncAuth' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            self._requester = Requester(auth=auth, sync_client=http_client)
+        else:
+            self._requester = Requester(async_auth=auth, async_client=http_client)
 
         # service client
         self._bots: Optional[AsyncBotsClient] = None
@@ -170,7 +179,7 @@ class AsyncCoze(object):
         if not self._bots:
             from cozepy.bots import AsyncBotsClient
 
-            self._bots = AsyncBotsClient(self._base_url, self._auth, self._requester)
+            self._bots = AsyncBotsClient(self._base_url, self._requester)
         return self._bots
 
     @property
@@ -178,7 +187,7 @@ class AsyncCoze(object):
         if not self._chat:
             from cozepy.chat import AsyncChatClient
 
-            self._chat = AsyncChatClient(self._base_url, self._auth, self._requester)
+            self._chat = AsyncChatClient(self._base_url, self._requester)
         return self._chat
 
     @property
@@ -186,7 +195,7 @@ class AsyncCoze(object):
         if not self._conversations:
             from .conversations import AsyncConversationsClient
 
-            self._conversations = AsyncConversationsClient(self._base_url, self._auth, self._requester)
+            self._conversations = AsyncConversationsClient(self._base_url, self._requester)
         return self._conversations
 
     @property
@@ -194,7 +203,7 @@ class AsyncCoze(object):
         if not self._files:
             from .files import AsyncFilesClient
 
-            self._files = AsyncFilesClient(self._base_url, self._auth, self._requester)
+            self._files = AsyncFilesClient(self._base_url, self._requester)
         return self._files
 
     @property
@@ -208,7 +217,7 @@ class AsyncCoze(object):
         if not self._knowledge:
             from .knowledge import AsyncKnowledgeClient
 
-            self._knowledge = AsyncKnowledgeClient(self._base_url, self._auth, self._requester)
+            self._knowledge = AsyncKnowledgeClient(self._base_url, self._requester)
         return self._knowledge
 
     @property
@@ -216,7 +225,7 @@ class AsyncCoze(object):
         if not self._datasets:
             from .datasets import AsyncDatasetsClient
 
-            self._datasets = AsyncDatasetsClient(self._base_url, self._auth, self._requester)
+            self._datasets = AsyncDatasetsClient(self._base_url, self._requester)
         return self._datasets
 
     @property
@@ -224,7 +233,7 @@ class AsyncCoze(object):
         if not self._workflows:
             from .workflows import AsyncWorkflowsClient
 
-            self._workflows = AsyncWorkflowsClient(self._base_url, self._auth, self._requester)
+            self._workflows = AsyncWorkflowsClient(self._base_url, self._requester)
         return self._workflows
 
     @property
@@ -232,7 +241,7 @@ class AsyncCoze(object):
         if not self._workspaces:
             from .workspaces import AsyncWorkspacesClient
 
-            self._workspaces = AsyncWorkspacesClient(self._base_url, self._auth, self._requester)
+            self._workspaces = AsyncWorkspacesClient(self._base_url, self._requester)
         return self._workspaces
 
     @property
@@ -240,7 +249,7 @@ class AsyncCoze(object):
         if not self._audio:
             from .audio import AsyncAudioClient
 
-            self._audio = AsyncAudioClient(self._base_url, self._auth, self._requester)
+            self._audio = AsyncAudioClient(self._base_url, self._requester)
         return self._audio
 
     @property
@@ -248,7 +257,7 @@ class AsyncCoze(object):
         if not self._templates:
             from .templates import AsyncTemplatesClient
 
-            self._templates = AsyncTemplatesClient(self._base_url, self._auth, self._requester)
+            self._templates = AsyncTemplatesClient(self._base_url, self._requester)
         return self._templates
 
     @property
@@ -256,7 +265,7 @@ class AsyncCoze(object):
         if not self._users:
             from .users import AsyncUsersClient
 
-            self._users = AsyncUsersClient(self._base_url, self._auth, self._requester)
+            self._users = AsyncUsersClient(self._base_url, self._requester)
         return self._users
 
     @property
@@ -264,5 +273,5 @@ class AsyncCoze(object):
         if not self._websockets:
             from .websockets import AsyncWebsocketsClient
 
-            self._websockets = AsyncWebsocketsClient(self._base_url, self._auth, self._requester)
+            self._websockets = AsyncWebsocketsClient(self._base_url, self._requester)
         return self._websockets

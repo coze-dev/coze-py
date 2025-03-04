@@ -1,7 +1,6 @@
 from typing import List, Optional
 
 from cozepy import AudioFormat
-from cozepy.auth import Auth
 from cozepy.files import FileTypes, _try_fix_file
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
@@ -55,9 +54,8 @@ class _PrivateListVoiceData(CozeModel, NumberPagedResponse[Voice]):
 
 
 class VoicesClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     def clone(
@@ -152,9 +150,8 @@ class VoicesClient(object):
 
 
 class AsyncVoicesClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     async def clone(

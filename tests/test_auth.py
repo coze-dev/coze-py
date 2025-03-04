@@ -19,8 +19,8 @@ from cozepy import (
     Scope,
     WebOAuthApp,
 )
-from cozepy.auth import AsyncJWTAuth
 from cozepy.util import random_hex
+
 from .test_util import read_file
 
 
@@ -31,45 +31,45 @@ class TestWebOAuthApp:
 
         url = app.get_oauth_url("https://example.com", "state")
         assert (
-                   "https://www.coze.com/api/permission/oauth2/authorize"
-                   "?response_type=code&"
-                   "client_id=client+id&"
-                   "redirect_uri=https%3A%2F%2Fexample.com&"
-                   "state=state"
-               ) == url
+            "https://www.coze.com/api/permission/oauth2/authorize"
+            "?response_type=code&"
+            "client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&"
+            "state=state"
+        ) == url
 
         url = app.get_oauth_url("https://example.com", "state", workspace_id="this_is_id")
         assert (
-                   "https://www.coze.com/api/permission/oauth2/workspace_id/this_is_id/authorize"
-                   "?response_type=code&"
-                   "client_id=client+id&"
-                   "redirect_uri=https%3A%2F%2Fexample.com&"
-                   "state=state"
-               ) == url
+            "https://www.coze.com/api/permission/oauth2/workspace_id/this_is_id/authorize"
+            "?response_type=code&"
+            "client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&"
+            "state=state"
+        ) == url
 
     def test_get_oauth_url_config_www_url(self, respx_mock):
         app = WebOAuthApp("client id", "client secret", www_base_url="https://example.com")
 
         url = app.get_oauth_url("https://example.com", "state")
         assert (
-                   "https://example.com/api/permission/oauth2/authorize"
-                   "?response_type=code&"
-                   "client_id=client+id&"
-                   "redirect_uri=https%3A%2F%2Fexample.com&"
-                   "state=state"
-               ) == url
+            "https://example.com/api/permission/oauth2/authorize"
+            "?response_type=code&"
+            "client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&"
+            "state=state"
+        ) == url
 
     def test_get_oauth_url_config_custom_api_base_url(self, respx_mock):
         app = WebOAuthApp("client id", "client secret", base_url="https://api.example.com")
 
         url = app.get_oauth_url("https://example.com", "state")
         assert (
-                   "https://api.example.com/api/permission/oauth2/authorize"
-                   "?response_type=code&"
-                   "client_id=client+id&"
-                   "redirect_uri=https%3A%2F%2Fexample.com&"
-                   "state=state"
-               ) == url
+            "https://api.example.com/api/permission/oauth2/authorize"
+            "?response_type=code&"
+            "client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&"
+            "state=state"
+        ) == url
 
     def test_get_access_token(self, respx_mock):
         app = WebOAuthApp("client id", "client secret")
@@ -106,45 +106,45 @@ class TestAsyncWebOAuthApp:
 
         url = app.get_oauth_url("https://example.com", "state")
         assert (
-                   "https://www.coze.com/api/permission/oauth2/authorize"
-                   "?response_type=code&"
-                   "client_id=client+id&"
-                   "redirect_uri=https%3A%2F%2Fexample.com&"
-                   "state=state"
-               ) == url
+            "https://www.coze.com/api/permission/oauth2/authorize"
+            "?response_type=code&"
+            "client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&"
+            "state=state"
+        ) == url
 
         url = app.get_oauth_url("https://example.com", "state", workspace_id="this_is_id")
         assert (
-                   "https://www.coze.com/api/permission/oauth2/workspace_id/this_is_id/authorize"
-                   "?response_type=code&"
-                   "client_id=client+id&"
-                   "redirect_uri=https%3A%2F%2Fexample.com&"
-                   "state=state"
-               ) == url
+            "https://www.coze.com/api/permission/oauth2/workspace_id/this_is_id/authorize"
+            "?response_type=code&"
+            "client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&"
+            "state=state"
+        ) == url
 
     async def test_get_oauth_url_config_www_url(self, respx_mock):
         app = AsyncWebOAuthApp("client id", "client secret", www_base_url="https://example.com")
 
         url = app.get_oauth_url("https://example.com", "state")
         assert (
-                   "https://example.com/api/permission/oauth2/authorize"
-                   "?response_type=code&"
-                   "client_id=client+id&"
-                   "redirect_uri=https%3A%2F%2Fexample.com&"
-                   "state=state"
-               ) == url
+            "https://example.com/api/permission/oauth2/authorize"
+            "?response_type=code&"
+            "client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&"
+            "state=state"
+        ) == url
 
     async def test_get_oauth_url_config_custom_api_base_url(self, respx_mock):
         app = AsyncWebOAuthApp("client id", "client secret", base_url="https://api.example.com")
 
         url = app.get_oauth_url("https://example.com", "state")
         assert (
-                   "https://api.example.com/api/permission/oauth2/authorize"
-                   "?response_type=code&"
-                   "client_id=client+id&"
-                   "redirect_uri=https%3A%2F%2Fexample.com&"
-                   "state=state"
-               ) == url
+            "https://api.example.com/api/permission/oauth2/authorize"
+            "?response_type=code&"
+            "client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&"
+            "state=state"
+        ) == url
 
     async def test_get_access_token(self, respx_mock):
         app = AsyncWebOAuthApp("client id", "client secret")
@@ -186,9 +186,9 @@ class TestJWTOAuthApp:
 
         auth = JWTAuth("client id", private_key, "public key id")
 
-        assert "Bearer" == auth.token_type()
-        assert mock_token == auth.token()
-        assert mock_token == auth.token()  # get from cache
+        assert "Bearer" == auth.token_type
+        assert mock_token == auth.token
+        assert mock_token == auth.token  # get from cache
 
     def test_get_access_token(self, respx_mock):
         private_key = read_file("testdata/private_key.pem")
@@ -207,22 +207,6 @@ class TestJWTOAuthApp:
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
 class TestAsyncJWTOAuthApp:
-
-    async def test_jwt_auth(self, respx_mock):
-        private_key = read_file("testdata/private_key.pem")
-        mock_token = random_hex(20)
-        respx_mock.post("/api/permission/oauth2/token").mock(
-            httpx.Response(
-                200, content=OAuthToken(access_token=mock_token, expires_in=int(time.time()) + 100).model_dump_json()
-            )
-        )
-
-        auth = AsyncJWTAuth("client id", private_key, "public key id")
-
-        assert "Bearer" == await auth.token_type()
-        assert mock_token == await auth.token()
-        assert mock_token == await auth.token()  # get from cache
-
     async def test_get_access_token(self, respx_mock):
         private_key = read_file("testdata/private_key.pem")
         app = AsyncJWTOAuthApp("client id", private_key, "public key id")
@@ -244,21 +228,21 @@ class TestPKCEOAuthApp:
 
         url = app.get_oauth_url("https://example.com", "code_verifier", "S256", state="state")
         assert (
-                   "https://www.coze.com/api/permission/oauth2/authorize?"
-                   "response_type=code&client_id=client+id&"
-                   "redirect_uri=https%3A%2F%2Fexample.com&state=state&"
-                   "code_challenge=73oehA2tBul5grZPhXUGQwNAjxh69zNES8bu2bVD0EM&code_challenge_method=S256"
-               ) == url
+            "https://www.coze.com/api/permission/oauth2/authorize?"
+            "response_type=code&client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&state=state&"
+            "code_challenge=73oehA2tBul5grZPhXUGQwNAjxh69zNES8bu2bVD0EM&code_challenge_method=S256"
+        ) == url
 
         url = app.get_oauth_url(
             "https://example.com", "code_verifier", "S256", state="state", workspace_id="this_is_id"
         )
         assert (
-                   "https://www.coze.com/api/permission/oauth2/workspace_id/this_is_id/authorize?"
-                   "response_type=code&client_id=client+id&"
-                   "redirect_uri=https%3A%2F%2Fexample.com&state=state&"
-                   "code_challenge=73oehA2tBul5grZPhXUGQwNAjxh69zNES8bu2bVD0EM&code_challenge_method=S256"
-               ) == url
+            "https://www.coze.com/api/permission/oauth2/workspace_id/this_is_id/authorize?"
+            "response_type=code&client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&state=state&"
+            "code_challenge=73oehA2tBul5grZPhXUGQwNAjxh69zNES8bu2bVD0EM&code_challenge_method=S256"
+        ) == url
 
     def test_get_access_token(self, respx_mock):
         app = PKCEOAuthApp("client id")
@@ -295,21 +279,21 @@ class TestAsyncPKCEOAuthApp:
 
         url = app.get_oauth_url("https://example.com", "code_verifier", "S256", state="state")
         assert (
-                   "https://www.coze.com/api/permission/oauth2/authorize?"
-                   "response_type=code&client_id=client+id&"
-                   "redirect_uri=https%3A%2F%2Fexample.com&state=state&"
-                   "code_challenge=73oehA2tBul5grZPhXUGQwNAjxh69zNES8bu2bVD0EM&code_challenge_method=S256"
-               ) == url
+            "https://www.coze.com/api/permission/oauth2/authorize?"
+            "response_type=code&client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&state=state&"
+            "code_challenge=73oehA2tBul5grZPhXUGQwNAjxh69zNES8bu2bVD0EM&code_challenge_method=S256"
+        ) == url
 
         url = app.get_oauth_url(
             "https://example.com", "code_verifier", "S256", workspace_id="this_is_id", state="state"
         )
         assert (
-                   "https://www.coze.com/api/permission/oauth2/workspace_id/this_is_id/authorize?"
-                   "response_type=code&client_id=client+id&"
-                   "redirect_uri=https%3A%2F%2Fexample.com&state=state&"
-                   "code_challenge=73oehA2tBul5grZPhXUGQwNAjxh69zNES8bu2bVD0EM&code_challenge_method=S256"
-               ) == url
+            "https://www.coze.com/api/permission/oauth2/workspace_id/this_is_id/authorize?"
+            "response_type=code&client_id=client+id&"
+            "redirect_uri=https%3A%2F%2Fexample.com&state=state&"
+            "code_challenge=73oehA2tBul5grZPhXUGQwNAjxh69zNES8bu2bVD0EM&code_challenge_method=S256"
+        ) == url
 
     async def test_get_access_token(self, respx_mock):
         app = AsyncPKCEOAuthApp("client id")

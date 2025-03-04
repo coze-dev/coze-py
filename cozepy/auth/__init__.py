@@ -680,6 +680,7 @@ class Auth(abc.ABC):
     It provides the abstract methods for getting the token type and token.
     """
 
+    @property
     @abc.abstractmethod
     def token_type(self) -> str:
         """
@@ -690,6 +691,7 @@ class Auth(abc.ABC):
         :return: token type
         """
 
+    @property
     @abc.abstractmethod
     def token(self) -> str:
         """
@@ -705,7 +707,7 @@ class Auth(abc.ABC):
         :param headers: http headers
         :return: None
         """
-        headers["Authorization"] = f"{self.token_type()} {self.token()}"
+        headers["Authorization"] = f"{self.token_type} {self.token}"
 
 
 class TokenAuth(Auth):
@@ -718,9 +720,11 @@ class TokenAuth(Auth):
         assert len(token) > 0
         self._token = token
 
+    @property
     def token_type(self) -> str:
         return "Bearer"
 
+    @property
     def token(self) -> str:
         return self._token
 
@@ -755,9 +759,11 @@ class JWTAuth(Auth):
                 client_id, private_key, public_key_id, base_url=remove_url_trailing_slash(base_url)
             )
 
+    @property
     def token_type(self) -> str:
         return "Bearer"
 
+    @property
     def token(self) -> str:
         token = self._generate_token()
         return token.access_token
@@ -776,6 +782,7 @@ class AsyncAuth(abc.ABC):
     It provides the abstract methods for getting the token type and token.
     """
 
+    @property
     @abc.abstractmethod
     async def token_type(self) -> str:
         """
@@ -786,6 +793,7 @@ class AsyncAuth(abc.ABC):
         :return: token type
         """
 
+    @property
     @abc.abstractmethod
     async def token(self) -> str:
         """
@@ -801,7 +809,7 @@ class AsyncAuth(abc.ABC):
         :param headers: http headers
         :return: None
         """
-        headers["Authorization"] = f"{await self.token_type()} {await self.token()}"
+        headers["Authorization"] = f"{await self.token_type} {await self.token}"
 
 
 class AsyncTokenAuth(AsyncAuth):
@@ -814,9 +822,11 @@ class AsyncTokenAuth(AsyncAuth):
         assert len(token) > 0
         self._token = token
 
+    @property
     async def token_type(self) -> str:
         return "Bearer"
 
+    @property
     async def token(self) -> str:
         return self._token
 
@@ -851,9 +861,11 @@ class AsyncJWTAuth(AsyncAuth):
                 client_id, private_key, public_key_id, base_url=remove_url_trailing_slash(base_url)
             )
 
+    @property
     async def token_type(self) -> str:
         return "Bearer"
 
+    @property
     async def token(self) -> str:
         token = await self._generate_token()
         return token.access_token

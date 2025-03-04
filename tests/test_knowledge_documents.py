@@ -17,7 +17,6 @@ from cozepy import (
     DocumentUpdateType,
     TokenAuth,
 )
-from cozepy.auth import AsyncTokenAuth
 
 
 @pytest.fixture(autouse=True)
@@ -224,7 +223,7 @@ class TestKnowledgeDocuments:
 @pytest.mark.asyncio
 class TestAsyncKnowledgeDocuments:
     async def test_sync_knowledge_documents_create_web_auto_update(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/open_api/knowledge/document/create").mock(
             httpx.Response(
@@ -248,7 +247,7 @@ class TestAsyncKnowledgeDocuments:
         assert len(documents) == 1
 
     async def test_sync_knowledge_documents_create_local_custom(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/open_api/knowledge/document/create").mock(
             httpx.Response(
@@ -272,21 +271,21 @@ class TestAsyncKnowledgeDocuments:
         assert len(documents) == 1
 
     async def test_sync_knowledge_documents_update(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/open_api/knowledge/document/update").mock(httpx.Response(200, json={"data": None}))
 
         await coze.knowledge.documents.update(document_id="id", document_name="name")
 
     async def test_sync_knowledge_documents_delete(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         respx_mock.post("/open_api/knowledge/document/delete").mock(httpx.Response(200, json={"data": None}))
 
         await coze.knowledge.documents.delete(document_ids=["id"])
 
     async def test_sync_knowledge_documents_list(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         total = 10
         mock_documents_list(respx_mock, total, 1)
@@ -296,7 +295,7 @@ class TestAsyncKnowledgeDocuments:
         assert resp.total == total
 
     async def test_async_knowledge_documents_iterator(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         total = 10
         for idx in range(total):
@@ -312,7 +311,7 @@ class TestAsyncKnowledgeDocuments:
         assert total_result == total
 
     async def test_async_knowledge_documents_page_iterator(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         total = 10
         for idx in range(total):

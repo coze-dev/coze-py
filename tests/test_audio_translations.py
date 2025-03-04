@@ -2,7 +2,6 @@ import httpx
 import pytest
 
 from cozepy import AsyncCoze, Coze, TokenAuth
-from cozepy.auth import AsyncTokenAuth
 from cozepy.util import random_hex
 from tests.test_util import logid_key
 
@@ -42,7 +41,7 @@ class TestSyncAudioTranscriptions:
 @pytest.mark.asyncio
 class TestAsyncAudioTranscriptions:
     async def test_async_transcriptions_create(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         mock_logid = mock_create_transcriptions(respx_mock)
 

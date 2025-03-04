@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, AsyncIterator, Dict, List, Optional, Union, ov
 import httpx
 from typing_extensions import Literal
 
-from cozepy.auth import Auth, AsyncAuth
 from cozepy.model import AsyncIteratorHTTPResponse, AsyncStream, CozeModel, IteratorHTTPResponse, ListResponse, Stream
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
@@ -427,9 +426,8 @@ class ToolOutput(CozeModel):
 
 
 class ChatClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
         self._messages: Optional[ChatMessagesClient] = None
 
@@ -758,14 +756,13 @@ class ChatClient(object):
         if self._messages is None:
             from .message import ChatMessagesClient
 
-            self._messages = ChatMessagesClient(self._base_url, self._auth, self._requester)
+            self._messages = ChatMessagesClient(self._base_url, self._requester)
         return self._messages
 
 
 class AsyncChatClient(object):
-    def __init__(self, base_url: str, auth: AsyncAuth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
         self._messages: Optional[AsyncChatMessagesClient] = None
 
@@ -1065,5 +1062,5 @@ class AsyncChatClient(object):
         if self._messages is None:
             from .message import AsyncChatMessagesClient
 
-            self._messages = AsyncChatMessagesClient(self._base_url, self._auth, self._requester)
+            self._messages = AsyncChatMessagesClient(self._base_url, self._requester)
         return self._messages

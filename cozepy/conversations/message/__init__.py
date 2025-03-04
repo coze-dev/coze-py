@@ -1,6 +1,5 @@
 from typing import Dict, List, Optional
 
-from cozepy.auth import Auth, AsyncAuth
 from cozepy.chat import Message, MessageContentType, MessageRole
 from cozepy.model import AsyncLastIDPaged, CozeModel, HTTPRequest, LastIDPaged, LastIDPagedResponse
 from cozepy.request import Requester
@@ -31,9 +30,8 @@ class MessagesClient(object):
     Message class.
     """
 
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     def create(
@@ -215,9 +213,8 @@ class AsyncMessagesClient(object):
     Message class.
     """
 
-    def __init__(self, base_url: str, auth: AsyncAuth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     async def create(

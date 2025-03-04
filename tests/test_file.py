@@ -5,7 +5,6 @@ import httpx
 import pytest
 
 from cozepy import AsyncCoze, Coze, File, TokenAuth
-from cozepy.auth import AsyncTokenAuth
 from cozepy.files import _try_fix_file
 from cozepy.util import random_hex
 from tests.test_util import logid_key
@@ -71,7 +70,7 @@ class TestSyncFiles:
 @pytest.mark.asyncio
 class TestAsyncFiles:
     async def test_async_files_upload(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         mock_file = mock_upload_files(respx_mock)
 
@@ -82,7 +81,7 @@ class TestAsyncFiles:
             assert file.file_name == "name"
 
     async def test_async_files_retrieve(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         mock_file = mock_retrieve_files(respx_mock)
 

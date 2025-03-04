@@ -1,6 +1,5 @@
 from typing import Optional
 
-from cozepy.auth import Auth
 from cozepy.files import FileTypes, _try_fix_file
 from cozepy.model import CozeModel
 from cozepy.request import Requester
@@ -13,9 +12,8 @@ class CreateTranscriptionsResp(CozeModel):
 
 
 class TranscriptionsClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     def create(
@@ -43,9 +41,8 @@ class AsyncTranscriptionsClient(object):
     Room service async client.
     """
 
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     async def create(

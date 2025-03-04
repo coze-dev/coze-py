@@ -2,7 +2,6 @@ import httpx
 import pytest
 
 from cozepy import AsyncCoze, Coze, TemplateDuplicateResp, TokenAuth
-from cozepy.auth import AsyncTokenAuth
 from cozepy.util import random_hex
 
 
@@ -40,7 +39,7 @@ class TestTemplate:
 @pytest.mark.asyncio
 class TestAsyncTemplate:
     async def test_async_template_duplicate(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         entity_id = random_hex(10)
         entity_type = "agent"

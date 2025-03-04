@@ -4,7 +4,6 @@ import httpx
 import pytest
 
 from cozepy import AsyncCoze, AudioFormat, Coze, TokenAuth, Voice
-from cozepy.auth import AsyncTokenAuth
 from cozepy.util import random_hex
 from tests.test_util import logid_key
 
@@ -89,7 +88,7 @@ class TestSyncAudioVoices:
 @pytest.mark.asyncio
 class TestAsyncAudioVoices:
     async def test_async_voices_list(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         mock_logid = mock_list_voices(respx_mock)
 
@@ -101,7 +100,7 @@ class TestAsyncAudioVoices:
         assert len(voices) == 1
 
     async def test_async_clone_voice(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        coze = AsyncCoze(auth=TokenAuth(token="token"))
 
         mock_voice = mock_clone_voice(respx_mock)
 

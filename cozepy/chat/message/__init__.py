@@ -1,4 +1,3 @@
-from cozepy.auth import Auth, AsyncAuth
 from cozepy.chat import Message
 from cozepy.model import ListResponse
 from cozepy.request import Requester
@@ -6,9 +5,8 @@ from cozepy.util import remove_url_trailing_slash
 
 
 class ChatMessagesClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     def list(
@@ -37,9 +35,8 @@ class ChatMessagesClient(object):
 
 
 class AsyncChatMessagesClient(object):
-    def __init__(self, base_url: str, auth: AsyncAuth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     async def list(

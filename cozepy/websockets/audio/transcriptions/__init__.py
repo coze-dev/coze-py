@@ -3,7 +3,6 @@ from typing import Callable, Dict, Optional, Union
 
 from pydantic import BaseModel, field_serializer
 
-from cozepy.auth import Auth, AsyncAuth
 from cozepy.log import log_warning
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
@@ -103,7 +102,6 @@ class WebsocketsAudioTranscriptionsClient(WebsocketsBaseClient):
     def __init__(
             self,
             base_url: str,
-            auth: Auth,
             requester: Requester,
             on_event: Union[WebsocketsAudioTranscriptionsEventHandler, Dict[WebsocketsEventType, Callable]],
             **kwargs,
@@ -119,7 +117,6 @@ class WebsocketsAudioTranscriptionsClient(WebsocketsBaseClient):
             )
         super().__init__(
             base_url=base_url,
-            auth=auth,
             requester=requester,
             path="v1/audio/transcriptions",
             on_event=on_event,  # type: ignore
@@ -180,9 +177,8 @@ class WebsocketsAudioTranscriptionsClient(WebsocketsBaseClient):
 
 
 class WebsocketsAudioTranscriptionsBuildClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     def create(
@@ -193,7 +189,6 @@ class WebsocketsAudioTranscriptionsBuildClient(object):
     ) -> WebsocketsAudioTranscriptionsClient:
         return WebsocketsAudioTranscriptionsClient(
             base_url=self._base_url,
-            auth=self._auth,
             requester=self._requester,
             on_event=on_event,  # type: ignore
             **kwargs,
@@ -226,7 +221,6 @@ class AsyncWebsocketsAudioTranscriptionsClient(AsyncWebsocketsBaseClient):
     def __init__(
             self,
             base_url: str,
-            auth: AsyncAuth,
             requester: Requester,
             on_event: Union[AsyncWebsocketsAudioTranscriptionsEventHandler, Dict[WebsocketsEventType, Callable]],
             **kwargs,
@@ -242,7 +236,6 @@ class AsyncWebsocketsAudioTranscriptionsClient(AsyncWebsocketsBaseClient):
             )
         super().__init__(
             base_url=base_url,
-            auth=auth,
             requester=requester,
             path="v1/audio/transcriptions",
             on_event=on_event,  # type: ignore
@@ -303,9 +296,8 @@ class AsyncWebsocketsAudioTranscriptionsClient(AsyncWebsocketsBaseClient):
 
 
 class AsyncWebsocketsAudioTranscriptionsBuildClient(object):
-    def __init__(self, base_url: str, auth: AsyncAuth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     def create(
@@ -316,7 +308,6 @@ class AsyncWebsocketsAudioTranscriptionsBuildClient(object):
     ) -> AsyncWebsocketsAudioTranscriptionsClient:
         return AsyncWebsocketsAudioTranscriptionsClient(
             base_url=self._base_url,
-            auth=self._auth,
             requester=self._requester,
             on_event=on_event,  # type: ignore
             **kwargs,

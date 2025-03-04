@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 from typing import IO, Optional, Tuple, Union
 
-from cozepy.auth import Auth, AsyncAuth
 from cozepy.model import CozeModel
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
@@ -49,9 +48,8 @@ def _try_fix_file(file: FileTypes) -> FileTypes:
 
 
 class FilesClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     def upload(self, *, file: FileTypes) -> File:
@@ -93,9 +91,8 @@ class FilesClient(object):
 
 
 class AsyncFilesClient(object):
-    def __init__(self, base_url: str, auth: AsyncAuth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     async def upload(self, *, file: FileTypes) -> File:
