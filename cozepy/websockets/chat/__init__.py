@@ -124,6 +124,7 @@ class ConversationChatCompletedEvent(WebsocketsEvent):
     data: Chat
 
 
+# resp
 class ConversationChatCanceledEvent(WebsocketsEvent):
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_CANCELED
 
