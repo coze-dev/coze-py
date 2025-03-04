@@ -54,6 +54,7 @@ class ConversationChatSubmitToolOutputsEvent(WebsocketsEvent):
     data: Data
 
 
+# req
 class ConversationChatCancelEvent(WebsocketsEvent):
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_CANCEL
 
