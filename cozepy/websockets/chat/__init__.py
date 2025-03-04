@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -6,7 +6,7 @@ from cozepy import Chat, Message, ToolOutput
 from cozepy.auth import Auth, AsyncAuth
 from cozepy.log import log_warning
 from cozepy.request import Requester
-from cozepy.util import remove_url_trailing_slash
+from cozepy.util import remove_none_values, remove_url_trailing_slash
 from cozepy.websockets.audio.transcriptions import (
     InputAudioBufferAppendEvent,
     InputAudioBufferCompletedEvent,
@@ -33,6 +33,7 @@ class ChatUpdateEvent(WebsocketsEvent):
         custom_variables: Optional[Dict[str, str]] = None
         extra_params: Optional[Dict[str, str]] = None
         auto_save_history: Optional[bool] = None
+        parameters: Optional[Dict[str, Any]] = None
 
     class Data(BaseModel):
         output_audio: Optional[OutputAudio] = None
@@ -82,6 +83,15 @@ class ConversationMessageDeltaEvent(WebsocketsEvent):
 
 
 # resp
+class ConversationAudioTranscriptCompletedEvent(WebsocketsEvent):
+    class Data(BaseModel):
+        content: str
+
+    event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED
+    data: Data
+
+
+# resp
 class ConversationMessageCompletedEvent(WebsocketsEvent):
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_MESSAGE_COMPLETED
 
@@ -128,11 +138,16 @@ class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
     def on_conversation_message_delta(self, cli: "WebsocketsChatClient", event: ConversationMessageDeltaEvent):
         pass
 
+    def on_conversation_audio_transcript_completed(
+        self, cli: "WebsocketsChatClient", event: ConversationAudioTranscriptCompletedEvent
+    ):
+        pass
+
     def on_conversation_message_completed(self, cli: "WebsocketsChatClient", event: ConversationMessageCompletedEvent):
         pass
 
     def on_conversation_chat_requires_action(
-            self, cli: "WebsocketsChatClient", event: ConversationChatRequiresActionEvent
+        self, cli: "WebsocketsChatClient", event: ConversationChatRequiresActionEvent
     ):
         pass
 
@@ -148,13 +163,14 @@ class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
 
 class WebsocketsChatClient(WebsocketsBaseClient):
     def __init__(
-            self,
-            base_url: str,
-            auth: Auth,
-            requester: Requester,
-            bot_id: str,
-            on_event: Union[WebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
-            **kwargs,
+        self,
+        base_url: str,
+        auth: Auth,
+        requester: Requester,
+        bot_id: str,
+        workflow_id: str,
+        on_event: Union[WebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
+        **kwargs,
     ):
         if isinstance(on_event, WebsocketsChatEventHandler):
             on_event = on_event.to_dict(
@@ -165,6 +181,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
                     WebsocketsEventType.CONVERSATION_CHAT_CREATED: on_event.on_conversation_chat_created,
                     WebsocketsEventType.CONVERSATION_CHAT_IN_PROGRESS: on_event.on_conversation_chat_in_progress,
                     WebsocketsEventType.CONVERSATION_MESSAGE_DELTA: on_event.on_conversation_message_delta,
+                    WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED: on_event.on_conversation_audio_transcript_completed,
                     WebsocketsEventType.CONVERSATION_CHAT_REQUIRES_ACTION: on_event.on_conversation_chat_requires_action,
                     WebsocketsEventType.CONVERSATION_MESSAGE_COMPLETED: on_event.on_conversation_message_completed,
                     WebsocketsEventType.CONVERSATION_AUDIO_DELTA: on_event.on_conversation_audio_delta,
@@ -177,9 +194,12 @@ class WebsocketsChatClient(WebsocketsBaseClient):
             auth=auth,
             requester=requester,
             path="v1/chat",
-            query={
-                "bot_id": bot_id,
-            },
+            query=remove_none_values(
+                {
+                    "bot_id": bot_id,
+                    "workflow_id": workflow_id,
+                }
+            ),
             on_event=on_event,  # type: ignore
             wait_events=[WebsocketsEventType.CONVERSATION_CHAT_COMPLETED],
             **kwargs,
@@ -247,6 +267,14 @@ class WebsocketsChatClient(WebsocketsBaseClient):
                     "data": Message.model_validate(data),
                 }
             )
+        elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED.value:
+            return ConversationAudioTranscriptCompletedEvent.model_validate(
+                {
+                    "id": event_id,
+                    "detail": detail,
+                    "data": ConversationAudioTranscriptCompletedEvent.Data.model_validate(data),
+                }
+            )
         elif event_type == WebsocketsEventType.CONVERSATION_CHAT_REQUIRES_ACTION.value:
             return ConversationChatRequiresActionEvent.model_validate(
                 {
@@ -297,17 +325,19 @@ class WebsocketsChatBuildClient(object):
         self._requester = requester
 
     def create(
-            self,
-            *,
-            bot_id: str,
-            on_event: Union[WebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
-            **kwargs,
+        self,
+        *,
+        bot_id: str,
+        workflow_id: str,
+        on_event: Union[WebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
+        **kwargs,
     ) -> WebsocketsChatClient:
         return WebsocketsChatClient(
             base_url=self._base_url,
             auth=self._auth,
             requester=self._requester,
             bot_id=bot_id,
+            workflow_id=workflow_id,
             on_event=on_event,  # type: ignore
             **kwargs,
         )
@@ -321,7 +351,7 @@ class AsyncWebsocketsChatEventHandler(AsyncWebsocketsBaseEventHandler):
         pass
 
     async def on_input_audio_buffer_completed(
-            self, cli: "AsyncWebsocketsChatClient", event: InputAudioBufferCompletedEvent
+        self, cli: "AsyncWebsocketsChatClient", event: InputAudioBufferCompletedEvent
     ):
         pass
 
@@ -329,22 +359,27 @@ class AsyncWebsocketsChatEventHandler(AsyncWebsocketsBaseEventHandler):
         pass
 
     async def on_conversation_chat_in_progress(
-            self, cli: "AsyncWebsocketsChatClient", event: ConversationChatInProgressEvent
+        self, cli: "AsyncWebsocketsChatClient", event: ConversationChatInProgressEvent
     ):
         pass
 
     async def on_conversation_message_delta(
-            self, cli: "AsyncWebsocketsChatClient", event: ConversationMessageDeltaEvent
+        self, cli: "AsyncWebsocketsChatClient", event: ConversationMessageDeltaEvent
+    ):
+        pass
+
+    async def on_conversation_audio_transcript_completed(
+        self, cli: "AsyncWebsocketsChatClient", event: ConversationAudioTranscriptCompletedEvent
     ):
         pass
 
     async def on_conversation_chat_requires_action(
-            self, cli: "AsyncWebsocketsChatClient", event: ConversationChatRequiresActionEvent
+        self, cli: "AsyncWebsocketsChatClient", event: ConversationChatRequiresActionEvent
     ):
         pass
 
     async def on_conversation_message_completed(
-            self, cli: "AsyncWebsocketsChatClient", event: ConversationMessageCompletedEvent
+        self, cli: "AsyncWebsocketsChatClient", event: ConversationMessageCompletedEvent
     ):
         pass
 
@@ -352,25 +387,26 @@ class AsyncWebsocketsChatEventHandler(AsyncWebsocketsBaseEventHandler):
         pass
 
     async def on_conversation_audio_completed(
-            self, cli: "AsyncWebsocketsChatClient", event: ConversationAudioCompletedEvent
+        self, cli: "AsyncWebsocketsChatClient", event: ConversationAudioCompletedEvent
     ):
         pass
 
     async def on_conversation_chat_completed(
-            self, cli: "AsyncWebsocketsChatClient", event: ConversationChatCompletedEvent
+        self, cli: "AsyncWebsocketsChatClient", event: ConversationChatCompletedEvent
     ):
         pass
 
 
 class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
     def __init__(
-            self,
-            base_url: str,
-            auth: AsyncAuth,
-            requester: Requester,
-            bot_id: str,
-            on_event: Union[AsyncWebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
-            **kwargs,
+        self,
+        base_url: str,
+        auth: AsyncAuth,
+        requester: Requester,
+        bot_id: str,
+        workflow_id: str,
+        on_event: Union[AsyncWebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
+        **kwargs,
     ):
         if isinstance(on_event, AsyncWebsocketsChatEventHandler):
             on_event = on_event.to_dict(
@@ -381,6 +417,7 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
                     WebsocketsEventType.CONVERSATION_CHAT_CREATED: on_event.on_conversation_chat_created,
                     WebsocketsEventType.CONVERSATION_CHAT_IN_PROGRESS: on_event.on_conversation_chat_in_progress,
                     WebsocketsEventType.CONVERSATION_MESSAGE_DELTA: on_event.on_conversation_message_delta,
+                    WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED: on_event.on_conversation_audio_transcript_completed,
                     WebsocketsEventType.CONVERSATION_CHAT_REQUIRES_ACTION: on_event.on_conversation_chat_requires_action,
                     WebsocketsEventType.CONVERSATION_MESSAGE_COMPLETED: on_event.on_conversation_message_completed,
                     WebsocketsEventType.CONVERSATION_AUDIO_DELTA: on_event.on_conversation_audio_delta,
@@ -393,9 +430,12 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
             auth=auth,
             requester=requester,
             path="v1/chat",
-            query={
-                "bot_id": bot_id,
-            },
+            query=remove_none_values(
+                {
+                    "bot_id": bot_id,
+                    "workflow_id": workflow_id,
+                }
+            ),
             on_event=on_event,  # type: ignore
             wait_events=[WebsocketsEventType.CONVERSATION_CHAT_COMPLETED],
             **kwargs,
@@ -463,6 +503,14 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
                     "data": Message.model_validate(data),
                 }
             )
+        elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED.value:
+            return ConversationAudioTranscriptCompletedEvent.model_validate(
+                {
+                    "id": event_id,
+                    "detail": detail,
+                    "data": ConversationAudioTranscriptCompletedEvent.Data.model_validate(data),
+                }
+            )
         elif event_type == WebsocketsEventType.CONVERSATION_CHAT_REQUIRES_ACTION.value:
             return ConversationChatRequiresActionEvent.model_validate(
                 {
@@ -513,17 +561,19 @@ class AsyncWebsocketsChatBuildClient(object):
         self._requester = requester
 
     def create(
-            self,
-            *,
-            bot_id: str,
-            on_event: Union[AsyncWebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
-            **kwargs,
+        self,
+        *,
+        bot_id: str,
+        workflow_id: str,
+        on_event: Union[AsyncWebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
+        **kwargs,
     ) -> AsyncWebsocketsChatClient:
         return AsyncWebsocketsChatClient(
             base_url=self._base_url,
             auth=self._auth,
             requester=self._requester,
             bot_id=bot_id,
+            workflow_id=workflow_id,
             on_event=on_event,  # type: ignore
             **kwargs,
         )
