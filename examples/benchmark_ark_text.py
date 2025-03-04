@@ -71,9 +71,11 @@ async def main():
     times = 100
     text_latency = []
     for i in range(times):
-        logid, text, latency = test_latency(ep, token, text)
+        logid, first_text, latency = test_latency(ep, token, text)
         text_latency.append(latency)
-        print(f"[latency.ark.text] {i}, latency: {cal_latency(latency, text_latency)}, log: {logid}, text: {text}")
+        print(
+            f"[latency.ark.text] {i}, latency: {cal_latency(latency, text_latency)}, log: {logid}, text: {first_text}"
+        )
 
 
 if __name__ == "__main__":

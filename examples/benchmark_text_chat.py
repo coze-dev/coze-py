@@ -115,9 +115,9 @@ async def main():
     times = 100
     text_latency = []
     for i in range(times):
-        logid, text, latency = await test_latency(coze, bot_id, text)
+        logid, first_text, latency = await test_latency(coze, bot_id, text)
         text_latency.append(latency)
-        print(f"[latency.text] {i}, latency: {cal_latency(latency, text_latency)}, log: {logid}, text: {text}")
+        print(f"[latency.text] {i}, latency: {cal_latency(latency, text_latency)}, log: {logid}, text: {first_text}")
 
 
 if __name__ == "__main__":
