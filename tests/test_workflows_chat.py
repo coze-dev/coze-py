@@ -12,6 +12,7 @@ from cozepy import (
     Coze,
     TokenAuth,
 )
+from cozepy.auth import AsyncTokenAuth
 from cozepy.util import random_hex
 from tests.test_util import logid_key, read_file
 
@@ -118,7 +119,7 @@ class TestSyncWorkflowsChat:
 @pytest.mark.asyncio
 class TestAsyncWorkflowsChat:
     async def test_async_workflows_chat_stream(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_workflows_chat_stream(respx_mock, read_file("testdata/workflows_chat_stream_resp.txt"))
         stream = coze.workflows.chat.stream(workflow_id="workflow", bot_id="bot")
@@ -147,7 +148,7 @@ class TestAsyncWorkflowsChat:
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
 
     async def test_async_chat_stream_error(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_workflows_chat_stream(respx_mock, read_file("testdata/chat_error_resp.txt"))
         stream = coze.workflows.chat.stream(workflow_id="workflow", bot_id="bot")
@@ -157,7 +158,7 @@ class TestAsyncWorkflowsChat:
             _ = [event async for event in stream]
 
     async def test_async_chat_stream_failed(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_workflows_chat_stream(respx_mock, read_file("testdata/chat_failed_resp.txt"))
         stream = coze.workflows.chat.stream(workflow_id="workflow", bot_id="bot")
@@ -169,7 +170,7 @@ class TestAsyncWorkflowsChat:
         assert events[0].chat.last_error.code == 5000
 
     async def test_async_chat_stream_invalid_event(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_workflows_chat_stream(respx_mock, read_file("testdata/chat_invalid_resp.txt"))
 

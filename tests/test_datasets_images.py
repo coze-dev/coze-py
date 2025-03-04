@@ -6,6 +6,7 @@ from cozepy import (
     Coze,
     TokenAuth,
 )
+from cozepy.auth import AsyncTokenAuth
 from cozepy.datasets.documents import DocumentSourceType
 from cozepy.datasets.images import Photo, PhotoStatus
 from cozepy.util import random_hex
@@ -101,7 +102,7 @@ class TestSyncDatasetsImages:
 @pytest.mark.asyncio
 class TestAsyncDatasetsDocuments:
     async def test_sync_datasets_images_update(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         dataset_id, document_id, mock_logid = mock_update_datasets_images(respx_mock)
 
@@ -110,7 +111,7 @@ class TestAsyncDatasetsDocuments:
         assert res.response.logid == mock_logid
 
     async def test_sync_datasets_images_list(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         dataset_id = random_hex(10)
         total = 10

@@ -18,6 +18,7 @@ from cozepy import (
     MessageObjectString,
     TokenAuth,
 )
+from cozepy.auth import AsyncTokenAuth
 from cozepy.util import random_hex, write_pcm_to_wav_file
 from tests.test_util import logid_key, read_file
 
@@ -357,7 +358,7 @@ class TestSyncChat:
 @pytest.mark.asyncio
 class TestAsyncChatConversationMessage:
     async def test_async_chat_create(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         conversation_id = "conversation_id"
         mock_logid = mock_chat_create(respx_mock, conversation_id, ChatStatus.FAILED)
@@ -369,7 +370,7 @@ class TestAsyncChatConversationMessage:
         assert res.conversation_id == conversation_id
 
     async def test_async_chat_stream(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_chat_stream(respx_mock, read_file("testdata/chat_text_stream_resp.txt"))
         stream = coze.chat.stream(bot_id="bot", user_id="user")
@@ -399,7 +400,7 @@ class TestAsyncChatConversationMessage:
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
 
     async def test_async_chat_audio_stream(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_audio_stream_resp.txt"))  # noqa: F841
         stream = coze.chat.stream(
@@ -424,7 +425,7 @@ class TestAsyncChatConversationMessage:
         assert os.path.exists(temp_filename)
 
     async def test_async_chat_stream_error(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_error_resp.txt"))  # noqa: F841
         stream = coze.chat.stream(bot_id="bot", user_id="user")
@@ -433,7 +434,7 @@ class TestAsyncChatConversationMessage:
             [event async for event in stream]
 
     async def test_async_chat_stream_failed(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_failed_resp.txt"))  # noqa: F841
         stream = coze.chat.stream(bot_id="bot", user_id="user")
@@ -444,7 +445,7 @@ class TestAsyncChatConversationMessage:
         assert events[0].chat.last_error.code == 5000
 
     async def test_async_chat_stream_invalid_event(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_invalid_resp.txt"))  # noqa: F841
 
@@ -454,7 +455,7 @@ class TestAsyncChatConversationMessage:
             [event async for event in stream]
 
     async def test_async_chat_retrieve(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         conversation_id = "conversation_id"
         mock_logid = mock_chat_retrieve(respx_mock, conversation_id, ChatStatus.FAILED)
@@ -466,7 +467,7 @@ class TestAsyncChatConversationMessage:
         assert res.conversation_id == conversation_id
 
     async def test_async_submit_tool_outputs_not_stream(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         conversation_id = "conversation_id"
         mock_logid = mock_chat_submit_tool_outputs(respx_mock, conversation_id, ChatStatus.FAILED)
@@ -478,7 +479,7 @@ class TestAsyncChatConversationMessage:
         assert res.conversation_id == conversation_id
 
     async def test_async_submit_tool_outputs_stream(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_chat_submit_tool_outputs_stream(respx_mock, read_file("testdata/chat_text_stream_resp.txt"))
         stream = coze.chat.submit_tool_outputs_stream(conversation_id="conversation", chat_id="chat", tool_outputs=[])
@@ -508,7 +509,7 @@ class TestAsyncChatConversationMessage:
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
 
     async def test_async_chat_cancel(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         conversation_id = "conversation_id"
         mock_logid = mock_chat_cancel(respx_mock, conversation_id, ChatStatus.FAILED)

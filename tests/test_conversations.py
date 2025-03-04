@@ -4,6 +4,7 @@ import httpx
 import pytest
 
 from cozepy import AsyncCoze, Conversation, Coze, Section, TokenAuth
+from cozepy.auth import AsyncTokenAuth
 from cozepy.util import random_hex
 from tests.test_util import logid_key
 
@@ -152,7 +153,7 @@ class TestSyncConversation:
 @pytest.mark.asyncio
 class TestAsyncConversation:
     async def test_async_conversations_create(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         bot_id = random_hex(10)
         mock_conversation = mock_create_conversations(respx_mock)
@@ -164,7 +165,7 @@ class TestAsyncConversation:
         assert res.last_section_id == mock_conversation.last_section_id
 
     async def test_async_conversations_list(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         total = 10
         size = 1
@@ -196,7 +197,7 @@ class TestAsyncConversation:
         assert total_result == total
 
     async def test_async_conversations_retrieve(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_conversation = mock_retrieve_conversation(respx_mock)
 
@@ -207,7 +208,7 @@ class TestAsyncConversation:
         assert res.last_section_id == mock_conversation.last_section_id
 
     async def test_async_conversations_clear(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_section = mock_clear_conversation(respx_mock)
 

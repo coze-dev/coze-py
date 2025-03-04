@@ -1,7 +1,7 @@
 import warnings
 from typing import TYPE_CHECKING, Optional
 
-from cozepy.auth import Auth
+from cozepy.auth import Auth, AsyncAuth
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
@@ -38,7 +38,7 @@ class KnowledgeClient(object):
 
 
 class AsyncKnowledgeClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, auth: AsyncAuth, requester: Requester):
         warnings.warn(
             "The 'coze.knowledge' module is deprecated and will be removed in a future version. "
             "Please use 'coze.datasets' instead.",

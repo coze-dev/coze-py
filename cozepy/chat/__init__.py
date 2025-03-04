@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, AsyncIterator, Dict, List, Optional, Union, ov
 import httpx
 from typing_extensions import Literal
 
-from cozepy.auth import Auth
+from cozepy.auth import Auth, AsyncAuth
 from cozepy.model import AsyncIteratorHTTPResponse, AsyncStream, CozeModel, IteratorHTTPResponse, ListResponse, Stream
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
@@ -763,7 +763,7 @@ class ChatClient(object):
 
 
 class AsyncChatClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, auth: AsyncAuth, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester

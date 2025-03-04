@@ -2,6 +2,7 @@ import httpx
 import pytest
 
 from cozepy import AsyncCoze, Coze, TokenAuth, Workspace, WorkspaceRoleType, WorkspaceType
+from cozepy.auth import AsyncTokenAuth
 
 
 def mock_list_workspaces(respx_mock, total_count, page):
@@ -70,7 +71,7 @@ class TestSyncWorkspaces:
 @pytest.mark.asyncio
 class TestAsyncWorkspaces:
     async def test_async_workspaces_list(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         total = 10
         size = 1

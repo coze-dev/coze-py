@@ -1,7 +1,7 @@
 from enum import IntEnum
 from typing import List, Optional
 
-from cozepy.auth import Auth
+from cozepy.auth import Auth, AsyncAuth
 from cozepy.model import AsyncNumberPaged, CozeModel, NumberPaged, NumberPagedResponse
 from cozepy.request import HTTPRequest, Requester
 from cozepy.util import remove_url_trailing_slash
@@ -284,7 +284,7 @@ class AsyncBotsClient(object):
     Bot class.
     """
 
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, auth: AsyncAuth, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._auth = auth
         self._requester = requester

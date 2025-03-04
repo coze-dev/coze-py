@@ -1,7 +1,7 @@
 import warnings
 from typing import List, Optional
 
-from cozepy.auth import Auth
+from cozepy.auth import Auth, AsyncAuth
 from cozepy.datasets.documents import (
     Document,  # noqa
     DocumentBase,  # noqa
@@ -212,7 +212,7 @@ class DocumentsClient(object):
 
 
 class AsyncDocumentsClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, auth: AsyncAuth, requester: Requester):
         warnings.warn(
             "The 'coze.knowledge.documents' module is deprecated and will be removed in a future version. "
             "Please use 'coze.datasets.documents' instead.",

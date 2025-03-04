@@ -149,7 +149,7 @@ class AsyncCoze(object):
     ):
         self._auth = auth
         self._base_url = remove_url_trailing_slash(base_url)
-        self._requester = Requester(auth=auth, async_client=http_client)
+        self._requester = Requester(async_auth=auth, async_client=http_client)
 
         # service client
         self._bots: Optional[AsyncBotsClient] = None
