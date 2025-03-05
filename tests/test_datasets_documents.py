@@ -5,6 +5,7 @@ import pytest
 
 from cozepy import (
     AsyncCoze,
+    AsyncTokenAuth,
     Coze,
     Document,
     DocumentBase,
@@ -200,7 +201,7 @@ class TestSyncDatasetsDocuments:
 @pytest.mark.asyncio
 class TestAsyncDatasetsDocuments:
     async def test_async_datasets_documents_create_web_auto_update(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_document = mock_create_datasets_documents(respx_mock)
 
@@ -220,7 +221,7 @@ class TestAsyncDatasetsDocuments:
         assert len(documents) == 1
 
     async def test_async_datasets_documents_create_local_custom(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_document = mock_create_datasets_documents(respx_mock)
 
@@ -240,7 +241,7 @@ class TestAsyncDatasetsDocuments:
         assert len(documents) == 1
 
     async def test_async_datasets_documents_update(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_document = mock_update_datasets_documents(respx_mock)
 
@@ -249,7 +250,7 @@ class TestAsyncDatasetsDocuments:
         assert res.response.logid == mock_document.response.logid
 
     async def test_async_datasets_documents_delete(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_document = mock_delete_datasets_documents(respx_mock)
 
@@ -258,7 +259,7 @@ class TestAsyncDatasetsDocuments:
         assert res.response.logid == mock_document.response.logid
 
     async def test_async_datasets_documents_list(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         total = 10
         size = 1

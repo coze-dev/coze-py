@@ -3,6 +3,7 @@ import pytest
 
 from cozepy import (
     AsyncCoze,
+    AsyncTokenAuth,
     Coze,
     TokenAuth,
     WorkflowExecuteStatus,
@@ -166,7 +167,7 @@ class TestSyncWorkflowsRuns:
 @pytest.mark.asyncio
 class TestAsyncWorkflowsRuns:
     async def test_async_workflows_runs_create_no_async(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_res = mock_create_workflows_runs(respx_mock, False)
 
@@ -176,7 +177,7 @@ class TestAsyncWorkflowsRuns:
         assert res.data == "data"
 
     async def test_async_workflows_runs_create_async(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_res = mock_create_workflows_runs(respx_mock, True)
 
@@ -187,7 +188,7 @@ class TestAsyncWorkflowsRuns:
         assert res.execute_id == mock_res.execute_id
 
     async def test_async_workflows_runs_stream(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_create_workflows_runs_stream(respx_mock, read_file("testdata/workflow_run_stream_resp.txt"))
         stream = coze.workflows.runs.stream(workflow_id="id")
@@ -196,7 +197,7 @@ class TestAsyncWorkflowsRuns:
         assert len(events) == 9
 
     async def test_async_workflows_runs_resume(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_create_workflows_runs_resume(respx_mock, read_file("testdata/workflow_run_stream_resp.txt"))
         stream = coze.workflows.runs.resume(
@@ -210,7 +211,7 @@ class TestAsyncWorkflowsRuns:
         assert len(events) == 9
 
     async def test_async_workflows_runs_invalid_stream_event(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_create_workflows_runs_resume(respx_mock, read_file("testdata/workflow_run_invalid_stream_resp.txt"))
         stream = coze.workflows.runs.resume(
@@ -223,7 +224,7 @@ class TestAsyncWorkflowsRuns:
             [event async for event in stream]
 
     async def test_async_workflows_runs_run_histories_retrieve(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         workflow_id, execute_id, current_logid, execute_logid = mock_create_workflows_runs_run_histories_retrieve(
             respx_mock
