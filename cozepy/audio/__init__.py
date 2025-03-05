@@ -41,9 +41,7 @@ class AudioClient(object):
         if self._transcriptions is None:
             from .transcriptions import TranscriptionsClient
 
-            self._transcriptions = TranscriptionsClient(
-                base_url=self._base_url, requester=self._requester
-            )
+            self._transcriptions = TranscriptionsClient(base_url=self._base_url, requester=self._requester)
         return self._transcriptions
 
     @property
@@ -94,7 +92,5 @@ class AsyncAudioClient(object):
         if self._transcriptions is None:
             from .transcriptions import AsyncTranscriptionsClient
 
-            self._transcriptions = AsyncTranscriptionsClient(
-                base_url=self._base_url, requester=self._requester
-            )
+            self._transcriptions = AsyncTranscriptionsClient(base_url=self._base_url, requester=self._requester)
         return self._transcriptions

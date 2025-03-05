@@ -1,5 +1,5 @@
 import warnings
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 from cozepy.auth import AsyncAuth, Auth
 from cozepy.config import COZE_COM_BASE_URL
@@ -143,7 +143,7 @@ class Coze(object):
 class AsyncCoze(object):
     def __init__(
         self,
-        auth: Auth | AsyncAuth,
+        auth: Union[Auth, AsyncAuth],
         base_url: str = COZE_COM_BASE_URL,
         http_client: Optional[AsyncHTTPClient] = None,
     ):
@@ -156,7 +156,7 @@ class AsyncCoze(object):
                 DeprecationWarning,
                 stacklevel=2,
             )
-            self._requester = Requester(auth=auth, sync_client=http_client)
+            self._requester = Requester(auth=auth, async_client=http_client)
         else:
             self._requester = Requester(async_auth=auth, async_client=http_client)
 

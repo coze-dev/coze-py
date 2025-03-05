@@ -67,7 +67,8 @@ class Requester(object):
         self._async_client = async_client
 
     def auth_header(self, headers: dict):
-        self._auth.authentication(headers)
+        if self._auth:
+            self._auth.authentication(headers)
 
     async def async_auth_header(self, headers: dict):
         if self._auth:
