@@ -179,8 +179,8 @@ class WebsocketsChatClient(WebsocketsBaseClient):
         base_url: str,
         requester: Requester,
         bot_id: str,
-        workflow_id: str,
         on_event: Union[WebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
+        workflow_id: Optional[str] = None,
         **kwargs,
     ):
         if isinstance(on_event, WebsocketsChatEventHandler):
@@ -348,16 +348,16 @@ class WebsocketsChatBuildClient(object):
         self,
         *,
         bot_id: str,
-        workflow_id: str,
         on_event: Union[WebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
+        workflow_id: Optional[str] = None,
         **kwargs,
     ) -> WebsocketsChatClient:
         return WebsocketsChatClient(
             base_url=self._base_url,
             requester=self._requester,
             bot_id=bot_id,
-            workflow_id=workflow_id,
             on_event=on_event,  # type: ignore
+            workflow_id=workflow_id,
             **kwargs,
         )
 
@@ -427,8 +427,8 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
         base_url: str,
         requester: Requester,
         bot_id: str,
-        workflow_id: str,
         on_event: Union[AsyncWebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
+        workflow_id: Optional[str] = None,
         **kwargs,
     ):
         if isinstance(on_event, AsyncWebsocketsChatEventHandler):
@@ -596,15 +596,15 @@ class AsyncWebsocketsChatBuildClient(object):
         self,
         *,
         bot_id: str,
-        workflow_id: str,
         on_event: Union[AsyncWebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
+        workflow_id: Optional[str] = None,
         **kwargs,
     ) -> AsyncWebsocketsChatClient:
         return AsyncWebsocketsChatClient(
             base_url=self._base_url,
             requester=self._requester,
             bot_id=bot_id,
-            workflow_id=workflow_id,
             on_event=on_event,  # type: ignore
+            workflow_id=workflow_id,
             **kwargs,
         )
