@@ -2,15 +2,10 @@ import warnings
 from typing import List, Optional
 
 from cozepy.datasets.documents import (
-    Document,  # noqa
-    DocumentBase,  # noqa
-    DocumentChunkStrategy,  # noqa
-    # noqa
-    # noqa
-    # noqa
-    # noqa
-    DocumentUpdateRule,  # noqa
-    # noqa
+    Document,
+    DocumentBase,
+    DocumentChunkStrategy,
+    DocumentUpdateRule,
 )
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester

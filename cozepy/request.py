@@ -28,7 +28,7 @@ from cozepy.model import (
 from cozepy.version import coze_client_user_agent, user_agent
 
 if TYPE_CHECKING:
-    from cozepy.auth import AsyncAuth, Auth
+    from cozepy.auth import Auth
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -57,12 +57,10 @@ class Requester(object):
     def __init__(
         self,
         auth: Optional["Auth"] = None,
-        async_auth: Optional["AsyncAuth"] = None,
         sync_client: Optional[SyncHTTPClient] = None,
         async_client: Optional[AsyncHTTPClient] = None,
     ):
         self._auth = auth
-        self._async_auth = async_auth
         self._sync_client = sync_client
         self._async_client = async_client
 
@@ -71,11 +69,8 @@ class Requester(object):
             self._auth.authentication(headers)
 
     async def async_auth_header(self, headers: dict):
-        if self._async_auth:
-            await self._async_auth.authentication(headers)
-        elif self._auth:
-            # Compatible with old versions, the next version will be removed
-            self._auth.authentication(headers)
+        if self._auth:
+            await self._auth.aauthentication(headers)
 
     def make_request(
         self,
@@ -136,11 +131,8 @@ class Requester(object):
         headers["User-Agent"] = user_agent()
         headers["X-Coze-Client-User-Agent"] = coze_client_user_agent()
 
-        if self._async_auth:
-            await self._async_auth.authentication(headers)
-        elif self._auth:
-            # Compatible with old versions, the next version will be removed
-            self._auth.authentication(headers)
+        if self._auth:
+            await self._auth.aauthentication(headers)
 
         log_debug(
             "request %s#%s sending, params=%s, json=%s, stream=%s, async=%s",

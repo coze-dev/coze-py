@@ -700,6 +700,15 @@ class Auth(abc.ABC):
         :return: token
         """
 
+    @property
+    @abc.abstractmethod
+    async def atoken(self) -> str:
+        """
+        The token used in the http request header.
+
+        :return: token
+        """
+
     def authentication(self, headers: dict) -> None:
         """
         Construct the authorization header in the http headers.
@@ -709,8 +718,52 @@ class Auth(abc.ABC):
         """
         headers["Authorization"] = f"{self.token_type} {self.token}"
 
+    async def aauthentication(self, headers: dict) -> None:
+        """
+        Construct the authorization header in the http headers.
 
-class TokenAuth(Auth):
+        :param headers: http headers
+        :return: None
+        """
+        headers["Authorization"] = f"{self.token_type} {await self.atoken}"
+
+
+class SyncAuth(Auth, abc.ABC):
+    """
+    This class is the base class for all SyncAuth authorization types.
+
+    It provides the abstract methods for getting the token type and sync token.
+    """
+
+    @property
+    async def atoken(self) -> str:
+        """
+        SyncAuth not need implementation.
+
+        :return: sync token for compatible
+        """
+        return self.token
+
+
+class AsyncAuth(Auth, abc.ABC):
+    """
+    This class is the base class for all authorization types.
+
+    It provides the abstract methods for getting the token type and async token.
+    """
+
+    @property
+    def token(self) -> str:
+        """
+        AsyncAuth not need implementation.
+        Any compatible needed.
+
+        :return: empty
+        """
+        return ""
+
+
+class TokenAuth(SyncAuth):
     """
     The fixed access token auth flow.
     """
@@ -729,7 +782,7 @@ class TokenAuth(Auth):
         return self._token
 
 
-class JWTAuth(Auth):
+class JWTAuth(SyncAuth):
     """
     The JWT auth flow.
     """
@@ -775,43 +828,6 @@ class JWTAuth(Auth):
         return self._token
 
 
-class AsyncAuth(abc.ABC):
-    """
-    This class is the base class for all authorization types.
-
-    It provides the abstract methods for getting the token type and token.
-    """
-
-    @property
-    @abc.abstractmethod
-    def token_type(self) -> str:
-        """
-        The authorization type used in the http request header.
-
-        eg: Bearer, Basic, etc.
-
-        :return: token type
-        """
-
-    @property
-    @abc.abstractmethod
-    async def token(self) -> str:
-        """
-        The token used in the http request header.
-
-        :return: token
-        """
-
-    async def authentication(self, headers: dict) -> None:
-        """
-        Construct the authorization header in the http headers.
-
-        :param headers: http headers
-        :return: None
-        """
-        headers["Authorization"] = f"{self.token_type} {await self.token}"
-
-
 class AsyncTokenAuth(AsyncAuth):
     """
     The fixed access token auth flow.
@@ -827,7 +843,7 @@ class AsyncTokenAuth(AsyncAuth):
         return "Bearer"
 
     @property
-    async def token(self) -> str:
+    async def atoken(self) -> str:
         return self._token
 
 
@@ -866,7 +882,7 @@ class AsyncJWTAuth(AsyncAuth):
         return "Bearer"
 
     @property
-    async def token(self) -> str:
+    async def atoken(self) -> str:
         token = await self._generate_token()
         return token.access_token
 

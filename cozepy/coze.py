@@ -1,7 +1,7 @@
 import warnings
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional
 
-from cozepy.auth import AsyncAuth, Auth
+from cozepy.auth import Auth, SyncAuth
 from cozepy.config import COZE_COM_BASE_URL
 from cozepy.request import AsyncHTTPClient, Requester, SyncHTTPClient
 from cozepy.util import remove_url_trailing_slash
@@ -143,22 +143,21 @@ class Coze(object):
 class AsyncCoze(object):
     def __init__(
         self,
-        auth: Union[Auth, AsyncAuth],
+        auth: Auth,
         base_url: str = COZE_COM_BASE_URL,
         http_client: Optional[AsyncHTTPClient] = None,
     ):
         self._auth = auth
         self._base_url = remove_url_trailing_slash(base_url)
-        if isinstance(auth, Auth):
+        if isinstance(auth, SyncAuth):
             warnings.warn(
-                "The 'coze.Auth' use for AsyncCoze is deprecated and will be removed in a future version. "
+                "The 'coze.SyncAuth' use for AsyncCoze is deprecated and will be removed in a future version. "
                 "Please use 'coze.AsyncAuth' instead.",
                 DeprecationWarning,
                 stacklevel=2,
             )
-            self._requester = Requester(auth=auth, async_client=http_client)
-        else:
-            self._requester = Requester(async_auth=auth, async_client=http_client)
+
+        self._requester = Requester(auth=auth, async_client=http_client)
 
         # service client
         self._bots: Optional[AsyncBotsClient] = None
