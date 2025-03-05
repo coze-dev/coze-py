@@ -55,14 +55,35 @@ setup_examples_logger()
 kwargs = json.loads(os.getenv("COZE_KWARGS") or "{}")
 
 
-def cal_latency(latency_list: List[int]) -> str:
+def cal_latency(current: int, latency_list: List[int]) -> str:
     if latency_list is None or len(latency_list) == 0:
-        return "0"
+        return "No latency data"
     if len(latency_list) == 1:
-        return f"{latency_list[0]}"
-    res = latency_list.copy()
-    res.sort()
-    return "%2d" % ((sum(res[:-1]) * 1.0) / (len(res) - 1))
+        return f"P99={latency_list[0]}ms, P90={latency_list[0]}ms, AVG={latency_list[0]}ms"
+
+    # 对延迟数据进行排序
+    sorted_latency = sorted(latency_list)
+    length = len(sorted_latency)
+
+    def fix_index(index):
+        if index < 0:
+            return 0
+        if index >= length:
+            return length - 1
+        return index
+
+    # 计算 P99
+    p99_index = fix_index(round(length * 0.99) - 1)
+    p99 = sorted_latency[p99_index]
+
+    # 计算 P90
+    p90_index = fix_index(round(length * 0.90) - 1)
+    p90 = sorted_latency[p90_index]
+
+    # 计算平均值
+    avg = sum(sorted_latency) / length
+
+    return f"P99={p99}ms, P90={p90}ms, AVG={avg:.2f}ms, CURRENT={current}ms"
 
 
 async def test_latency(coze: Coze, bot_id: str, text: str) -> (str, str, int):
@@ -91,12 +112,12 @@ async def main():
         base_url=coze_api_base,
     )
 
-    times = 50
+    times = 100
     text_latency = []
     for i in range(times):
-        logid, text, latency = await test_latency(coze, bot_id, text)
+        logid, first_text, latency = await test_latency(coze, bot_id, text)
         text_latency.append(latency)
-        print(f"[latency.text] {i}, latency: {cal_latency(text_latency)} ms, log: {logid}, text: {text}")
+        print(f"[latency.text] {i}, latency: {cal_latency(latency, text_latency)}, log: {logid}, text: {first_text}")
 
 
 if __name__ == "__main__":

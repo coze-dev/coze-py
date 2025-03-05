@@ -53,6 +53,11 @@ class ConversationChatSubmitToolOutputsEvent(WebsocketsEvent):
     data: Data
 
 
+# req
+class ConversationChatCancelEvent(WebsocketsEvent):
+    event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_CANCEL
+
+
 # resp
 class ChatCreatedEvent(WebsocketsEvent):
     event_type: WebsocketsEventType = WebsocketsEventType.CHAT_CREATED
@@ -118,6 +123,11 @@ class ConversationChatCompletedEvent(WebsocketsEvent):
     data: Chat
 
 
+# resp
+class ConversationChatCanceledEvent(WebsocketsEvent):
+    event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_CANCELED
+
+
 class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
     def on_chat_created(self, cli: "WebsocketsChatClient", event: ChatCreatedEvent):
         pass
@@ -159,6 +169,9 @@ class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
     def on_conversation_chat_completed(self, cli: "WebsocketsChatClient", event: ConversationChatCompletedEvent):
         pass
 
+    def on_conversation_chat_canceled(self, cli: "WebsocketsChatClient", event: ConversationChatCanceledEvent):
+        pass
+
 
 class WebsocketsChatClient(WebsocketsBaseClient):
     def __init__(
@@ -185,6 +198,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
                     WebsocketsEventType.CONVERSATION_AUDIO_DELTA: on_event.on_conversation_audio_delta,
                     WebsocketsEventType.CONVERSATION_AUDIO_COMPLETED: on_event.on_conversation_audio_completed,
                     WebsocketsEventType.CONVERSATION_CHAT_COMPLETED: on_event.on_conversation_chat_completed,
+                    WebsocketsEventType.CONVERSATION_CHAT_CANCELED: on_event.on_conversation_chat_canceled,
                 }
             )
         super().__init__(
@@ -207,6 +221,9 @@ class WebsocketsChatClient(WebsocketsBaseClient):
 
     def conversation_chat_submit_tool_outputs(self, data: ConversationChatSubmitToolOutputsEvent.Data):
         self._input_queue.put(ConversationChatSubmitToolOutputsEvent.model_validate({"data": data}))
+
+    def conversation_chat_cancel(self):
+        self._input_queue.put(ConversationChatCancelEvent.model_validate({}))
 
     def input_audio_buffer_append(self, data: InputAudioBufferAppendEvent.Data) -> None:
         self._input_queue.put(InputAudioBufferAppendEvent.model_validate({"data": data}))
@@ -310,6 +327,13 @@ class WebsocketsChatClient(WebsocketsBaseClient):
                     "data": Chat.model_validate(data),
                 }
             )
+        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_CANCELED.value:
+            return ConversationChatCanceledEvent.model_validate(
+                {
+                    "id": event_id,
+                    "detail": detail,
+                }
+            )
         else:
             log_warning("[%s] unknown event, type=%s, logid=%s", self._path, event_type, detail.logid)
         return None
@@ -391,6 +415,11 @@ class AsyncWebsocketsChatEventHandler(AsyncWebsocketsBaseEventHandler):
     ):
         pass
 
+    async def on_conversation_chat_canceled(
+        self, cli: "AsyncWebsocketsChatClient", event: ConversationChatCanceledEvent
+    ):
+        pass
+
 
 class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
     def __init__(
@@ -417,6 +446,7 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
                     WebsocketsEventType.CONVERSATION_AUDIO_DELTA: on_event.on_conversation_audio_delta,
                     WebsocketsEventType.CONVERSATION_AUDIO_COMPLETED: on_event.on_conversation_audio_completed,
                     WebsocketsEventType.CONVERSATION_CHAT_COMPLETED: on_event.on_conversation_chat_completed,
+                    WebsocketsEventType.CONVERSATION_CHAT_CANCELED: on_event.on_conversation_chat_canceled,
                 }
             )
         super().__init__(
@@ -439,6 +469,9 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
 
     async def conversation_chat_submit_tool_outputs(self, data: ConversationChatSubmitToolOutputsEvent.Data) -> None:
         await self._input_queue.put(ConversationChatSubmitToolOutputsEvent.model_validate({"data": data}))
+
+    async def conversation_chat_cancel(self) -> None:
+        await self._input_queue.put(ConversationChatCancelEvent.model_validate({}))
 
     async def input_audio_buffer_append(self, data: InputAudioBufferAppendEvent.Data) -> None:
         await self._input_queue.put(InputAudioBufferAppendEvent.model_validate({"data": data}))
@@ -540,6 +573,13 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
                     "id": event_id,
                     "detail": detail,
                     "data": Chat.model_validate(data),
+                }
+            )
+        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_CANCELED.value:
+            return ConversationChatCanceledEvent.model_validate(
+                {
+                    "id": event_id,
+                    "detail": detail,
                 }
             )
         else:
