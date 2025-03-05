@@ -12,9 +12,11 @@ from cozepy import (
     AudioFormat,
     ConversationAudioDeltaEvent,
     ConversationChatCompletedEvent,
+    ConversationChatCanceledEvent,
     ConversationChatCreatedEvent,
     ConversationChatRequiresActionEvent,
     ConversationChatSubmitToolOutputsEvent,
+    ConversationChatCancelEvent,
     ConversationMessageDeltaEvent,
     DeviceOAuthApp,
     InputAudioBufferAppendEvent,
@@ -112,6 +114,11 @@ class AsyncWebsocketsChatEventHandlerSub(AsyncWebsocketsChatEventHandler):
     ):
         log_info("[examples] Saving audio data to output.wav")
         write_pcm_to_wav_file(b"".join(self.delta), "output.wav")
+
+    async def on_conversation_chat_canceled(
+        self, cli: "AsyncWebsocketsChatClient", event: ConversationChatCanceledEvent
+    ):
+        log_info("[examples] chat canceled")
 
 
 def wrap_coze_speech_to_iterator(coze: AsyncCoze, text: str):
