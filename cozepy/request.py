@@ -71,11 +71,11 @@ class Requester(object):
             self._auth.authentication(headers)
 
     async def async_auth_header(self, headers: dict):
-        if self._auth:
+        if self._async_auth:
+            await self._async_auth.authentication(headers)
+        elif self._auth:
             # Compatible with old versions, the next version will be removed
             self._auth.authentication(headers)
-        elif self._async_auth:
-            await self._async_auth.authentication(headers)
 
     def make_request(
         self,
@@ -136,11 +136,11 @@ class Requester(object):
         headers["User-Agent"] = user_agent()
         headers["X-Coze-Client-User-Agent"] = coze_client_user_agent()
 
-        if self._auth:
+        if self._async_auth:
+            await self._async_auth.authentication(headers)
+        elif self._auth:
             # Compatible with old versions, the next version will be removed
             self._auth.authentication(headers)
-        elif self._async_auth:
-            await self._async_auth.authentication(headers)
 
         log_debug(
             "request %s#%s sending, params=%s, json=%s, stream=%s, async=%s",
