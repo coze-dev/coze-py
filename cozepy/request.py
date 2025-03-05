@@ -28,7 +28,7 @@ from cozepy.model import (
 from cozepy.version import coze_client_user_agent, user_agent
 
 if TYPE_CHECKING:
-    from cozepy.auth import Auth, AsyncAuth
+    from cozepy.auth import AsyncAuth, Auth
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -55,11 +55,11 @@ class Requester(object):
     """
 
     def __init__(
-            self,
-            auth: Optional["Auth"] = None,
-            async_auth: Optional["AsyncAuth"] = None,
-            sync_client: Optional[SyncHTTPClient] = None,
-            async_client: Optional[AsyncHTTPClient] = None,
+        self,
+        auth: Optional["Auth"] = None,
+        async_auth: Optional["AsyncAuth"] = None,
+        sync_client: Optional[SyncHTTPClient] = None,
+        async_client: Optional[AsyncHTTPClient] = None,
     ):
         self._auth = auth
         self._async_auth = async_auth
@@ -77,16 +77,16 @@ class Requester(object):
             await self._async_auth.authentication(headers)
 
     def make_request(
-            self,
-            method: str,
-            url: str,
-            params: Optional[dict] = None,
-            headers: Optional[dict] = None,
-            json: Optional[dict] = None,
-            files: Optional[dict] = None,
-            cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None] = None,
-            data_field: str = "data",
-            stream: bool = False,
+        self,
+        method: str,
+        url: str,
+        params: Optional[dict] = None,
+        headers: Optional[dict] = None,
+        json: Optional[dict] = None,
+        files: Optional[dict] = None,
+        cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None] = None,
+        data_field: str = "data",
+        stream: bool = False,
     ) -> HTTPRequest:
         if headers is None:
             headers = {}
@@ -119,16 +119,16 @@ class Requester(object):
         )
 
     async def amake_request(
-            self,
-            method: str,
-            url: str,
-            params: Optional[dict] = None,
-            headers: Optional[dict] = None,
-            json: Optional[dict] = None,
-            files: Optional[dict] = None,
-            cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None] = None,
-            data_field: str = "data",
-            stream: bool = False,
+        self,
+        method: str,
+        url: str,
+        params: Optional[dict] = None,
+        headers: Optional[dict] = None,
+        json: Optional[dict] = None,
+        files: Optional[dict] = None,
+        cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None] = None,
+        data_field: str = "data",
+        stream: bool = False,
     ) -> HTTPRequest:
         if headers is None:
             headers = {}
@@ -166,105 +166,99 @@ class Requester(object):
 
     @overload
     def request(
-            self,
-            method: str,
-            url: str,
-            stream: Literal[False],
-            cast: Type[T],
-            params: dict = ...,
-            headers: Optional[dict] = ...,
-            body: dict = ...,
-            files: dict = ...,
-            data_field: str = ...,
-    ) -> T:
-        ...
+        self,
+        method: str,
+        url: str,
+        stream: Literal[False],
+        cast: Type[T],
+        params: dict = ...,
+        headers: Optional[dict] = ...,
+        body: dict = ...,
+        files: dict = ...,
+        data_field: str = ...,
+    ) -> T: ...
 
     @overload
     def request(
-            self,
-            method: str,
-            url: str,
-            stream: Literal[False],
-            cast: List[Type[T]],
-            params: dict = ...,
-            headers: Optional[dict] = ...,
-            body: dict = ...,
-            files: dict = ...,
-            data_field: str = ...,
-    ) -> List[T]:
-        ...
+        self,
+        method: str,
+        url: str,
+        stream: Literal[False],
+        cast: List[Type[T]],
+        params: dict = ...,
+        headers: Optional[dict] = ...,
+        body: dict = ...,
+        files: dict = ...,
+        data_field: str = ...,
+    ) -> List[T]: ...
 
     @overload
     def request(
-            self,
-            method: str,
-            url: str,
-            stream: Literal[False],
-            cast: Type[ListResponse[T]],
-            params: dict = ...,
-            headers: Optional[dict] = ...,
-            body: dict = ...,
-            files: dict = ...,
-            data_field: str = ...,
-    ) -> ListResponse[T]:
-        ...
+        self,
+        method: str,
+        url: str,
+        stream: Literal[False],
+        cast: Type[ListResponse[T]],
+        params: dict = ...,
+        headers: Optional[dict] = ...,
+        body: dict = ...,
+        files: dict = ...,
+        data_field: str = ...,
+    ) -> ListResponse[T]: ...
 
     @overload
     def request(
-            self,
-            method: str,
-            url: str,
-            stream: Literal[False],
-            cast: Type[FileHTTPResponse],
-            params: dict = ...,
-            headers: Optional[dict] = ...,
-            body: dict = ...,
-            files: dict = ...,
-            data_field: str = ...,
-    ) -> FileHTTPResponse:
-        ...
+        self,
+        method: str,
+        url: str,
+        stream: Literal[False],
+        cast: Type[FileHTTPResponse],
+        params: dict = ...,
+        headers: Optional[dict] = ...,
+        body: dict = ...,
+        files: dict = ...,
+        data_field: str = ...,
+    ) -> FileHTTPResponse: ...
 
     @overload
     def request(
-            self,
-            method: str,
-            url: str,
-            stream: Literal[True],
-            cast: None,
-            params: dict = ...,
-            headers: Optional[dict] = ...,
-            body: dict = ...,
-            files: dict = ...,
-            data_field: str = ...,
-    ) -> IteratorHTTPResponse[str]:
-        ...
+        self,
+        method: str,
+        url: str,
+        stream: Literal[True],
+        cast: None,
+        params: dict = ...,
+        headers: Optional[dict] = ...,
+        body: dict = ...,
+        files: dict = ...,
+        data_field: str = ...,
+    ) -> IteratorHTTPResponse[str]: ...
 
     @overload
     def request(
-            self,
-            method: str,
-            url: str,
-            stream: Literal[False],
-            cast: None,
-            params: dict = ...,
-            headers: Optional[dict] = ...,
-            body: dict = ...,
-            files: dict = ...,
-            data_field: str = ...,
-    ) -> None:
-        ...
+        self,
+        method: str,
+        url: str,
+        stream: Literal[False],
+        cast: None,
+        params: dict = ...,
+        headers: Optional[dict] = ...,
+        body: dict = ...,
+        files: dict = ...,
+        data_field: str = ...,
+    ) -> None: ...
 
     def request(
-            self,
-            method: str,
-            url: str,
-            stream: Literal[True, False],
-            cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
-            params: Optional[dict] = None,
-            headers: Optional[dict] = None,
-            body: Optional[dict] = None,
-            files: Optional[dict] = None,
-            data_field: str = "data",
+        self,
+        method: str,
+        url: str,
+        stream: Literal[True, False],
+        cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
+        params: Optional[dict] = None,
+        headers: Optional[dict] = None,
+        body: Optional[dict] = None,
+        files: Optional[dict] = None,
+        data_field: str = "data",
     ) -> Union[T, List[T], ListResponse[T], IteratorHTTPResponse[str], FileHTTPResponse, None]:
         """
         Send a request to the server.
@@ -286,8 +280,8 @@ class Requester(object):
         return self.send(request)
 
     def send(
-            self,
-            request: HTTPRequest,
+        self,
+        request: HTTPRequest,
     ) -> Union[T, List[T], ListResponse[T], IteratorHTTPResponse[str], FileHTTPResponse, None]:
         """
         Send a request to the server.
@@ -304,105 +298,99 @@ class Requester(object):
 
     @overload
     async def arequest(
-            self,
-            method: str,
-            url: str,
-            stream: Literal[False],
-            cast: Type[T],
-            params: dict = ...,
-            headers: Optional[dict] = ...,
-            body: dict = ...,
-            files: dict = ...,
-            data_field: str = ...,
-    ) -> T:
-        ...
+        self,
+        method: str,
+        url: str,
+        stream: Literal[False],
+        cast: Type[T],
+        params: dict = ...,
+        headers: Optional[dict] = ...,
+        body: dict = ...,
+        files: dict = ...,
+        data_field: str = ...,
+    ) -> T: ...
 
     @overload
     async def arequest(
-            self,
-            method: str,
-            url: str,
-            stream: Literal[False],
-            cast: List[Type[T]],
-            params: dict = ...,
-            headers: Optional[dict] = ...,
-            body: dict = ...,
-            files: dict = ...,
-            data_field: str = ...,
-    ) -> List[T]:
-        ...
+        self,
+        method: str,
+        url: str,
+        stream: Literal[False],
+        cast: List[Type[T]],
+        params: dict = ...,
+        headers: Optional[dict] = ...,
+        body: dict = ...,
+        files: dict = ...,
+        data_field: str = ...,
+    ) -> List[T]: ...
 
     @overload
     async def arequest(
-            self,
-            method: str,
-            url: str,
-            stream: Literal[False],
-            cast: Type[ListResponse[T]],
-            params: dict = ...,
-            headers: Optional[dict] = ...,
-            body: dict = ...,
-            files: dict = ...,
-            data_field: str = ...,
-    ) -> ListResponse[T]:
-        ...
+        self,
+        method: str,
+        url: str,
+        stream: Literal[False],
+        cast: Type[ListResponse[T]],
+        params: dict = ...,
+        headers: Optional[dict] = ...,
+        body: dict = ...,
+        files: dict = ...,
+        data_field: str = ...,
+    ) -> ListResponse[T]: ...
 
     @overload
     async def arequest(
-            self,
-            method: str,
-            url: str,
-            stream: Literal[False],
-            cast: Type[FileHTTPResponse],
-            params: dict = ...,
-            headers: Optional[dict] = ...,
-            body: dict = ...,
-            files: dict = ...,
-            data_field: str = ...,
-    ) -> FileHTTPResponse:
-        ...
+        self,
+        method: str,
+        url: str,
+        stream: Literal[False],
+        cast: Type[FileHTTPResponse],
+        params: dict = ...,
+        headers: Optional[dict] = ...,
+        body: dict = ...,
+        files: dict = ...,
+        data_field: str = ...,
+    ) -> FileHTTPResponse: ...
 
     @overload
     async def arequest(
-            self,
-            method: str,
-            url: str,
-            stream: Literal[False],
-            cast: None,
-            params: Optional[dict] = ...,
-            headers: Optional[dict] = ...,
-            body: Optional[dict] = ...,
-            files: Optional[dict] = ...,
-            data_field: str = ...,
-    ) -> None:
-        ...
+        self,
+        method: str,
+        url: str,
+        stream: Literal[False],
+        cast: None,
+        params: Optional[dict] = ...,
+        headers: Optional[dict] = ...,
+        body: Optional[dict] = ...,
+        files: Optional[dict] = ...,
+        data_field: str = ...,
+    ) -> None: ...
 
     @overload
     async def arequest(
-            self,
-            method: str,
-            url: str,
-            stream: Literal[True],
-            cast: None,
-            params: Optional[dict] = ...,
-            headers: Optional[dict] = ...,
-            body: Optional[dict] = ...,
-            files: Optional[dict] = ...,
-            data_field: str = ...,
-    ) -> AsyncIteratorHTTPResponse[str]:
-        ...
+        self,
+        method: str,
+        url: str,
+        stream: Literal[True],
+        cast: None,
+        params: Optional[dict] = ...,
+        headers: Optional[dict] = ...,
+        body: Optional[dict] = ...,
+        files: Optional[dict] = ...,
+        data_field: str = ...,
+    ) -> AsyncIteratorHTTPResponse[str]: ...
 
     async def arequest(
-            self,
-            method: str,
-            url: str,
-            stream: Literal[True, False],
-            cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
-            params: Optional[dict] = None,
-            headers: Optional[dict] = None,
-            body: Optional[dict] = None,
-            files: Optional[dict] = None,
-            data_field: str = "data",
+        self,
+        method: str,
+        url: str,
+        stream: Literal[True, False],
+        cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
+        params: Optional[dict] = None,
+        headers: Optional[dict] = None,
+        body: Optional[dict] = None,
+        files: Optional[dict] = None,
+        data_field: str = "data",
     ) -> Union[T, List[T], ListResponse[T], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None]:
         """
         Send a request to the server.
@@ -418,8 +406,8 @@ class Requester(object):
         )
 
     async def asend(
-            self,
-            request: HTTPRequest,
+        self,
+        request: HTTPRequest,
     ) -> Union[T, List[T], ListResponse[T], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None]:
         return self._parse_response(
             method=request.method,
@@ -445,39 +433,37 @@ class Requester(object):
 
     @overload
     def _parse_response(
-            self,
-            method: str,
-            url: str,
-            is_async: Literal[False],
-            response: httpx.Response,
-            cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
-            stream: bool = ...,
-            data_field: str = ...,
-    ) -> Union[T, List[T], ListResponse[T], IteratorHTTPResponse[str], FileHTTPResponse, None]:
-        ...
+        self,
+        method: str,
+        url: str,
+        is_async: Literal[False],
+        response: httpx.Response,
+        cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
+        stream: bool = ...,
+        data_field: str = ...,
+    ) -> Union[T, List[T], ListResponse[T], IteratorHTTPResponse[str], FileHTTPResponse, None]: ...
 
     @overload
     def _parse_response(
-            self,
-            method: str,
-            url: str,
-            is_async: Literal[True],
-            response: httpx.Response,
-            cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
-            stream: bool = ...,
-            data_field: str = ...,
-    ) -> Union[T, List[T], ListResponse[T], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None]:
-        ...
+        self,
+        method: str,
+        url: str,
+        is_async: Literal[True],
+        response: httpx.Response,
+        cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
+        stream: bool = ...,
+        data_field: str = ...,
+    ) -> Union[T, List[T], ListResponse[T], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None]: ...
 
     def _parse_response(
-            self,
-            method: str,
-            url: str,
-            is_async: Literal[True, False],
-            response: httpx.Response,
-            cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
-            stream: bool = False,
-            data_field: str = "data",
+        self,
+        method: str,
+        url: str,
+        is_async: Literal[True, False],
+        response: httpx.Response,
+        cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
+        stream: bool = False,
+        data_field: str = "data",
     ) -> Union[
         T, List[T], ListResponse[T], IteratorHTTPResponse[str], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None
     ]:
@@ -522,7 +508,7 @@ class Requester(object):
             return res  # type: ignore
 
     def _parse_requests_code_msg(
-            self, method: str, url: str, response: Response, data_field: str = "data"
+        self, method: str, url: str, response: Response, data_field: str = "data"
     ) -> Tuple[Optional[int], str, Any]:
         try:
             response.read()

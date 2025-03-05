@@ -83,28 +83,28 @@ class WebsocketsAudioTranscriptionsEventHandler(WebsocketsBaseEventHandler):
         pass
 
     def on_input_audio_buffer_completed(
-            self, cli: "WebsocketsAudioTranscriptionsClient", event: InputAudioBufferCompletedEvent
+        self, cli: "WebsocketsAudioTranscriptionsClient", event: InputAudioBufferCompletedEvent
     ):
         pass
 
     def on_transcriptions_message_update(
-            self, cli: "WebsocketsAudioTranscriptionsClient", event: TranscriptionsMessageUpdateEvent
+        self, cli: "WebsocketsAudioTranscriptionsClient", event: TranscriptionsMessageUpdateEvent
     ):
         pass
 
     def on_transcriptions_message_completed(
-            self, cli: "WebsocketsAudioTranscriptionsClient", event: TranscriptionsMessageCompletedEvent
+        self, cli: "WebsocketsAudioTranscriptionsClient", event: TranscriptionsMessageCompletedEvent
     ):
         pass
 
 
 class WebsocketsAudioTranscriptionsClient(WebsocketsBaseClient):
     def __init__(
-            self,
-            base_url: str,
-            requester: Requester,
-            on_event: Union[WebsocketsAudioTranscriptionsEventHandler, Dict[WebsocketsEventType, Callable]],
-            **kwargs,
+        self,
+        base_url: str,
+        requester: Requester,
+        on_event: Union[WebsocketsAudioTranscriptionsEventHandler, Dict[WebsocketsEventType, Callable]],
+        **kwargs,
     ):
         if isinstance(on_event, WebsocketsAudioTranscriptionsEventHandler):
             on_event = on_event.to_dict(
@@ -182,10 +182,10 @@ class WebsocketsAudioTranscriptionsBuildClient(object):
         self._requester = requester
 
     def create(
-            self,
-            *,
-            on_event: Union[WebsocketsAudioTranscriptionsEventHandler, Dict[WebsocketsEventType, Callable]],
-            **kwargs,
+        self,
+        *,
+        on_event: Union[WebsocketsAudioTranscriptionsEventHandler, Dict[WebsocketsEventType, Callable]],
+        **kwargs,
     ) -> WebsocketsAudioTranscriptionsClient:
         return WebsocketsAudioTranscriptionsClient(
             base_url=self._base_url,
@@ -197,33 +197,33 @@ class WebsocketsAudioTranscriptionsBuildClient(object):
 
 class AsyncWebsocketsAudioTranscriptionsEventHandler(AsyncWebsocketsBaseEventHandler):
     async def on_transcriptions_created(
-            self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: TranscriptionsCreatedEvent
+        self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: TranscriptionsCreatedEvent
     ):
         pass
 
     async def on_input_audio_buffer_completed(
-            self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: InputAudioBufferCompletedEvent
+        self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: InputAudioBufferCompletedEvent
     ):
         pass
 
     async def on_transcriptions_message_update(
-            self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: TranscriptionsMessageUpdateEvent
+        self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: TranscriptionsMessageUpdateEvent
     ):
         pass
 
     async def on_transcriptions_message_completed(
-            self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: TranscriptionsMessageCompletedEvent
+        self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: TranscriptionsMessageCompletedEvent
     ):
         pass
 
 
 class AsyncWebsocketsAudioTranscriptionsClient(AsyncWebsocketsBaseClient):
     def __init__(
-            self,
-            base_url: str,
-            requester: Requester,
-            on_event: Union[AsyncWebsocketsAudioTranscriptionsEventHandler, Dict[WebsocketsEventType, Callable]],
-            **kwargs,
+        self,
+        base_url: str,
+        requester: Requester,
+        on_event: Union[AsyncWebsocketsAudioTranscriptionsEventHandler, Dict[WebsocketsEventType, Callable]],
+        **kwargs,
     ):
         if isinstance(on_event, AsyncWebsocketsAudioTranscriptionsEventHandler):
             on_event = on_event.to_dict(
@@ -301,10 +301,10 @@ class AsyncWebsocketsAudioTranscriptionsBuildClient(object):
         self._requester = requester
 
     def create(
-            self,
-            *,
-            on_event: Union[AsyncWebsocketsAudioTranscriptionsEventHandler, Dict[WebsocketsEventType, Callable]],
-            **kwargs,
+        self,
+        *,
+        on_event: Union[AsyncWebsocketsAudioTranscriptionsEventHandler, Dict[WebsocketsEventType, Callable]],
+        **kwargs,
     ) -> AsyncWebsocketsAudioTranscriptionsClient:
         return AsyncWebsocketsAudioTranscriptionsClient(
             base_url=self._base_url,

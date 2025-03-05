@@ -96,9 +96,7 @@ class DatasetsClient(object):
         if self._documents is None:
             from .documents import DatasetsDocumentsClient
 
-            self._documents = DatasetsDocumentsClient(
-                base_url=self._base_url, requester=self._requester
-            )
+            self._documents = DatasetsDocumentsClient(base_url=self._base_url, requester=self._requester)
         return self._documents
 
     @property
@@ -110,13 +108,13 @@ class DatasetsClient(object):
         return self._images
 
     def create(
-            self,
-            *,
-            name: str,
-            space_id: str,
-            format_type: DocumentFormatType,
-            description: Optional[str] = None,
-            icon_file_id: Optional[str] = None,
+        self,
+        *,
+        name: str,
+        space_id: str,
+        format_type: DocumentFormatType,
+        description: Optional[str] = None,
+        icon_file_id: Optional[str] = None,
     ) -> CreateDatasetResp:
         """
         Create Dataset
@@ -147,14 +145,14 @@ class DatasetsClient(object):
         )
 
     def list(
-            self,
-            *,
-            space_id: str,
-            name: Optional[str] = None,
-            format_type: Optional[DocumentFormatType] = None,
-            page_num: int = 1,
-            page_size: int = 10,
-            **kwargs,
+        self,
+        *,
+        space_id: str,
+        name: Optional[str] = None,
+        format_type: Optional[DocumentFormatType] = None,
+        page_num: int = 1,
+        page_size: int = 10,
+        **kwargs,
     ) -> NumberPaged[Dataset]:
         """
         List Datasets
@@ -196,12 +194,12 @@ class DatasetsClient(object):
         )
 
     def update(
-            self,
-            *,
-            dataset_id: str,
-            name: str,
-            description: Optional[str] = None,
-            icon_file_id: Optional[str] = None,
+        self,
+        *,
+        dataset_id: str,
+        name: str,
+        description: Optional[str] = None,
+        icon_file_id: Optional[str] = None,
     ) -> UpdateDatasetRes:
         """
         Update Dataset
@@ -230,9 +228,9 @@ class DatasetsClient(object):
         )
 
     def delete(
-            self,
-            *,
-            dataset_id: str,
+        self,
+        *,
+        dataset_id: str,
     ) -> DeleteDatasetRes:
         """
         Delete Dataset
@@ -253,10 +251,10 @@ class DatasetsClient(object):
         )
 
     def process(
-            self,
-            *,
-            dataset_id: str,
-            document_ids: List[str],
+        self,
+        *,
+        dataset_id: str,
+        document_ids: List[str],
     ) -> ListResponse[DocumentProgress]:
         """
         Check the upload progress
@@ -296,9 +294,7 @@ class AsyncDatasetsClient(object):
         if self._documents is None:
             from .documents import AsyncDatasetsDocumentsClient
 
-            self._documents = AsyncDatasetsDocumentsClient(
-                base_url=self._base_url, requester=self._requester
-            )
+            self._documents = AsyncDatasetsDocumentsClient(base_url=self._base_url, requester=self._requester)
         return self._documents
 
     @property
@@ -306,19 +302,17 @@ class AsyncDatasetsClient(object):
         if self._images is None:
             from .images import AsyncDatasetsImagesClient
 
-            self._images = AsyncDatasetsImagesClient(
-                base_url=self._base_url, requester=self._requester
-            )
+            self._images = AsyncDatasetsImagesClient(base_url=self._base_url, requester=self._requester)
         return self._images
 
     async def create(
-            self,
-            *,
-            name: str,
-            space_id: str,
-            format_type: DocumentFormatType,
-            description: Optional[str] = None,
-            icon_file_id: Optional[str] = None,
+        self,
+        *,
+        name: str,
+        space_id: str,
+        format_type: DocumentFormatType,
+        description: Optional[str] = None,
+        icon_file_id: Optional[str] = None,
     ) -> CreateDatasetResp:
         """
         Create Dataset
@@ -346,14 +340,14 @@ class AsyncDatasetsClient(object):
         )
 
     async def list(
-            self,
-            *,
-            space_id: str,
-            name: Optional[str] = None,
-            format_type: Optional[DocumentFormatType] = None,
-            page_num: int = 1,
-            page_size: int = 10,
-            **kwargs,
+        self,
+        *,
+        space_id: str,
+        name: Optional[str] = None,
+        format_type: Optional[DocumentFormatType] = None,
+        page_num: int = 1,
+        page_size: int = 10,
+        **kwargs,
     ) -> AsyncNumberPaged[Dataset]:
         """
         List Datasets
@@ -395,12 +389,12 @@ class AsyncDatasetsClient(object):
         )
 
     async def update(
-            self,
-            *,
-            dataset_id: str,
-            name: str,
-            description: Optional[str] = None,
-            icon_file_id: Optional[str] = None,
+        self,
+        *,
+        dataset_id: str,
+        name: str,
+        description: Optional[str] = None,
+        icon_file_id: Optional[str] = None,
     ) -> UpdateDatasetRes:
         """
         Update Dataset
@@ -429,9 +423,9 @@ class AsyncDatasetsClient(object):
         )
 
     async def delete(
-            self,
-            *,
-            dataset_id: str,
+        self,
+        *,
+        dataset_id: str,
     ) -> DeleteDatasetRes:
         """
         Delete Dataset
@@ -452,10 +446,10 @@ class AsyncDatasetsClient(object):
         )
 
     async def process(
-            self,
-            *,
-            dataset_id: str,
-            document_ids: List[str],
+        self,
+        *,
+        dataset_id: str,
+        document_ids: List[str],
     ) -> ListResponse[DocumentProgress]:
         """
         Check the upload progress

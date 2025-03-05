@@ -4,6 +4,7 @@ from typing import (
     Any,
     AsyncIterator,
     Callable,
+    Coroutine,
     Dict,
     Generic,
     Iterable,
@@ -14,7 +15,7 @@ from typing import (
     TypeVar,
     Union,
     cast,
-    overload, Coroutine,
+    overload,
 )
 
 import httpx

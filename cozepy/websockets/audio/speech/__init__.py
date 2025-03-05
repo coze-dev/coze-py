@@ -84,11 +84,11 @@ class WebsocketsAudioSpeechEventHandler(WebsocketsBaseEventHandler):
 
 class WebsocketsAudioSpeechClient(WebsocketsBaseClient):
     def __init__(
-            self,
-            base_url: str,
-            requester: Requester,
-            on_event: Union[WebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]],
-            **kwargs,
+        self,
+        base_url: str,
+        requester: Requester,
+        on_event: Union[WebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]],
+        **kwargs,
     ):
         if isinstance(on_event, WebsocketsAudioSpeechEventHandler):
             on_event = on_event.to_dict(
@@ -164,7 +164,7 @@ class WebsocketsAudioSpeechBuildClient(object):
         self._requester = requester
 
     def create(
-            self, *, on_event: Union[WebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]], **kwargs
+        self, *, on_event: Union[WebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]], **kwargs
     ) -> WebsocketsAudioSpeechClient:
         return WebsocketsAudioSpeechClient(
             base_url=self._base_url,
@@ -179,7 +179,7 @@ class AsyncWebsocketsAudioSpeechEventHandler(AsyncWebsocketsBaseEventHandler):
         pass
 
     async def on_input_text_buffer_completed(
-            self, cli: "AsyncWebsocketsAudioSpeechClient", event: InputTextBufferCompletedEvent
+        self, cli: "AsyncWebsocketsAudioSpeechClient", event: InputTextBufferCompletedEvent
     ):
         pass
 
@@ -187,18 +187,18 @@ class AsyncWebsocketsAudioSpeechEventHandler(AsyncWebsocketsBaseEventHandler):
         pass
 
     async def on_speech_audio_completed(
-            self, cli: "AsyncWebsocketsAudioSpeechClient", event: SpeechAudioCompletedEvent
+        self, cli: "AsyncWebsocketsAudioSpeechClient", event: SpeechAudioCompletedEvent
     ):
         pass
 
 
 class AsyncWebsocketsAudioSpeechClient(AsyncWebsocketsBaseClient):
     def __init__(
-            self,
-            base_url: str,
-            requester: Requester,
-            on_event: Union[AsyncWebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]],
-            **kwargs,
+        self,
+        base_url: str,
+        requester: Requester,
+        on_event: Union[AsyncWebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]],
+        **kwargs,
     ):
         if isinstance(on_event, AsyncWebsocketsAudioSpeechEventHandler):
             on_event = on_event.to_dict(
@@ -269,10 +269,10 @@ class AsyncWebsocketsAudioSpeechBuildClient(object):
         self._requester = requester
 
     def create(
-            self,
-            *,
-            on_event: Union[AsyncWebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]],
-            **kwargs,
+        self,
+        *,
+        on_event: Union[AsyncWebsocketsAudioSpeechEventHandler, Dict[WebsocketsEventType, Callable]],
+        **kwargs,
     ) -> AsyncWebsocketsAudioSpeechClient:
         return AsyncWebsocketsAudioSpeechClient(
             base_url=self._base_url,
