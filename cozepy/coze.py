@@ -1,7 +1,7 @@
 import warnings
 from typing import TYPE_CHECKING, Optional
 
-from cozepy.auth import Auth, AsyncAuth
+from cozepy.auth import AsyncAuth, Auth
 from cozepy.config import COZE_COM_BASE_URL
 from cozepy.request import AsyncHTTPClient, Requester, SyncHTTPClient
 from cozepy.util import remove_url_trailing_slash
