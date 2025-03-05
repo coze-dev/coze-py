@@ -112,14 +112,35 @@ async def generate_audio(coze: AsyncCoze, text: str) -> List[bytes]:
     return [data for data in content._raw_response.iter_bytes(chunk_size=1024)]
 
 
-def cal_latency(latency_list: List[int]) -> str:
+def cal_latency(current: int, latency_list: List[int]) -> str:
     if latency_list is None or len(latency_list) == 0:
-        return "0"
+        return "No latency data"
     if len(latency_list) == 1:
-        return f"{latency_list[0]}"
-    res = latency_list.copy()
-    res.sort()
-    return "%2d" % ((sum(res[:-1]) * 1.0) / (len(res) - 1))
+        return f"P99={latency_list[0]}ms, P90={latency_list[0]}ms, AVG={latency_list[0]}ms"
+
+    # 对延迟数据进行排序
+    sorted_latency = sorted(latency_list)
+    length = len(sorted_latency)
+
+    def fix_index(index):
+        if index < 0:
+            return 0
+        if index >= length:
+            return length - 1
+        return index
+
+    # 计算 P99
+    p99_index = fix_index(round(length * 0.99) - 1)
+    p99 = sorted_latency[p99_index]
+
+    # 计算 P90
+    p90_index = fix_index(round(length * 0.90) - 1)
+    p90 = sorted_latency[p90_index]
+
+    # 计算平均值
+    avg = sum(sorted_latency) / length
+
+    return f"P99={p99}ms, P90={p90}ms, AVG={avg:.2f}ms, CURRENT={current}ms"
 
 
 async def test_latency(coze: AsyncCoze, bot_id: str, audios: List[bytes]) -> AsyncWebsocketsChatEventHandlerSub:
@@ -172,11 +193,15 @@ async def main():
     asr_latency = []
     for i in range(times):
         handler = await test_latency(coze, bot_id, audios)
-        asr_latency.append(handler.conversation_audio_transcript_completed - handler.input_audio_buffer_completed_at)
-        text_latency.append(handler.text_first_token - handler.input_audio_buffer_completed_at)
-        audio_latency.append(handler.audio_first_token - handler.input_audio_buffer_completed_at)
+        asr = handler.conversation_audio_transcript_completed - handler.input_audio_buffer_completed_at
+        text = handler.text_first_token - handler.input_audio_buffer_completed_at
+        audio = handler.audio_first_token - handler.input_audio_buffer_completed_at
+
+        asr_latency.append(asr)
+        text_latency.append(text)
+        audio_latency.append(audio)
         print(
-            f"[latency.ws] {i}, asr: {cal_latency(asr_latency)}, text: {cal_latency(text_latency)} ms, audio: {cal_latency(audio_latency)} ms, log: {handler.logid}"
+            f"[latency.ws] {i}, asr: {cal_latency(asr, asr_latency)}, text: {cal_latency(text, text_latency)}, audio: {cal_latency(audio, audio_latency)}, log: {handler.logid}"
         )
 
 
