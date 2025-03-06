@@ -3,9 +3,12 @@ from .audio.speech import AudioFormat
 from .audio.transcriptions import CreateTranscriptionsResp
 from .audio.voices import Voice
 from .auth import (
+    AsyncAuth,
     AsyncDeviceOAuthApp,
+    AsyncJWTAuth,
     AsyncJWTOAuthApp,
     AsyncPKCEOAuthApp,
+    AsyncTokenAuth,
     AsyncWebOAuthApp,
     Auth,
     DeviceAuthCode,
@@ -16,6 +19,7 @@ from .auth import (
     OAuthToken,
     PKCEOAuthApp,
     Scope,
+    SyncAuth,
     TokenAuth,
     WebOAuthApp,
     load_oauth_app_from_config,
@@ -171,6 +175,10 @@ __all__ = [
     "AsyncPKCEOAuthApp",
     "AsyncWebOAuthApp",
     "Auth",
+    "AsyncAuth",
+    "SyncAuth",
+    "AsyncJWTAuth",
+    "AsyncTokenAuth",
     "DeviceAuthCode",
     "DeviceOAuthApp",
     "JWTAuth",

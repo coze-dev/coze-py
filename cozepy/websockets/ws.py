@@ -42,7 +42,7 @@ else:
 import websockets.sync.client
 from pydantic import BaseModel
 
-from cozepy import Auth, CozeAPIError
+from cozepy import CozeAPIError
 from cozepy.log import log_debug, log_error, log_info
 from cozepy.model import CozeModel
 from cozepy.request import Requester
@@ -163,7 +163,6 @@ class WebsocketsBaseClient(abc.ABC):
     def __init__(
         self,
         base_url: str,
-        auth: Auth,
         requester: Requester,
         path: str,
         query: Optional[Dict[str, str]] = None,
@@ -173,7 +172,6 @@ class WebsocketsBaseClient(abc.ABC):
     ):
         self._state = self.State.INITIALIZED
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
         self._path = path
         self._ws_url = self._base_url + "/" + path
@@ -203,10 +201,12 @@ class WebsocketsBaseClient(abc.ABC):
             raise ValueError(f"Cannot connect in {self._state.value} state")
         self._state = self.State.CONNECTING
         headers = {
-            "Authorization": f"Bearer {self._auth.token}",
             "X-Coze-Client-User-Agent": coze_client_user_agent(),
             **(self._headers or {}),
         }
+
+        self._requester.auth_header(headers)
+
         try:
             self._ws = websockets.sync.client.connect(
                 self._ws_url,
@@ -370,7 +370,6 @@ class AsyncWebsocketsBaseClient(abc.ABC):
     def __init__(
         self,
         base_url: str,
-        auth: Auth,
         requester: Requester,
         path: str,
         query: Optional[Dict[str, str]] = None,
@@ -380,7 +379,6 @@ class AsyncWebsocketsBaseClient(abc.ABC):
     ):
         self._state = self.State.INITIALIZED
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
         self._path = path
         self._ws_url = self._base_url + "/" + path
@@ -408,10 +406,12 @@ class AsyncWebsocketsBaseClient(abc.ABC):
             raise ValueError(f"Cannot connect in {self._state.value} state")
         self._state = self.State.CONNECTING
         headers = {
-            "Authorization": f"Bearer {self._auth.token}",
             "X-Coze-Client-User-Agent": coze_client_user_agent(),
             **(self._headers or {}),
         }
+
+        await self._requester.async_auth_header(headers)
+
         try:
             self._ws = await asyncio_connect(
                 self._ws_url,

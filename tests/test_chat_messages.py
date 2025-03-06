@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from cozepy import AsyncCoze, Coze, Message, TokenAuth
+from cozepy import AsyncCoze, AsyncTokenAuth, Coze, Message, TokenAuth
 from cozepy.util import random_hex
 from tests.test_util import logid_key
 
@@ -39,7 +39,7 @@ class TestSyncChatMessages:
 @pytest.mark.asyncio
 class TestAsyncChatMessages:
     async def test_async_chat_messages_list(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         msg, msg2, logid = mock_chat_messages_list(respx_mock)
 

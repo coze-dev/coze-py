@@ -1,7 +1,6 @@
 from enum import IntEnum
 from typing import List, Optional
 
-from cozepy.auth import Auth
 from cozepy.model import AsyncNumberPaged, CozeModel, NumberPaged, NumberPagedResponse
 from cozepy.request import HTTPRequest, Requester
 from cozepy.util import remove_url_trailing_slash
@@ -130,9 +129,8 @@ class BotsClient(object):
     Bot class.
     """
 
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     def create(
@@ -268,7 +266,6 @@ class BotsClient(object):
                     "page_index": i_page_num,
                 },
                 cast=_PrivateListBotsData,
-                is_async=False,
                 stream=False,
             )
 
@@ -285,9 +282,8 @@ class AsyncBotsClient(object):
     Bot class.
     """
 
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     async def create(
@@ -413,8 +409,8 @@ class AsyncBotsClient(object):
         """
         url = f"{self._base_url}/v1/space/published_bots_list"
 
-        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
-            return self._requester.make_request(
+        async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return await self._requester.amake_request(
                 "GET",
                 url,
                 params={
@@ -423,7 +419,6 @@ class AsyncBotsClient(object):
                     "page_index": i_page_num,
                 },
                 cast=_PrivateListBotsData,
-                is_async=False,
                 stream=False,
             )
 

@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from cozepy import AsyncCoze, Coze, TokenAuth
+from cozepy import AsyncCoze, AsyncTokenAuth, Coze, TokenAuth
 from cozepy.datasets import Dataset, DatasetStatus, DocumentFormatType, DocumentProgress
 from cozepy.datasets.documents import DocumentStatus, DocumentUpdateType
 from cozepy.util import random_hex
@@ -182,7 +182,7 @@ class TestSyncDataset:
 @pytest.mark.asyncio
 class TestAsyncDataset:
     async def test_async_datasets_create(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         dataset_id, mock_logid = mock_create_datasets(respx_mock)
 
@@ -192,7 +192,7 @@ class TestAsyncDataset:
         assert dataset.dataset_id == dataset_id
 
     async def test_async_datasets_list(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         space_id = random_hex(10)
         total = 10
@@ -225,7 +225,7 @@ class TestAsyncDataset:
         assert total_result == total
 
     async def test_async_datasets_update(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         dataset_id, mock_logid = mock_update_datasets(respx_mock)
 
@@ -234,7 +234,7 @@ class TestAsyncDataset:
         assert res.response.logid == mock_logid
 
     async def test_async_datasets_delete(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         dataset_id, mock_logid = mock_delete_datasets(respx_mock)
 
@@ -243,7 +243,7 @@ class TestAsyncDataset:
         assert res.response.logid == mock_logid
 
     async def test_async_datasets_process(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         dataset_id, document_id, mock_logid = mock_process_datasets(respx_mock)
 

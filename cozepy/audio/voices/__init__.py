@@ -1,7 +1,6 @@
 from typing import List, Optional
 
 from cozepy import AudioFormat
-from cozepy.auth import Auth
 from cozepy.files import FileTypes, _try_fix_file
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
@@ -55,9 +54,8 @@ class _PrivateListVoiceData(CozeModel, NumberPagedResponse[Voice]):
 
 
 class VoicesClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     def clone(
@@ -140,7 +138,6 @@ class VoicesClient(object):
                     "page_size": i_page_size,
                 },
                 cast=_PrivateListVoiceData,
-                is_async=False,
                 stream=False,
             )
 
@@ -153,9 +150,8 @@ class VoicesClient(object):
 
 
 class AsyncVoicesClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     async def clone(
@@ -225,8 +221,8 @@ class AsyncVoicesClient(object):
         url = f"{self._base_url}/v1/audio/voices"
         headers: Optional[dict] = kwargs.get("headers")
 
-        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
-            return self._requester.make_request(
+        async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return await self._requester.amake_request(
                 "GET",
                 url,
                 params={
@@ -236,7 +232,6 @@ class AsyncVoicesClient(object):
                 },
                 headers=headers,
                 cast=_PrivateListVoiceData,
-                is_async=False,
                 stream=False,
             )
 

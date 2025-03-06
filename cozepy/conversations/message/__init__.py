@@ -1,6 +1,5 @@
 from typing import Dict, List, Optional
 
-from cozepy.auth import Auth
 from cozepy.chat import Message, MessageContentType, MessageRole
 from cozepy.model import AsyncLastIDPaged, CozeModel, HTTPRequest, LastIDPaged, LastIDPagedResponse
 from cozepy.request import Requester
@@ -31,9 +30,8 @@ class MessagesClient(object):
     Message class.
     """
 
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     def create(
@@ -115,7 +113,6 @@ class MessagesClient(object):
                 },
                 params=params,
                 cast=_PrivateListMessageResp,
-                is_async=False,
                 stream=False,
             )
 
@@ -216,9 +213,8 @@ class AsyncMessagesClient(object):
     Message class.
     """
 
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     async def create(
@@ -287,8 +283,8 @@ class AsyncMessagesClient(object):
             "conversation_id": conversation_id,
         }
 
-        def request_maker(i_before_id: str, i_after_id: str) -> HTTPRequest:
-            return self._requester.make_request(
+        async def request_maker(i_before_id: str, i_after_id: str) -> HTTPRequest:
+            return await self._requester.amake_request(
                 "POST",
                 url,
                 json={
@@ -300,7 +296,6 @@ class AsyncMessagesClient(object):
                 },
                 params=params,
                 cast=_PrivateListMessageResp,
-                is_async=False,
                 stream=False,
             )
 

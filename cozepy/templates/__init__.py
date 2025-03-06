@@ -1,7 +1,6 @@
 from enum import Enum
 from typing import Optional
 
-from cozepy.auth import Auth
 from cozepy.model import CozeModel
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
@@ -17,9 +16,8 @@ class TemplateDuplicateResp(CozeModel):
 
 
 class TemplatesClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     def duplicate(
@@ -35,9 +33,8 @@ class TemplatesClient(object):
 
 
 class AsyncTemplatesClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     async def duplicate(

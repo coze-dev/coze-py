@@ -64,6 +64,14 @@ class Requester(object):
         self._sync_client = sync_client
         self._async_client = async_client
 
+    def auth_header(self, headers: dict):
+        if self._auth:
+            self._auth.authentication(headers)
+
+    async def async_auth_header(self, headers: dict):
+        if self._auth:
+            await self._auth.aauthentication(headers)
+
     def make_request(
         self,
         method: str,
@@ -74,7 +82,6 @@ class Requester(object):
         files: Optional[dict] = None,
         cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None] = None,
         data_field: str = "data",
-        is_async: Optional[bool] = None,
         stream: bool = False,
     ) -> HTTPRequest:
         if headers is None:
@@ -91,7 +98,7 @@ class Requester(object):
             params,
             json,
             stream,
-            is_async,
+            False,
         )
 
         return HTTPRequest(
@@ -101,7 +108,50 @@ class Requester(object):
             headers=headers,
             json_body=json,
             files=files,
-            is_async=is_async,
+            is_async=False,
+            stream=stream,
+            data_field=data_field,
+            cast=cast,
+        )
+
+    async def amake_request(
+        self,
+        method: str,
+        url: str,
+        params: Optional[dict] = None,
+        headers: Optional[dict] = None,
+        json: Optional[dict] = None,
+        files: Optional[dict] = None,
+        cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None] = None,
+        data_field: str = "data",
+        stream: bool = False,
+    ) -> HTTPRequest:
+        if headers is None:
+            headers = {}
+        headers["User-Agent"] = user_agent()
+        headers["X-Coze-Client-User-Agent"] = coze_client_user_agent()
+
+        if self._auth:
+            await self._auth.aauthentication(headers)
+
+        log_debug(
+            "request %s#%s sending, params=%s, json=%s, stream=%s, async=%s",
+            method,
+            url,
+            params,
+            json,
+            stream,
+            True,
+        )
+
+        return HTTPRequest(
+            method=method,
+            url=url,
+            params=params,
+            headers=headers,
+            json_body=json,
+            files=files,
+            is_async=True,
             stream=stream,
             data_field=data_field,
             cast=cast,
@@ -218,7 +268,6 @@ class Requester(object):
             cast=cast,
             data_field=data_field,
             stream=stream,
-            is_async=False,
         )
 
         return self.send(request)
@@ -340,8 +389,8 @@ class Requester(object):
         Send a request to the server.
         """
         method = method.upper()
-        request = self.make_request(
-            method, url, params=params, headers=headers, json=body, files=files, stream=stream, is_async=True
+        request = await self.amake_request(
+            method, url, params=params, headers=headers, json=body, files=files, stream=stream
         )
 
         response = await self.async_client.send(request.as_httpx, stream=stream)

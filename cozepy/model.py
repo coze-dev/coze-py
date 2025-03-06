@@ -4,6 +4,7 @@ from typing import (
     Any,
     AsyncIterator,
     Callable,
+    Coroutine,
     Dict,
     Generic,
     Iterable,
@@ -310,7 +311,7 @@ class AsyncNumberPaged(AsyncPagedBase[T]):
         page_num: int,
         page_size: int,
         requestor: "Requester",
-        request_maker: Callable[[int, int], HTTPRequest],
+        request_maker: Callable[[int, int], Coroutine[None, None, HTTPRequest]],
     ):
         self.page_num = page_num
         self.page_size = page_size
@@ -367,7 +368,7 @@ class AsyncNumberPaged(AsyncPagedBase[T]):
         """
         if self._total is not None:
             return
-        request = self._request_maker(self.page_num, self.page_size)
+        request = await self._request_maker(self.page_num, self.page_size)
         res: NumberPagedResponse[T] = await self._requestor.asend(request)
         self._total = res.get_total()
         self._has_more = res.get_has_more()
@@ -389,7 +390,7 @@ class AsyncNumberPaged(AsyncPagedBase[T]):
         page_num: int,
         page_size: int,
         requestor: "Requester",
-        request_maker: Callable[[int, int], HTTPRequest],
+        request_maker: Callable[[int, int], Coroutine[None, None, HTTPRequest]],
     ) -> "AsyncNumberPaged[T]":
         page: AsyncNumberPaged[T] = AsyncNumberPaged(
             page_num=page_num,
@@ -498,7 +499,7 @@ class AsyncLastIDPaged(AsyncPagedBase[T]):
         before_id: str,
         after_id: str,
         requestor: "Requester",
-        request_maker: Callable[[str, str], HTTPRequest],
+        request_maker: Callable[[str, str], Coroutine[None, None, HTTPRequest]],
     ):
         self.before_id = before_id
         self.after_id = after_id
@@ -551,7 +552,7 @@ class AsyncLastIDPaged(AsyncPagedBase[T]):
         before_id: str,
         after_id: str,
         requestor: "Requester",
-        request_maker: Callable[[str, str], HTTPRequest],
+        request_maker: Callable[[str, str], Coroutine[None, None, HTTPRequest]],
     ) -> "AsyncLastIDPaged[T]":
         page: AsyncLastIDPaged = AsyncLastIDPaged(
             before_id=before_id,
@@ -566,7 +567,7 @@ class AsyncLastIDPaged(AsyncPagedBase[T]):
         if self.last_id is not None or self._has_more is not None:
             return
 
-        request = self._request_maker(self.before_id, self.after_id)
+        request = await self._request_maker(self.before_id, self.after_id)
         res: LastIDPagedResponse[T] = await self._requestor.asend(request)
 
         self.first_id = res.get_first_id()

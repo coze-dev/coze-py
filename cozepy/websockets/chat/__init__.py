@@ -3,7 +3,6 @@ from typing import Any, Callable, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from cozepy import Chat, Message, ToolOutput
-from cozepy.auth import Auth
 from cozepy.log import log_warning
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
@@ -178,7 +177,6 @@ class WebsocketsChatClient(WebsocketsBaseClient):
     def __init__(
         self,
         base_url: str,
-        auth: Auth,
         requester: Requester,
         bot_id: str,
         on_event: Union[WebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
@@ -205,7 +203,6 @@ class WebsocketsChatClient(WebsocketsBaseClient):
             )
         super().__init__(
             base_url=base_url,
-            auth=auth,
             requester=requester,
             path="v1/chat",
             query=remove_none_values(
@@ -343,9 +340,8 @@ class WebsocketsChatClient(WebsocketsBaseClient):
 
 
 class WebsocketsChatBuildClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     def create(
@@ -358,7 +354,6 @@ class WebsocketsChatBuildClient(object):
     ) -> WebsocketsChatClient:
         return WebsocketsChatClient(
             base_url=self._base_url,
-            auth=self._auth,
             requester=self._requester,
             bot_id=bot_id,
             on_event=on_event,  # type: ignore
@@ -430,7 +425,6 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
     def __init__(
         self,
         base_url: str,
-        auth: Auth,
         requester: Requester,
         bot_id: str,
         on_event: Union[AsyncWebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
@@ -457,7 +451,6 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
             )
         super().__init__(
             base_url=base_url,
-            auth=auth,
             requester=requester,
             path="v1/chat",
             query=remove_none_values(
@@ -595,9 +588,8 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
 
 
 class AsyncWebsocketsChatBuildClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     def create(
@@ -610,7 +602,6 @@ class AsyncWebsocketsChatBuildClient(object):
     ) -> AsyncWebsocketsChatClient:
         return AsyncWebsocketsChatClient(
             base_url=self._base_url,
-            auth=self._auth,
             requester=self._requester,
             bot_id=bot_id,
             on_event=on_event,  # type: ignore

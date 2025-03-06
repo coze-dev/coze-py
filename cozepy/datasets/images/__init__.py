@@ -1,7 +1,6 @@
 from enum import IntEnum
 from typing import List, Optional
 
-from cozepy.auth import Auth
 from cozepy.datasets.documents import DocumentSourceType
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
@@ -47,9 +46,8 @@ class _PrivateListPhotosData(CozeModel, NumberPagedResponse[Photo]):
 
 
 class DatasetsImagesClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     def update(
@@ -117,7 +115,6 @@ class DatasetsImagesClient(object):
                     "has_caption": has_caption,
                 },
                 cast=_PrivateListPhotosData,
-                is_async=False,
                 stream=False,
             )
 
@@ -130,9 +127,8 @@ class DatasetsImagesClient(object):
 
 
 class AsyncDatasetsImagesClient(object):
-    def __init__(self, base_url: str, auth: Auth, requester: Requester):
+    def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
-        self._auth = auth
         self._requester = requester
 
     async def update(
@@ -188,8 +184,8 @@ class AsyncDatasetsImagesClient(object):
         url = f"{self._base_url}/v1/datasets/{dataset_id}/images"
         headers: Optional[dict] = kwargs.get("headers")
 
-        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
-            return self._requester.make_request(
+        async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return await self._requester.amake_request(
                 "get",
                 url,
                 headers=headers,
@@ -200,7 +196,6 @@ class AsyncDatasetsImagesClient(object):
                     "has_caption": has_caption,
                 },
                 cast=_PrivateListPhotosData,
-                is_async=False,
                 stream=False,
             )
 

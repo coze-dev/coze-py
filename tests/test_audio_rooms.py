@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from cozepy import AsyncCoze, Coze, CreateRoomResp, TokenAuth
+from cozepy import AsyncCoze, AsyncTokenAuth, Coze, CreateRoomResp, TokenAuth
 from cozepy.util import random_hex
 from tests.test_util import logid_key
 
@@ -45,7 +45,7 @@ class TestSyncAudioRooms:
 @pytest.mark.asyncio
 class TestAsyncAudioRooms:
     async def test_async_rooms_create(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         bot_id = random_hex(10)
         voice_id = random_hex(10)

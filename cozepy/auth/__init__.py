@@ -700,6 +700,15 @@ class Auth(abc.ABC):
         :return: token
         """
 
+    @property
+    @abc.abstractmethod
+    async def atoken(self) -> str:
+        """
+        The token used in the http request header.
+
+        :return: token
+        """
+
     def authentication(self, headers: dict) -> None:
         """
         Construct the authorization header in the http headers.
@@ -709,8 +718,52 @@ class Auth(abc.ABC):
         """
         headers["Authorization"] = f"{self.token_type} {self.token}"
 
+    async def aauthentication(self, headers: dict) -> None:
+        """
+        Construct the authorization header in the http headers.
 
-class TokenAuth(Auth):
+        :param headers: http headers
+        :return: None
+        """
+        headers["Authorization"] = f"{self.token_type} {await self.atoken}"
+
+
+class SyncAuth(Auth, abc.ABC):
+    """
+    This class is the base class for all SyncAuth authorization types.
+
+    It provides the abstract methods for getting the token type and sync token.
+    """
+
+    @property
+    async def atoken(self) -> str:
+        """
+        SyncAuth not need implementation.
+
+        :return: sync token for compatible
+        """
+        return self.token
+
+
+class AsyncAuth(Auth, abc.ABC):
+    """
+    This class is the base class for all authorization types.
+
+    It provides the abstract methods for getting the token type and async token.
+    """
+
+    @property
+    def token(self) -> str:
+        """
+        AsyncAuth not need implementation.
+        Any compatible needed.
+
+        :return: empty
+        """
+        return ""
+
+
+class TokenAuth(SyncAuth):
     """
     The fixed access token auth flow.
     """
@@ -729,7 +782,7 @@ class TokenAuth(Auth):
         return self._token
 
 
-class JWTAuth(Auth):
+class JWTAuth(SyncAuth):
     """
     The JWT auth flow.
     """
@@ -772,4 +825,69 @@ class JWTAuth(Auth):
         if self._token is not None and int(time.time()) < self._token.expires_in:
             return self._token
         self._token = self._oauth_cli.get_access_token(self._ttl)
+        return self._token
+
+
+class AsyncTokenAuth(AsyncAuth):
+    """
+    The fixed access token auth flow.
+    """
+
+    def __init__(self, token: str):
+        assert isinstance(token, str)
+        assert len(token) > 0
+        self._token = token
+
+    @property
+    def token_type(self) -> str:
+        return "Bearer"
+
+    @property
+    async def atoken(self) -> str:
+        return self._token
+
+
+class AsyncJWTAuth(AsyncAuth):
+    """
+    The JWT auth flow.
+    """
+
+    def __init__(
+        self,
+        client_id: Optional[str] = None,
+        private_key: Optional[str] = None,
+        public_key_id: Optional[str] = None,
+        ttl: int = 7200,
+        base_url: str = COZE_COM_BASE_URL,
+        oauth_app: Optional[AsyncJWTOAuthApp] = None,
+    ):
+        assert ttl > 0
+        self._ttl = ttl
+        self._token = None
+
+        if oauth_app:
+            self._oauth_cli = oauth_app
+        else:
+            assert isinstance(client_id, str)
+            assert isinstance(private_key, str)
+            assert isinstance(public_key_id, str)
+            assert isinstance(ttl, int)
+            assert isinstance(base_url, str)
+            self._oauth_cli = AsyncJWTOAuthApp(
+                client_id, private_key, public_key_id, base_url=remove_url_trailing_slash(base_url)
+            )
+
+    @property
+    def token_type(self) -> str:
+        return "Bearer"
+
+    @property
+    async def atoken(self) -> str:
+        token = await self._generate_token()
+        return token.access_token
+
+    async def _generate_token(self):
+        if self._token is not None and int(time.time()) < self._token.expires_in:
+            return self._token
+        self._token = await self._oauth_cli.get_access_token(self._ttl)
         return self._token

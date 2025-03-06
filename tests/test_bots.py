@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from cozepy import AsyncCoze, Bot, Coze, SimpleBot, TokenAuth
+from cozepy import AsyncCoze, AsyncTokenAuth, Bot, Coze, SimpleBot, TokenAuth
 from cozepy.util import random_hex
 from tests.test_util import logid_key
 
@@ -189,7 +189,7 @@ class TestSyncBots:
 @pytest.mark.asyncio
 class TestAsyncBots:
     async def test_async_bots_create(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_bot = mock_create_bot(respx_mock)
 
@@ -200,7 +200,7 @@ class TestAsyncBots:
         assert bot.bot_id == mock_bot.bot_id
 
     async def test_async_bots_update(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_logid = mock_update_bot(respx_mock)
 
@@ -210,7 +210,7 @@ class TestAsyncBots:
         assert res.response.logid == mock_logid
 
     async def test_async_bots_publish(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_bot = mock_publish_bot(respx_mock)
 
@@ -221,7 +221,7 @@ class TestAsyncBots:
         assert bot.bot_id == mock_bot.bot_id
 
     async def test_async_bots_retrieve(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_bot = mock_retrieve_bot(respx_mock)
 
@@ -232,7 +232,7 @@ class TestAsyncBots:
         assert bot.bot_id == mock_bot.bot_id
 
     async def test_async_bots_list(self, respx_mock):
-        coze = AsyncCoze(auth=TokenAuth(token="token"))
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         space_id = random_hex(10)
         total = 10
