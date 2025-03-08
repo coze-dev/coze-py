@@ -334,6 +334,8 @@ class WebsocketsBaseClient(abc.ABC):
 
 
 class WebsocketsBaseEventHandler(object):
+    _cache = None
+
     def on_client_error(self, cli: "WebsocketsBaseClient", e: Exception):
         log_error(f"Client Error occurred: {str(e)}")
         log_error(f"Stack trace:\n{traceback.format_exc()}")
@@ -345,14 +347,27 @@ class WebsocketsBaseEventHandler(object):
     def on_closed(self, cli: "WebsocketsBaseClient"):
         pass
 
-    def to_dict(self, origin: Dict[WebsocketsEventType, Callable]):
-        res = {
+    def event_handlers(self) -> Dict[WebsocketsEventType, Callable]:
+        if self._cache:
+            return self._cache
+        event_methods = {
             WebsocketsEventType.CLIENT_ERROR: self.on_client_error,
             WebsocketsEventType.ERROR: self.on_error,
             WebsocketsEventType.CLOSED: self.on_closed,
         }
-        res.update(origin)
-        return res
+        for method_name in dir(self.__class__):
+            if not method_name.startswith("on_"):
+                continue
+
+            method = getattr(self.__class__, method_name)
+            annotations = getattr(method, "__annotations__", {})
+            for arg_name, arg_type in annotations.items():
+                if hasattr(arg_type, "model_fields") and "event_type" in arg_type.model_fields:
+                    event_methods[arg_type.model_fields.get("event_type").get_default()] = method
+                    break
+
+        self._cache = event_methods
+        return event_methods
 
 
 class AsyncWebsocketsBaseClient(abc.ABC):
@@ -570,6 +585,8 @@ class AsyncWebsocketsBaseClient(abc.ABC):
 
 
 class AsyncWebsocketsBaseEventHandler(object):
+    _cache = None
+
     async def on_client_error(self, cli: "WebsocketsBaseClient", e: Exception):
         log_error(f"Client Error occurred: {str(e)}")
         log_error(f"Stack trace:\n{traceback.format_exc()}")
@@ -581,11 +598,24 @@ class AsyncWebsocketsBaseEventHandler(object):
     async def on_closed(self, cli: "AsyncWebsocketsBaseClient"):
         pass
 
-    def to_dict(self, origin: Dict[WebsocketsEventType, Callable]):
-        res = {
+    def event_handlers(self) -> Dict[WebsocketsEventType, Callable]:
+        if self._cache:
+            return self._cache
+        event_methods = {
             WebsocketsEventType.CLIENT_ERROR: self.on_client_error,
             WebsocketsEventType.ERROR: self.on_error,
             WebsocketsEventType.CLOSED: self.on_closed,
         }
-        res.update(origin)
-        return res
+        for method_name in dir(self.__class__):
+            if not method_name.startswith("on_"):
+                continue
+
+            method = getattr(self.__class__, method_name)
+            annotations = getattr(method, "__annotations__", {})
+            for arg_name, arg_type in annotations.items():
+                if hasattr(arg_type, "model_fields") and "event_type" in arg_type.model_fields:
+                    event_methods[arg_type.model_fields.get("event_type").get_default()] = method
+                    break
+
+        self._cache = event_methods
+        return event_methods

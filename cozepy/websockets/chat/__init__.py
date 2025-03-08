@@ -184,23 +184,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
         **kwargs,
     ):
         if isinstance(on_event, WebsocketsChatEventHandler):
-            on_event = on_event.to_dict(
-                {
-                    WebsocketsEventType.CHAT_CREATED: on_event.on_chat_created,
-                    WebsocketsEventType.CHAT_UPDATED: on_event.on_chat_updated,
-                    WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED: on_event.on_input_audio_buffer_completed,
-                    WebsocketsEventType.CONVERSATION_CHAT_CREATED: on_event.on_conversation_chat_created,
-                    WebsocketsEventType.CONVERSATION_CHAT_IN_PROGRESS: on_event.on_conversation_chat_in_progress,
-                    WebsocketsEventType.CONVERSATION_MESSAGE_DELTA: on_event.on_conversation_message_delta,
-                    WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED: on_event.on_conversation_audio_transcript_completed,
-                    WebsocketsEventType.CONVERSATION_CHAT_REQUIRES_ACTION: on_event.on_conversation_chat_requires_action,
-                    WebsocketsEventType.CONVERSATION_MESSAGE_COMPLETED: on_event.on_conversation_message_completed,
-                    WebsocketsEventType.CONVERSATION_AUDIO_DELTA: on_event.on_conversation_audio_delta,
-                    WebsocketsEventType.CONVERSATION_AUDIO_COMPLETED: on_event.on_conversation_audio_completed,
-                    WebsocketsEventType.CONVERSATION_CHAT_COMPLETED: on_event.on_conversation_chat_completed,
-                    WebsocketsEventType.CONVERSATION_CHAT_CANCELED: on_event.on_conversation_chat_canceled,
-                }
-            )
+            on_event = on_event.event_handlers()
         super().__init__(
             base_url=base_url,
             requester=requester,
@@ -432,23 +416,7 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
         **kwargs,
     ):
         if isinstance(on_event, AsyncWebsocketsChatEventHandler):
-            on_event = on_event.to_dict(
-                {
-                    WebsocketsEventType.CHAT_CREATED: on_event.on_chat_created,
-                    WebsocketsEventType.CHAT_UPDATED: on_event.on_chat_updated,
-                    WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED: on_event.on_input_audio_buffer_completed,
-                    WebsocketsEventType.CONVERSATION_CHAT_CREATED: on_event.on_conversation_chat_created,
-                    WebsocketsEventType.CONVERSATION_CHAT_IN_PROGRESS: on_event.on_conversation_chat_in_progress,
-                    WebsocketsEventType.CONVERSATION_MESSAGE_DELTA: on_event.on_conversation_message_delta,
-                    WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED: on_event.on_conversation_audio_transcript_completed,
-                    WebsocketsEventType.CONVERSATION_CHAT_REQUIRES_ACTION: on_event.on_conversation_chat_requires_action,
-                    WebsocketsEventType.CONVERSATION_MESSAGE_COMPLETED: on_event.on_conversation_message_completed,
-                    WebsocketsEventType.CONVERSATION_AUDIO_DELTA: on_event.on_conversation_audio_delta,
-                    WebsocketsEventType.CONVERSATION_AUDIO_COMPLETED: on_event.on_conversation_audio_completed,
-                    WebsocketsEventType.CONVERSATION_CHAT_COMPLETED: on_event.on_conversation_chat_completed,
-                    WebsocketsEventType.CONVERSATION_CHAT_CANCELED: on_event.on_conversation_chat_canceled,
-                }
-            )
+            on_event = on_event.event_handlers()
         super().__init__(
             base_url=base_url,
             requester=requester,
