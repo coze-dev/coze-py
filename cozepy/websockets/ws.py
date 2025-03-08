@@ -334,7 +334,7 @@ class WebsocketsBaseClient(abc.ABC):
 
 
 class WebsocketsBaseEventHandler(object):
-    _cache = None
+    _cache: Optional[Dict[WebsocketsEventType, Callable]] = None
 
     def on_client_error(self, cli: "WebsocketsBaseClient", e: Exception):
         log_error(f"Client Error occurred: {str(e)}")
@@ -350,7 +350,7 @@ class WebsocketsBaseEventHandler(object):
     def event_handlers(self) -> Dict[WebsocketsEventType, Callable]:
         if self._cache:
             return self._cache
-        event_methods = {
+        event_methods: Dict[WebsocketsEventType, Callable] = {
             WebsocketsEventType.CLIENT_ERROR: self.on_client_error,
             WebsocketsEventType.ERROR: self.on_error,
             WebsocketsEventType.CLOSED: self.on_closed,
@@ -585,7 +585,7 @@ class AsyncWebsocketsBaseClient(abc.ABC):
 
 
 class AsyncWebsocketsBaseEventHandler(object):
-    _cache = None
+    _cache: Optional[Dict[WebsocketsEventType, Callable]] = None
 
     async def on_client_error(self, cli: "WebsocketsBaseClient", e: Exception):
         log_error(f"Client Error occurred: {str(e)}")
@@ -601,7 +601,7 @@ class AsyncWebsocketsBaseEventHandler(object):
     def event_handlers(self) -> Dict[WebsocketsEventType, Callable]:
         if self._cache:
             return self._cache
-        event_methods = {
+        event_methods: Dict[WebsocketsEventType, Callable] = {
             WebsocketsEventType.CLIENT_ERROR: self.on_client_error,
             WebsocketsEventType.ERROR: self.on_error,
             WebsocketsEventType.CLOSED: self.on_closed,
