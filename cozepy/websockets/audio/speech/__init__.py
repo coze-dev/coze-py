@@ -91,14 +91,7 @@ class WebsocketsAudioSpeechClient(WebsocketsBaseClient):
         **kwargs,
     ):
         if isinstance(on_event, WebsocketsAudioSpeechEventHandler):
-            on_event = on_event.to_dict(
-                {
-                    WebsocketsEventType.SPEECH_CREATED: on_event.on_speech_created,
-                    WebsocketsEventType.INPUT_TEXT_BUFFER_COMPLETED: on_event.on_input_text_buffer_completed,
-                    WebsocketsEventType.SPEECH_AUDIO_UPDATE: on_event.on_speech_audio_update,
-                    WebsocketsEventType.SPEECH_AUDIO_COMPLETED: on_event.on_speech_audio_completed,
-                }
-            )
+            on_event = on_event.event_handlers()
         super().__init__(
             base_url=base_url,
             requester=requester,
@@ -201,14 +194,7 @@ class AsyncWebsocketsAudioSpeechClient(AsyncWebsocketsBaseClient):
         **kwargs,
     ):
         if isinstance(on_event, AsyncWebsocketsAudioSpeechEventHandler):
-            on_event = on_event.to_dict(
-                {
-                    WebsocketsEventType.SPEECH_CREATED: on_event.on_speech_created,
-                    WebsocketsEventType.INPUT_TEXT_BUFFER_COMPLETED: on_event.on_input_text_buffer_completed,
-                    WebsocketsEventType.SPEECH_AUDIO_UPDATE: on_event.on_speech_audio_update,
-                    WebsocketsEventType.SPEECH_AUDIO_COMPLETED: on_event.on_speech_audio_completed,
-                }
-            )
+            on_event = on_event.event_handlers()
         super().__init__(
             base_url=base_url,
             requester=requester,
