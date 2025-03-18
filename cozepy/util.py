@@ -114,15 +114,17 @@ def get_prefix_methods(cls, prefix="on"):
     return method_list
 
 
-def get_v2_default(model: type[BaseModel], field_name: str):
+def get_v2_default(model: type, field_name: str):
     """
-    Get default value of a field from `model`
+    Get default value of a field from `model` which is subclass of BaseModel
     """
-    field = model.model_fields.get(field_name)
-    if not field:
-        raise KeyError(f"Field {field_name} not found")
+    if issubclass(model, BaseModel):
+        field = model.model_fields.get(field_name)
+        if not field:
+            return None
 
-    if field.default_factory is not None:
-        return field.default_factory()
+        if field.default_factory is not None:
+            return field.default_factory()
 
-    return field.default if field.default is not None else None
+        return field.default if field.default is not None else None
+    return None
