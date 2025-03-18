@@ -8,7 +8,7 @@ import traceback
 from abc import ABC
 from contextlib import asynccontextmanager, contextmanager
 from enum import Enum
-from typing import Callable, Dict, List, Optional, Set
+from typing import Callable, Dict, List, Optional, Set, Union
 
 if sys.version_info >= (3, 8):
     # note: >=3.7,<3.8 not support asyncio
@@ -345,7 +345,7 @@ class WebsocketsBaseEventHandler(object):
     def on_closed(self, cli: "WebsocketsBaseClient"):
         pass
 
-    def to_dict(self, origin: Dict[WebsocketsEventType, Callable] = None):
+    def to_dict(self, origin: Union[Dict[WebsocketsEventType, Callable], None] = None):
         res = {
             WebsocketsEventType.CLIENT_ERROR: self.on_client_error,
             WebsocketsEventType.ERROR: self.on_error,
@@ -591,7 +591,7 @@ class AsyncWebsocketsBaseEventHandler(object):
     async def on_closed(self, cli: "AsyncWebsocketsBaseClient"):
         pass
 
-    def to_dict(self, origin: Dict[WebsocketsEventType, Callable] = None):
+    def to_dict(self, origin: Union[Dict[WebsocketsEventType, Callable], None] = None):
         res = {
             WebsocketsEventType.CLIENT_ERROR: self.on_client_error,
             WebsocketsEventType.ERROR: self.on_error,
