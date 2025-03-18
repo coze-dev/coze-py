@@ -46,7 +46,7 @@ from cozepy import CozeAPIError
 from cozepy.log import log_debug, log_error, log_info
 from cozepy.model import CozeModel
 from cozepy.request import Requester
-from cozepy.util import remove_url_trailing_slash
+from cozepy.util import get_prefix_methods, get_v2_default, remove_url_trailing_slash
 from cozepy.version import coze_client_user_agent, user_agent
 
 
@@ -345,13 +345,23 @@ class WebsocketsBaseEventHandler(object):
     def on_closed(self, cli: "WebsocketsBaseClient"):
         pass
 
-    def to_dict(self, origin: Dict[WebsocketsEventType, Callable]):
+    def to_dict(self, origin: Dict[WebsocketsEventType, Callable] = None):
         res = {
             WebsocketsEventType.CLIENT_ERROR: self.on_client_error,
             WebsocketsEventType.ERROR: self.on_error,
             WebsocketsEventType.CLOSED: self.on_closed,
         }
-        res.update(origin)
+
+        method_list = get_prefix_methods(self)
+        for method in method_list:
+            parameters = method.get("parameters", [])
+            for param in parameters:
+                if issubclass(param.annotation, WebsocketsEvent):
+                    event_type = get_v2_default(param.annotation, "event_type")
+                    res[event_type] = method.get("function")
+                    break
+
+        res.update(origin or {})
         return res
 
 
@@ -581,11 +591,21 @@ class AsyncWebsocketsBaseEventHandler(object):
     async def on_closed(self, cli: "AsyncWebsocketsBaseClient"):
         pass
 
-    def to_dict(self, origin: Dict[WebsocketsEventType, Callable]):
+    def to_dict(self, origin: Dict[WebsocketsEventType, Callable] = None):
         res = {
             WebsocketsEventType.CLIENT_ERROR: self.on_client_error,
             WebsocketsEventType.ERROR: self.on_error,
             WebsocketsEventType.CLOSED: self.on_closed,
         }
-        res.update(origin)
+
+        method_list = get_prefix_methods(self)
+        for method in method_list:
+            parameters = method.get("parameters", [])
+            for param in parameters:
+                if issubclass(param.annotation, WebsocketsEvent):
+                    event_type = get_v2_default(param.annotation, "event_type")
+                    res[event_type] = method.get("function")
+                    break
+
+        res.update(origin or {})
         return res

@@ -1,8 +1,11 @@
 import base64
 import hashlib
+import inspect
 import random
 import sys
 import wave
+
+from pydantic import BaseModel
 
 if sys.version_info < (3, 10):
 
@@ -78,3 +81,48 @@ def write_pcm_to_wav_file(
 
         # Write PCM data
         wav_file.writeframes(pcm_data)
+
+
+def get_prefix_methods(cls, prefix="on"):
+    """
+    Get all methods of `cls` with prefix `prefix`
+    """
+    method_list = []
+    for name in dir(cls):
+        if not name.startswith(prefix) or name.startswith("__"):
+            continue
+
+        attr = getattr(cls, name)
+        if inspect.ismethod(attr) or inspect.isfunction(attr):
+            sig = inspect.signature(attr)
+            params = list(sig.parameters.values())
+
+            if inspect.ismethod(attr) and not isinstance(attr, staticmethod):
+                params = params[1:]  # 去掉self/cls
+
+            method_list.append(
+                {
+                    "function": attr,
+                    "parameters": params,
+                    "type": "staticmethod"
+                    if isinstance(attr, staticmethod)
+                    else "classmethod"
+                    if inspect.ismethod(attr)
+                    else "instancemethod",
+                }
+            )
+    return method_list
+
+
+def get_v2_default(model: type[BaseModel], field_name: str):
+    """
+    Get default value of a field from `model`
+    """
+    field = model.model_fields.get(field_name)
+    if not field:
+        raise KeyError(f"Field {field_name} not found")
+
+    if field.default_factory is not None:
+        return field.default_factory()
+
+    return field.default if field.default is not None else None
