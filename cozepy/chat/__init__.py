@@ -234,6 +234,7 @@ class ChatRequiredActionType(str, Enum):
 
 class ChatToolCallType(str, Enum):
     FUNCTION = "function"
+    REPLY_MESSAGE = "reply_message"
 
 
 class ChatToolCallFunction(CozeModel):
