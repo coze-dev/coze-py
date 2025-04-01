@@ -220,7 +220,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
         self._input_queue.put(ConversationChatCancelEvent.model_validate({}))
 
     def conversation_message_create(self, data: ConversationMessageCreateEvent.Data) -> None:
-        self._input_queue.put(ConversationMessageCreateEvent.model_validate({{"data": data}}))
+        self._input_queue.put(ConversationMessageCreateEvent.model_validate({"data": data}))
 
     def input_audio_buffer_append(self, data: InputAudioBufferAppendEvent.Data) -> None:
         self._input_queue.put(InputAudioBufferAppendEvent.model_validate({"data": data}))
@@ -455,7 +455,7 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
         await self._input_queue.put(ConversationChatCancelEvent.model_validate({}))
 
     async def conversation_message_create(self, data: ConversationMessageCreateEvent.Data) -> None:
-        await self._input_queue.put(ConversationMessageCreateEvent.model_validate({{"data": data}}))
+        await self._input_queue.put(ConversationMessageCreateEvent.model_validate({"data": data}))
 
     async def input_audio_buffer_append(self, data: InputAudioBufferAppendEvent.Data) -> None:
         await self._input_queue.put(InputAudioBufferAppendEvent.model_validate({"data": data}))
