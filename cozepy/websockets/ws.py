@@ -92,6 +92,7 @@ class WebsocketsEventType(str, Enum):
     CHAT_UPDATE = "chat.update"  # send chat config to server
     CONVERSATION_CHAT_SUBMIT_TOOL_OUTPUTS = "conversation.chat.submit_tool_outputs"  # send tool outputs to server
     CONVERSATION_CHAT_CANCEL = "conversation.chat.cancel"  # send cancel chat to server
+    CONVERSATION_MESSAGE_CREATE = "conversation.message.create"  # send text or string_object chat to server
     # resp
     CHAT_CREATED = "chat.created"
     CHAT_UPDATED = "chat.updated"
