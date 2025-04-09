@@ -8,7 +8,7 @@ import traceback
 from abc import ABC
 from contextlib import asynccontextmanager, contextmanager
 from enum import Enum
-from typing import Callable, Dict, List, Optional, Set
+from typing import Any, Callable, Dict, List, Optional, Set
 
 if sys.version_info >= (3, 8):
     # note: >=3.7,<3.8 not support asyncio
@@ -333,6 +333,20 @@ class WebsocketsBaseClient(abc.ABC):
         self._ws.send(event.model_dump_json())
 
 
+def get_event_type_mapping(cls: Any) -> dict:
+    res = {}
+    method_list = get_methods(cls)
+    for method in method_list:
+        parameters = method.get("parameters", [])
+        for param in parameters:
+            if issubclass(param.annotation, WebsocketsEvent):
+                event_type = get_model_default(param.annotation, "event_type")
+                if event_type:
+                    res[event_type] = method.get("function")
+                    break
+    return res
+
+
 class WebsocketsBaseEventHandler(object):
     def on_client_error(self, cli: "WebsocketsBaseClient", e: Exception):
         log_error(f"Client Error occurred: {str(e)}")
@@ -352,16 +366,7 @@ class WebsocketsBaseEventHandler(object):
             WebsocketsEventType.CLOSED: self.on_closed,
         }
 
-        method_list = get_methods(self)
-        for method in method_list:
-            parameters = method.get("parameters", [])
-            for param in parameters:
-                if issubclass(param.annotation, WebsocketsEvent):
-                    event_type = get_model_default(param.annotation, "event_type")
-                    if event_type:
-                        res[event_type] = method.get("function")
-                        break
-
+        res.update(get_event_type_mapping(self))
         res.update(origin or {})
         return res
 
@@ -599,15 +604,6 @@ class AsyncWebsocketsBaseEventHandler(object):
             WebsocketsEventType.CLOSED: self.on_closed,
         }
 
-        method_list = get_methods(self)
-        for method in method_list:
-            parameters = method.get("parameters", [])
-            for param in parameters:
-                if issubclass(param.annotation, WebsocketsEvent):
-                    event_type = get_model_default(param.annotation, "event_type")
-                    if event_type:
-                        res[event_type] = method.get("function")
-                        break
-
+        res.update(get_event_type_mapping(self))
         res.update(origin or {})
         return res
