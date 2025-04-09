@@ -46,7 +46,7 @@ from cozepy import CozeAPIError
 from cozepy.log import log_debug, log_error, log_info
 from cozepy.model import CozeModel
 from cozepy.request import Requester
-from cozepy.util import get_model_default, get_prefix_methods, remove_url_trailing_slash
+from cozepy.util import get_methods, get_model_default, remove_url_trailing_slash
 from cozepy.version import coze_client_user_agent, user_agent
 
 
@@ -352,7 +352,7 @@ class WebsocketsBaseEventHandler(object):
             WebsocketsEventType.CLOSED: self.on_closed,
         }
 
-        method_list = get_prefix_methods(self)
+        method_list = get_methods(self)
         for method in method_list:
             parameters = method.get("parameters", [])
             for param in parameters:
@@ -599,7 +599,7 @@ class AsyncWebsocketsBaseEventHandler(object):
             WebsocketsEventType.CLOSED: self.on_closed,
         }
 
-        method_list = get_prefix_methods(self)
+        method_list = get_methods(self)
         for method in method_list:
             parameters = method.get("parameters", [])
             for param in parameters:

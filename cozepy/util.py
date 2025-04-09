@@ -83,7 +83,7 @@ def write_pcm_to_wav_file(
         wav_file.writeframes(pcm_data)
 
 
-def get_prefix_methods(cls, prefix="on"):
+def get_methods(cls, prefix="on"):
     """
     Get all methods of `cls` with prefix `prefix`
     """
