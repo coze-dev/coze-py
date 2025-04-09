@@ -29,30 +29,158 @@ pip install cozepy
 
 ### Examples
 
-| Example                      | File                                                                                     |
-|------------------------------|------------------------------------------------------------------------------------------|
-| pat auth                     | [examples/auth_pat.py](examples/auth_pat.py)                                             |
-| oauth by web code            | [examples/auth_oauth_web.py](examples/auth_oauth_web.py)                                 |
-| oauth by jwt flow            | [examples/auth_oauth_jwt.py](examples/auth_oauth_jwt.py)                                 |
-| oauth by pkce flow           | [examples/auth_oauth_pkce.py](examples/auth_oauth_pkce.py)                               |
-| oauth by device flow         | [examples/auth_oauth_device.py](examples/auth_oauth_device.py)                           |
-| bot create, publish and chat | [examples/bot_publish.py](examples/bot_publish.py)                                       |
-| non-stream chat              | [examples/chat_no_stream.py](examples/chat_no_stream.py)                                 |
-| steam chat                   | [examples/chat_stream.py](examples/chat_stream.py)                                       |
-| chat with conversation       | [examples/chat_conversation_stream.py](examples/chat_conversation_stream.py)             |
-| chat with local plugin       | [examples/chat_local_plugin.py](examples/chat_local_plugin.py)                           |
-| chat with image              | [examples/chat_multimodal_stream.py](examples/chat_multimode_stream.py)                  |
-| chat with audio              | [examples/chat_audio.py](examples/chat_audio.py)                                         |
-| workflow non-stream run      | [examples/workflow_no_stream.py](examples/workflow_no_stream.py)                         |
-| workflow stream run          | [examples/workflow_stream.py](examples/workflow_stream.py)                               |
-| async workflow run           | [examples/workflow_async.py](examples/workflow_async.py)                                 |
-| workflow chat                | [examples/workflow_chat_stream.py](examples/workflow_chat_stream.py)                     |
-| workflow chat with image     | [examples/workflow_chat_multimode_stream.py](examples/workflow_chat_multimode_stream.py) |
-| conversation                 | [examples/conversation.py](examples/conversation.py)                                     |
-| workspace                    | [examples/workspace.py](examples/workspace.py)                                           |
-| timeout config               | [examples/timeout.py](examples/timeout.py)                                               |
-| setup coze log config        | [examples/log.py](examples/log.py)                                                       |
-| how to handle exception      | [examples/exception.py](examples/exception.py)                                           |
+<table>
+    <tr>
+        <th>Module</th>
+        <th>Example</th>
+        <th>File</th>
+    </tr>
+    <tr>
+        <td rowspan="5">Auth</td>
+        <td>JWT OAuth</td>
+        <td><a href="./examples/auth_oauth_jwt.py">examples/auth_oauth_jwt.py</a></td>
+    </tr>
+    <tr>
+        <td>Web OAuth</td>
+        <td><a href="./examples/auth_oauth_web.py">examples/auth_oauth_web.py</a></td>
+    </tr>
+    <tr>
+        <td>PKCE OAuth</td>
+        <td><a href="./examples/auth_oauth_pkce.py">examples/auth_oauth_pkce.py</a></td>
+    </tr>
+    <tr>
+        <td>Device OAuth</td>
+        <td><a href="./examples/auth_oauth_device.py">examples/auth_oauth_device.py</a></td>
+    </tr>
+    <tr>
+        <td>Personal Access Token</td>
+        <td><a href="./examples/auth_pat.py">examples/auth_pat.py</a></td>
+    </tr>
+    <tr>
+        <td rowspan="4">Websockets</td>
+        <td>Audio Speech by Websocket</td>
+        <td><a href="./examples/websockets_audio_speech.py">examples/websockets_audio_speech.py</a></td>
+    </tr>
+    <tr>
+        <td>Audio Transcription by Websocket</td>
+        <td><a href="./examples/websockets_audio_transcriptions.py">examples/websockets_audio_transcriptions.py</a></td>
+    </tr>
+    <tr>
+        <td>Audio Chat by Websocket</td>
+        <td><a href="./examples/websockets_chat.py">examples/websockets_chat.py</a></td>
+    </tr>
+    <tr>
+        <td>Audio Chat Realtime by Websocket</td>
+        <td><a href="./examples/websockets_chat_realtime_gui.py">examples/websockets_chat_realtime_gui.py</a></td>
+    </tr>
+    <tr>
+        <td rowspan="7">Bot Chat</td>
+        <td>Bot Chat with Steam</td>
+        <td><a href="./examples/chat_stream.py">examples/chat_stream.py</a></td>
+    </tr>
+    <tr>
+        <td>Bot Chat without Steam</td>
+        <td><a href="./examples/chat_no_stream.py">examples/chat_no_stream.py</a></td>
+    </tr>
+    <tr>
+        <td>Bot Chat with Conversation</td>
+        <td><a href="./examples/chat_conversation_stream.py">examples/chat_conversation_stream.py</a></td>
+    </tr>
+    <tr>
+        <td>Bot Chat with Image</td>
+        <td><a href="./examples/chat_multimode_stream.py">examples/chat_multimode_stream.py</a></td>
+    </tr>
+    <tr>
+        <td>Bot Chat with Audio</td>
+        <td><a href="./examples/chat_simple_audio.py">examples/chat_simple_audio.py</a></td>
+    </tr>
+    <tr>
+        <td>Bot Chat with Audio One-One</td>
+        <td><a href="./examples/chat_oneonone_audio.py">examples/chat_oneonone_audio.py</a></td>
+    </tr>
+    <tr>
+        <td>Bot Chat With Local Plugin</td>
+        <td><a href="./examples/chat_local_plugin.py">examples/chat_local_plugin.py</a></td>
+    </tr>
+    <tr>
+        <td rowspan="5">Workflow Run & Chat</td>
+        <td>Workflow Run with Stream</td>
+        <td><a href="./examples/workflow_stream.py">examples/workflow_stream.py</a></td>
+    </tr>
+    <tr>
+        <td>Workflow Run without Stream</td>
+        <td><a href="./examples/workflow_no_stream.py">examples/workflow_no_stream.py</a></td>
+    </tr>
+    <tr>
+        <td>Workflow Async Run & Fetch</td>
+        <td><a href="./examples/workflow_async.py">examples/workflow_async.py</a></td>
+    </tr>
+    <tr>
+        <td>Workflow Chat with Stream</td>
+        <td><a href="./examples/workflow_chat_stream.py">examples/workflow_chat_stream.py</a></td>
+    </tr>
+    <tr>
+        <td>Workflow chat with Image and Stream</td>
+        <td><a href="./examples/workflow_chat_multimode_stream.py">examples/workflow_chat_multimode_stream.py</a></td>
+    </tr>
+    <tr>
+        <td rowspan="2">Conversation</td>
+        <td>Conversation</td>
+        <td><a href="./examples/conversation.py">examples/conversation.py</a></td>
+    </tr>
+    <tr>
+        <td>List Conversation</td>
+        <td><a href="./examples/conversation_list.py">examples/conversation_list.py</a></td>
+    </tr>
+    <tr>
+        <td rowspan="1">Dataset</td>
+        <td>Create Dataset</td>
+        <td><a href="./examples/dataset_create.py">examples/dataset_create.py</a></td>
+    </tr>
+    <tr>
+        <td rowspan="1">Audio</td>
+        <td>Audio Example by HTTP</td>
+        <td><a href="./examples/audio.py">examples/audio.py</a></td>
+    </tr>
+    <tr>
+        <td rowspan="1">Bot</td>
+        <td>Publish Bot</td>
+        <td><a href="./examples/bot_publish.py">examples/bot_publish.py</a></td>
+    </tr>
+    <tr>
+        <td rowspan="1">File</td>
+        <td>Upload File</td>
+        <td><a href="./examples/files_upload.py">examples/files_upload.py</a></td>
+    </tr>
+    <tr>
+        <td rowspan="1">template</td>
+        <td>Duplicate Template</td>
+        <td><a href="./examples/template_duplicate.py">examples/template_duplicate.py</a></td>
+    </tr>
+    <tr>
+        <td rowspan="1">User</td>
+        <td>Get Current User</td>
+        <td><a href="./examples/users_me.py">examples/users_me.py</a></td>
+    </tr>
+    <tr>
+        <td rowspan="1">Workspace</td>
+        <td>List Workspaces</td>
+        <td><a href="./examples/workspace.py">examples/workspace.py</a></td>
+    </tr>
+    <tr>
+        <td rowspan="3">Other</td>
+        <td>Timeout Config</td>
+        <td><a href="./examples/timeout.py">examples/timeout.py</a></td>
+    </tr>
+    <tr>
+        <td>Log Config</td>
+        <td><a href="./examples/log.py">examples/log.py</a></td>
+    </tr>
+    <tr>
+        <td>Exception Usage</td>
+        <td><a href="./examples/exception.py">examples/exception.py</a></td>
+    </tr>
+</table>
 
 ### Initialize the Coze client
 
