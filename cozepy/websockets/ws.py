@@ -46,7 +46,7 @@ from cozepy import CozeAPIError
 from cozepy.log import log_debug, log_error, log_info
 from cozepy.model import CozeModel
 from cozepy.request import Requester
-from cozepy.util import get_prefix_methods, get_v2_default, remove_url_trailing_slash
+from cozepy.util import get_model_default, get_prefix_methods, remove_url_trailing_slash
 from cozepy.version import coze_client_user_agent, user_agent
 
 
@@ -357,7 +357,7 @@ class WebsocketsBaseEventHandler(object):
             parameters = method.get("parameters", [])
             for param in parameters:
                 if issubclass(param.annotation, WebsocketsEvent):
-                    event_type = get_v2_default(param.annotation, "event_type")
+                    event_type = get_model_default(param.annotation, "event_type")
                     if event_type:
                         res[event_type] = method.get("function")
                         break
@@ -604,7 +604,7 @@ class AsyncWebsocketsBaseEventHandler(object):
             parameters = method.get("parameters", [])
             for param in parameters:
                 if issubclass(param.annotation, WebsocketsEvent):
-                    event_type = get_v2_default(param.annotation, "event_type")
+                    event_type = get_model_default(param.annotation, "event_type")
                     if event_type:
                         res[event_type] = method.get("function")
                         break

@@ -89,7 +89,7 @@ def get_prefix_methods(cls, prefix="on"):
     """
     method_list = []
     for name in dir(cls):
-        if not name.startswith(prefix) or name.startswith("__"):
+        if not name.startswith(prefix):
             continue
 
         attr = getattr(cls, name)
@@ -114,7 +114,7 @@ def get_prefix_methods(cls, prefix="on"):
     return method_list
 
 
-def get_v2_default(model: type, field_name: str):
+def get_model_default(model: type, field_name: str):
     """
     Get default value of a field from `model` which is subclass of BaseModel
     """
