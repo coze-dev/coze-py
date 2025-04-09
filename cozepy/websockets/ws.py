@@ -8,7 +8,7 @@ import traceback
 from abc import ABC
 from contextlib import asynccontextmanager, contextmanager
 from enum import Enum
-from typing import Callable, Dict, List, Optional, Set
+from typing import Any, Callable, Dict, List, Optional, Set
 
 if sys.version_info >= (3, 8):
     # note: >=3.7,<3.8 not support asyncio
@@ -46,7 +46,7 @@ from cozepy import CozeAPIError
 from cozepy.log import log_debug, log_error, log_info
 from cozepy.model import CozeModel
 from cozepy.request import Requester
-from cozepy.util import remove_url_trailing_slash
+from cozepy.util import get_methods, get_model_default, remove_url_trailing_slash
 from cozepy.version import coze_client_user_agent, user_agent
 
 
@@ -333,6 +333,20 @@ class WebsocketsBaseClient(abc.ABC):
         self._ws.send(event.model_dump_json())
 
 
+def get_event_type_mapping(cls: Any) -> dict:
+    res = {}
+    method_list = get_methods(cls)
+    for method in method_list:
+        parameters = method.get("parameters", [])
+        for param in parameters:
+            if issubclass(param.annotation, WebsocketsEvent):
+                event_type = get_model_default(param.annotation, "event_type")
+                if event_type:
+                    res[event_type] = method.get("function")
+                    break
+    return res
+
+
 class WebsocketsBaseEventHandler(object):
     def on_client_error(self, cli: "WebsocketsBaseClient", e: Exception):
         log_error(f"Client Error occurred: {str(e)}")
@@ -345,13 +359,15 @@ class WebsocketsBaseEventHandler(object):
     def on_closed(self, cli: "WebsocketsBaseClient"):
         pass
 
-    def to_dict(self, origin: Dict[WebsocketsEventType, Callable]):
+    def to_dict(self, origin: Optional[Dict[WebsocketsEventType, Callable]] = None):
         res = {
             WebsocketsEventType.CLIENT_ERROR: self.on_client_error,
             WebsocketsEventType.ERROR: self.on_error,
             WebsocketsEventType.CLOSED: self.on_closed,
         }
-        res.update(origin)
+
+        res.update(get_event_type_mapping(self))
+        res.update(origin or {})
         return res
 
 
@@ -581,11 +597,13 @@ class AsyncWebsocketsBaseEventHandler(object):
     async def on_closed(self, cli: "AsyncWebsocketsBaseClient"):
         pass
 
-    def to_dict(self, origin: Dict[WebsocketsEventType, Callable]):
+    def to_dict(self, origin: Optional[Dict[WebsocketsEventType, Callable]] = None):
         res = {
             WebsocketsEventType.CLIENT_ERROR: self.on_client_error,
             WebsocketsEventType.ERROR: self.on_error,
             WebsocketsEventType.CLOSED: self.on_closed,
         }
-        res.update(origin)
+
+        res.update(get_event_type_mapping(self))
+        res.update(origin or {})
         return res
