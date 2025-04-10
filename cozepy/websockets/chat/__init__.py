@@ -58,6 +58,7 @@ class ConversationChatCancelEvent(WebsocketsEvent):
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_CANCEL
 
 
+# req
 class ConversationMessageCreateEvent(WebsocketsEvent):
     class Data(BaseModel):
         role: str
