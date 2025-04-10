@@ -8,7 +8,7 @@ import traceback
 from abc import ABC
 from contextlib import asynccontextmanager, contextmanager
 from enum import Enum
-from typing import Callable, Dict, List, Optional, Set
+from typing import Any, Callable, Dict, List, Optional, Set
 
 if sys.version_info >= (3, 8):
     # note: >=3.7,<3.8 not support asyncio
@@ -46,7 +46,7 @@ from cozepy import CozeAPIError
 from cozepy.log import log_debug, log_error, log_info
 from cozepy.model import CozeModel
 from cozepy.request import Requester
-from cozepy.util import get_prefix_methods, get_v2_default, remove_url_trailing_slash
+from cozepy.util import get_methods, get_model_default, remove_url_trailing_slash
 from cozepy.version import coze_client_user_agent, user_agent
 
 
@@ -92,7 +92,6 @@ class WebsocketsEventType(str, Enum):
     CHAT_UPDATE = "chat.update"  # send chat config to server
     CONVERSATION_CHAT_SUBMIT_TOOL_OUTPUTS = "conversation.chat.submit_tool_outputs"  # send tool outputs to server
     CONVERSATION_CHAT_CANCEL = "conversation.chat.cancel"  # send cancel chat to server
-    CONVERSATION_MESSAGE_CREATE = "conversation.message.create"  # send text or string_object chat to server
     # resp
     CHAT_CREATED = "chat.created"
     CHAT_UPDATED = "chat.updated"
@@ -334,6 +333,20 @@ class WebsocketsBaseClient(abc.ABC):
         self._ws.send(event.model_dump_json())
 
 
+def get_event_type_mapping(cls: Any) -> dict:
+    res = {}
+    method_list = get_methods(cls)
+    for method in method_list:
+        parameters = method.get("parameters", [])
+        for param in parameters:
+            if issubclass(param.annotation, WebsocketsEvent):
+                event_type = get_model_default(param.annotation, "event_type")
+                if event_type:
+                    res[event_type] = method.get("function")
+                    break
+    return res
+
+
 class WebsocketsBaseEventHandler(object):
     def on_client_error(self, cli: "WebsocketsBaseClient", e: Exception):
         log_error(f"Client Error occurred: {str(e)}")
@@ -353,16 +366,7 @@ class WebsocketsBaseEventHandler(object):
             WebsocketsEventType.CLOSED: self.on_closed,
         }
 
-        method_list = get_prefix_methods(self)
-        for method in method_list:
-            parameters = method.get("parameters", [])
-            for param in parameters:
-                if issubclass(param.annotation, WebsocketsEvent):
-                    event_type = get_v2_default(param.annotation, "event_type")
-                    if event_type:
-                        res[event_type] = method.get("function")
-                        break
-
+        res.update(get_event_type_mapping(self))
         res.update(origin or {})
         return res
 
@@ -600,15 +604,6 @@ class AsyncWebsocketsBaseEventHandler(object):
             WebsocketsEventType.CLOSED: self.on_closed,
         }
 
-        method_list = get_prefix_methods(self)
-        for method in method_list:
-            parameters = method.get("parameters", [])
-            for param in parameters:
-                if issubclass(param.annotation, WebsocketsEvent):
-                    event_type = get_v2_default(param.annotation, "event_type")
-                    if event_type:
-                        res[event_type] = method.get("function")
-                        break
-
+        res.update(get_event_type_mapping(self))
         res.update(origin or {})
         return res
