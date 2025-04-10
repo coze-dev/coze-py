@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from .knowledge import AsyncKnowledgeClient, KnowledgeClient  # deprecated
     from .templates import AsyncTemplatesClient, TemplatesClient
     from .users import AsyncUsersClient, UsersClient
-    from .websockets import AsyncWebsocketsClient
+    from .websockets import AsyncWebsocketsClient, WebsocketsClient
     from .workflows import AsyncWorkflowsClient, WorkflowsClient
     from .workspaces import AsyncWorkspacesClient, WorkspacesClient
 
@@ -44,6 +44,7 @@ class Coze(object):
         self._audio: Optional[AudioClient] = None
         self._templates: Optional[TemplatesClient] = None
         self._users: Optional[UsersClient] = None
+        self._websockets: Optional[WebsocketsClient] = None
 
     @property
     def bots(self) -> "BotsClient":
@@ -138,6 +139,14 @@ class Coze(object):
 
             self._users = UsersClient(self._base_url, self._requester)
         return self._users
+
+    @property
+    def websockets(self) -> "WebsocketsClient":
+        if not self._websockets:
+            from .websockets import WebsocketsClient
+
+            self._websockets = WebsocketsClient(self._base_url, self._requester)
+        return self._websockets
 
 
 class AsyncCoze(object):
