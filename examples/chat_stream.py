@@ -11,7 +11,7 @@ from cozepy import COZE_CN_BASE_URL, ChatEventType, Coze, DeviceOAuthApp, Messag
 
 
 def get_coze_api_base() -> str:
-    # The default access is api.coze.com, but if you need to access api.coze.cn,
+    # The default access is api.coze.cn, but if you need to access api.coze.com,
     # please use base_url to configure the api endpoint to access
     coze_api_base = os.getenv("COZE_API_BASE")
     if coze_api_base:

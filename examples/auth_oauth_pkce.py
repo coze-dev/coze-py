@@ -6,21 +6,21 @@ How to effectuate OpenAPI authorization through the OAuth Proof Key for Code Exc
 # code flow designed to enhance security for public clients, such as mobile and single-page
 # applications.
 
-# Firstly, users need to access https://www.coze.com/open/oauth/apps. For the cn environment,
-# users need to access https://www.coze.cn/open/oauth/apps to create an OAuth App of the type
+# Firstly, users need to access https://www.coze.cn/open/oauth/apps. For the coze.com environment,
+# users need to access https://www.coze.com/open/oauth/apps to create an OAuth App of the type
 # of Mobile/PC/Single-page application.
 # The specific creation process can be referred to in the document:
-# https://www.coze.com/docs/developer_guides/oauth_pkce. For the cn environment, it can be
-# accessed at https://www.coze.cn/docs/developer_guides/oauth_pkce.
+# https://www.coze.cn/docs/developer_guides/oauth_pkce. For the coze.com environment, it can be
+# accessed at https://www.coze.com/docs/developer_guides/oauth_pkce.
 # After the creation is completed, the client ID can be obtained.
 
 import os
 
-from cozepy import COZE_COM_BASE_URL
+from cozepy import COZE_CN_BASE_URL, Coze, PKCEOAuthApp, TokenAuth
 
-# The default access is api.coze.com, but if you need to access api.coze.cn,
+# The default access is api.coze.cn, but if you need to access api.coze.com,
 # please use base_url to configure the api endpoint to access
-coze_api_base = os.getenv("COZE_API_BASE") or COZE_COM_BASE_URL
+coze_api_base = os.getenv("COZE_API_BASE") or COZE_CN_BASE_URL
 
 # client ID
 pkce_oauth_client_id = os.getenv("COZE_PKCE_OAUTH_CLIENT_ID")
@@ -30,8 +30,6 @@ web_oauth_redirect_uri = os.getenv("COZE_WEB_OAUTH_REDIRECT_URI")
 # The sdk offers the PKCEOAuthApp class to establish an authorization for PKCE OAuth.
 # Firstly, it is required to initialize the PKCEOAuthApp with the client ID.
 
-
-from cozepy import Coze, TokenAuth, PKCEOAuthApp  # noqa
 
 pkce_oauth_app = PKCEOAuthApp(client_id=pkce_oauth_client_id, base_url=coze_api_base)
 

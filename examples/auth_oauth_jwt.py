@@ -2,23 +2,22 @@
 This example is about how to use the service jwt oauth process to acquire user authorization.
 """
 
-# Firstly, users need to access https://www.coze.com/open/oauth/apps. For the cn environment,
-# users need to access https://www.coze.cn/open/oauth/apps to create an OAuth App of the type
+# Firstly, users need to access https://www.coze.cn/open/oauth/apps. For the coze.com environment,
+# users need to access https://www.coze.com/open/oauth/apps to create an OAuth App of the type
 # of Service application.
 # The specific creation process can be referred to in the document:
-# https://www.coze.com/docs/developer_guides/oauth_jwt. For the cn environment, it can be
-# accessed at https://www.coze.cn/docs/developer_guides/oauth_jwt.
+# https://www.coze.cn/docs/developer_guides/oauth_jwt. For the coze.com environment, it can be
+# accessed at https://www.coze.com/docs/developer_guides/oauth_jwt.
 # After the creation is completed, the client ID, private key, and public key id, can be obtained.
 # For the client secret and public key id, users need to keep it securely to avoid leakage.
 
 import os
 
-from cozepy import COZE_COM_BASE_URL
-from cozepy.auth import JWTAuth
+from cozepy import COZE_CN_BASE_URL, Coze, JWTAuth, JWTOAuthApp
 
-# The default access is api.coze.com, but if you need to access api.coze.cn,
+# The default access is api.coze.cn, but if you need to access api.coze.com,
 # please use base_url to configure the api endpoint to access
-coze_api_base = os.getenv("COZE_API_BASE") or COZE_COM_BASE_URL
+coze_api_base = os.getenv("COZE_API_BASE") or COZE_CN_BASE_URL
 
 # client ID
 jwt_oauth_client_id = os.getenv("COZE_JWT_OAUTH_CLIENT_ID")
@@ -37,8 +36,6 @@ if jwt_oauth_private_key_file_path:
 # The sdk offers the JWTOAuthApp class to establish an authorization for Service OAuth.
 # Firstly, it is required to initialize the JWTOAuthApp.
 
-
-from cozepy import Coze, TokenAuth, JWTOAuthApp  # noqa
 
 jwt_oauth_app = JWTOAuthApp(
     client_id=jwt_oauth_client_id,

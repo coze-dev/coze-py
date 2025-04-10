@@ -11,12 +11,11 @@ from cozepy import (
     AsyncWebsocketsChatEventHandler,
     AudioFormat,
     ConversationAudioDeltaEvent,
-    ConversationChatCompletedEvent,
     ConversationChatCanceledEvent,
+    ConversationChatCompletedEvent,
     ConversationChatCreatedEvent,
     ConversationChatRequiresActionEvent,
     ConversationChatSubmitToolOutputsEvent,
-    ConversationChatCancelEvent,
     ConversationMessageDeltaEvent,
     DeviceOAuthApp,
     InputAudioBufferAppendEvent,
@@ -29,7 +28,7 @@ from cozepy.util import write_pcm_to_wav_file
 
 
 def get_coze_api_base() -> str:
-    # The default access is api.coze.com, but if you need to access api.coze.cn,
+    # The default access is api.coze.cn, but if you need to access api.coze.com,
     # please use base_url to configure the api endpoint to access
     coze_api_base = os.getenv("COZE_API_BASE")
     if coze_api_base:

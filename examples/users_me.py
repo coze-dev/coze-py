@@ -1,5 +1,3 @@
-import json
-import logging
 import os
 from typing import Optional
 
@@ -8,12 +6,11 @@ from cozepy import (
     Coze,
     DeviceOAuthApp,
     TokenAuth,
-    setup_logging,
 )
 
 
 def get_coze_api_base() -> str:
-    # The default access is api.coze.com, but if you need to access api.coze.cn,
+    # The default access is api.coze.cn, but if you need to access api.coze.com,
     # please use base_url to configure the api endpoint to access
     coze_api_base = os.getenv("COZE_API_BASE")
     if coze_api_base:
@@ -36,18 +33,9 @@ def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
     return device_oauth_app.get_access_token(device_code=device_code.device_code, poll=True).access_token
 
 
-def setup_examples_logger():
-    coze_log = os.getenv("COZE_LOG")
-    if coze_log:
-        setup_logging(logging.getLevelNamesMapping().get(coze_log.upper(), logging.INFO))
+# Init the Coze client through the access_token.
+coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_base())
 
 
-setup_examples_logger()
-
-kwargs = json.loads(os.getenv("COZE_KWARGS") or "{}")
-
-if __name__ == "__main__":
-    coze = Coze(auth=TokenAuth(get_coze_api_token()), base_url=get_coze_api_base())
-
-    user = coze.users.me(**kwargs)
-    print(user)
+user = coze.users.me()
+print(user)
