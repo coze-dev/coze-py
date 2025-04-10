@@ -58,16 +58,6 @@ class ConversationChatCancelEvent(WebsocketsEvent):
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_CANCEL
 
 
-class ConversationMessageCreateEvent(WebsocketsEvent):
-    class Data(BaseModel):
-        role: str
-        content_type: str
-        content: str
-
-    event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_MESSAGE_CREATE
-    data: Data
-
-
 # resp
 class ChatCreatedEvent(WebsocketsEvent):
     event_type: WebsocketsEventType = WebsocketsEventType.CHAT_CREATED
@@ -213,14 +203,11 @@ class WebsocketsChatClient(WebsocketsBaseClient):
     def chat_update(self, data: ChatUpdateEvent.Data) -> None:
         self._input_queue.put(ChatUpdateEvent.model_validate({"data": data}))
 
-    def conversation_chat_submit_tool_outputs(self, data: ConversationChatSubmitToolOutputsEvent.Data) -> None:
+    def conversation_chat_submit_tool_outputs(self, data: ConversationChatSubmitToolOutputsEvent.Data):
         self._input_queue.put(ConversationChatSubmitToolOutputsEvent.model_validate({"data": data}))
 
-    def conversation_chat_cancel(self) -> None:
+    def conversation_chat_cancel(self):
         self._input_queue.put(ConversationChatCancelEvent.model_validate({}))
-
-    def conversation_message_create(self, data: ConversationMessageCreateEvent.Data) -> None:
-        self._input_queue.put(ConversationMessageCreateEvent.model_validate({"data": data}))
 
     def input_audio_buffer_append(self, data: InputAudioBufferAppendEvent.Data) -> None:
         self._input_queue.put(InputAudioBufferAppendEvent.model_validate({"data": data}))
@@ -453,9 +440,6 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
 
     async def conversation_chat_cancel(self) -> None:
         await self._input_queue.put(ConversationChatCancelEvent.model_validate({}))
-
-    async def conversation_message_create(self, data: ConversationMessageCreateEvent.Data) -> None:
-        await self._input_queue.put(ConversationMessageCreateEvent.model_validate({"data": data}))
 
     async def input_audio_buffer_append(self, data: InputAudioBufferAppendEvent.Data) -> None:
         await self._input_queue.put(InputAudioBufferAppendEvent.model_validate({"data": data}))
