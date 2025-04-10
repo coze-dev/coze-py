@@ -5,9 +5,45 @@ and handle chat events
 
 import logging
 import os
+from typing import Optional
 
-from cozepy import COZE_COM_BASE_URL, ChatEventType, Coze, JWTAuth, JWTOAuthApp, Message, setup_logging
+from cozepy import (
+    COZE_CN_BASE_URL,
+    ChatEventType,
+    Coze,
+    DeviceOAuthApp,
+    Message,
+    TokenAuth,
+    setup_logging,
+)
 
+
+def get_coze_api_base() -> str:
+    # The default access is api.coze.cn, but if you need to access api.coze.com,
+    # please use base_url to configure the api endpoint to access
+    coze_api_base = os.getenv("COZE_API_BASE")
+    if coze_api_base:
+        return coze_api_base
+
+    return COZE_CN_BASE_URL  # default
+
+
+def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
+    # Get an access_token through personal access token or oauth.
+    coze_api_token = os.getenv("COZE_API_TOKEN")
+    if coze_api_token:
+        return coze_api_token
+
+    coze_api_base = get_coze_api_base()
+
+    device_oauth_app = DeviceOAuthApp(client_id="57294420732781205987760324720643.app.coze", base_url=coze_api_base)
+    device_code = device_oauth_app.get_device_code(workspace_id)
+    print(f"Please Open: {device_code.verification_url} to get the access token")
+    return device_oauth_app.get_access_token(device_code=device_code.device_code, poll=True).access_token
+
+
+# Init the Coze client through the access_token.
+coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_base())
 # Get the workflow id
 workflow_id = os.getenv("COZE_WORKFLOW_ID") or "workflow id"
 # Get the bot id
@@ -18,35 +54,6 @@ is_debug = os.getenv("DEBUG")
 if is_debug:
     setup_logging(logging.DEBUG)
 
-
-def init_coze_client() -> Coze:
-    # client ID
-    jwt_oauth_client_id = os.getenv("COZE_JWT_OAUTH_CLIENT_ID")
-    # path to the private key file (usually with .pem extension)
-    jwt_oauth_private_key_file_path = os.getenv("COZE_JWT_OAUTH_PRIVATE_KEY_FILE_PATH")
-    # public key id
-    jwt_oauth_public_key_id = os.getenv("COZE_JWT_OAUTH_PUBLIC_KEY_ID")
-    # private key
-    jwt_oauth_private_key = ""
-    with open(jwt_oauth_private_key_file_path, "r") as f:
-        jwt_oauth_private_key = f.read()
-
-    # The default access is api.coze.com, but if you need to access api.coze.cn,
-    # please use base_url to configure the api endpoint to access
-    coze_api_base = os.getenv("COZE_API_BASE") or COZE_COM_BASE_URL
-
-    jwt_oauth_app = JWTOAuthApp(
-        client_id=jwt_oauth_client_id,
-        private_key=jwt_oauth_private_key,
-        public_key_id=jwt_oauth_public_key_id,
-        base_url=coze_api_base,
-    )
-
-    return Coze(auth=JWTAuth(base_url=coze_api_base, oauth_app=jwt_oauth_app), base_url=coze_api_base)
-
-
-# Init the Coze client through the access_token.
-coze = init_coze_client()
 
 conversation = coze.conversations.create()
 
