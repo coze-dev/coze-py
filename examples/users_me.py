@@ -36,6 +36,6 @@ def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
 # Init the Coze client through the access_token.
 coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_base())
 
-
 user = coze.users.me()
-print(user)
+print("user", user)
+print("logid", user.response.logid)
