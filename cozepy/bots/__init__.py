@@ -322,6 +322,8 @@ class AsyncBotsClient(object):
         icon_file_id: Optional[str] = None,
         prompt_info: Optional[BotPromptInfo] = None,
         onboarding_info: Optional[BotOnboardingInfo] = None,
+        suggest_reply_info: Optional[BotSuggestReplyInfo] = None,
+        **kwargs,
     ) -> Bot:
         url = f"{self._base_url}/v1/bot/create"
         body = {
@@ -331,9 +333,11 @@ class AsyncBotsClient(object):
             "icon_file_id": icon_file_id,
             "prompt_info": prompt_info.model_dump() if prompt_info else None,
             "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
+            "suggest_reply_info": suggest_reply_info.model_dump() if suggest_reply_info else None,
         }
+        headers: Optional[dict] = kwargs.get("headers")
 
-        return await self._requester.arequest("post", url, False, Bot, body=body)
+        return await self._requester.arequest("post", url, False, Bot, body=body, headers=headers)
 
     async def update(
         self,
@@ -345,6 +349,8 @@ class AsyncBotsClient(object):
         prompt_info: Optional[BotPromptInfo] = None,
         onboarding_info: Optional[BotOnboardingInfo] = None,
         knowledge: Optional[BotKnowledge] = None,
+        suggest_reply_info: Optional[BotSuggestReplyInfo] = None,
+        **kwargs,
     ) -> UpdateBotResp:
         """
         Update the configuration of a bot.
@@ -364,6 +370,7 @@ class AsyncBotsClient(object):
         :param prompt_info: The personality and reply logic of the bot.
         :param onboarding_info: The settings related to the bot's opening remarks.
         :param knowledge: The knowledge base that the bot uses to answer user queries.
+        :param suggest_reply_info: The suggest reply info for the bot.
         :return: None
         """
         url = f"{self._base_url}/v1/bot/update"
@@ -375,9 +382,11 @@ class AsyncBotsClient(object):
             "prompt_info": prompt_info.model_dump() if prompt_info else None,
             "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
             "knowledge": knowledge.model_dump() if knowledge else None,
+            "suggest_reply_info": suggest_reply_info.model_dump() if suggest_reply_info else None,
         }
+        headers: Optional[dict] = kwargs.get("headers")
 
-        return await self._requester.arequest("post", url, False, cast=UpdateBotResp, body=body)
+        return await self._requester.arequest("post", url, False, cast=UpdateBotResp, body=body, headers=headers)
 
     async def publish(
         self,
