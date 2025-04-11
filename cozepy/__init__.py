@@ -32,7 +32,9 @@ from .bots import (
     BotPluginAPIInfo,
     BotPluginInfo,
     BotPromptInfo,
+    BotSuggestReplyInfo,
     SimpleBot,
+    SuggestReplyMode,
     UpdateBotResp,
 )
 from .chat import (
@@ -196,6 +198,8 @@ __all__ = [
     "BotModelInfo",
     "BotPluginAPIInfo",
     "BotPluginInfo",
+    "SuggestReplyMode",
+    "BotSuggestReplyInfo",
     "Bot",
     "SimpleBot",
     "UpdateBotResp",

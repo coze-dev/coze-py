@@ -1,4 +1,4 @@
-from enum import IntEnum
+from enum import Enum, IntEnum
 from typing import List, Optional
 
 from cozepy.model import AsyncNumberPaged, CozeModel, NumberPaged, NumberPagedResponse
@@ -63,6 +63,20 @@ class BotPluginInfo(CozeModel):
     api_info_list: List[BotPluginAPIInfo]
 
 
+class SuggestReplyMode(str, Enum):
+    # The bot does not suggest replies.
+    DISABLE = "disable"
+    # The bot suggests replies.
+    ENABLE = "enable"
+    # The bot suggests replies based on the customized prompt.
+    CUSTOMIZED = "customized"
+
+
+class BotSuggestReplyInfo(CozeModel):
+    reply_mode: SuggestReplyMode
+    customized_prompt: str = ""
+
+
 class Bot(CozeModel):
     # The ID for the bot.
     bot_id: str
@@ -90,6 +104,8 @@ class Bot(CozeModel):
     plugin_info_list: Optional[List[BotPluginInfo]] = None
     # The model configured for the bot. For more information, see Model object.
     model_info: Optional[BotModelInfo] = None
+    # The suggest reply info for the bot.
+    suggest_reply_info: Optional[BotSuggestReplyInfo] = None
 
 
 class SimpleBot(CozeModel):
@@ -142,6 +158,8 @@ class BotsClient(object):
         icon_file_id: Optional[str] = None,
         prompt_info: Optional[BotPromptInfo] = None,
         onboarding_info: Optional[BotOnboardingInfo] = None,
+        suggest_reply_info: Optional[BotSuggestReplyInfo] = None,
+        **kwargs,
     ) -> Bot:
         url = f"{self._base_url}/v1/bot/create"
         body = {
@@ -151,9 +169,11 @@ class BotsClient(object):
             "icon_file_id": icon_file_id,
             "prompt_info": prompt_info.model_dump() if prompt_info else None,
             "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
+            "suggest_reply_info": suggest_reply_info.model_dump() if suggest_reply_info else None,
         }
+        headers: Optional[dict] = kwargs.get("headers")
 
-        return self._requester.request("post", url, False, Bot, body=body)
+        return self._requester.request("post", url, False, Bot, body=body, headers=headers)
 
     def update(
         self,
@@ -165,6 +185,8 @@ class BotsClient(object):
         prompt_info: Optional[BotPromptInfo] = None,
         onboarding_info: Optional[BotOnboardingInfo] = None,
         knowledge: Optional[BotKnowledge] = None,
+        suggest_reply_info: Optional[BotSuggestReplyInfo] = None,
+        **kwargs,
     ) -> UpdateBotResp:
         """
         Update the configuration of a bot.
@@ -184,6 +206,7 @@ class BotsClient(object):
         :param prompt_info: The personality and reply logic of the bot.
         :param onboarding_info: The settings related to the bot's opening remarks.
         :param knowledge: The knowledge base that the bot uses to answer user queries.
+        :param suggest_reply_info: The suggest reply info for the bot.
         :return: None
         """
         url = f"{self._base_url}/v1/bot/update"
@@ -195,7 +218,9 @@ class BotsClient(object):
             "prompt_info": prompt_info.model_dump() if prompt_info else None,
             "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
             "knowledge": knowledge.model_dump() if knowledge else None,
+            "suggest_reply_info": suggest_reply_info.model_dump() if suggest_reply_info else None,
         }
+        headers: Optional[dict] = kwargs.get("headers")
 
         return self._requester.request(
             "post",
@@ -203,6 +228,7 @@ class BotsClient(object):
             False,
             cast=UpdateBotResp,
             body=body,
+            headers=headers,
         )
 
     def publish(self, *, bot_id: str, connector_ids: Optional[List[str]] = None, **kwargs) -> Bot:
@@ -217,7 +243,7 @@ class BotsClient(object):
 
         return self._requester.request("post", url, False, Bot, headers=headers, body=body)
 
-    def retrieve(self, *, bot_id: str) -> Bot:
+    def retrieve(self, *, bot_id: str, **kwargs) -> Bot:
         """
         Get the configuration information of the bot, which must have been published
         to the Bot as API channel.
@@ -233,8 +259,9 @@ class BotsClient(object):
         """
         url = f"{self._base_url}/v1/bot/get_online_info"
         params = {"bot_id": bot_id}
+        headers: Optional[dict] = kwargs.get("headers")
 
-        return self._requester.request("get", url, False, Bot, params=params)
+        return self._requester.request("get", url, False, Bot, params=params, headers=headers)
 
     def list(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> NumberPaged[SimpleBot]:
         """
