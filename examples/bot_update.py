@@ -53,20 +53,10 @@ is_debug = os.getenv("DEBUG")
 if is_debug:
     setup_logging(logging.DEBUG)
 
-#             description: Optional[str] = None,
-#             icon_file_id: Optional[str] = None,
-#             prompt_info: Optional[BotPromptInfo] = None,
-#             onboarding_info: Optional[BotOnboardingInfo] = None,
-#             suggest_reply_info: Optional[BotSuggestReplyInfo] = None,
-#             **kwargs,
-bot = coze.bots.create(
-    space_id=workspace_id,
-    name="test",
+bot_update = coze.bots.update(
+    bot_id=bot_id,
     suggest_reply_info=BotSuggestReplyInfo(
-        reply_mode=SuggestReplyMode.DISABLE,
-        # customized_prompt='你好'
+        reply_mode=SuggestReplyMode.ENABLE, customized_prompt="generate suggest reply"
     ),
-    headers={"x-tt-env": "ppe_apisuggest", "x-use-ppe": "1"},
 )
-print("bot", bot.model_dump_json(indent=2))
-print("logid", bot.response.logid)
+print("update logid", bot_update.response.logid)

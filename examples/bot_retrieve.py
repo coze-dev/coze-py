@@ -51,5 +51,6 @@ is_debug = os.getenv("DEBUG")
 if is_debug:
     setup_logging(logging.DEBUG)
 
-bot = coze.bots.retrieve(bot_id=bot_id, headers={"x-tt-env": "ppe_apisuggest", "x-use-ppe": "1"})
-print("bot", bot.model_dump_json(indent=2))
+bot = coze.bots.retrieve(bot_id=bot_id)
+print("retrieve bot", bot.model_dump_json(indent=2))
+print("logid", bot.response.logid)
