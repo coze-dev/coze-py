@@ -77,6 +77,30 @@ class BotSuggestReplyInfo(CozeModel):
     customized_prompt: str = ""
 
 
+class GradientPosition(CozeModel):
+    left: Optional[float] = None
+    right: Optional[float] = None
+
+
+class CanvasPosition(CozeModel):
+    width: Optional[float] = None
+    height: Optional[float] = None
+    left: Optional[float] = None
+    top: Optional[float] = None
+
+
+class BackgroundImageInfo(CozeModel):
+    image_url: str = ""
+    theme_color: Optional[str] = None
+    gradient_position: Optional[GradientPosition] = None
+    canvas_position: Optional[CanvasPosition] = None
+
+
+class BotBackgroundImageInfo(CozeModel):
+    web_background_image: Optional[BackgroundImageInfo] = None
+    mobile_background_image: Optional[BackgroundImageInfo] = None
+
+
 class Bot(CozeModel):
     # The ID for the bot.
     bot_id: str
@@ -106,6 +130,8 @@ class Bot(CozeModel):
     model_info: Optional[BotModelInfo] = None
     # The suggest reply info for the bot.
     suggest_reply_info: Optional[BotSuggestReplyInfo] = None
+    # The background image info for the bot.
+    background_image_info: Optional[BotBackgroundImageInfo] = None
 
 
 class SimpleBot(CozeModel):
