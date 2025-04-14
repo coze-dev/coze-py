@@ -101,6 +101,43 @@ class BotBackgroundImageInfo(CozeModel):
     mobile_background_image: Optional[BackgroundImageInfo] = None
 
 
+class VariableType(str, Enum):
+    # The variable is a key-value pair.
+    KVVariable = "KVVariable"
+    # The variable is a list.
+    ListVariable = "ListVariable"
+
+
+class VariableChannel(str, Enum):
+    # The variable is a custom variable.
+    VariableChannelCustom = "custom"
+    # The variable is a system variable.
+    VariableChannelSystem = "system"
+    # The variable is a location variable.
+    VariableChannelLocation = "location"
+    # The variable is a Feishu variable.
+    VariableChannelFeishu = "feishu"
+    # The variable is an app variable.
+    VariableChannelAPP = "app"
+
+
+class BotVariable(CozeModel):
+    # The name of the variable.
+    keyword: str
+    # The default value of the variable.
+    default_value: str
+    # The type of the variable.
+    variable_type: VariableType
+    # The source of the variable.
+    channel: VariableChannel
+    # The description of the variable.
+    description: str
+    # Whether the variable is enabled.
+    enable: bool
+    # Whether the variable is supported in the prompt.
+    prompt_enable: bool
+
+
 class Bot(CozeModel):
     # The ID for the bot.
     bot_id: str
@@ -132,6 +169,8 @@ class Bot(CozeModel):
     suggest_reply_info: Optional[BotSuggestReplyInfo] = None
     # The background image info for the bot.
     background_image_info: Optional[BotBackgroundImageInfo] = None
+    # The list of variables configured for the bot. For more information, see Variable object.
+    variable_list: Optional[List[BotVariable]] = None
 
 
 class SimpleBot(CozeModel):
