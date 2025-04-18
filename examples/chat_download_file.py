@@ -1,21 +1,13 @@
 """
-This example is for describing how to create a bot.
+This example is about how to use the streaming interface to start a chat request
+and handle chat events
 """
 
 import logging
 import os
-import sys
 from typing import Optional
 
-from cozepy import (
-    COZE_CN_BASE_URL,
-    BotSuggestReplyInfo,
-    Coze,
-    DeviceOAuthApp,
-    SuggestReplyMode,
-    TokenAuth,
-    setup_logging,
-)
+from cozepy import COZE_CN_BASE_URL, ChatEventType, Coze, DeviceOAuthApp, Message, TokenAuth, setup_logging  # noqa
 
 
 def get_coze_api_base() -> str:
@@ -44,30 +36,41 @@ def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
 
 # Init the Coze client through the access_token.
 coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_base())
-# workspace id
-workspace_id = os.getenv("COZE_WORKSPACE_ID") or "your workspace id"
-# bot id
-bot_id = os.getenv("COZE_BOT_ID") or "your bot id"
-avatar_path = "" if len(sys.argv) < 2 else sys.argv[1]
+
+# Create a bot instance in Coze, copy the last number from the web link as the bot's ID.
+bot_id = os.getenv("COZE_BOT_ID") or "bot id"
+# The user id identifies the identity of a user. Developers can use a custom business ID
+# or a random string.
+user_id = "user id"
 # Whether to print detailed logs
 is_debug = os.getenv("DEBUG")
 
 if is_debug:
     setup_logging(logging.DEBUG)
 
-file_id = None
-if avatar_path:
-    file = coze.files.upload(file=avatar_path)
-    file_id = file.id
-    print("create avatar file: ", avatar_path, file)
 
-bot = coze.bots.create(
-    space_id=workspace_id,
-    name="test",
-    icon_file_id=file_id,
-    suggest_reply_info=BotSuggestReplyInfo(
-        reply_mode=SuggestReplyMode.CUSTOMIZED, customized_prompt="generate custom user question reply suggestion"
-    ),
-)
-print("create bot", bot.model_dump_json(indent=2))
-print("logid", bot.response.logid)
+def save_file(url: str):
+    print("saving", url)
+    # file to md5 filename, support https:///example.com/1.png?signature=1234567890
+    file_name = os.path.basename(url.split("?")[0])
+    file_path = os.path.join("./", file_name)
+    # download file
+    import requests
+
+    r = requests.get(url)
+    with open(file_path, "wb") as f:
+        f.write(r.content)
+    print("saved to", file_path)
+    return file_path
+
+
+for event in coze.chat.stream(
+    bot_id=bot_id,
+    user_id=user_id,
+    additional_messages=[
+        Message.build_user_question_text("hi"),
+    ],
+):
+    if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
+        if event.message.content.startswith("http"):
+            save_file(event.message.content)

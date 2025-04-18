@@ -1,21 +1,11 @@
 """
-This example is for describing how to create a bot.
+This example describes how to use the workflow run_histories.
 """
 
-import logging
 import os
-import sys
 from typing import Optional
 
-from cozepy import (
-    COZE_CN_BASE_URL,
-    BotSuggestReplyInfo,
-    Coze,
-    DeviceOAuthApp,
-    SuggestReplyMode,
-    TokenAuth,
-    setup_logging,
-)
+from cozepy import COZE_CN_BASE_URL, Coze, DeviceOAuthApp, Stream, TokenAuth, WorkflowEvent, WorkflowEventType  # noqa
 
 
 def get_coze_api_base() -> str:
@@ -44,30 +34,10 @@ def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
 
 # Init the Coze client through the access_token.
 coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_base())
-# workspace id
-workspace_id = os.getenv("COZE_WORKSPACE_ID") or "your workspace id"
-# bot id
-bot_id = os.getenv("COZE_BOT_ID") or "your bot id"
-avatar_path = "" if len(sys.argv) < 2 else sys.argv[1]
-# Whether to print detailed logs
-is_debug = os.getenv("DEBUG")
+# Create a workflow instance in Coze, copy the last number from the web link as the workflow's ID.
+workflow_id = os.getenv("COZE_WORKFLOW_ID") or "workflow id"
+execute_id = os.getenv("COZE_EXECUTE_ID") or "execute id"
 
-if is_debug:
-    setup_logging(logging.DEBUG)
-
-file_id = None
-if avatar_path:
-    file = coze.files.upload(file=avatar_path)
-    file_id = file.id
-    print("create avatar file: ", avatar_path, file)
-
-bot = coze.bots.create(
-    space_id=workspace_id,
-    name="test",
-    icon_file_id=file_id,
-    suggest_reply_info=BotSuggestReplyInfo(
-        reply_mode=SuggestReplyMode.CUSTOMIZED, customized_prompt="generate custom user question reply suggestion"
-    ),
-)
-print("create bot", bot.model_dump_json(indent=2))
-print("logid", bot.response.logid)
+run_history = coze.workflows.runs.run_histories.retrieve(workflow_id=workflow_id, execute_id=execute_id)
+print("run_history:", run_history)
+print("logid:", run_history.response.logid)
