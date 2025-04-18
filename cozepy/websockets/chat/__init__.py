@@ -109,6 +109,7 @@ class ConversationAudioTranscriptCompletedEvent(WebsocketsEvent):
 # resp
 class ConversationMessageCompletedEvent(WebsocketsEvent):
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_MESSAGE_COMPLETED
+    data: Message
 
 
 # resp
@@ -300,6 +301,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
                 {
                     "id": event_id,
                     "detail": detail,
+                    "data": Message.model_validate(data),
                 }
             )
         elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_DELTA.value:
@@ -535,6 +537,7 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
                 {
                     "id": event_id,
                     "detail": detail,
+                    "data": Message.model_validate(data),
                 }
             )
         elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_DELTA.value:
