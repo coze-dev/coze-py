@@ -19,4 +19,4 @@ def test_empty_str_to_zero():
         "error_code": "",
     }
     history = WorkflowRunHistory(**data)
-    print("history", history)
+    assert history.error_code == "0"
