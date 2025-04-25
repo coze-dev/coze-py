@@ -514,9 +514,9 @@ Asynchronous calls also support streaming mode:
 import os
 import asyncio
 
-from cozepy import TokenAuth, ChatEventType, Message, AsyncCoze
+from cozepy import AsyncTokenAuth, ChatEventType, Message, AsyncCoze
 
-coze = AsyncCoze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
+coze = AsyncCoze(auth=AsyncTokenAuth(os.getenv("COZE_API_TOKEN")))
 
 
 async def main():
