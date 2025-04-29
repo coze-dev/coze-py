@@ -442,6 +442,7 @@ class ChatClient(object):
         custom_variables: Optional[Dict[str, str]] = None,
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> Chat:
         """
         Call the Chat API with non-streaming to send messages to a published Coze bot.
@@ -469,6 +470,7 @@ class ChatClient(object):
             auto_save_history=auto_save_history,
             meta_data=meta_data,
             conversation_id=conversation_id,
+            parameters=parameters,
         )
 
     def stream(
@@ -481,6 +483,7 @@ class ChatClient(object):
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
         conversation_id: Optional[str] = None,
+        parameters: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> Stream[ChatEvent]:
         """
@@ -509,6 +512,7 @@ class ChatClient(object):
             auto_save_history=auto_save_history,
             meta_data=meta_data,
             conversation_id=conversation_id,
+            parameters=parameters,
             **kwargs,
         )
 
@@ -523,6 +527,7 @@ class ChatClient(object):
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
         poll_timeout: Optional[int] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> ChatPoll:
         """
         Call the Chat API with non-streaming to send messages to a published Coze bot and
@@ -551,6 +556,7 @@ class ChatClient(object):
             custom_variables=custom_variables,
             auto_save_history=auto_save_history,
             meta_data=meta_data,
+            parameters=parameters,
         )
 
         start = int(time.time())
@@ -606,6 +612,7 @@ class ChatClient(object):
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
         conversation_id: Optional[str] = None,
+        parameters: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> Union[Chat, Stream[ChatEvent]]:
         """
@@ -624,6 +631,7 @@ class ChatClient(object):
             "custom_variables": custom_variables,
             "auto_save_history": auto_save_history,
             "meta_data": meta_data,
+            "parameters": parameters,
         }
         headers: Optional[dict] = kwargs.get("headers")
         if not stream:
