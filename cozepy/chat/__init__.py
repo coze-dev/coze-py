@@ -2,7 +2,7 @@ import base64
 import json
 import time
 from enum import Enum
-from typing import TYPE_CHECKING, AsyncIterator, Dict, List, Optional, Union, overload
+from typing import TYPE_CHECKING, Any, AsyncIterator, Dict, List, Optional, Union, overload
 
 import httpx
 from typing_extensions import Literal
@@ -777,6 +777,7 @@ class AsyncChatClient(object):
         custom_variables: Optional[Dict[str, str]] = None,
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> Chat:
         """
         Call the Chat API with non-streaming to send messages to a published Coze bot.
@@ -804,6 +805,7 @@ class AsyncChatClient(object):
             auto_save_history=auto_save_history,
             meta_data=meta_data,
             conversation_id=conversation_id,
+            parameters=parameters,
         )
 
     async def stream(
@@ -816,6 +818,7 @@ class AsyncChatClient(object):
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
         conversation_id: Optional[str] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> AsyncIterator[ChatEvent]:
         """
         Call the Chat API with streaming to send messages to a published Coze bot.
@@ -843,6 +846,7 @@ class AsyncChatClient(object):
             auto_save_history=auto_save_history,
             meta_data=meta_data,
             conversation_id=conversation_id,
+            parameters=parameters,
         ):
             yield item
 
@@ -858,6 +862,7 @@ class AsyncChatClient(object):
         auto_save_history: bool = ...,
         meta_data: Optional[Dict[str, str]] = ...,
         conversation_id: Optional[str] = ...,
+        parameters: Optional[Dict[str, Any]] = ...,
     ) -> AsyncStream[ChatEvent]: ...
 
     @overload
@@ -872,6 +877,7 @@ class AsyncChatClient(object):
         auto_save_history: bool = ...,
         meta_data: Optional[Dict[str, str]] = ...,
         conversation_id: Optional[str] = ...,
+        parameters: Optional[Dict[str, Any]] = ...,
     ) -> Chat: ...
 
     async def _create(
@@ -885,6 +891,7 @@ class AsyncChatClient(object):
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
         conversation_id: Optional[str] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> Union[Chat, AsyncStream[ChatEvent]]:
         """
         Create a conversation.
@@ -902,6 +909,7 @@ class AsyncChatClient(object):
             "custom_variables": custom_variables,
             "auto_save_history": auto_save_history,
             "meta_data": meta_data,
+            "parameters": parameters,
         }
         if not stream:
             return await self._requester.arequest(
