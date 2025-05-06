@@ -2,7 +2,7 @@ import base64
 import json
 import time
 from enum import Enum
-from typing import TYPE_CHECKING, AsyncIterator, Dict, List, Optional, Union, overload
+from typing import TYPE_CHECKING, Any, AsyncIterator, Dict, List, Optional, Union, overload
 
 import httpx
 from typing_extensions import Literal
@@ -442,6 +442,7 @@ class ChatClient(object):
         custom_variables: Optional[Dict[str, str]] = None,
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> Chat:
         """
         Call the Chat API with non-streaming to send messages to a published Coze bot.
@@ -458,6 +459,7 @@ class ChatClient(object):
         :param custom_variables: The customized variable in a key-value pair.
         :param auto_save_history: Whether to automatically save the history of conversation records.
         :param meta_data: Additional information, typically used to encapsulate some business-related fields.
+        :param parameters: Additional parameters for the chat API. pass through to the workflow.
         :return: chat object
         """
         return self._create(
@@ -469,6 +471,7 @@ class ChatClient(object):
             auto_save_history=auto_save_history,
             meta_data=meta_data,
             conversation_id=conversation_id,
+            parameters=parameters,
         )
 
     def stream(
@@ -481,6 +484,7 @@ class ChatClient(object):
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
         conversation_id: Optional[str] = None,
+        parameters: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> Stream[ChatEvent]:
         """
@@ -498,6 +502,7 @@ class ChatClient(object):
         :param custom_variables: The customized variable in a key-value pair.
         :param auto_save_history: Whether to automatically save the history of conversation records.
         :param meta_data: Additional information, typically used to encapsulate some business-related fields.
+        :param parameters: Additional parameters for the chat API. pass through to the workflow.
         :return: iterator of ChatEvent
         """
         return self._create(
@@ -509,6 +514,7 @@ class ChatClient(object):
             auto_save_history=auto_save_history,
             meta_data=meta_data,
             conversation_id=conversation_id,
+            parameters=parameters,
             **kwargs,
         )
 
@@ -523,6 +529,7 @@ class ChatClient(object):
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
         poll_timeout: Optional[int] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> ChatPoll:
         """
         Call the Chat API with non-streaming to send messages to a published Coze bot and
@@ -541,6 +548,7 @@ class ChatClient(object):
         :param auto_save_history: Whether to automatically save the history of conversation records.
         :param meta_data: Additional information, typically used to encapsulate some business-related fields.
         :param poll_timeout: poll timeout in seconds
+        :param parameters: Additional parameters for the chat API. pass through to the workflow.
         :return: chat object
         """
         chat = self.create(
@@ -551,6 +559,7 @@ class ChatClient(object):
             custom_variables=custom_variables,
             auto_save_history=auto_save_history,
             meta_data=meta_data,
+            parameters=parameters,
         )
 
         start = int(time.time())
@@ -579,6 +588,7 @@ class ChatClient(object):
         auto_save_history: bool = ...,
         meta_data: Optional[Dict[str, str]] = ...,
         conversation_id: Optional[str] = ...,
+        parameters: Optional[Dict[str, Any]] = ...,
     ) -> Stream[ChatEvent]: ...
 
     @overload
@@ -593,6 +603,7 @@ class ChatClient(object):
         auto_save_history: bool = ...,
         meta_data: Optional[Dict[str, str]] = ...,
         conversation_id: Optional[str] = ...,
+        parameters: Optional[Dict[str, Any]] = ...,
     ) -> Chat: ...
 
     def _create(
@@ -606,15 +617,16 @@ class ChatClient(object):
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
         conversation_id: Optional[str] = None,
+        parameters: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> Union[Chat, Stream[ChatEvent]]:
         """
-        Create a conversation.
-        Conversation is an interaction between a bot and a user, including one or more messages.
+        Create a chat.
         """
         url = f"{self._base_url}/v3/chat"
         params = {
             "conversation_id": conversation_id if conversation_id else None,
+            "parameters": parameters if parameters else None,
         }
         body = {
             "bot_id": bot_id,
@@ -777,6 +789,7 @@ class AsyncChatClient(object):
         custom_variables: Optional[Dict[str, str]] = None,
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> Chat:
         """
         Call the Chat API with non-streaming to send messages to a published Coze bot.
@@ -793,6 +806,7 @@ class AsyncChatClient(object):
         :param custom_variables: The customized variable in a key-value pair.
         :param auto_save_history: Whether to automatically save the history of conversation records.
         :param meta_data: Additional information, typically used to encapsulate some business-related fields.
+        :param parameters: Additional parameters for the chat API. pass through to the workflow.
         :return: chat object
         """
         return await self._create(
@@ -804,6 +818,7 @@ class AsyncChatClient(object):
             auto_save_history=auto_save_history,
             meta_data=meta_data,
             conversation_id=conversation_id,
+            parameters=parameters,
         )
 
     async def stream(
@@ -816,6 +831,7 @@ class AsyncChatClient(object):
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
         conversation_id: Optional[str] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> AsyncIterator[ChatEvent]:
         """
         Call the Chat API with streaming to send messages to a published Coze bot.
@@ -832,6 +848,7 @@ class AsyncChatClient(object):
         :param custom_variables: The customized variable in a key-value pair.
         :param auto_save_history: Whether to automatically save the history of conversation records.
         :param meta_data: Additional information, typically used to encapsulate some business-related fields.
+        :param parameters: Additional parameters for the chat API. pass through to the workflow.
         :return: iterator of ChatEvent
         """
         async for item in await self._create(
@@ -843,6 +860,7 @@ class AsyncChatClient(object):
             auto_save_history=auto_save_history,
             meta_data=meta_data,
             conversation_id=conversation_id,
+            parameters=parameters,
         ):
             yield item
 
@@ -858,6 +876,7 @@ class AsyncChatClient(object):
         auto_save_history: bool = ...,
         meta_data: Optional[Dict[str, str]] = ...,
         conversation_id: Optional[str] = ...,
+        parameters: Optional[Dict[str, Any]] = ...,
     ) -> AsyncStream[ChatEvent]: ...
 
     @overload
@@ -872,6 +891,7 @@ class AsyncChatClient(object):
         auto_save_history: bool = ...,
         meta_data: Optional[Dict[str, str]] = ...,
         conversation_id: Optional[str] = ...,
+        parameters: Optional[Dict[str, Any]] = ...,
     ) -> Chat: ...
 
     async def _create(
@@ -885,6 +905,7 @@ class AsyncChatClient(object):
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
         conversation_id: Optional[str] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> Union[Chat, AsyncStream[ChatEvent]]:
         """
         Create a conversation.
@@ -902,6 +923,7 @@ class AsyncChatClient(object):
             "custom_variables": custom_variables,
             "auto_save_history": auto_save_history,
             "meta_data": meta_data,
+            "parameters": parameters,
         }
         if not stream:
             return await self._requester.arequest(
