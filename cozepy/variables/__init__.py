@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from cozepy.model import CozeModel, ListResponse
 from cozepy.request import Requester
@@ -30,9 +30,9 @@ class VariablesClient(object):
         *,
         connector_uid: str,
         keywords: List[str],
-        app_id: str = None,
-        bot_id: str = None,
-        connector_id: str = None,
+        app_id: Optional[str] = None,
+        bot_id: Optional[str] = None,
+        connector_id: Optional[str] = None,
     ) -> ListResponse[VariableValue]:
         url = f"{self._base_url}/v1/variables"
         params = remove_none_values(
@@ -52,9 +52,9 @@ class VariablesClient(object):
         *,
         connector_uid: str,
         data: List[VariableValue],
-        app_id: str = None,
-        bot_id: str = None,
-        connector_id: str = None,
+        app_id: Optional[str] = None,
+        bot_id: Optional[str] = None,
+        connector_id: Optional[str] = None,
     ) -> UpdateVariableResp:
         url = f"{self._base_url}/v1/variables"
         body = remove_none_values(
@@ -91,9 +91,9 @@ class AsyncVariablesClient(object):
         *,
         connector_uid: str,
         keywords: List[str],
-        app_id: str = None,
-        bot_id: str = None,
-        connector_id: str = None,
+        app_id: Optional[str] = None,
+        bot_id: Optional[str] = None,
+        connector_id: Optional[str] = None,
     ) -> ListResponse[VariableValue]:
         url = f"{self._base_url}/v1/variables"
         params = remove_none_values(
@@ -113,9 +113,9 @@ class AsyncVariablesClient(object):
         *,
         connector_uid: str,
         data: List[VariableValue],
-        app_id: str = None,
-        bot_id: str = None,
-        connector_id: str = None,
+        app_id: Optional[str] = None,
+        bot_id: Optional[str] = None,
+        connector_id: Optional[str] = None,
     ) -> UpdateVariableResp:
         url = f"{self._base_url}/v1/variables"
         body = remove_none_values(
