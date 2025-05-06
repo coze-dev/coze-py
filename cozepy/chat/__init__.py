@@ -626,7 +626,6 @@ class ChatClient(object):
         url = f"{self._base_url}/v3/chat"
         params = {
             "conversation_id": conversation_id if conversation_id else None,
-            "parameters": parameters if parameters else None,
         }
         body = {
             "bot_id": bot_id,
@@ -636,6 +635,7 @@ class ChatClient(object):
             "custom_variables": custom_variables,
             "auto_save_history": auto_save_history,
             "meta_data": meta_data,
+            "parameters": parameters,
         }
         headers: Optional[dict] = kwargs.get("headers")
         if not stream:
