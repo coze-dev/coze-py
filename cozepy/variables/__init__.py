@@ -2,7 +2,7 @@ from typing import List
 
 from cozepy.model import CozeModel, ListResponse
 from cozepy.request import Requester
-from cozepy.util import remove_url_trailing_slash
+from cozepy.util import remove_none_values, remove_url_trailing_slash
 
 
 class VariableValue(CozeModel):
@@ -35,13 +35,15 @@ class VariablesClient(object):
         connector_id: str = None,
     ) -> ListResponse[VariableValue]:
         url = f"{self._base_url}/v1/variables"
-        params = {
-            "app_id": app_id,
-            "bot_id": bot_id,
-            "connector_id": connector_id,
-            "connector_uid": connector_uid,
-            "keywords": ",".join(keywords),
-        }
+        params = remove_none_values(
+            {
+                "app_id": app_id,
+                "bot_id": bot_id,
+                "connector_id": connector_id,
+                "connector_uid": connector_uid,
+                "keywords": ",".join(keywords),
+            }
+        )
         res = self._requester.request("get", url, False, _PrivateVariablesRetrieveData, params=params)
         return ListResponse[VariableValue](raw_response=res.response._raw_response, data=res.items)
 
@@ -55,19 +57,21 @@ class VariablesClient(object):
         connector_id: str = None,
     ) -> UpdateVariableResp:
         url = f"{self._base_url}/v1/variables"
-        body = {
-            "app_id": app_id,
-            "bot_id": bot_id,
-            "connector_id": connector_id,
-            "connector_uid": connector_uid,
-            "data": [
-                {
-                    "keyword": v.keyword,
-                    "value": v.value,
-                }
-                for v in data
-            ],
-        }
+        body = remove_none_values(
+            {
+                "app_id": app_id,
+                "bot_id": bot_id,
+                "connector_id": connector_id,
+                "connector_uid": connector_uid,
+                "data": [
+                    {
+                        "keyword": v.keyword,
+                        "value": v.value,
+                    }
+                    for v in data
+                ],
+            }
+        )
         return self._requester.request(
             "put",
             url,
@@ -92,13 +96,15 @@ class AsyncVariablesClient(object):
         connector_id: str = None,
     ) -> ListResponse[VariableValue]:
         url = f"{self._base_url}/v1/variables"
-        params = {
-            "app_id": app_id,
-            "bot_id": bot_id,
-            "connector_id": connector_id,
-            "connector_uid": connector_uid,
-            "keywords": ",".join(keywords),
-        }
+        params = remove_none_values(
+            {
+                "app_id": app_id,
+                "bot_id": bot_id,
+                "connector_id": connector_id,
+                "connector_uid": connector_uid,
+                "keywords": ",".join(keywords),
+            }
+        )
         res = await self._requester.arequest("get", url, False, _PrivateVariablesRetrieveData, params=params)
         return ListResponse[VariableValue](raw_response=res.response._raw_response, data=res.items)
 
@@ -112,19 +118,21 @@ class AsyncVariablesClient(object):
         connector_id: str = None,
     ) -> UpdateVariableResp:
         url = f"{self._base_url}/v1/variables"
-        body = {
-            "app_id": app_id,
-            "bot_id": bot_id,
-            "connector_id": connector_id,
-            "connector_uid": connector_uid,
-            "data": [
-                {
-                    "keyword": v.keyword,
-                    "value": v.value,
-                }
-                for v in data
-            ],
-        }
+        body = remove_none_values(
+            {
+                "app_id": app_id,
+                "bot_id": bot_id,
+                "connector_id": connector_id,
+                "connector_uid": connector_uid,
+                "data": [
+                    {
+                        "keyword": v.keyword,
+                        "value": v.value,
+                    }
+                    for v in data
+                ],
+            }
+        )
         return await self._requester.arequest(
             "put",
             url,
