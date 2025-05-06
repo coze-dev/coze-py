@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from .knowledge import AsyncKnowledgeClient, KnowledgeClient  # deprecated
     from .templates import AsyncTemplatesClient, TemplatesClient
     from .users import AsyncUsersClient, UsersClient
+    from .variables import AsyncVariablesClient, VariablesClient
     from .websockets import AsyncWebsocketsClient, WebsocketsClient
     from .workflows import AsyncWorkflowsClient, WorkflowsClient
     from .workspaces import AsyncWorkspacesClient, WorkspacesClient
@@ -45,6 +46,7 @@ class Coze(object):
         self._templates: Optional[TemplatesClient] = None
         self._users: Optional[UsersClient] = None
         self._websockets: Optional[WebsocketsClient] = None
+        self._variables: Optional[VariablesClient] = None
 
     @property
     def bots(self) -> "BotsClient":
@@ -148,6 +150,14 @@ class Coze(object):
             self._websockets = WebsocketsClient(self._base_url, self._requester)
         return self._websockets
 
+    @property
+    def variables(self) -> "VariablesClient":
+        if not self._variables:
+            from .variables import VariablesClient
+
+            self._variables = VariablesClient(self._base_url, self._requester)
+        return self._variables
+
 
 class AsyncCoze(object):
     def __init__(
@@ -181,6 +191,7 @@ class AsyncCoze(object):
         self._templates: Optional[AsyncTemplatesClient] = None
         self._users: Optional[AsyncUsersClient] = None
         self._websockets: Optional[AsyncWebsocketsClient] = None
+        self._variables: Optional[AsyncVariablesClient] = None
 
     @property
     def bots(self) -> "AsyncBotsClient":
@@ -283,3 +294,11 @@ class AsyncCoze(object):
 
             self._websockets = AsyncWebsocketsClient(self._base_url, self._requester)
         return self._websockets
+
+    @property
+    def variables(self) -> "AsyncVariablesClient":
+        if not self._variables:
+            from .variables import AsyncVariablesClient
+
+            self._variables = AsyncVariablesClient(self._base_url, self._requester)
+        return self._variables

@@ -168,6 +168,15 @@ pip install cozepy
         <td><a href="./examples/workspace.py">examples/workspace.py</a></td>
     </tr>
     <tr>
+        <td rowspan="2">Variable</td>
+        <td>Retrieve Variable</td>
+        <td><a href="./examples/variable_retrieve.py">examples/variable_retrieve.py</a></td>
+    </tr>
+    <tr>
+        <td>Update Variable</td>
+        <td><a href="./examples/variable_update.py">examples/variable_update.py</a></td>
+    </tr>
+    <tr>
         <td rowspan="3">Other</td>
         <td>Timeout Config</td>
         <td><a href="./examples/timeout.py">examples/timeout.py</a></td>
