@@ -1,6 +1,8 @@
 from enum import Enum, IntEnum
 from typing import Optional
 
+from pydantic import field_validator
+
 from cozepy.model import CozeModel, ListResponse
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
@@ -72,6 +74,13 @@ class WorkflowRunHistory(CozeModel):
     # Workflow trial run debugging page. Visit this page to view the running results, input
     # and output information of each workflow node.
     debug_url: str
+
+    @field_validator("error_code", mode="before")
+    @classmethod
+    def error_code_empty_str_to_zero(cls, v):
+        if v == "":
+            return 0
+        return v
 
 
 class WorkflowsRunsRunHistoriesClient(object):

@@ -1,20 +1,12 @@
-"""
-This example is for describing how to create a bot.
-"""
-
-import logging
 import os
-import sys
 from typing import Optional
 
 from cozepy import (
     COZE_CN_BASE_URL,
-    BotSuggestReplyInfo,
     Coze,
     DeviceOAuthApp,
-    SuggestReplyMode,
     TokenAuth,
-    setup_logging,
+    VariableValue,  # noqa
 )
 
 
@@ -44,30 +36,18 @@ def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
 
 # Init the Coze client through the access_token.
 coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_base())
-# workspace id
-workspace_id = os.getenv("COZE_WORKSPACE_ID") or "your workspace id"
-# bot id
-bot_id = os.getenv("COZE_BOT_ID") or "your bot id"
-avatar_path = "" if len(sys.argv) < 2 else sys.argv[1]
-# Whether to print detailed logs
-is_debug = os.getenv("DEBUG")
 
-if is_debug:
-    setup_logging(logging.DEBUG)
+# Create a bot instance in Coze, copy the last number from the web link as the bot's ID.
+bot_id = os.getenv("COZE_BOT_ID") or "bot id"
+# The user id identifies the identity of a user. Developers can use a custom business ID
+# or a random string.
+user_id = "user id"
 
-file_id = None
-if avatar_path:
-    file = coze.files.upload(file=avatar_path)
-    file_id = file.id
-    print("create avatar file: ", avatar_path, file)
-
-bot = coze.bots.create(
-    space_id=workspace_id,
-    name="test",
-    icon_file_id=file_id,
-    suggest_reply_info=BotSuggestReplyInfo(
-        reply_mode=SuggestReplyMode.CUSTOMIZED, customized_prompt="generate custom user question reply suggestion"
-    ),
+res = coze.variables.update(
+    bot_id=bot_id,
+    connector_uid=user_id,
+    data=[
+        VariableValue(keyword="user_like", value="coze"),
+    ],
 )
-print("create bot", bot.model_dump_json(indent=2))
-print("logid", bot.response.logid)
+print("logid:", res.response.logid)

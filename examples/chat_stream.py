@@ -3,6 +3,7 @@ This example is about how to use the streaming interface to start a chat request
 and handle chat events
 """
 
+import json
 import logging
 import os
 from typing import Optional
@@ -45,6 +46,8 @@ user_id = "user id"
 # Whether to print detailed logs
 is_debug = os.getenv("DEBUG")
 
+parameters = json.loads(os.getenv("COZE_PARAMETERS") or "{}")
+
 if is_debug:
     setup_logging(logging.DEBUG)
 
@@ -53,13 +56,16 @@ if is_debug:
 # chat event and handle them.
 is_first_reasoning_content = True
 is_first_content = True
-for event in coze.chat.stream(
+stream = coze.chat.stream(
     bot_id=bot_id,
     user_id=user_id,
     additional_messages=[
         Message.build_user_question_text("Tell a 500-word story."),
     ],
-):
+    parameters=parameters,
+)
+print("logid:", stream.response.logid)
+for event in stream:
     if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
         if event.message.reasoning_content:
             if is_first_reasoning_content:
@@ -75,3 +81,8 @@ for event in coze.chat.stream(
     if event.event == ChatEventType.CONVERSATION_CHAT_COMPLETED:
         print()
         print("token usage:", event.chat.usage.token_count)
+
+    if event.event == ChatEventType.CONVERSATION_CHAT_FAILED:
+        print()
+        print("chat failed", event.chat.last_error)
+        break
