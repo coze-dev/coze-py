@@ -345,21 +345,24 @@ class TestSyncChat:
         # The `cancel` method now directly calls the cancel endpoint.
         # `mock_chat_cancel` sets up respx_mock for POST /v3/chat/cancel
         # and returns a Chat object (e.g., with status CANCELED or FAILED as per its setup)
-        expected_status = ChatStatus.CANCELED # Or ChatStatus.FAILED, depending on mock_chat_cancel
+        expected_status = ChatStatus.CANCELED  # Or ChatStatus.FAILED, depending on mock_chat_cancel
         mock_cancel_logid = mock_chat_cancel(respx_mock, conversation_id, expected_status)
 
         res = coze.chat.cancel(conversation_id=conversation_id, chat_id=chat_id)
 
         assert res is not None
-        assert res.response.logid == mock_cancel_logid # Ensure the cancel endpoint was hit
-        assert res.status == expected_status 
-        assert res.conversation_id == conversation_id # As per make_chat in mock_chat_cancel
+        assert res.response.logid == mock_cancel_logid  # Ensure the cancel endpoint was hit
+        assert res.status == expected_status
+        assert res.conversation_id == conversation_id  # As per make_chat in mock_chat_cancel
 
         # Ensure only one call was made (to the cancel endpoint)
         assert len(respx_mock.calls) == 1
         cancel_call = respx_mock.calls.last
         assert "cancel" in str(cancel_call.request.url)
-        assert cancel_call.request.content == b'{"conversation_id": "conv_id_cancel_direct", "chat_id": "chat_id_cancel_direct"}'
+        assert (
+            cancel_call.request.content
+            == b'{"conversation_id": "conv_id_cancel_direct", "chat_id": "chat_id_cancel_direct"}'
+        )
 
     def test_sync_chat_poll(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
@@ -379,47 +382,50 @@ class TestSyncChat:
         assert res.messages[0].content == "hi"
 
     @patch("time.time")
-    @patch("time.sleep", return_value=None) # Mock sleep to do nothing and speed up test
+    @patch("time.sleep", return_value=None)  # Mock sleep to do nothing and speed up test
     def test_sync_chat_create_and_poll_timeout_branches(self, mock_sleep, mock_time, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
         bot_id = "test_bot"
         user_id = "test_user"
         conversation_id = "poll_conv_id"
-        chat_id = "id" # from make_chat
-        poll_timeout_seconds = 5 
+        chat_id = "id"  # from make_chat
+        poll_timeout_seconds = 5
 
         # --- Scenario 1: Chat becomes COMPLETED right before cancel would be called ---
-        respx_mock.reset() # Clear routes from other tests
+        respx_mock.reset()  # Clear routes from other tests
         initial_chat_create_logid = mock_chat_create(respx_mock, conversation_id, ChatStatus.IN_PROGRESS)
-        
+
         # Mocks for time to control the polling loop.
-        # Scenario A: Poll once (IN_PROGRESS), poll second time (COMPLETED), then timeout check.
+        # Scenario A: Loop terminates due to status change (COMPLETED).
         mock_time.side_effect = [
             0,  # Initial start time for create_and_poll
-            1,  # time.time() for first poll loop check (1-0 < 5 is true)
-            2,  # time.time() for second poll loop check (2-0 < 5 is true)
-            # This next time.time() call is for the timeout check itself, AFTER the second retrieve
-            poll_timeout_seconds + 1, # Timeout condition met (e.g., 6-0 > 5)
+            1,  # time.time() for first poll loop timeout check
+            2,  # time.time() for second poll loop timeout check
         ]
 
-        # Mock retrieve calls for Scenario A
-        # Call 1 in polling loop: status is IN_PROGRESS
-        respx_mock.post("/v3/chat/retrieve").mock(
-            return_value=httpx.Response(200, json={"data": make_chat(conversation_id, ChatStatus.IN_PROGRESS).model_dump()}),
-            alias="retrieve_inprogress"
-        )
-        # Call 2 in polling loop: status becomes COMPLETED. This is the status `chat` will have when timeout is checked.
-        respx_mock.post("/v3/chat/retrieve").mock(
-            return_value=httpx.Response(200, json={"data": make_chat(conversation_id, ChatStatus.COMPLETED).model_dump()}),
-            alias="retrieve_completed"
-        )
-        
+        # Define sequenced responses for retrieve in Scenario A
+        scenario_a_retrieve_responses = [
+            httpx.Response(200, json={"data": make_chat(conversation_id, ChatStatus.IN_PROGRESS).model_dump()}),
+            httpx.Response(200, json={"data": make_chat(conversation_id, ChatStatus.COMPLETED).model_dump()}),
+        ]
+
+        def retrieve_side_effect_scen_a(request):
+            if not scenario_a_retrieve_responses:
+                raise AssertionError("retrieve_side_effect_scen_a called too many times")
+            return scenario_a_retrieve_responses.pop(0)
+
+        respx_mock.post("/v3/chat/retrieve").mock(side_effect=retrieve_side_effect_scen_a)
+
         # Mock messages.list (should be called for Scenario A)
         mock_list_messages_logid = random_hex(10)
         respx_mock.get("/v3/chat/message/list").mock(
-             return_value=httpx.Response(200, json={"data": [Message.build_user_question_text("msg").model_dump()]}, headers={logid_key(): mock_list_messages_logid})
+            return_value=httpx.Response(
+                200,
+                json={"data": [Message.build_user_question_text("msg").model_dump()]},
+                headers={logid_key(): mock_list_messages_logid},
+            )
         )
-        
+
         # Ensure cancel is NOT called
         cancel_route = respx_mock.post("/v3/chat/cancel")
 
@@ -428,54 +434,57 @@ class TestSyncChat:
         )
 
         assert poll_result_completed.chat.status == ChatStatus.COMPLETED
-        assert not cancel_route.called # Cancel should not have been called
-        assert respx_mock.get("/v3/chat/message/list").called # Messages list should be called
-        # Expect 2 retrieve calls: one for each poll loop before timeout check.
+        assert not cancel_route.called  # Cancel should not have been called
+        assert respx_mock.get("/v3/chat/message/list").called  # Messages list should be called
+        # Expect 2 retrieve calls: one for each poll loop.
         assert respx_mock.calls_by_namespace("post /v3/chat/retrieve").call_count == 2
-        
-        # --- Scenario 2: Chat is still IN_PROGRESS at timeout, so cancel IS called ---
-        respx_mock.reset() # Clear routes for Scenario B
-        mock_chat_create(respx_mock, conversation_id, ChatStatus.IN_PROGRESS) # Initial create
+        assert len(scenario_a_retrieve_responses) == 0  # Ensure all mocked responses were consumed
 
-        # Scenario B: Poll once (IN_PROGRESS), then timeout check.
+        # --- Scenario 2: Chat is still IN_PROGRESS at timeout, so cancel IS called ---
+        respx_mock.reset()  # Clear routes for Scenario B
+        mock_chat_create(respx_mock, conversation_id, ChatStatus.IN_PROGRESS)  # Initial create
+
+        # Scenario B: Poll once (IN_PROGRESS), then timeout condition is met, leading to cancel.
         mock_time.side_effect = [
             0,  # Initial start time for create_and_poll
-            1,  # time.time() for first poll loop check (1-0 < 5 is true)
-            # This next time.time() call is for the timeout check itself, AFTER the first retrieve
-            poll_timeout_seconds + 1, # Timeout condition met (e.g., 6-0 > 5)
+            1,  # time.time() for first poll's timeout check (1-0 < 5 is true)
+            # This next time.time() call is for the main timeout check, causing cancel path
+            poll_timeout_seconds + 1,  # Timeout condition met (e.g., 6-0 > 5)
         ]
 
         # Mock retrieve call for Scenario B: always IN_PROGRESS
         # This single mock will handle the one retrieve call in the loop.
         respx_mock.post("/v3/chat/retrieve").mock(
-            return_value=httpx.Response(200, json={"data": make_chat(conversation_id, ChatStatus.IN_PROGRESS).model_dump()}),
-            alias="retrieve_inprogress_scenB"
+            return_value=httpx.Response(
+                200, json={"data": make_chat(conversation_id, ChatStatus.IN_PROGRESS).model_dump()}
+            )
         )
-        
+
         # Mock cancel (should be called for Scenario B)
-        cancel_logid = mock_chat_cancel(respx_mock, conversation_id, ChatStatus.CANCELED) # Sets up its own route
-        
+        cancel_logid = mock_chat_cancel(respx_mock, conversation_id, ChatStatus.CANCELED)  # Sets up its own route
+
         # Ensure messages.list is NOT called for this path
         list_messages_route = respx_mock.get("/v3/chat/message/list")
 
         poll_result_canceled = coze.chat.create_and_poll(
             bot_id=bot_id, user_id=user_id, conversation_id=conversation_id, poll_timeout=poll_timeout_seconds
         )
-        
+
         assert poll_result_canceled.chat.status == ChatStatus.CANCELED
-        assert poll_result_canceled.chat.response.logid == cancel_logid # Logid from the cancel call
-        assert respx_mock.post("/v3/chat/cancel").called # Ensure cancel endpoint was hit
-        assert not list_messages_route.called # Messages list should NOT be called
+        assert poll_result_canceled.chat.response.logid == cancel_logid  # Logid from the cancel call
+        assert respx_mock.post("/v3/chat/cancel").called  # Ensure cancel endpoint was hit
+        assert not list_messages_route.called  # Messages list should NOT be called
         # Expect 1 retrieve call: one poll loop before timeout check.
         assert respx_mock.calls_by_namespace("post /v3/chat/retrieve").call_count == 1
 
 
-import time # Added for time mocking
+import time  # Added for time mocking
 from unittest.mock import patch, AsyncMock
+
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
-class TestAsyncChatConversationMessage: # Consider renaming to TestAsyncChat for consistency
+class TestAsyncChatConversationMessage:  # Consider renaming to TestAsyncChat for consistency
     async def test_async_chat_create(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
@@ -495,7 +504,7 @@ class TestAsyncChatConversationMessage: # Consider renaming to TestAsyncChat for
 
         expected_status = ChatStatus.CANCELED
         mock_cancel_logid = mock_chat_cancel(respx_mock, conversation_id, expected_status)
-        
+
         res = await coze.chat.cancel(conversation_id=conversation_id, chat_id=chat_id)
 
         assert res is not None
@@ -506,7 +515,10 @@ class TestAsyncChatConversationMessage: # Consider renaming to TestAsyncChat for
         assert len(respx_mock.calls) == 1
         cancel_call = respx_mock.calls.last
         assert "cancel" in str(cancel_call.request.url)
-        assert cancel_call.request.content == b'{"conversation_id": "conv_id_async_cancel_direct", "chat_id": "chat_id_async_cancel_direct"}'
+        assert (
+            cancel_call.request.content
+            == b'{"conversation_id": "conv_id_async_cancel_direct", "chat_id": "chat_id_async_cancel_direct"}'
+        )
 
     async def test_async_chat_stream(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
