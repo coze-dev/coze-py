@@ -481,8 +481,6 @@ class TestSyncChat:
         assert respx_mock.calls_by_namespace("post /v3/chat/retrieve").call_count == 1
 
 
-
-
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
 class TestAsyncChatConversationMessage:  # Consider renaming to TestAsyncChat for consistency
