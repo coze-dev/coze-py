@@ -22,6 +22,9 @@ from cozepy import (
 from cozepy.util import random_hex, write_pcm_to_wav_file
 from tests.test_util import logid_key, read_file
 
+import time
+from unittest.mock import patch, AsyncMock
+
 
 def make_chat(conversation_id: str = "conversation_id", status: ChatStatus = ChatStatus.IN_PROGRESS) -> Chat:
     return Chat(
@@ -478,8 +481,6 @@ class TestSyncChat:
         assert respx_mock.calls_by_namespace("post /v3/chat/retrieve").call_count == 1
 
 
-import time  # Added for time mocking
-from unittest.mock import patch, AsyncMock
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
