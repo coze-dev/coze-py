@@ -566,9 +566,21 @@ class ChatClient(object):
         interval = 1
         while chat.status == ChatStatus.IN_PROGRESS:
             if poll_timeout is not None and int(time.time()) - start > poll_timeout:
-                # too long, cancel chat
-                self.cancel(conversation_id=chat.conversation_id, chat_id=chat.id)
-                return ChatPoll(chat=chat)
+                # The 'chat' variable already holds the status from the last retrieve() call
+                # at the end of the while loop's previous iteration (or from create() initially).
+                if chat.status in [
+                    ChatStatus.COMPLETED,
+                    ChatStatus.FAILED,
+                    ChatStatus.REQUIRES_ACTION,
+                ]:
+                    # Chat reached a terminal state during polling, respect this state.
+                    # No need to update 'chat', it already has the correct (terminal) state from the last retrieve.
+                    break  # Exit loop to fetch messages for this terminal state
+                else:
+                    # Chat is still in a cancellable state (e.g. IN_PROGRESS), proceed to cancel
+                    # self.cancel returns the updated chat object (presumably with CANCELED status)
+                    chat = self.cancel(conversation_id=chat.conversation_id, chat_id=chat.id)
+                    return ChatPoll(chat=chat)  # Return immediately, no messages needed for a canceled chat
 
             time.sleep(interval)
             chat = self.retrieve(conversation_id=chat.conversation_id, chat_id=chat.id)
