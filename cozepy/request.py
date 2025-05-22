@@ -475,16 +475,16 @@ class Requester(object):
         if resp_content_type and "audio" in resp_content_type:
             return FileHTTPResponse(response)  # type: ignore
 
-        code, msg, data = self._parse_requests_code_msg(method, url, response, data_field)
+        code, msg, debug_url, data = self._parse_requests_code_msg(method, url, response, data_field)
 
         if code is not None and code > 0:
             log_warning("request %s#%s failed, logid=%s, code=%s, msg=%s", method, url, logid, code, msg)
-            raise CozeAPIError(code, msg, logid)
+            raise CozeAPIError(code, msg, logid, debug_url)
         elif code is None and msg != "":
             log_warning("request %s#%s failed, logid=%s, msg=%s", method, url, logid, msg)
             if msg in COZE_PKCE_AUTH_ERROR_TYPE_ENUMS:
                 raise CozePKCEAuthError(CozePKCEAuthErrorType(msg), logid)
-            raise CozeAPIError(code, msg, logid)
+            raise CozeAPIError(code, msg, logid, debug_url)
         if isinstance(cast, List):
             item_cast = cast[0]
             return [item_cast.model_validate(item) for item in data]
@@ -502,7 +502,7 @@ class Requester(object):
 
     def _parse_requests_code_msg(
         self, method: str, url: str, response: Response, data_field: str = "data"
-    ) -> Tuple[Optional[int], str, Any]:
+    ) -> Tuple[Optional[int], str, Optional[str], Any]:
         try:
             response.read()
             body = response.json()
@@ -514,18 +514,19 @@ class Requester(object):
                 response.text,
                 response.headers.get("x-tt-logid"),
             ) from e
-
+        debug_url = body.get("debug_url")
         if "code" in body and "msg" in body and int(body["code"]) > 0:
-            return int(body["code"]), body["msg"], body.get(data_field)
+            return int(body["code"]), body["msg"], debug_url, body.get(data_field)
         if "error_code" in body and body["error_code"] in COZE_PKCE_AUTH_ERROR_TYPE_ENUMS:
-            return None, body["error_code"], None
+            return None, body["error_code"], debug_url, None
         if "error_message" in body and body["error_message"] != "":
-            return None, body["error_message"], None
+            return None, body["error_message"], debug_url, None
         if data_field in body or "debug_url" in body:
             if "first_id" in body:
                 return (
                     0,
                     "",
+                    debug_url,
                     {
                         "first_id": body["first_id"],
                         "has_more": body["has_more"],
@@ -537,13 +538,14 @@ class Requester(object):
                 return (
                     0,
                     "",
+                    debug_url,
                     {
                         "data": body.get(data_field),
-                        "debug_url": body.get("debug_url") or "",
+                        "debug_url": debug_url or "",
                         "execute_id": body.get("execute_id") or None,
                     },
                 )
-            return 0, "", body[data_field]
+            return 0, "", debug_url, body[data_field]
         if data_field == "data.data":
-            return 0, "", body["data"]["data"]
-        return 0, "", body
+            return 0, "", debug_url, body["data"]["data"]
+        return 0, "", debug_url, body
