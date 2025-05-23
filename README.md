@@ -75,11 +75,11 @@ pip install cozepy
     </tr>
     <tr>
         <td rowspan="7">Bot Chat</td>
-        <td>Bot Chat with Steam</td>
+        <td>Bot Chat with Stream</td>
         <td><a href="./examples/chat_stream.py">examples/chat_stream.py</a></td>
     </tr>
     <tr>
-        <td>Bot Chat without Steam</td>
+        <td>Bot Chat without Stream</td>
         <td><a href="./examples/chat_no_stream.py">examples/chat_no_stream.py</a></td>
     </tr>
     <tr>
