@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, AsyncIterator, Dict, List, Optional, Unio
 import httpx
 from typing_extensions import Literal
 
+from cozepy.exception import CozeAPIError
 from cozepy.model import AsyncIteratorHTTPResponse, AsyncStream, CozeModel, IteratorHTTPResponse, ListResponse, Stream
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
@@ -566,9 +567,16 @@ class ChatClient(object):
         interval = 1
         while chat.status == ChatStatus.IN_PROGRESS:
             if poll_timeout is not None and int(time.time()) - start > poll_timeout:
-                # too long, cancel chat
-                self.cancel(conversation_id=chat.conversation_id, chat_id=chat.id)
-                return ChatPoll(chat=chat)
+                try:
+                    # too long, cancel chat
+                    self.cancel(conversation_id=chat.conversation_id, chat_id=chat.id)
+                    return ChatPoll(chat=chat)
+                except CozeAPIError as e:
+                    if e.code == 4104:
+                        # The current conversation can't be canceled, re-retrieve the chat and continue polling.
+                        chat = self.retrieve(conversation_id=chat.conversation_id, chat_id=chat.id)
+                        continue
+                    raise e
 
             time.sleep(interval)
             chat = self.retrieve(conversation_id=chat.conversation_id, chat_id=chat.id)

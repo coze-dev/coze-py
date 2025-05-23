@@ -489,6 +489,8 @@ class Requester(object):
             item_cast = cast[0]
             return [item_cast.model_validate(item) for item in data]
         elif hasattr(cast, "__origin__") and cast.__origin__ is ListResponse:  # type: ignore
+            if data is None:
+                return ListResponse(response, [])
             item_cast = get_args(cast)[0]
             return ListResponse(response, [item_cast.model_validate(item) for item in data])
         else:
@@ -548,4 +550,4 @@ class Requester(object):
             return 0, "", debug_url, body[data_field]
         if data_field == "data.data":
             return 0, "", debug_url, body["data"]["data"]
-        return 0, "", debug_url, body
+        return 0, "", debug_url, body.get(data_field)
