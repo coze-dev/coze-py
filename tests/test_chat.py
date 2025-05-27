@@ -353,6 +353,68 @@ class TestSyncChat:
         assert res.messages
         assert res.messages[0].content == "hi"
 
+    def test_sync_chat_create_with_parameters(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        conversation_id = "conversation_id"
+        mock_logid = mock_chat_create(respx_mock, conversation_id, ChatStatus.COMPLETED)
+        
+        # 测试带有parameters参数的create方法
+        test_parameters = {"temperature": 0.8, "max_tokens": 100}
+        res = coze.chat.create(
+            bot_id="bot", 
+            user_id="user", 
+            parameters=test_parameters
+        )
+
+        assert res
+        assert res.response.logid is not None
+        assert res.response.logid == mock_logid
+        assert res.conversation_id == conversation_id
+
+    def test_sync_chat_stream_with_parameters(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        mock_logid = mock_chat_stream(respx_mock, read_file("testdata/chat_text_stream_resp.txt"))
+        
+        # 测试带有parameters参数的stream方法
+        test_parameters = {"temperature": 0.5, "top_p": 0.9}
+        stream = coze.chat.stream(
+            bot_id="bot", 
+            user_id="user", 
+            parameters=test_parameters
+        )
+
+        assert stream
+        assert stream.response.logid == mock_logid
+
+        events = list(stream)
+        assert len(events) == 8
+        assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
+
+    def test_sync_chat_poll_with_parameters(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        conversation_id = "conversation_id"
+        mock_chat, mock_logid = mock_chat_poll(
+            respx_mock,
+            conversation_id,
+        )
+
+        # 测试带有parameters参数的create_and_poll方法
+        test_parameters = {"temperature": 0.7, "presence_penalty": 0.1}
+        res = coze.chat.create_and_poll(
+            bot_id="bot", 
+            user_id="user", 
+            parameters=test_parameters
+        )
+
+        assert res
+        assert res.chat.response.logid == mock_chat.response.logid
+        assert res.chat.conversation_id == conversation_id
+        assert res.messages
+        assert res.messages[0].content == "hi"
+
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
@@ -519,3 +581,41 @@ class TestAsyncChatConversationMessage:
         assert res.response.logid is not None
         assert res.response.logid == mock_logid
         assert res.conversation_id == conversation_id
+
+    async def test_async_chat_create_with_parameters(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+
+        conversation_id = "conversation_id"
+        mock_logid = mock_chat_create(respx_mock, conversation_id, ChatStatus.COMPLETED)
+        
+        # 测试带有parameters参数的异步create方法
+        test_parameters = {"temperature": 0.8, "max_tokens": 100}
+        res = await coze.chat.create(
+            bot_id="bot", 
+            user_id="user", 
+            parameters=test_parameters
+        )
+
+        assert res
+        assert res.response.logid is not None
+        assert res.response.logid == mock_logid
+        assert res.conversation_id == conversation_id
+
+    async def test_async_chat_stream_with_parameters(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+
+        mock_chat_stream(respx_mock, read_file("testdata/chat_text_stream_resp.txt"))
+        
+        # 测试带有parameters参数的异步stream方法
+        test_parameters = {"temperature": 0.5, "top_p": 0.9}
+        stream = coze.chat.stream(
+            bot_id="bot", 
+            user_id="user", 
+            parameters=test_parameters
+        )
+        
+        events = [event async for event in stream]
+
+        assert stream
+        assert len(events) == 8
+        assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
