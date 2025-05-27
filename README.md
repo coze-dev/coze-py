@@ -75,11 +75,11 @@ pip install cozepy
     </tr>
     <tr>
         <td rowspan="7">Bot Chat</td>
-        <td>Bot Chat with Steam</td>
+        <td>Bot Chat with Stream</td>
         <td><a href="./examples/chat_stream.py">examples/chat_stream.py</a></td>
     </tr>
     <tr>
-        <td>Bot Chat without Steam</td>
+        <td>Bot Chat without Stream</td>
         <td><a href="./examples/chat_no_stream.py">examples/chat_no_stream.py</a></td>
     </tr>
     <tr>
@@ -166,6 +166,15 @@ pip install cozepy
         <td rowspan="1">Workspace</td>
         <td>List Workspaces</td>
         <td><a href="./examples/workspace.py">examples/workspace.py</a></td>
+    </tr>
+    <tr>
+        <td rowspan="2">Variable</td>
+        <td>Retrieve Variable</td>
+        <td><a href="./examples/variable_retrieve.py">examples/variable_retrieve.py</a></td>
+    </tr>
+    <tr>
+        <td>Update Variable</td>
+        <td><a href="./examples/variable_update.py">examples/variable_update.py</a></td>
     </tr>
     <tr>
         <td rowspan="3">Other</td>
@@ -514,9 +523,9 @@ Asynchronous calls also support streaming mode:
 import os
 import asyncio
 
-from cozepy import TokenAuth, ChatEventType, Message, AsyncCoze
+from cozepy import AsyncTokenAuth, ChatEventType, Message, AsyncCoze
 
-coze = AsyncCoze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
+coze = AsyncCoze(auth=AsyncTokenAuth(os.getenv("COZE_API_TOKEN")))
 
 
 async def main():

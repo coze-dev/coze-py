@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, AsyncIterator, Dict, List, Optional, Unio
 import httpx
 from typing_extensions import Literal
 
+from cozepy.exception import CozeAPIError
 from cozepy.model import AsyncIteratorHTTPResponse, AsyncStream, CozeModel, IteratorHTTPResponse, ListResponse, Stream
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
@@ -459,6 +460,7 @@ class ChatClient(object):
         :param custom_variables: The customized variable in a key-value pair.
         :param auto_save_history: Whether to automatically save the history of conversation records.
         :param meta_data: Additional information, typically used to encapsulate some business-related fields.
+        :param parameters: Additional parameters for the chat API. pass through to the workflow.
         :return: chat object
         """
         return self._create(
@@ -501,6 +503,7 @@ class ChatClient(object):
         :param custom_variables: The customized variable in a key-value pair.
         :param auto_save_history: Whether to automatically save the history of conversation records.
         :param meta_data: Additional information, typically used to encapsulate some business-related fields.
+        :param parameters: Additional parameters for the chat API. pass through to the workflow.
         :return: iterator of ChatEvent
         """
         return self._create(
@@ -546,6 +549,7 @@ class ChatClient(object):
         :param auto_save_history: Whether to automatically save the history of conversation records.
         :param meta_data: Additional information, typically used to encapsulate some business-related fields.
         :param poll_timeout: poll timeout in seconds
+        :param parameters: Additional parameters for the chat API. pass through to the workflow.
         :return: chat object
         """
         chat = self.create(
@@ -563,9 +567,16 @@ class ChatClient(object):
         interval = 1
         while chat.status == ChatStatus.IN_PROGRESS:
             if poll_timeout is not None and int(time.time()) - start > poll_timeout:
-                # too long, cancel chat
-                self.cancel(conversation_id=chat.conversation_id, chat_id=chat.id)
-                return ChatPoll(chat=chat)
+                try:
+                    # too long, cancel chat
+                    self.cancel(conversation_id=chat.conversation_id, chat_id=chat.id)
+                    return ChatPoll(chat=chat)
+                except CozeAPIError as e:
+                    if e.code == 4104:
+                        # The current conversation can't be canceled, re-retrieve the chat and continue polling.
+                        chat = self.retrieve(conversation_id=chat.conversation_id, chat_id=chat.id)
+                        continue
+                    raise e
 
             time.sleep(interval)
             chat = self.retrieve(conversation_id=chat.conversation_id, chat_id=chat.id)
@@ -585,6 +596,7 @@ class ChatClient(object):
         auto_save_history: bool = ...,
         meta_data: Optional[Dict[str, str]] = ...,
         conversation_id: Optional[str] = ...,
+        parameters: Optional[Dict[str, Any]] = ...,
     ) -> Stream[ChatEvent]: ...
 
     @overload
@@ -599,6 +611,7 @@ class ChatClient(object):
         auto_save_history: bool = ...,
         meta_data: Optional[Dict[str, str]] = ...,
         conversation_id: Optional[str] = ...,
+        parameters: Optional[Dict[str, Any]] = ...,
     ) -> Chat: ...
 
     def _create(
@@ -616,8 +629,7 @@ class ChatClient(object):
         **kwargs,
     ) -> Union[Chat, Stream[ChatEvent]]:
         """
-        Create a conversation.
-        Conversation is an interaction between a bot and a user, including one or more messages.
+        Create a chat.
         """
         url = f"{self._base_url}/v3/chat"
         params = {
@@ -802,6 +814,7 @@ class AsyncChatClient(object):
         :param custom_variables: The customized variable in a key-value pair.
         :param auto_save_history: Whether to automatically save the history of conversation records.
         :param meta_data: Additional information, typically used to encapsulate some business-related fields.
+        :param parameters: Additional parameters for the chat API. pass through to the workflow.
         :return: chat object
         """
         return await self._create(
@@ -843,6 +856,7 @@ class AsyncChatClient(object):
         :param custom_variables: The customized variable in a key-value pair.
         :param auto_save_history: Whether to automatically save the history of conversation records.
         :param meta_data: Additional information, typically used to encapsulate some business-related fields.
+        :param parameters: Additional parameters for the chat API. pass through to the workflow.
         :return: iterator of ChatEvent
         """
         async for item in await self._create(

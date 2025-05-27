@@ -3,11 +3,13 @@ This example describes how to use the chat interface to initiate conversations,
 poll the status of the conversation, and obtain the messages after the conversation is completed.
 """
 
+import logging
 import os
 import time
 from typing import Optional
 
-from cozepy import COZE_CN_BASE_URL, ChatStatus, Coze, DeviceOAuthApp, Message, MessageContentType, TokenAuth  # noqa
+from cozepy import COZE_CN_BASE_URL, ChatStatus, Coze, DeviceOAuthApp, Message, TokenAuth
+from cozepy.log import setup_logging
 
 
 def get_coze_api_base() -> str:
@@ -41,6 +43,11 @@ bot_id = os.getenv("COZE_BOT_ID") or "bot id"
 # The user id identifies the identity of a user. Developers can use a custom business ID
 # or a random string.
 user_id = "user id"
+# Whether to print detailed logs
+is_debug = os.getenv("DEBUG")
+
+if is_debug:
+    setup_logging(logging.DEBUG)
 
 if os.getenv("RUN_STEP_BY_STEP"):
     # Call the coze.chat.create method to create a chat. The create method is a non-streaming
