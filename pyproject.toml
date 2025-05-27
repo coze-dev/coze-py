@@ -12,7 +12,7 @@ pydantic = "^2.5.0"
 authlib = "^1.2.0"
 httpx = [
     { version =  "^0.24.0", python = "<=3.7" },
-    { version =  ">=0.27.0", python = "^3.8" },
+    { version =  "^0.27.0", python = "^3.8" },
 ]
 typing-extensions = "^4.3.0"
 distro = "^1.9.0"
