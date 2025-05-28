@@ -11,7 +11,7 @@ How to use personal access token to init Coze client.
 
 import os
 
-from cozepy import COZE_CN_BASE_URL, AsyncCoze, Coze, TokenAuth
+from cozepy import COZE_CN_BASE_URL, AsyncCoze, AsyncTokenAuth, Coze, TokenAuth
 
 coze_api_token = os.getenv("COZE_API_TOKEN")
 # The default access is api.coze.cn, but if you need to access api.coze.com,
@@ -31,4 +31,4 @@ coze = Coze(auth=TokenAuth(token=coze_api_token), base_url=coze_api_base)
 
 # or
 # Establish an asynchronous coze client by using the access_token
-async_coze = AsyncCoze(auth=TokenAuth(token=coze_api_token), base_url=coze_api_base)
+async_coze = AsyncCoze(auth=AsyncTokenAuth(token=coze_api_token), base_url=coze_api_base)

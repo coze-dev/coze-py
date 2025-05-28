@@ -590,9 +590,9 @@ Asynchronous methods also support:
 import os
 import asyncio
 
-from cozepy import TokenAuth, AsyncCoze
+from cozepy import AsyncTokenAuth, AsyncCoze
 
-coze = AsyncCoze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
+coze = AsyncCoze(auth=AsyncTokenAuth(os.getenv("COZE_API_TOKEN")))
 
 
 async def main():
@@ -629,9 +629,9 @@ Asynchronous methods also support:
 import asyncio
 import os
 
-from cozepy import TokenAuth, AsyncCoze
+from cozepy import AsyncTokenAuth, AsyncCoze
 
-coze = AsyncCoze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
+coze = AsyncCoze(auth=AsyncTokenAuth(os.getenv("COZE_API_TOKEN")))
 
 
 async def main():
