@@ -6,6 +6,7 @@ from cozepy import (
     AsyncTokenAuth,
     Coze,
     TokenAuth,
+    WorkflowEventType,
     WorkflowExecuteStatus,
     WorkflowRunHistory,
     WorkflowRunMode,
@@ -147,8 +148,9 @@ class TestSyncWorkflowsRuns:
             interrupt_type=123,
         )
         assert stream.response.logid == mock_logid
-        with pytest.raises(Exception, match="invalid workflows.event: invalid"):
-            list(stream)
+
+        event = list(stream)[0]
+        assert event.event == WorkflowEventType.UNKNOWN
 
     def test_sync_workflows_runs_run_histories_retrieve(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
@@ -220,8 +222,9 @@ class TestAsyncWorkflowsRuns:
             resume_data="resume_data",
             interrupt_type=123,
         )
-        with pytest.raises(Exception, match="invalid workflows.event: invalid"):
-            [event async for event in stream]
+
+        event = [event async for event in stream][0]
+        assert event.event == WorkflowEventType.UNKNOWN
 
     async def test_async_workflows_runs_run_histories_retrieve(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))

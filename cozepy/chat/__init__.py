@@ -371,12 +371,15 @@ class ChatEventType(str, Enum):
     # 本次会话的流式返回正常结束。
     DONE = "done"
 
+    UNKNOWN = "unknown"  # 默认的未知值
+
 
 class ChatEvent(CozeModel):
     # logid: str
     event: ChatEventType
     chat: Optional[Chat] = None
     message: Optional[Message] = None
+    unknown: Optional[Dict] = None
 
 
 def _chat_stream_handler(data: Dict, raw_response: httpx.Response, is_async: bool = False) -> ChatEvent:
@@ -407,7 +410,9 @@ def _chat_stream_handler(data: Dict, raw_response: httpx.Response, is_async: boo
         event._raw_response = raw_response
         return event
     else:
-        raise ValueError(f"invalid chat.event: {event}, {data}")
+        event = ChatEvent(event=ChatEventType.UNKNOWN, unknown=data)
+        event._raw_response = raw_response
+        return event
 
 
 def _sync_chat_stream_handler(data: Dict, raw_response: httpx.Response) -> ChatEvent:
