@@ -134,22 +134,6 @@ class TestSyncWorkflowsRuns:
         assert events
         assert len(events) == 9
 
-    def test_sync_workflows_runs_invalid_stream_event(self, respx_mock):
-        coze = Coze(auth=TokenAuth(token="token"))
-
-        mock_logid = mock_create_workflows_runs_resume(
-            respx_mock, read_file("testdata/workflow_run_invalid_stream_resp.txt")
-        )
-        stream = coze.workflows.runs.resume(
-            workflow_id="id",
-            event_id="event_id",
-            resume_data="resume_data",
-            interrupt_type=123,
-        )
-        assert stream.response.logid == mock_logid
-        with pytest.raises(Exception, match="invalid workflows.event: invalid"):
-            list(stream)
-
     def test_sync_workflows_runs_run_histories_retrieve(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
@@ -209,19 +193,6 @@ class TestAsyncWorkflowsRuns:
         events = [event async for event in stream]
         assert events
         assert len(events) == 9
-
-    async def test_async_workflows_runs_invalid_stream_event(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
-
-        mock_create_workflows_runs_resume(respx_mock, read_file("testdata/workflow_run_invalid_stream_resp.txt"))
-        stream = coze.workflows.runs.resume(
-            workflow_id="id",
-            event_id="event_id",
-            resume_data="resume_data",
-            interrupt_type=123,
-        )
-        with pytest.raises(Exception, match="invalid workflows.event: invalid"):
-            [event async for event in stream]
 
     async def test_async_workflows_runs_run_histories_retrieve(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))

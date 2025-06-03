@@ -137,7 +137,8 @@ def _workflow_stream_handler(
             interrupt=WorkflowEventInterrupt.model_validate_json(event_data),
         )
     else:
-        raise ValueError(f"invalid workflows.event: {event}, {event_data}")
+        # not supported event type, just ignore it
+        pass
 
 
 def _sync_workflow_stream_handler(data: Dict[str, str], raw_response: httpx.Response) -> WorkflowEvent:
