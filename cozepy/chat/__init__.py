@@ -407,7 +407,8 @@ def _chat_stream_handler(data: Dict, raw_response: httpx.Response, is_async: boo
         event._raw_response = raw_response
         return event
     else:
-        raise ValueError(f"invalid chat.event: {event}, {data}")
+        # not supported event type, just ignore it
+        pass
 
 
 def _sync_chat_stream_handler(data: Dict, raw_response: httpx.Response) -> ChatEvent:

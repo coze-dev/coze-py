@@ -101,19 +101,6 @@ class TestSyncWorkflowsChat:
         assert len(events) == 1
         assert events[0].chat.last_error.code == 5000
 
-    def test_sync_chat_stream_invalid_event(self, respx_mock):
-        coze = Coze(auth=TokenAuth(token="token"))
-
-        mock_logid = mock_workflows_chat_stream(respx_mock, read_file("testdata/chat_invalid_resp.txt"))
-
-        stream = coze.workflows.chat.stream(workflow_id="workflow", bot_id="bot")
-        assert stream
-        assert stream.response.logid is not None
-        assert stream.response.logid == mock_logid
-
-        with pytest.raises(Exception, match="invalid chat.event: invalid"):
-            list(stream)
-
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
@@ -168,14 +155,3 @@ class TestAsyncWorkflowsChat:
         assert events
         assert len(events) == 1
         assert events[0].chat.last_error.code == 5000
-
-    async def test_async_chat_stream_invalid_event(self, respx_mock):
-        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
-
-        mock_workflows_chat_stream(respx_mock, read_file("testdata/chat_invalid_resp.txt"))
-
-        stream = coze.workflows.chat.stream(workflow_id="workflow", bot_id="bot")
-        assert stream
-
-        with pytest.raises(Exception, match="invalid chat.event: invalid"):
-            _ = [event async for event in stream]
