@@ -112,6 +112,8 @@ class WebsocketsEventType(str, Enum):
 class WebsocketsEvent(CozeModel, ABC):
     class Detail(BaseModel):
         logid: Optional[str] = None
+        # if event_type=error, origin_message is the original input message
+        origin_message: Optional[str] = None
 
     event_type: WebsocketsEventType
     id: Optional[str] = None
