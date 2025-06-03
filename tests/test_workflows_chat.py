@@ -177,5 +177,5 @@ class TestAsyncWorkflowsChat:
         stream = coze.workflows.chat.stream(workflow_id="workflow", bot_id="bot")
         assert stream
 
-        chat = [event async for event in stream][0]
-        assert chat.event == ChatEventType.UNKNOWN
+        event = [event async for event in stream][0]
+        assert event.event == ChatEventType.UNKNOWN
