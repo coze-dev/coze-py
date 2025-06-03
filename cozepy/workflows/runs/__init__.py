@@ -44,6 +44,8 @@ class WorkflowEventType(str, Enum):
     # 中断。表示工作流中断，此时 data 字段中包含具体的中断信息。
     INTERRUPT = "Interrupt"
 
+    UNKNOWN = "unknown"  # 默认的未知值
+
 
 class WorkflowEventMessage(CozeModel):
     # The content of the streamed output message.
@@ -111,6 +113,8 @@ class WorkflowEvent(CozeModel):
 
     error: Optional[WorkflowEventError] = None
 
+    unknown: Optional[Dict] = None
+
 
 def _workflow_stream_handler(
     data: Dict[str, str], raw_response: httpx.Response, is_async: bool = False
@@ -137,8 +141,7 @@ def _workflow_stream_handler(
             interrupt=WorkflowEventInterrupt.model_validate_json(event_data),
         )
     else:
-        # not supported event type, just ignore it
-        pass
+        return WorkflowEvent(id=id, event=WorkflowEventType.UNKNOWN, unknown=data)
 
 
 def _sync_workflow_stream_handler(data: Dict[str, str], raw_response: httpx.Response) -> WorkflowEvent:

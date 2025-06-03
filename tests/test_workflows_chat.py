@@ -112,7 +112,7 @@ class TestSyncWorkflowsChat:
         assert stream.response.logid == mock_logid
 
         # no exception
-        list(stream)
+        print(list(stream))
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
