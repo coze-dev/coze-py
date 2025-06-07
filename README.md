@@ -75,11 +75,11 @@ pip install cozepy
     </tr>
     <tr>
         <td rowspan="7">Bot Chat</td>
-        <td>Bot Chat with Steam</td>
+        <td>Bot Chat with Stream</td>
         <td><a href="./examples/chat_stream.py">examples/chat_stream.py</a></td>
     </tr>
     <tr>
-        <td>Bot Chat without Steam</td>
+        <td>Bot Chat without Stream</td>
         <td><a href="./examples/chat_no_stream.py">examples/chat_no_stream.py</a></td>
     </tr>
     <tr>
@@ -590,9 +590,9 @@ Asynchronous methods also support:
 import os
 import asyncio
 
-from cozepy import TokenAuth, AsyncCoze
+from cozepy import AsyncTokenAuth, AsyncCoze
 
-coze = AsyncCoze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
+coze = AsyncCoze(auth=AsyncTokenAuth(os.getenv("COZE_API_TOKEN")))
 
 
 async def main():
@@ -629,9 +629,9 @@ Asynchronous methods also support:
 import asyncio
 import os
 
-from cozepy import TokenAuth, AsyncCoze
+from cozepy import AsyncTokenAuth, AsyncCoze
 
-coze = AsyncCoze(auth=TokenAuth(os.getenv("COZE_API_TOKEN")))
+coze = AsyncCoze(auth=AsyncTokenAuth(os.getenv("COZE_API_TOKEN")))
 
 
 async def main():

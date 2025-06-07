@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, AsyncIterator, Dict, List, Optional, Unio
 import httpx
 from typing_extensions import Literal
 
+from cozepy.exception import CozeAPIError
 from cozepy.model import AsyncIteratorHTTPResponse, AsyncStream, CozeModel, IteratorHTTPResponse, ListResponse, Stream
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
@@ -370,12 +371,15 @@ class ChatEventType(str, Enum):
     # 本次会话的流式返回正常结束。
     DONE = "done"
 
+    UNKNOWN = "unknown"  # 默认的未知值
+
 
 class ChatEvent(CozeModel):
     # logid: str
     event: ChatEventType
     chat: Optional[Chat] = None
     message: Optional[Message] = None
+    unknown: Optional[Dict] = None
 
 
 def _chat_stream_handler(data: Dict, raw_response: httpx.Response, is_async: bool = False) -> ChatEvent:
@@ -406,7 +410,9 @@ def _chat_stream_handler(data: Dict, raw_response: httpx.Response, is_async: boo
         event._raw_response = raw_response
         return event
     else:
-        raise ValueError(f"invalid chat.event: {event}, {data}")
+        event = ChatEvent(event=ChatEventType.UNKNOWN, unknown=data)
+        event._raw_response = raw_response
+        return event
 
 
 def _sync_chat_stream_handler(data: Dict, raw_response: httpx.Response) -> ChatEvent:
@@ -566,9 +572,16 @@ class ChatClient(object):
         interval = 1
         while chat.status == ChatStatus.IN_PROGRESS:
             if poll_timeout is not None and int(time.time()) - start > poll_timeout:
-                # too long, cancel chat
-                self.cancel(conversation_id=chat.conversation_id, chat_id=chat.id)
-                return ChatPoll(chat=chat)
+                try:
+                    # too long, cancel chat
+                    self.cancel(conversation_id=chat.conversation_id, chat_id=chat.id)
+                    return ChatPoll(chat=chat)
+                except CozeAPIError as e:
+                    if e.code == 4104:
+                        # The current conversation can't be canceled, re-retrieve the chat and continue polling.
+                        chat = self.retrieve(conversation_id=chat.conversation_id, chat_id=chat.id)
+                        continue
+                    raise e
 
             time.sleep(interval)
             chat = self.retrieve(conversation_id=chat.conversation_id, chat_id=chat.id)

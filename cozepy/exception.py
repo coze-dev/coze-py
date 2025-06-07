@@ -11,14 +11,23 @@ class CozeError(Exception):
 
 
 class CozeAPIError(CozeError):
-    def __init__(self, code: Optional[int] = None, msg: str = "", logid: Optional[str] = None):
+    def __init__(
+        self, code: Optional[int] = None, msg: str = "", logid: Optional[str] = None, debug_url: Optional[str] = None
+    ):
         self.code = code
         self.msg = msg
         self.logid = logid
+        self.debug_url = debug_url
         if code and code > 0:
-            super().__init__(f"code: {code}, msg: {msg}, logid: {logid}")
+            if self.debug_url:
+                super().__init__(f"code: {code}, msg: {msg}, logid: {logid}, debug_url: {self.debug_url}")
+            else:
+                super().__init__(f"code: {code}, msg: {msg}, logid: {logid}")
         else:
-            super().__init__(f"msg: {msg}, logid: {logid}")
+            if self.debug_url:
+                super().__init__(f"msg: {msg}, logid: {logid}, debug_url: {self.debug_url}")
+            else:
+                super().__init__(f"msg: {msg}, logid: {logid}")
 
 
 class CozePKCEAuthErrorType(str, Enum):

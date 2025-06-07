@@ -111,8 +111,8 @@ class TestSyncWorkflowsChat:
         assert stream.response.logid is not None
         assert stream.response.logid == mock_logid
 
-        with pytest.raises(Exception, match="invalid chat.event: invalid"):
-            list(stream)
+        event = list(stream)[0]
+        assert event.event == ChatEventType.UNKNOWN
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -177,5 +177,5 @@ class TestAsyncWorkflowsChat:
         stream = coze.workflows.chat.stream(workflow_id="workflow", bot_id="bot")
         assert stream
 
-        with pytest.raises(Exception, match="invalid chat.event: invalid"):
-            _ = [event async for event in stream]
+        event = [event async for event in stream][0]
+        assert event.event == ChatEventType.UNKNOWN

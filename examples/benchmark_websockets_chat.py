@@ -8,6 +8,7 @@ from typing import List, Optional
 from cozepy import (
     COZE_CN_BASE_URL,
     AsyncCoze,
+    AsyncTokenAuth,
     AsyncWebsocketsChatClient,
     AsyncWebsocketsChatEventHandler,
     AudioFormat,
@@ -17,7 +18,6 @@ from cozepy import (
     ConversationMessageDeltaEvent,
     DeviceOAuthApp,
     InputAudioBufferAppendEvent,
-    TokenAuth,
     WebsocketsEventType,
     setup_logging,
 )
@@ -56,6 +56,10 @@ def setup_examples_logger():
 
 def get_current_time_ms():
     return int(time.time() * 1000)
+
+
+def green_text(s: str) -> str:
+    return f"\033[32m{s}\033[0m"
 
 
 setup_examples_logger()
@@ -181,7 +185,7 @@ async def main():
 
     # Initialize Coze client
     coze = AsyncCoze(
-        auth=TokenAuth(coze_api_token),
+        auth=AsyncTokenAuth(coze_api_token),
         base_url=coze_api_base,
     )
     # Initialize Audio
@@ -201,9 +205,10 @@ async def main():
         text_latency.append(text)
         audio_latency.append(audio)
         print(
-            f"[latency.ws] {i}, asr: {cal_latency(asr, asr_latency)}, text: {cal_latency(text, text_latency)}, audio: {cal_latency(audio, audio_latency)}, log: {handler.logid}"
+            f"[latency.ws] {i}, {green_text('asr')}: {cal_latency(asr, asr_latency)}, {green_text('text')}: {cal_latency(text, text_latency)}, {green_text('audio')}: {cal_latency(audio, audio_latency)}, {green_text('log')}: {handler.logid}"
         )
 
 
 if __name__ == "__main__":
+    # COZE_API_TOKEN=xx COZE_BOT_ID=xx COZE_TEXT=xx COZE_LOG=error python examples/benchmark_websockets_chat.py
     asyncio.run(main())
