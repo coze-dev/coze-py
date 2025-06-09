@@ -27,7 +27,9 @@ from cozepy.websockets.ws import (
 # common
 class TurnDetection(BaseModel):
     class TurnDetectionType(str, Enum):
+        # server_vad ：自由对话模式，语音数据会传输到服务器端进行实时分析，服务器端的语音活动检测算法会判断用户是否在说话。
         SERVER_VAD = "server_vad"
+        # client_interrupt：（默认）按键说话模式，客户端实时分析语音数据，并检测用户是否已停止说话。
         CLIENT_INTERRUPT = "client_interrupt"
 
     class InterruptConfigMode(str, Enum):
@@ -42,7 +44,7 @@ class TurnDetection(BaseModel):
         # 打断的关键词配置，最多同时限制 5 个关键词，每个关键词限定长度在6-24个字节以内(2-8个汉字以内), 不能有标点符号。
         keywords: Optional[List[str]] = None
 
-    # 用户演讲检测模式，包括：server_vad ：自由对话模式，语音数据会传输到服务器端进行实时分析，服务器端的语音活动检测算法会判断用户是否在说话。client_interrupt：（默认）按键说话模式，客户端实时分析语音数据，并检测用户是否已停止说话。
+    # 用户演讲检测模式
     type: Optional[TurnDetectionType] = None
     # server_vad 模式下，VAD 检测到语音之前要包含的音频量，单位为 ms。默认为 600ms。
     prefix_padding_ms: Optional[int] = None
