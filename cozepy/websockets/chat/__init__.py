@@ -250,6 +250,7 @@ class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
     ):
         pass
 
+
 class WebsocketsChatClient(WebsocketsBaseClient):
     def __init__(
         self,
@@ -532,6 +533,7 @@ class AsyncWebsocketsChatEventHandler(AsyncWebsocketsBaseEventHandler):
         self, cli: "AsyncWebsocketsChatClient", event: InputAudioBufferSpeechStoppedEvent
     ):
         pass
+
 
 class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
     def __init__(
