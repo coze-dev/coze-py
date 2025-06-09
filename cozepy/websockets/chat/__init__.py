@@ -34,10 +34,33 @@ class ChatUpdateEvent(WebsocketsEvent):
         auto_save_history: Optional[bool] = None
         parameters: Optional[Dict[str, Any]] = None
 
+    class InterruptConfig(BaseModel):
+        mode: Optional[str] = None
+        keywords: Optional[List[str]] = None
+
+    class TurnDetection(BaseModel):
+        type: Optional[str] = None
+        prefix_padding_ms: Optional[int] = None
+        silence_duration_ms: Optional[int] = None
+        interrupt_config: Optional["ChatUpdateEvent.InterruptConfig"] = None
+
+    class AsrConfig(BaseModel):
+        hot_words: Optional[List[str]] = None
+        context: Optional[str] = None
+        user_language: Optional[str] = None
+        enable_ddc: Optional[bool] = None
+        enable_itn: Optional[bool] = None
+        enable_punc: Optional[bool] = None
+
     class Data(BaseModel):
         output_audio: Optional[OutputAudio] = None
         input_audio: Optional[InputAudio] = None
         chat_config: Optional["ChatUpdateEvent.ChatConfig"] = None
+        event_subscriptions: Optional[List[WebsocketsEventType]] = None
+        need_play_prologue: Optional[bool] = None
+        prologue_content: Optional[str] = None
+        turn_detection: Optional["ChatUpdateEvent.TurnDetection"] = None
+        asr_config: Optional["ChatUpdateEvent.AsrConfig"] = None
 
     event_type: WebsocketsEventType = WebsocketsEventType.CHAT_UPDATE
     data: Data
@@ -98,6 +121,15 @@ class ConversationMessageDeltaEvent(WebsocketsEvent):
 
 
 # resp
+class ConversationAudioTranscriptUpdateEvent(WebsocketsEvent):
+    class Data(BaseModel):
+        content: str
+
+    event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_UPDATE
+    data: Data
+
+
+# resp
 class ConversationAudioTranscriptCompletedEvent(WebsocketsEvent):
     class Data(BaseModel):
         content: str
@@ -136,8 +168,24 @@ class ConversationChatCompletedEvent(WebsocketsEvent):
 
 
 # resp
+class ConversationChatFailedEvent(WebsocketsEvent):
+    event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_FAILED
+    data: Chat
+
+
+# resp
 class ConversationChatCanceledEvent(WebsocketsEvent):
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_CANCELED
+
+
+# resp
+class InputAudioBufferSpeechStartedEvent(WebsocketsEvent):
+    event_type: WebsocketsEventType = WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STARTED
+
+
+# resp
+class InputAudioBufferSpeechStoppedEvent(WebsocketsEvent):
+    event_type: WebsocketsEventType = WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STOPPED
 
 
 class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
@@ -157,6 +205,11 @@ class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
         pass
 
     def on_conversation_message_delta(self, cli: "WebsocketsChatClient", event: ConversationMessageDeltaEvent):
+        pass
+
+    def on_conversation_audio_transcript_update(
+        self, cli: "WebsocketsChatClient", event: ConversationAudioTranscriptUpdateEvent
+    ):
         pass
 
     def on_conversation_audio_transcript_completed(
@@ -181,7 +234,20 @@ class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
     def on_conversation_chat_completed(self, cli: "WebsocketsChatClient", event: ConversationChatCompletedEvent):
         pass
 
+    def on_conversation_chat_failed(self, cli: "WebsocketsChatClient", event: ConversationChatFailedEvent):
+        pass
+
     def on_conversation_chat_canceled(self, cli: "WebsocketsChatClient", event: ConversationChatCanceledEvent):
+        pass
+
+    def on_input_text_buffer_speech_started(
+        self, cli: "WebsocketsChatClient", event: InputAudioBufferSpeechStartedEvent
+    ):
+        pass
+
+    def on_input_text_buffer_speech_stopped(
+        self, cli: "WebsocketsChatClient", event: InputAudioBufferSpeechStoppedEvent
+    ):
         pass
 
 
@@ -280,6 +346,14 @@ class WebsocketsChatClient(WebsocketsBaseClient):
                     "data": Message.model_validate(data),
                 }
             )
+        elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_UPDATE.value:
+            return ConversationAudioTranscriptUpdateEvent.model_validate(
+                {
+                    "id": event_id,
+                    "detail": detail,
+                    "data": ConversationAudioTranscriptUpdateEvent.Data.model_validate(data),
+                }
+            )
         elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED.value:
             return ConversationAudioTranscriptCompletedEvent.model_validate(
                 {
@@ -327,8 +401,30 @@ class WebsocketsChatClient(WebsocketsBaseClient):
                     "data": Chat.model_validate(data),
                 }
             )
+        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_FAILED.value:
+            return ConversationChatFailedEvent.model_validate(
+                {
+                    "id": event_id,
+                    "detail": detail,
+                    "data": Chat.model_validate(data),
+                }
+            )
         elif event_type == WebsocketsEventType.CONVERSATION_CHAT_CANCELED.value:
             return ConversationChatCanceledEvent.model_validate(
+                {
+                    "id": event_id,
+                    "detail": detail,
+                }
+            )
+        elif event_type == WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STARTED.value:
+            return InputAudioBufferSpeechStartedEvent.model_validate(
+                {
+                    "id": event_id,
+                    "detail": detail,
+                }
+            )
+        elif event_type == WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STOPPED.value:
+            return InputAudioBufferSpeechStoppedEvent.model_validate(
                 {
                     "id": event_id,
                     "detail": detail,
@@ -387,6 +483,11 @@ class AsyncWebsocketsChatEventHandler(AsyncWebsocketsBaseEventHandler):
     ):
         pass
 
+    async def on_conversation_audio_transcript_update(
+        self, cli: "AsyncWebsocketsChatClient", event: ConversationAudioTranscriptUpdateEvent
+    ):
+        pass
+
     async def on_conversation_audio_transcript_completed(
         self, cli: "AsyncWebsocketsChatClient", event: ConversationAudioTranscriptCompletedEvent
     ):
@@ -415,8 +516,21 @@ class AsyncWebsocketsChatEventHandler(AsyncWebsocketsBaseEventHandler):
     ):
         pass
 
+    async def on_conversation_chat_failed(self, cli: "AsyncWebsocketsChatClient", event: ConversationChatFailedEvent):
+        pass
+
     async def on_conversation_chat_canceled(
         self, cli: "AsyncWebsocketsChatClient", event: ConversationChatCanceledEvent
+    ):
+        pass
+
+    async def on_input_text_buffer_speech_started(
+        self, cli: "AsyncWebsocketsChatClient", event: InputAudioBufferSpeechStartedEvent
+    ):
+        pass
+
+    async def on_input_text_buffer_speech_stopped(
+        self, cli: "AsyncWebsocketsChatClient", event: InputAudioBufferSpeechStoppedEvent
     ):
         pass
 
@@ -516,6 +630,14 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
                     "data": Message.model_validate(data),
                 }
             )
+        elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_UPDATE.value:
+            return ConversationAudioTranscriptUpdateEvent.model_validate(
+                {
+                    "id": event_id,
+                    "detail": detail,
+                    "data": ConversationAudioTranscriptUpdateEvent.Data.model_validate(data),
+                }
+            )
         elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED.value:
             return ConversationAudioTranscriptCompletedEvent.model_validate(
                 {
@@ -563,8 +685,30 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
                     "data": Chat.model_validate(data),
                 }
             )
+        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_FAILED.value:
+            return ConversationChatFailedEvent.model_validate(
+                {
+                    "id": event_id,
+                    "detail": detail,
+                    "data": Chat.model_validate(data),
+                }
+            )
         elif event_type == WebsocketsEventType.CONVERSATION_CHAT_CANCELED.value:
             return ConversationChatCanceledEvent.model_validate(
+                {
+                    "id": event_id,
+                    "detail": detail,
+                }
+            )
+        elif event_type == WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STARTED.value:
+            return InputAudioBufferSpeechStartedEvent.model_validate(
+                {
+                    "id": event_id,
+                    "detail": detail,
+                }
+            )
+        elif event_type == WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STOPPED.value:
+            return InputAudioBufferSpeechStoppedEvent.model_validate(
                 {
                     "id": event_id,
                     "detail": detail,

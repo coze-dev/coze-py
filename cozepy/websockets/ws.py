@@ -101,12 +101,16 @@ class WebsocketsEventType(str, Enum):
     CONVERSATION_CHAT_IN_PROGRESS = "conversation.chat.in_progress"
     CONVERSATION_MESSAGE_DELTA = "conversation.message.delta"  # get agent text message update
     CONVERSATION_CHAT_REQUIRES_ACTION = "conversation.chat.requires_action"  # need plugin submit
+    CONVERSATION_AUDIO_TRANSCRIPT_UPDATE = "conversation.audio_transcript.update"
     CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED = "conversation.audio_transcript.completed"
     CONVERSATION_MESSAGE_COMPLETED = "conversation.message.completed"
     CONVERSATION_AUDIO_DELTA = "conversation.audio.delta"  # get agent audio message update
     CONVERSATION_AUDIO_COMPLETED = "conversation.audio.completed"
     CONVERSATION_CHAT_COMPLETED = "conversation.chat.completed"  # all message received, can close connection
+    CONVERSATION_CHAT_FAILED = "conversation.chat.failed"
     CONVERSATION_CHAT_CANCELED = "conversation.chat.canceled"  # chat canceled
+    INPUT_AUDIO_BUFFER_SPEECH_STARTED = "input_audio_buffer.speech_started"
+    INPUT_AUDIO_BUFFER_SPEECH_STOPPED = "input_audio_buffer.speech_stopped"
 
 
 class WebsocketsEvent(CozeModel, ABC):
