@@ -60,10 +60,8 @@ class WebsocketsEventType(str, Enum):
 
     # v1/audio/speech
     # req
-    INPUT_TEXT_BUFFER_APPEND = "input_text_buffer.append"  # send text to server
-    INPUT_TEXT_BUFFER_COMPLETE = (
-        "input_text_buffer.complete"  # no text to send, after audio all received, can close connection
-    )
+    INPUT_TEXT_BUFFER_APPEND = "input_text_buffer.append"  # 流式输入文字
+    INPUT_TEXT_BUFFER_COMPLETE = "input_text_buffer.complete"  # 提交文字
     SPEECH_UPDATE = "speech.update"  # send speech config to server
     # resp
     # v1/audio/speech

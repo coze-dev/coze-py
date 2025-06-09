@@ -19,7 +19,14 @@ from cozepy.websockets.ws import (
 
 # req
 class InputTextBufferAppendEvent(WebsocketsEvent):
+    """流式输入文字
+
+    流式向服务端提交文字的片段。
+    docs: https://www.coze.cn/open/docs/developer_guides/tts_event#0ba93be3
+    """
+
     class Data(BaseModel):
+        # 需要合成语音的文字片段。
         delta: str
 
     event_type: WebsocketsEventType = WebsocketsEventType.INPUT_TEXT_BUFFER_APPEND
@@ -28,6 +35,12 @@ class InputTextBufferAppendEvent(WebsocketsEvent):
 
 # req
 class InputTextBufferCompleteEvent(WebsocketsEvent):
+    """提交文字
+
+    提交 append 的文本，发送后将收到 input_text_buffer.completed 的下行事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/tts_event#ab24ada9
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.INPUT_TEXT_BUFFER_COMPLETE
 
 
