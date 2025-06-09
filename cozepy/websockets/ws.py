@@ -129,29 +129,56 @@ class WebsocketsErrorEvent(WebsocketsEvent):
     data: CozeAPIError
 
 
+class LimitConfig(BaseModel):
+    # 周期的时长，单位为秒。例如设置为 10 秒，则以 10 秒作为一个周期。
+    period: Optional[int] = None
+    # 周期内，最大返回包数量。
+    max_frame_num: Optional[int] = None
+
+
 class InputAudio(BaseModel):
+    # 输入音频的格式，支持 pcm、wav、ogg。默认为 wav。
     format: Optional[str]
+    # 输入音频的编码，支持 pcm、opus、g711a、g711u。默认为 pcm。如果音频编码格式为 g711a 或 g711u，format 请设置为 pcm。
     codec: Optional[str]
+    # 输入音频的采样率，默认是 24000。支持 8000、16000、22050、24000、32000、44100、48000。如果音频编码格式 codec 为 g711a 或 g711u，音频采样率需设置为 8000。
     sample_rate: Optional[int]
+    # 输入音频的声道数，支持 1（单声道）、2（双声道）。默认是 1（单声道）。
     channel: Optional[int]
+    # 输入音频的位深，默认是 16，支持8、16和24。
     bit_depth: Optional[int]
 
 
 class OpusConfig(BaseModel):
+    # 输出 opus 的码率，默认 48000。
     bitrate: Optional[int] = None
+    # 输出 opus 是否使用 CBR 编码，默认为 false。
     use_cbr: Optional[bool] = None
+    # 输出 opus 的帧长，默认是 10。可选值：2.5、5、10、20、40、60
     frame_size_ms: Optional[float] = None
+    # 输出音频限流配置，默认不限制。
+    limit_config: Optional[LimitConfig] = None
 
 
 class PCMConfig(BaseModel):
+    # 输出 pcm 音频的采样率，默认是 24000。支持 8000、16000、22050、24000、32000、44100、48000。
     sample_rate: Optional[int] = None
+    # 输出每个 pcm 包的时长，单位 ms，默认不限制。
+    frame_size_ms: Optional[float] = None
+    # 输出音频限流配置，默认不限制。
+    limit_config: Optional[LimitConfig] = None
 
 
 class OutputAudio(BaseModel):
+    # 输出音频编码，支持 pcm、g711a、g711u、opus。默认是 pcm。当 codec 设置为 pcm、g711a或 g711u时，你可以通过 pcm_config 配置 PCM 音频参数。
     codec: Optional[str]
+    # 当 codec 设置为 pcm、g711a 或 g711u 时，用于配置 PCM 音频参数。当 codec 设置为 opus 时，不需要设置此字段
     pcm_config: Optional[PCMConfig] = None
+    # 当 codec 设置为 pcm 时，不需要设置此字段。
     opus_config: Optional[OpusConfig] = None
+    # 输出音频的语速，取值范围 [-50, 100]，默认为 0。-50 表示 0.5 倍速，100 表示 2 倍速。
     speech_rate: Optional[int] = None
+    # 输出音频的音色 ID，默认是柔美女友音色。你可以调用[查看音色列表](https://www.coze.cn/open/docs/developer_guides/list_voices) API 查看当前可用的所有音色 ID。
     voice_id: Optional[str] = None
 
 
