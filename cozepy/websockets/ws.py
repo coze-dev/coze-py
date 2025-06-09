@@ -101,12 +101,18 @@ class WebsocketsEventType(str, Enum):
     CONVERSATION_CHAT_IN_PROGRESS = "conversation.chat.in_progress"
     CONVERSATION_MESSAGE_DELTA = "conversation.message.delta"  # get agent text message update
     CONVERSATION_CHAT_REQUIRES_ACTION = "conversation.chat.requires_action"  # need plugin submit
+    INPUT_AUDIO_BUFFER_SPEECH_STARTED = "input_audio_buffer.speech_started"  # 用户开始说话, 此事件表示服务端识别到用户正在说话。只有在 server_vad 模式下，才会返回此事件。
+    INPUT_AUDIO_BUFFER_SPEECH_STOPPED = "input_audio_buffer.speech_stopped"  # 用户结束说话, 此事件表示服务端识别到用户已停止说话。只有在 server_vad 模式下，才会返回此事件。
     CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED = "conversation.audio_transcript.completed"
     CONVERSATION_MESSAGE_COMPLETED = "conversation.message.completed"
     CONVERSATION_AUDIO_DELTA = "conversation.audio.delta"  # get agent audio message update
     CONVERSATION_AUDIO_COMPLETED = "conversation.audio.completed"
     CONVERSATION_CHAT_COMPLETED = "conversation.chat.completed"  # all message received, can close connection
+    CONVERSATION_CHAT_FAILED = "conversation.chat.failed"
     CONVERSATION_CHAT_CANCELED = "conversation.chat.canceled"  # chat canceled
+    CONVERSATION_AUDIO_TRANSCRIPT_UPDATE = (
+        "conversation.audio_transcript.update"  # 用户语音识别字幕, 用户语音识别的中间值，每次返回都是全量文本。
+    )
 
 
 class WebsocketsEvent(CozeModel, ABC):
