@@ -133,6 +133,7 @@ from .websockets.audio.transcriptions import (
     WebsocketsAudioTranscriptionsEventHandler,
 )
 from .websockets.chat import (
+    ASRConfig,
     AsyncWebsocketsChatClient,
     AsyncWebsocketsChatEventHandler,
     ChatUpdateEvent,
@@ -145,11 +146,13 @@ from .websockets.chat import (
     ConversationChatRequiresActionEvent,
     ConversationChatSubmitToolOutputsEvent,
     ConversationMessageDeltaEvent,
+    TurnDetection,
     WebsocketsChatClient,
     WebsocketsChatEventHandler,
 )
 from .websockets.ws import (
     InputAudio,
+    LimitConfig,
     OpusConfig,
     OutputAudio,
     PCMConfig,
@@ -284,6 +287,8 @@ __all__ = [
     "AsyncWebsocketsAudioTranscriptionsEventHandler",
     "AsyncWebsocketsAudioTranscriptionsClient",
     # websockets.chat
+    "TurnDetection",
+    "ASRConfig",
     "ChatUpdateEvent",
     "ConversationChatSubmitToolOutputsEvent",
     "ConversationChatCancelEvent",
@@ -302,6 +307,7 @@ __all__ = [
     "WebsocketsEventType",
     "WebsocketsEvent",
     "WebsocketsErrorEvent",
+    "LimitConfig",
     "InputAudio",
     "OpusConfig",
     "PCMConfig",
