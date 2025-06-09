@@ -116,6 +116,8 @@ class WebsocketsEventType(str, Enum):
 class WebsocketsEvent(CozeModel, ABC):
     class Detail(BaseModel):
         logid: Optional[str] = None
+        # if event_type=error, origin_message is the original input message
+        origin_message: Optional[str] = None
 
     event_type: WebsocketsEventType
     id: Optional[str] = None
@@ -192,6 +194,7 @@ class WebsocketsBaseClient(abc.ABC):
         self._receive_thread: Optional[threading.Thread] = None
         self._completed_events: Set[WebsocketsEventType] = set()
         self._completed_event = threading.Event()
+        self._join_event = threading.Event()
 
     @contextmanager
     def __call__(self):
@@ -240,37 +243,44 @@ class WebsocketsBaseClient(abc.ABC):
         if self._state not in (self.State.CONNECTED, self.State.CONNECTING):
             return
         self._state = self.State.CLOSING
+        self._join_event.set()
         self._close()
         self._state = self.State.CLOSED
 
     def _send_loop(self) -> None:
         try:
-            while True:
-                event = self._input_queue.get()
-                self._send_event(event)
-                self._input_queue.task_done()
+            while not self._join_event.is_set():
+                try:
+                    event = self._input_queue.get(timeout=0.5)
+                    self._send_event(event)
+                    self._input_queue.task_done()
+                except queue.Empty:
+                    pass
         except Exception as e:
             self._handle_error(e)
 
     def _receive_loop(self) -> None:
         try:
-            while True:
+            while not self._join_event.is_set():
                 if not self._ws:
                     log_debug("[%s] empty websocket conn, close", self._path)
                     break
 
-                data = self._ws.recv()
-                message = json.loads(data)
-                event_type = message.get("event_type")
-                log_debug("[%s] receive event, type=%s, event=%s", self._path, event_type, data)
+                try:
+                    data = self._ws.recv(timeout=0.5)
+                    message = json.loads(data)
+                    event_type = message.get("event_type")
+                    log_debug("[%s] receive event, type=%s, event=%s", self._path, event_type, data)
 
-                event = self._load_all_event(message)
-                if event:
-                    handler = self._on_event.get(event_type)
-                    if handler:
-                        handler(self, event)
-                    self._completed_events.add(event_type)
-                    self._completed_event.set()
+                    event = self._load_all_event(message)
+                    if event:
+                        handler = self._on_event.get(event_type)
+                        if handler:
+                            handler(self, event)
+                        self._completed_events.add(event_type)
+                        self._completed_event.set()
+                except TimeoutError:
+                    pass
         except Exception as e:
             self._handle_error(e)
 

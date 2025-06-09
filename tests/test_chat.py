@@ -260,8 +260,8 @@ class TestSyncChat:
         assert stream.response.logid is not None
         assert stream.response.logid == mock_logid
 
-        with pytest.raises(Exception, match="invalid chat.event: invalid"):
-            list(stream)
+        event = list(stream)[0]
+        assert event.event == ChatEventType.UNKNOWN
 
     def test_sync_chat_retrieve(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
@@ -451,8 +451,9 @@ class TestAsyncChatConversationMessage:
 
         stream = coze.chat.stream(bot_id="bot", user_id="user")
         assert stream
-        with pytest.raises(Exception, match="invalid chat.event: invalid"):
-            [event async for event in stream]
+
+        event = [event async for event in stream][0]
+        assert event.event == ChatEventType.UNKNOWN
 
     async def test_async_chat_retrieve(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
