@@ -122,7 +122,7 @@ class ChatUpdateEvent(WebsocketsEvent):
         # 自定义开场白，need_play_prologue 设置为 true 时生效。如果不设定自定义开场白则使用智能体上设置的开场白。
         prologue_content: Optional[str] = None
         # 转检测配置。
-        turn_detection: Optional["TurnDetection"] = None
+        turn_detection: Optional[TurnDetection] = None
         # 语音识别配置，包括热词和上下文信息，以便优化语音识别的准确性和相关性。
         asr_config: Optional[ASRConfig] = None
 
