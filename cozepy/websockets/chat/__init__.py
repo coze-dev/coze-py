@@ -240,16 +240,15 @@ class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
     def on_conversation_chat_canceled(self, cli: "WebsocketsChatClient", event: ConversationChatCanceledEvent):
         pass
 
-    def on_input_text_buffer_speech_started(
+    def on_input_audio_buffer_speech_started(
         self, cli: "WebsocketsChatClient", event: InputAudioBufferSpeechStartedEvent
     ):
         pass
 
-    def on_input_text_buffer_speech_stopped(
+    def on_input_audio_buffer_speech_stopped(
         self, cli: "WebsocketsChatClient", event: InputAudioBufferSpeechStoppedEvent
     ):
         pass
-
 
 class WebsocketsChatClient(WebsocketsBaseClient):
     def __init__(
