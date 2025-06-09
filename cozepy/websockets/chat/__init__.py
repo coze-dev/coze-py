@@ -523,16 +523,15 @@ class AsyncWebsocketsChatEventHandler(AsyncWebsocketsBaseEventHandler):
     ):
         pass
 
-    async def on_input_text_buffer_speech_started(
+    async def on_input_audio_buffer_speech_started(
         self, cli: "AsyncWebsocketsChatClient", event: InputAudioBufferSpeechStartedEvent
     ):
         pass
 
-    async def on_input_text_buffer_speech_stopped(
+    async def on_input_audio_buffer_speech_stopped(
         self, cli: "AsyncWebsocketsChatClient", event: InputAudioBufferSpeechStoppedEvent
     ):
         pass
-
 
 class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
     def __init__(
