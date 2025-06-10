@@ -166,8 +166,16 @@ class WebsocketsAudioTranscriptionsEventHandler(WebsocketsBaseEventHandler):
     def on_transcriptions_created(self, cli: "WebsocketsAudioTranscriptionsClient", event: TranscriptionsCreatedEvent):
         pass
 
+    def on_transcriptions_updated(self, cli: "WebsocketsAudioTranscriptionsClient", event: TranscriptionsUpdatedEvent):
+        pass
+
     def on_input_audio_buffer_completed(
         self, cli: "WebsocketsAudioTranscriptionsClient", event: InputAudioBufferCompletedEvent
+    ):
+        pass
+
+    def on_input_audio_buffer_cleared(
+        self, cli: "WebsocketsAudioTranscriptionsClient", event: InputAudioBufferClearedEvent
     ):
         pass
 
@@ -201,14 +209,21 @@ class WebsocketsAudioTranscriptionsClient(WebsocketsBaseClient):
             **kwargs,
         )
 
+    # 更新语音识别配置
     def transcriptions_update(self, data: TranscriptionsUpdateEvent.Data) -> None:
         self._input_queue.put(TranscriptionsUpdateEvent.model_validate({"data": data}))
 
+    # 流式上传音频片段
     def input_audio_buffer_append(self, data: InputAudioBufferAppendEvent.Data) -> None:
         self._input_queue.put(InputAudioBufferAppendEvent.model_validate({"data": data}))
 
+    # 提交音频
     def input_audio_buffer_complete(self) -> None:
         self._input_queue.put(InputAudioBufferCompleteEvent.model_validate({}))
+
+    # 清除缓冲区音频
+    def input_audio_buffer_clear(self) -> None:
+        self._input_queue.put(InputAudioBufferClearEvent.model_validate({}))
 
     def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]:
         event_id = message.get("id") or ""
@@ -278,8 +293,18 @@ class AsyncWebsocketsAudioTranscriptionsEventHandler(AsyncWebsocketsBaseEventHan
     ):
         pass
 
+    async def on_transcriptions_updated(
+        self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: TranscriptionsUpdatedEvent
+    ):
+        pass
+
     async def on_input_audio_buffer_completed(
         self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: InputAudioBufferCompletedEvent
+    ):
+        pass
+
+    async def on_input_audio_buffer_cleared(
+        self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: InputAudioBufferClearedEvent
     ):
         pass
 

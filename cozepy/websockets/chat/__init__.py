@@ -9,6 +9,7 @@ from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
 from cozepy.websockets.audio.transcriptions import (
     InputAudioBufferAppendEvent,
+    InputAudioBufferClearedEvent,
     InputAudioBufferCompletedEvent,
     InputAudioBufferCompleteEvent,
 )
@@ -397,62 +398,87 @@ class ConversationAudioTranscriptUpdateEvent(WebsocketsEvent):
 
 
 class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
+    # 对话连接成功
     def on_chat_created(self, cli: "WebsocketsChatClient", event: ChatCreatedEvent):
         pass
 
+    # 对话配置成功
     def on_chat_updated(self, cli: "WebsocketsChatClient", event: ChatUpdatedEvent):
         pass
 
-    def on_input_audio_buffer_completed(self, cli: "WebsocketsChatClient", event: InputAudioBufferCompletedEvent):
-        pass
-
+    # 对话创建成功
     def on_conversation_chat_created(self, cli: "WebsocketsChatClient", event: ConversationChatCreatedEvent):
         pass
 
+    # 对话进行中
     def on_conversation_chat_in_progress(self, cli: "WebsocketsChatClient", event: ConversationChatInProgressEvent):
         pass
 
+    # 对话消息增量
     def on_conversation_message_delta(self, cli: "WebsocketsChatClient", event: ConversationMessageDeltaEvent):
         pass
 
+    # 对话音频增量
+    def on_conversation_audio_delta(self, cli: "WebsocketsChatClient", event: ConversationAudioDeltaEvent):
+        pass
+
+    # 对话消息完成
+    def on_conversation_message_completed(self, cli: "WebsocketsChatClient", event: ConversationMessageCompletedEvent):
+        pass
+
+    # 对话音频完成
+    def on_conversation_audio_completed(self, cli: "WebsocketsChatClient", event: ConversationAudioCompletedEvent):
+        pass
+
+    # 对话完成
+    def on_conversation_chat_completed(self, cli: "WebsocketsChatClient", event: ConversationChatCompletedEvent):
+        pass
+
+    # 对话失败
+    def on_conversation_chat_failed(self, cli: "WebsocketsChatClient", event: ConversationChatFailedEvent):
+        pass
+
+    # 音频提交完成
+    def on_input_audio_buffer_completed(self, cli: "WebsocketsChatClient", event: InputAudioBufferCompletedEvent):
+        pass
+
+    # 音频清除成功
+    def on_input_audio_buffer_cleared(self, cli: "WebsocketsChatClient", event: InputAudioBufferClearedEvent):
+        pass
+
+    # 上下文清除完成
+    def on_conversation_cleared(self, cli: "WebsocketsChatClient", event: ConversationClearedEvent):
+        pass
+
+    # 对话中断
+    def on_conversation_chat_canceled(self, cli: "WebsocketsChatClient", event: ConversationChatCanceledEvent):
+        pass
+
+    # 用户语音识别字幕
     def on_conversation_audio_transcript_update(
         self, cli: "WebsocketsChatClient", event: ConversationAudioTranscriptUpdateEvent
     ):
         pass
 
+    # 用户语音识别完成
     def on_conversation_audio_transcript_completed(
         self, cli: "WebsocketsChatClient", event: ConversationAudioTranscriptCompletedEvent
     ):
         pass
 
-    def on_conversation_message_completed(self, cli: "WebsocketsChatClient", event: ConversationMessageCompletedEvent):
-        pass
-
+    # 端插件请求
     def on_conversation_chat_requires_action(
         self, cli: "WebsocketsChatClient", event: ConversationChatRequiresActionEvent
     ):
         pass
 
-    def on_conversation_audio_delta(self, cli: "WebsocketsChatClient", event: ConversationAudioDeltaEvent):
-        pass
-
-    def on_conversation_audio_completed(self, cli: "WebsocketsChatClient", event: ConversationAudioCompletedEvent):
-        pass
-
-    def on_conversation_chat_completed(self, cli: "WebsocketsChatClient", event: ConversationChatCompletedEvent):
-        pass
-
-    def on_conversation_chat_failed(self, cli: "WebsocketsChatClient", event: ConversationChatFailedEvent):
-        pass
-
-    def on_conversation_chat_canceled(self, cli: "WebsocketsChatClient", event: ConversationChatCanceledEvent):
-        pass
-
+    # 用户开始说话
     def on_input_audio_buffer_speech_started(
         self, cli: "WebsocketsChatClient", event: InputAudioBufferSpeechStartedEvent
     ):
         pass
 
+    # 用户结束说话
     def on_input_audio_buffer_speech_stopped(
         self, cli: "WebsocketsChatClient", event: InputAudioBufferSpeechStoppedEvent
     ):
