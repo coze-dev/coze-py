@@ -18,8 +18,31 @@ from cozepy.websockets.ws import (
 
 
 # req
-class InputAudioBufferAppendEvent(WebsocketsEvent):
+class TranscriptionsUpdateEvent(WebsocketsEvent):
+    """更新语音识别配置
+
+    更新语音识别配置。若更新成功，会收到 transcriptions.updated 的下行事件，否则，会收到 error 下行事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/asr_event#a7ca67ab
+    """
+
     class Data(BaseModel):
+        # 输入音频格式。
+        input_audio: Optional[InputAudio] = None
+
+    event_type: WebsocketsEventType = WebsocketsEventType.TRANSCRIPTIONS_UPDATE
+    data: Data
+
+
+# req
+class InputAudioBufferAppendEvent(WebsocketsEvent):
+    """流式上传音频片段
+
+    流式向服务端提交音频的片段。
+    docs: https://www.coze.cn/open/docs/developer_guides/asr_event#9ef6e6ca
+    """
+
+    class Data(BaseModel):
+        # 音频片段。(API 返回的是base64编码的音频片段, SDK 已经自动解码为 bytes)
         delta: bytes
 
         @field_serializer("delta")
@@ -42,31 +65,86 @@ class InputAudioBufferAppendEvent(WebsocketsEvent):
 
 # req
 class InputAudioBufferCompleteEvent(WebsocketsEvent):
+    """提交音频
+
+    客户端发送 input_audio_buffer.complete 事件来告诉服务端提交音频缓冲区的数据。服务端提交成功后会返回 input_audio_buffer.completed 事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/asr_event#f5d76c87
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETE
 
 
 # req
-class TranscriptionsUpdateEvent(WebsocketsEvent):
-    class Data(BaseModel):
-        input_audio: Optional[InputAudio] = None
+class InputAudioBufferClearEvent(WebsocketsEvent):
+    """清除缓冲区音频
 
-    event_type: WebsocketsEventType = WebsocketsEventType.TRANSCRIPTIONS_UPDATE
-    data: Data
+    客户端发送 input_audio_buffer.clear 事件来告诉服务端清除缓冲区的音频数据。服务端清除完后将返回 input_audio_buffer.cleared 事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/asr_event#e98db543
+    """
+
+    event_type: WebsocketsEventType = WebsocketsEventType.INPUT_AUDIO_BUFFER_CLEAR
 
 
 # resp
 class TranscriptionsCreatedEvent(WebsocketsEvent):
+    """语音识别连接成功
+
+    语音识别连接成功后，返回此事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/asr_event#06d772a3
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.TRANSCRIPTIONS_CREATED
 
 
 # resp
+class TranscriptionsUpdatedEvent(WebsocketsEvent):
+    """配置更新成功
+
+    配置更新成功后，会返回最新的配置。
+    docs: https://www.coze.cn/open/docs/developer_guides/asr_event#3f842df1
+    """
+
+    class Data(BaseModel):
+        # 输入音频格式。
+        input_audio: Optional[InputAudio] = None
+
+    event_type: WebsocketsEventType = WebsocketsEventType.TRANSCRIPTIONS_UPDATED
+    data: Data
+
+
+# resp
 class InputAudioBufferCompletedEvent(WebsocketsEvent):
+    """音频提交完成
+
+    客户端发送 input_audio_buffer.complete 事件来告诉服务端提交音频缓冲区的数据。服务端提交成功后会返回 input_audio_buffer.completed 事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/asr_event#8d747148
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED
 
 
 # resp
+# resp
+class InputAudioBufferClearedEvent(WebsocketsEvent):
+    """音频清除成功
+
+    客户端发送 input_audio_buffer.clear 事件来告诉服务端清除音频缓冲区的数据。服务端清除完后将返回 input_audio_buffer.cleared 事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/asr_event#8211875b
+    """
+
+    event_type: WebsocketsEventType = WebsocketsEventType.INPUT_AUDIO_BUFFER_CLEARED
+
+
+# resp
 class TranscriptionsMessageUpdateEvent(WebsocketsEvent):
+    """识别出文字
+
+    语音识别出文字后，返回此事件，每次都返回全量的识别出来的文字。
+    docs: https://www.coze.cn/open/docs/developer_guides/asr_event#772e6d2d
+    """
+
     class Data(BaseModel):
+        # 识别出的文字。
         content: str
 
     event_type: WebsocketsEventType = WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_UPDATE
@@ -75,6 +153,12 @@ class TranscriptionsMessageUpdateEvent(WebsocketsEvent):
 
 # resp
 class TranscriptionsMessageCompletedEvent(WebsocketsEvent):
+    """识别完成
+
+    语音识别完成后，返回此事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/asr_event#0c36158c
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_COMPLETED
 
 

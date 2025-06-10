@@ -46,7 +46,14 @@ class InputTextBufferCompleteEvent(WebsocketsEvent):
 
 # req
 class SpeechUpdateEvent(WebsocketsEvent):
+    """更新语音合成配置
+
+    更新流式语音合成配置。
+    docs: https://www.coze.cn/open/docs/developer_guides/tts_event#6166c24c
+    """
+
     class Data(BaseModel):
+        # 输出音频格式。
         output_audio: Optional[OutputAudio] = None
 
     event_type: WebsocketsEventType = WebsocketsEventType.SPEECH_UPDATE
@@ -55,17 +62,52 @@ class SpeechUpdateEvent(WebsocketsEvent):
 
 # resp
 class SpeechCreatedEvent(WebsocketsEvent):
+    """语音合成连接成功
+
+    语音合成连接成功后，返回此事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/tts_event#23c0993e
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.SPEECH_CREATED
 
 
 # resp
+class SpeechUpdatedEvent(WebsocketsEvent):
+    """配置更新完成
+
+    配置更新成功后，会返回最新的配置。
+    docs: https://www.coze.cn/open/docs/developer_guides/tts_event#a3a59fb4
+    """
+
+    class Data(BaseModel):
+        # 输出音频格式。
+        output_audio: Optional[OutputAudio] = None
+
+    event_type: WebsocketsEventType = WebsocketsEventType.SPEECH_UPDATED
+    data: Data
+
+
+# resp
 class InputTextBufferCompletedEvent(WebsocketsEvent):
+    """input_text_buffer 提交完成
+
+    流式提交的文字完成后，返回此事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/tts_event#cf5e0495
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.INPUT_TEXT_BUFFER_COMPLETED
 
 
 # resp
 class SpeechAudioUpdateEvent(WebsocketsEvent):
+    """合成增量语音
+
+    语音合成产生增量语音时，返回此事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/tts_event#98163c71
+    """
+
     class Data(BaseModel):
+        # 音频片段。(API 返回的是base64编码的音频片段, SDK 已经自动解码为 bytes)
         delta: bytes
 
         @field_serializer("delta")
@@ -78,6 +120,12 @@ class SpeechAudioUpdateEvent(WebsocketsEvent):
 
 # resp
 class SpeechAudioCompletedEvent(WebsocketsEvent):
+    """合成完成
+
+    语音合成完成后，返回此事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/tts_event#f42e9cb7
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.SPEECH_AUDIO_COMPLETED
 
 

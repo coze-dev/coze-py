@@ -88,7 +88,9 @@ class ASRConfig(BaseModel):
 
 # req
 class ChatUpdateEvent(WebsocketsEvent):
-    """
+    """更新对话配置
+
+    此事件可以更新当前对话连接的配置项，若更新成功，会收到 chat.updated 的下行事件，否则，会收到 error 下行事件。
     docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#91642fa8
     """
 
@@ -131,9 +133,48 @@ class ChatUpdateEvent(WebsocketsEvent):
 
 
 # req
-class ConversationChatSubmitToolOutputsEvent(WebsocketsEvent):
+class ConversationMessageCreateEvent(WebsocketsEvent):
+    """手动提交对话内容
+
+    若 role=user，提交事件后就会生成语音回复，适合如下的场景，比如帮我解析 xx 链接，帮我分析这个图片的内容等。若 role=assistant，提交事件后会加入到对话的上下文。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#46f6a7d0
+    """
+
     class Data(BaseModel):
+        # 发送这条消息的实体。取值：user（代表该条消息内容是用户发送的）、assistant（代表该条消息内容是智能体发送的）。
+        role: str
+        # 消息内容的类型，支持设置为：text：文本。object_string：多模态内容，即文本和文件的组合、文本和图片的组合。
+        content_type: str
+        # 消息的内容，支持纯文本、多模态（文本、图片、文件混合输入）、卡片等多种类型的内容。当 content_type 为 object_string时，content 的结构和详细参数说明请参见object_string object。
+        content: str
+
+    event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_MESSAGE_CREATE
+    data: Data
+
+
+# req
+class ConversationClear(WebsocketsEvent):
+    """清除上下文
+
+    清除上下文，会在当前 conversation 下新增一个 section，服务端处理完后会返回 conversation.cleared 事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#aa86f213
+    """
+
+    event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CLEAR
+
+
+# req
+class ConversationChatSubmitToolOutputsEvent(WebsocketsEvent):
+    """提交端插件执行结果
+
+    你可以将需要客户端执行的操作定义为插件，对话中如果触发这个插件，会收到一个 event_type = "conversation.chat.requires_action" 的下行事件，此时需要执行客户端的操作后，通过此上行事件来提交插件执行后的结果。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#aacdcb41
+    """
+
+    class Data(BaseModel):
+        # 对话的唯一标识。
         chat_id: str
+        # 工具执行结果。
         tool_outputs: List[ToolOutput]
 
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_SUBMIT_TOOL_OUTPUTS
@@ -142,51 +183,108 @@ class ConversationChatSubmitToolOutputsEvent(WebsocketsEvent):
 
 # req
 class ConversationChatCancelEvent(WebsocketsEvent):
+    """打断智能体输出
+
+    发送此事件可取消正在进行的对话，中断后，服务端将会返回 conversation.chat.canceled 事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#0554db7d
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_CANCEL
-
-
-# req
-class ConversationMessageCreateEvent(WebsocketsEvent):
-    class Data(BaseModel):
-        role: str
-        content_type: str
-        content: str
-
-    event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_MESSAGE_CREATE
-    data: Data
 
 
 # resp
 class ChatCreatedEvent(WebsocketsEvent):
+    """对话连接成功
+
+    流式对话接口成功建立连接后服务端会发送此事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#a061f115
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.CHAT_CREATED
 
 
 # resp
 class ChatUpdatedEvent(WebsocketsEvent):
+    """对话配置成功
+
+    对话配置更新成功后，会返回最新的配置。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#39879618
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.CHAT_UPDATED
     data: ChatUpdateEvent.Data
 
 
 # resp
 class ConversationChatCreatedEvent(WebsocketsEvent):
+    """对话开始
+
+    创建对话的事件，表示对话开始。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#a2b10fd2
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_CREATED
     data: Chat
 
 
 # resp
 class ConversationChatInProgressEvent(WebsocketsEvent):
+    """对话正在处理
+
+    服务端正在处理对话。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#36a38a6b
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_IN_PROGRESS
+    data: Chat
 
 
 # resp
 class ConversationMessageDeltaEvent(WebsocketsEvent):
+    """增量消息
+
+    增量消息，通常是 type=answer 时的增量消息。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#2dfe8dba
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_MESSAGE_DELTA
     data: Message
 
 
 # resp
+class ConversationMessageCompletedEvent(WebsocketsEvent):
+    """消息完成
+
+    消息已回复完成。此时事件中带有所有 message.delta 的拼接结果，且每个消息均为 completed 状态。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#4361e8d1
+    """
+
+    event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_MESSAGE_COMPLETED
+    data: Message
+
+
+# resp
+class ConversationAudioCompletedEvent(WebsocketsEvent):
+    """语音回复完成
+
+    语音回复完成，表示对话结束。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#b00d6a73
+    """
+
+    event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_AUDIO_COMPLETED
+    data: Message
+
+
+# resp
 class ConversationAudioTranscriptCompletedEvent(WebsocketsEvent):
+    """用户语音识别完成
+
+    用户语音识别完成，表示用户语音识别完成。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#9d1e6930
+    """
+
     class Data(BaseModel):
+        # 语音识别的最终结果。
         content: str
 
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED
@@ -194,13 +292,13 @@ class ConversationAudioTranscriptCompletedEvent(WebsocketsEvent):
 
 
 # resp
-class ConversationMessageCompletedEvent(WebsocketsEvent):
-    event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_MESSAGE_COMPLETED
-    data: Message
-
-
-# resp
 class ConversationChatRequiresActionEvent(WebsocketsEvent):
+    """端插件请求
+
+    对话中断，需要使用方上报工具的执行结果。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#2ef697d8
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_REQUIRES_ACTION
     data: Chat
 
@@ -229,17 +327,24 @@ class InputAudioBufferSpeechStoppedEvent(WebsocketsEvent):
 
 # resp
 class ConversationAudioDeltaEvent(WebsocketsEvent):
+    """增量语音
+
+    增量消息，通常是 type=answer 时的增量消息。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#36a38a6b
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_AUDIO_DELTA
     data: Message
 
 
 # resp
-class ConversationAudioCompletedEvent(WebsocketsEvent):
-    event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_AUDIO_COMPLETED
-
-
-# resp
 class ConversationChatCompletedEvent(WebsocketsEvent):
+    """对话完成
+
+    对话完成，表示对话结束。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#02fac327
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_COMPLETED
     data: Chat
 
@@ -257,13 +362,32 @@ class ConversationChatFailedEvent(WebsocketsEvent):
 
 
 # resp
+class ConversationClearedEvent(WebsocketsEvent):
+    """上下文清除完成
+
+    上下文清除完成，表示上下文已清除。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#6a941b8a
+    """
+
+    event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CLEARED
+
+
+# resp
 class ConversationChatCanceledEvent(WebsocketsEvent):
+    """智能体输出中断
+
+    客户端提交 conversation.chat.cancel 事件，服务端完成中断后，将返回此事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#089ed144
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_CANCELED
 
 
 # resp
 class ConversationAudioTranscriptUpdateEvent(WebsocketsEvent):
     """用户语音识别字幕
+
+    用户语音识别的中间值，每次返回都是全量文本。
     docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#1b59cbf9
     """
 

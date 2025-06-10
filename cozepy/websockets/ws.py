@@ -56,61 +56,65 @@ class WebsocketsEventType(str, Enum):
     CLOSED = "closed"  # connection closed
 
     # error
-    ERROR = "error"  # received error event
+    ERROR = "error"  # 发生错误
 
     # v1/audio/speech
     # req
     INPUT_TEXT_BUFFER_APPEND = "input_text_buffer.append"  # 流式输入文字
     INPUT_TEXT_BUFFER_COMPLETE = "input_text_buffer.complete"  # 提交文字
-    SPEECH_UPDATE = "speech.update"  # send speech config to server
+    SPEECH_UPDATE = "speech.update"  # 更新语音合成配置
     # resp
     # v1/audio/speech
-    SPEECH_CREATED = "speech.created"  # after speech created
-    INPUT_TEXT_BUFFER_COMPLETED = "input_text_buffer.completed"  # received `input_text_buffer.complete` event
-    SPEECH_AUDIO_UPDATE = "speech.audio.update"  # received `speech.update` event
-    SPEECH_AUDIO_COMPLETED = "speech.audio.completed"  # all audio received, can close connection
+    SPEECH_CREATED = "speech.created"  # 语音合成连接成功
+    SPEECH_UPDATED = "speech.updated"  # 配置更新完成
+    INPUT_TEXT_BUFFER_COMPLETED = "input_text_buffer.completed"  # input_text_buffer 提交完成
+    SPEECH_AUDIO_UPDATE = "speech.audio.update"  # 合成增量语音
+    SPEECH_AUDIO_COMPLETED = "speech.audio.completed"  # 合成完成
 
     # v1/audio/transcriptions
     # req
-    INPUT_AUDIO_BUFFER_APPEND = "input_audio_buffer.append"  # send audio to server
-    INPUT_AUDIO_BUFFER_COMPLETE = (
-        "input_audio_buffer.complete"  # no audio to send, after text all received, can close connection
-    )
-    TRANSCRIPTIONS_UPDATE = "transcriptions.update"  # send transcriptions config to server
+    TRANSCRIPTIONS_UPDATE = "transcriptions.update"  # 更新语音识别配置
+    INPUT_AUDIO_BUFFER_APPEND = "input_audio_buffer.append"  # 流式上传音频片段
+    INPUT_AUDIO_BUFFER_COMPLETE = "input_audio_buffer.complete"  # 提交音频
+    INPUT_AUDIO_BUFFER_CLEAR = "input_audio_buffer.clear"  # 清除缓冲区音频
     # resp
-    TRANSCRIPTIONS_CREATED = "transcriptions.created"  # after transcriptions created
-    INPUT_AUDIO_BUFFER_COMPLETED = "input_audio_buffer.completed"  # received `input_audio_buffer.complete` event
-    TRANSCRIPTIONS_MESSAGE_UPDATE = "transcriptions.message.update"  # received `transcriptions.update` event
-    TRANSCRIPTIONS_MESSAGE_COMPLETED = "transcriptions.message.completed"  # all audio received, can close connection
+    TRANSCRIPTIONS_CREATED = "transcriptions.created"  # 连接成功
+    TRANSCRIPTIONS_UPDATED = "transcriptions.updated"  # 配置更新成功
+    INPUT_AUDIO_BUFFER_COMPLETED = "input_audio_buffer.completed"  # 音频提交完成
+    INPUT_AUDIO_BUFFER_CLEARED = "input_audio_buffer.cleared"  # 音频清除成功
+    TRANSCRIPTIONS_MESSAGE_UPDATE = "transcriptions.message.update"  # 识别出文字
+    TRANSCRIPTIONS_MESSAGE_COMPLETED = "transcriptions.message.completed"  # 识别完成
 
     # v1/chat
     # req
-    # INPUT_AUDIO_BUFFER_APPEND = "input_audio_buffer.append" # send audio to server
-    # INPUT_AUDIO_BUFFER_COMPLETE = "input_audio_buffer.complete" # no audio send, start chat
-    CHAT_UPDATE = "chat.update"  # send chat config to server
-    CONVERSATION_CHAT_SUBMIT_TOOL_OUTPUTS = "conversation.chat.submit_tool_outputs"  # send tool outputs to server
-    CONVERSATION_CHAT_CANCEL = "conversation.chat.cancel"  # send cancel chat to server
-    CONVERSATION_MESSAGE_CREATE = "conversation.message.create"  # send text or string_object chat to server
+    CHAT_UPDATE = "chat.update"  # 更新对话配置
+    # INPUT_AUDIO_BUFFER_APPEND = "input_audio_buffer.append"  # 流式上传音频片段
+    # INPUT_AUDIO_BUFFER_COMPLETE = "input_audio_buffer.complete"  # 提交音频
+    # INPUT_AUDIO_BUFFER_CLEAR = "input_audio_buffer.clear"  # 清除缓冲区音频
+    CONVERSATION_MESSAGE_CREATE = "conversation.message.create"  # 手动提交对话内容
+    CONVERSATION_CLEAR = "conversation.clear"  # 清除上下文
+    CONVERSATION_CHAT_SUBMIT_TOOL_OUTPUTS = "conversation.chat.submit_tool_outputs"  # 提交端插件执行结果
+    CONVERSATION_CHAT_CANCEL = "conversation.chat.cancel"  # 打断智能体输出
     # resp
-    CHAT_CREATED = "chat.created"
-    CHAT_UPDATED = "chat.updated"
-    # INPUT_AUDIO_BUFFER_COMPLETED = "input_audio_buffer.completed" # received `input_audio_buffer.complete` event
-    CONVERSATION_CHAT_CREATED = "conversation.chat.created"  # audio ast completed, chat started
-    CONVERSATION_CHAT_IN_PROGRESS = "conversation.chat.in_progress"
-    CONVERSATION_MESSAGE_DELTA = "conversation.message.delta"  # get agent text message update
-    CONVERSATION_CHAT_REQUIRES_ACTION = "conversation.chat.requires_action"  # need plugin submit
-    INPUT_AUDIO_BUFFER_SPEECH_STARTED = "input_audio_buffer.speech_started"  # 用户开始说话, 此事件表示服务端识别到用户正在说话。只有在 server_vad 模式下，才会返回此事件。
-    INPUT_AUDIO_BUFFER_SPEECH_STOPPED = "input_audio_buffer.speech_stopped"  # 用户结束说话, 此事件表示服务端识别到用户已停止说话。只有在 server_vad 模式下，才会返回此事件。
-    CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED = "conversation.audio_transcript.completed"
-    CONVERSATION_MESSAGE_COMPLETED = "conversation.message.completed"
-    CONVERSATION_AUDIO_DELTA = "conversation.audio.delta"  # get agent audio message update
-    CONVERSATION_AUDIO_COMPLETED = "conversation.audio.completed"
-    CONVERSATION_CHAT_COMPLETED = "conversation.chat.completed"  # all message received, can close connection
-    CONVERSATION_CHAT_FAILED = "conversation.chat.failed"
-    CONVERSATION_CHAT_CANCELED = "conversation.chat.canceled"  # chat canceled
-    CONVERSATION_AUDIO_TRANSCRIPT_UPDATE = (
-        "conversation.audio_transcript.update"  # 用户语音识别字幕, 用户语音识别的中间值，每次返回都是全量文本。
-    )
+    CHAT_CREATED = "chat.created"  # 对话连接成功
+    CHAT_UPDATED = "chat.updated"  # 对话配置成功
+    CONVERSATION_CHAT_CREATED = "conversation.chat.created"  # 对话开始
+    CONVERSATION_CHAT_IN_PROGRESS = "conversation.chat.in_progress"  # 对话正在处理
+    CONVERSATION_MESSAGE_DELTA = "conversation.message.delta"  # 增量消息
+    CONVERSATION_AUDIO_DELTA = "conversation.audio.delta"  # 增量语音
+    CONVERSATION_MESSAGE_COMPLETED = "conversation.message.completed"  # 消息完成
+    CONVERSATION_AUDIO_COMPLETED = "conversation.audio.completed"  # 语音回复完成
+    CONVERSATION_CHAT_COMPLETED = "conversation.chat.completed"  # 对话完成
+    CONVERSATION_CHAT_FAILED = "conversation.chat.failed"  # 对话失败
+    # INPUT_AUDIO_BUFFER_COMPLETED = "input_audio_buffer.completed"  # 音频提交完成
+    # INPUT_AUDIO_BUFFER_CLEARED = "input_audio_buffer.cleared"  # 音频清除成功
+    CONVERSATION_CLEARED = "conversation.cleared"  # 上下文清除完成
+    CONVERSATION_CHAT_CANCELED = "conversation.chat.canceled"  # 智能体输出中断
+    CONVERSATION_AUDIO_TRANSCRIPT_UPDATE = "conversation.audio_transcript.update"  # 用户语音识别字幕
+    CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED = "conversation.audio_transcript.completed"  # 用户语音识别完成
+    CONVERSATION_CHAT_REQUIRES_ACTION = "conversation.chat.requires_action"  # 端插件请求
+    INPUT_AUDIO_BUFFER_SPEECH_STARTED = "input_audio_buffer.speech_started"  # 用户开始说话
+    INPUT_AUDIO_BUFFER_SPEECH_STOPPED = "input_audio_buffer.speech_stopped"  # 用户结束说话
 
 
 class WebsocketsEvent(CozeModel, ABC):
@@ -125,6 +129,8 @@ class WebsocketsEvent(CozeModel, ABC):
 
 
 class WebsocketsErrorEvent(WebsocketsEvent):
+    """发生错误"""
+
     event_type: WebsocketsEventType = WebsocketsEventType.ERROR
     data: CozeAPIError
 
