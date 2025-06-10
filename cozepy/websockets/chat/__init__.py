@@ -215,6 +215,28 @@ class ConversationChatRequiresActionEvent(WebsocketsEvent):
 
 
 # resp
+class InputAudioBufferSpeechStartedEvent(WebsocketsEvent):
+    """用户开始说话
+
+    此事件表示服务端识别到用户正在说话。只有在 server_vad 模式下，才会返回此事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#95553c68
+    """
+
+    event_type: WebsocketsEventType = WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STARTED
+
+
+# resp
+class InputAudioBufferSpeechStoppedEvent(WebsocketsEvent):
+    """用户结束说话
+
+    此事件表示服务端识别到用户已停止说话。只有在 server_vad 模式下，才会返回此事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#5084c0aa
+    """
+
+    event_type: WebsocketsEventType = WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STOPPED
+
+
+# resp
 class ConversationAudioDeltaEvent(WebsocketsEvent):
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_AUDIO_DELTA
     data: Message
@@ -233,6 +255,12 @@ class ConversationChatCompletedEvent(WebsocketsEvent):
 
 # resp
 class ConversationChatFailedEvent(WebsocketsEvent):
+    """对话失败
+
+    此事件用于标识对话失败。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#765bb7e5
+    """
+
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_FAILED
     data: Chat
 
@@ -243,13 +271,17 @@ class ConversationChatCanceledEvent(WebsocketsEvent):
 
 
 # resp
-class InputAudioBufferSpeechStartedEvent(WebsocketsEvent):
-    event_type: WebsocketsEventType = WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STARTED
+class ConversationAudioTranscriptUpdateEvent(WebsocketsEvent):
+    """用户语音识别字幕
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#1b59cbf9
+    """
 
+    class Data(BaseModel):
+        # 语音识别的中间值。
+        content: str
 
-# resp
-class InputAudioBufferSpeechStoppedEvent(WebsocketsEvent):
-    event_type: WebsocketsEventType = WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STOPPED
+    event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_UPDATE
+    data: Data
 
 
 class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
