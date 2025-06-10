@@ -24,38 +24,15 @@ from cozepy.websockets.ws import (
 )
 
 
-# common
-class TurnDetection(BaseModel):
-    class TurnDetectionType(str, Enum):
-        # server_vad ：自由对话模式，语音数据会传输到服务器端进行实时分析，服务器端的语音活动检测算法会判断用户是否在说话。
-        SERVER_VAD = "server_vad"
-        # client_interrupt：（默认）按键说话模式，客户端实时分析语音数据，并检测用户是否已停止说话。
-        CLIENT_INTERRUPT = "client_interrupt"
+# req
+class ChatUpdateEvent(WebsocketsEvent):
+    """更新对话配置
 
-    class InterruptConfigMode(str, Enum):
-        # keyword_contains模式下，说话内容包含关键词才会打断模型回复。例如关键词"扣子"，用户正在说“你好呀扣子......” / “扣子你好呀”，模型回复都会被打断。
-        KEYWORD_CONTAINS = "keyword_contains"
-        # keyword_prefix模式下，说话内容前缀匹配关键词才会打断模型回复。例如关键词"扣子"，用户正在说“扣子你好呀......”，模型回复就会被打断，而用户说“你好呀扣子......”，模型回复不会被打断。
-        KEYWORD_PREFIX = "keyword_prefix"
+    此事件可以更新当前对话连接的配置项，若更新成功，会收到 chat.updated 的下行事件，否则，会收到 error 下行事件。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#91642fa8
+    """
 
-    class InterruptConfig(BaseModel):
-        # 打断模式
-        mode: Optional["TurnDetection.InterruptConfigMode"] = None
-        # 打断的关键词配置，最多同时限制 5 个关键词，每个关键词限定长度在6-24个字节以内(2-8个汉字以内), 不能有标点符号。
-        keywords: Optional[List[str]] = None
-
-    # 用户演讲检测模式
-    type: Optional[TurnDetectionType] = None
-    # server_vad 模式下，VAD 检测到语音之前要包含的音频量，单位为 ms。默认为 600ms。
-    prefix_padding_ms: Optional[int] = None
-    # server_vad 模式下，检测语音停止的静音持续时间，单位为 ms。默认为 500ms。
-    silence_duration_ms: Optional[int] = None
-    # server_vad 模式下打断策略配置
-    interrupt_config: Optional[InterruptConfig] = None
-
-
-class ASRConfig(BaseModel):
-    class UserLanguage(str, Enum):
+    class ASRConfigUserLanguage(str, Enum):
         COMMON = "common"  # 大模型语音识别，可自动识别中英粤。
         ZH = "zh"  # 小模型语音识别，中文。
         CANT = "cant"  # 小模型语音识别，粤语。
@@ -70,29 +47,21 @@ class ASRConfig(BaseModel):
         MS = "ms"  # 小模型语音识别，马来语。
         RU = "ru"  # 小模型语音识别，俄语。
 
-    # 请输入热词列表，以便提升这些词汇的识别准确率。所有热词加起来最多100个 Tokens，超出部分将自动截断。
-    hot_words: Optional[List[str]] = None
-    # 请输入上下文信息。最多输入 800 个 Tokens，超出部分将自动截断。
-    context: Optional[str] = None
-    # 请输入上下文信息。最多输入 800 个 Tokens，超出部分将自动截断。
-    context_type: Optional[str] = None
-    # 用户说话的语种，默认为 common。选项包括：
-    user_language: Optional[UserLanguage] = None
-    # 将语音转为文本时，是否启用语义顺滑。默认为 true。true：系统在进行语音处理时，会去掉识别结果中诸如 “啊”“嗯” 等语气词，使得输出的文本语义更加流畅自然，符合正常的语言表达习惯，尤其适用于对文本质量要求较高的场景，如正式的会议记录、新闻稿件生成等。false：系统不会对识别结果中的语气词进行处理，识别结果会保留原始的语气词。
-    enable_ddc: Optional[bool] = None
-    # 将语音转为文本时，是否开启文本规范化（ITN）处理，将识别结果转换为更符合书面表达习惯的格式以提升可读性。默认为 true。开启后，会将口语化数字转换为标准数字格式，示例：将两点十五分转换为 14:15。将一百美元转换为 $100。
-    enable_itn: Optional[bool] = None
-    # 将语音转为文本时，是否给文本加上标点符号。默认为 true。
-    enable_punc: Optional[bool] = None
-
-
-# req
-class ChatUpdateEvent(WebsocketsEvent):
-    """更新对话配置
-
-    此事件可以更新当前对话连接的配置项，若更新成功，会收到 chat.updated 的下行事件，否则，会收到 error 下行事件。
-    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#91642fa8
-    """
+    class ASRConfig(BaseModel):
+        # 请输入热词列表，以便提升这些词汇的识别准确率。所有热词加起来最多100个 Tokens，超出部分将自动截断。
+        hot_words: Optional[List[str]] = None
+        # 请输入上下文信息。最多输入 800 个 Tokens，超出部分将自动截断。
+        context: Optional[str] = None
+        # 请输入上下文信息。最多输入 800 个 Tokens，超出部分将自动截断。
+        context_type: Optional[str] = None
+        # 用户说话的语种，默认为 common。选项包括：
+        user_language: Optional["ChatUpdateEvent.ASRConfigUserLanguage"] = None
+        # 将语音转为文本时，是否启用语义顺滑。默认为 true。true：系统在进行语音处理时，会去掉识别结果中诸如 “啊”“嗯” 等语气词，使得输出的文本语义更加流畅自然，符合正常的语言表达习惯，尤其适用于对文本质量要求较高的场景，如正式的会议记录、新闻稿件生成等。false：系统不会对识别结果中的语气词进行处理，识别结果会保留原始的语气词。
+        enable_ddc: Optional[bool] = None
+        # 将语音转为文本时，是否开启文本规范化（ITN）处理，将识别结果转换为更符合书面表达习惯的格式以提升可读性。默认为 true。开启后，会将口语化数字转换为标准数字格式，示例：将两点十五分转换为 14:15。将一百美元转换为 $100。
+        enable_itn: Optional[bool] = None
+        # 将语音转为文本时，是否给文本加上标点符号。默认为 true。
+        enable_punc: Optional[bool] = None
 
     class ChatConfig(BaseModel):
         # 标识对话发生在哪一次会话中。会话是智能体和用户之间的一段问答交互。一个会话包含一条或多条消息。对话是会话中对智能体的一次调用，智能体会将对话中产生的消息添加到会话中。可以使用已创建的会话，会话中已存在的消息将作为上下文传递给模型。创建会话的方式可参考创建会话。对于一问一答等不需要区分 conversation 的场合可不传该参数，系统会自动生成一个会话。不传的话会默认创建一个新的 conversation。
@@ -110,6 +79,34 @@ class ChatUpdateEvent(WebsocketsEvent):
         # 设置对话流的自定义输入参数的值，具体用法和示例代码可参考[为自定义参数赋值](https://www.coze.cn/open/docs/tutorial/variable)。 对话流的输入参数 USER_INPUT 应在 additional_messages 中传入，在 parameters 中的 USER_INPUT 不生效。 如果 parameters 中未指定 CONVERSATION_NAME 或其他输入参数，则使用参数默认值运行对话流；如果指定了这些参数，则使用指定值。
         parameters: Optional[Dict[str, Any]] = None
 
+    class TurnDetectionType(str, Enum):
+        # server_vad ：自由对话模式，语音数据会传输到服务器端进行实时分析，服务器端的语音活动检测算法会判断用户是否在说话。
+        SERVER_VAD = "server_vad"
+        # client_interrupt：（默认）按键说话模式，客户端实时分析语音数据，并检测用户是否已停止说话。
+        CLIENT_INTERRUPT = "client_interrupt"
+
+    class InterruptConfigMode(str, Enum):
+        # keyword_contains模式下，说话内容包含关键词才会打断模型回复。例如关键词"扣子"，用户正在说“你好呀扣子......” / “扣子你好呀”，模型回复都会被打断。
+        KEYWORD_CONTAINS = "keyword_contains"
+        # keyword_prefix模式下，说话内容前缀匹配关键词才会打断模型回复。例如关键词"扣子"，用户正在说“扣子你好呀......”，模型回复就会被打断，而用户说“你好呀扣子......”，模型回复不会被打断。
+        KEYWORD_PREFIX = "keyword_prefix"
+
+    class InterruptConfig(BaseModel):
+        # 打断模式
+        mode: Optional["ChatUpdateEvent.InterruptConfigMode"] = None
+        # 打断的关键词配置，最多同时限制 5 个关键词，每个关键词限定长度在6-24个字节以内(2-8个汉字以内), 不能有标点符号。
+        keywords: Optional[List[str]] = None
+
+    class TurnDetection(BaseModel):
+        # 用户演讲检测模式
+        type: Optional["ChatUpdateEvent.TurnDetectionType"] = None
+        # server_vad 模式下，VAD 检测到语音之前要包含的音频量，单位为 ms。默认为 600ms。
+        prefix_padding_ms: Optional[int] = None
+        # server_vad 模式下，检测语音停止的静音持续时间，单位为 ms。默认为 500ms。
+        silence_duration_ms: Optional[int] = None
+        # server_vad 模式下打断策略配置
+        interrupt_config: Optional["ChatUpdateEvent.InterruptConfig"] = None
+
     class Data(BaseModel):
         # 输出音频格式。
         output_audio: Optional[OutputAudio] = None
@@ -124,9 +121,9 @@ class ChatUpdateEvent(WebsocketsEvent):
         # 自定义开场白，need_play_prologue 设置为 true 时生效。如果不设定自定义开场白则使用智能体上设置的开场白。
         prologue_content: Optional[str] = None
         # 转检测配置。
-        turn_detection: Optional[TurnDetection] = None
+        turn_detection: Optional["ChatUpdateEvent.TurnDetection"] = None
         # 语音识别配置，包括热词和上下文信息，以便优化语音识别的准确性和相关性。
-        asr_config: Optional[ASRConfig] = None
+        asr_config: Optional["ChatUpdateEvent.ASRConfig"] = None
 
     event_type: WebsocketsEventType = WebsocketsEventType.CHAT_UPDATE
     data: Data
