@@ -258,7 +258,7 @@ class WebsocketsBaseClient(abc.ABC):
         self._on_event = on_event.copy() if on_event else {}
         self._headers = kwargs.get("headers")
         self._wait_events = wait_events.copy() if wait_events else []
-        self._event_factory = WebsocketsEventFactory(event_type_to_class) if event_type_to_class else None
+        self._event_factory = WebsocketsEventFactory(event_type_to_class)
 
         self._input_queue: queue.Queue[Optional[WebsocketsEvent]] = queue.Queue()
         self._ws: Optional[websockets.sync.client.ClientConnection] = None
@@ -370,9 +370,7 @@ class WebsocketsBaseClient(abc.ABC):
                     "data": CozeAPIError(code, msg, WebsocketsEvent.Detail.model_validate(detail).logid),
                 }
             )
-        if self._event_factory:
-            return self._event_factory.create_event(self._path, message)
-        return None
+        return self._event_factory.create_event(self._path, message)
 
     def _wait_completed(self, events: List[WebsocketsEventType], wait_all: bool) -> None:
         while True:
@@ -490,7 +488,7 @@ class AsyncWebsocketsBaseClient(abc.ABC):
         self._on_event = on_event.copy() if on_event else {}
         self._headers = kwargs.get("headers")
         self._wait_events = wait_events.copy() if wait_events else []
-        self._event_factory = WebsocketsEventFactory(event_type_to_class) if event_type_to_class else None
+        self._event_factory = WebsocketsEventFactory(event_type_to_class)
 
         self._input_queue: asyncio.Queue[Optional[WebsocketsEvent]] = asyncio.Queue()
         self._ws: Optional[AsyncWebsocketClientConnection] = None
@@ -587,9 +585,7 @@ class AsyncWebsocketsBaseClient(abc.ABC):
                     "data": CozeAPIError(code, msg, WebsocketsEvent.Detail.model_validate(detail).logid),
                 }
             )
-        if self._event_factory:
-            return self._event_factory.create_event(self._path, message)
-        return None
+        return self._event_factory.create_event(self._path, message)
 
     async def _wait_completed(self, wait_events: List[WebsocketsEventType], wait_all: bool) -> None:
         future: asyncio.Future[None] = asyncio.Future()
