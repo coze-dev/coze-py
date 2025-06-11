@@ -4,7 +4,6 @@ from typing import Any, Callable, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from cozepy import Chat, Message, ToolOutput
-from cozepy.log import log_warning
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
 from cozepy.websockets.audio.transcriptions import (
@@ -21,6 +20,7 @@ from cozepy.websockets.ws import (
     WebsocketsBaseClient,
     WebsocketsBaseEventHandler,
     WebsocketsEvent,
+    WebsocketsEventFactory,
     WebsocketsEventType,
 )
 
@@ -32,6 +32,34 @@ class ChatUpdateEvent(WebsocketsEvent):
     此事件可以更新当前对话连接的配置项，若更新成功，会收到 chat.updated 的下行事件，否则，会收到 error 下行事件。
     docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#91642fa8
     """
+
+    class ChatConfig(BaseModel):
+        # 标识对话发生在哪一次会话中。会话是智能体和用户之间的一段问答交互。一个会话包含一条或多条消息。对话是会话中对智能体的一次调用，智能体会将对话中产生的消息添加到会话中。可以使用已创建的会话，会话中已存在的消息将作为上下文传递给模型。创建会话的方式可参考创建会话。对于一问一答等不需要区分 conversation 的场合可不传该参数，系统会自动生成一个会话。不传的话会默认创建一个新的 conversation。
+        conversation_id: Optional[str] = None
+        # 标识当前与智能体的用户，由使用方自行定义、生成与维护。user_id 用于标识对话中的不同用户，不同的 user_id，其对话的上下文消息、数据库等对话记忆数据互相隔离。如果不需要用户数据隔离，可将此参数固定为一个任意字符串，例如 123，abc 等。
+        user_id: Optional[str] = None
+        # 附加信息，通常用于封装一些业务相关的字段。查看对话消息详情时，系统会透传此附加信息。自定义键值对，应指定为 Map 对象格式。长度为 16 对键值对，其中键（key）的长度范围为 1～64 个字符，值（value）的长度范围为 1～512 个字符。
+        meta_data: Optional[Dict[str, str]] = None
+        # 智能体中定义的变量。在智能体 prompt 中设置变量 {{key}} 后，可以通过该参数传入变量值，同时支持 Jinja2 语法。详细说明可参考变量示例。变量名只支持英文字母和下划线。
+        custom_variables: Optional[Dict[str, str]] = None
+        # 附加参数，通常用于特殊场景下指定一些必要参数供模型判断，例如指定经纬度，并询问智能体此位置的天气。自定义键值对格式，其中键（key）仅支持设置为：latitude（纬度，此时值（Value）为纬度值，例如 39.9800718）。longitude（经度，此时值（Value）为经度值，例如 116.309314）。
+        extra_params: Optional[Dict[str, str]] = None
+        # 是否保存本次对话记录。true：（默认）会话中保存本次对话记录，包括本次对话的模型回复结果、模型执行中间结果。false：会话中不保存本次对话记录，后续也无法通过任何方式查看本次对话信息、消息详情。在同一个会话中再次发起对话时，本次会话也不会作为上下文传递给模型。
+        auto_save_history: Optional[bool] = None
+        # 设置对话流的自定义输入参数的值，具体用法和示例代码可参考[为自定义参数赋值](https://www.coze.cn/open/docs/tutorial/variable)。 对话流的输入参数 USER_INPUT 应在 additional_messages 中传入，在 parameters 中的 USER_INPUT 不生效。 如果 parameters 中未指定 CONVERSATION_NAME 或其他输入参数，则使用参数默认值运行对话流；如果指定了这些参数，则使用指定值。
+        parameters: Optional[Dict[str, Any]] = None
+
+    class TurnDetectionType(str, Enum):
+        # server_vad ：自由对话模式，语音数据会传输到服务器端进行实时分析，服务器端的语音活动检测算法会判断用户是否在说话。
+        SERVER_VAD = "server_vad"
+        # client_interrupt：（默认）按键说话模式，客户端实时分析语音数据，并检测用户是否已停止说话。
+        CLIENT_INTERRUPT = "client_interrupt"
+
+    class InterruptConfigMode(str, Enum):
+        # keyword_contains模式下，说话内容包含关键词才会打断模型回复。例如关键词"扣子"，用户正在说“你好呀扣子......” / “扣子你好呀”，模型回复都会被打断。
+        KEYWORD_CONTAINS = "keyword_contains"
+        # keyword_prefix模式下，说话内容前缀匹配关键词才会打断模型回复。例如关键词"扣子"，用户正在说“扣子你好呀......”，模型回复就会被打断，而用户说“你好呀扣子......”，模型回复不会被打断。
+        KEYWORD_PREFIX = "keyword_prefix"
 
     class ASRConfigUserLanguage(str, Enum):
         COMMON = "common"  # 大模型语音识别，可自动识别中英粤。
@@ -63,34 +91,6 @@ class ChatUpdateEvent(WebsocketsEvent):
         enable_itn: Optional[bool] = None
         # 将语音转为文本时，是否给文本加上标点符号。默认为 true。
         enable_punc: Optional[bool] = None
-
-    class ChatConfig(BaseModel):
-        # 标识对话发生在哪一次会话中。会话是智能体和用户之间的一段问答交互。一个会话包含一条或多条消息。对话是会话中对智能体的一次调用，智能体会将对话中产生的消息添加到会话中。可以使用已创建的会话，会话中已存在的消息将作为上下文传递给模型。创建会话的方式可参考创建会话。对于一问一答等不需要区分 conversation 的场合可不传该参数，系统会自动生成一个会话。不传的话会默认创建一个新的 conversation。
-        conversation_id: Optional[str] = None
-        # 标识当前与智能体的用户，由使用方自行定义、生成与维护。user_id 用于标识对话中的不同用户，不同的 user_id，其对话的上下文消息、数据库等对话记忆数据互相隔离。如果不需要用户数据隔离，可将此参数固定为一个任意字符串，例如 123，abc 等。
-        user_id: Optional[str] = None
-        # 附加信息，通常用于封装一些业务相关的字段。查看对话消息详情时，系统会透传此附加信息。自定义键值对，应指定为 Map 对象格式。长度为 16 对键值对，其中键（key）的长度范围为 1～64 个字符，值（value）的长度范围为 1～512 个字符。
-        meta_data: Optional[Dict[str, str]] = None
-        # 智能体中定义的变量。在智能体 prompt 中设置变量 {{key}} 后，可以通过该参数传入变量值，同时支持 Jinja2 语法。详细说明可参考变量示例。变量名只支持英文字母和下划线。
-        custom_variables: Optional[Dict[str, str]] = None
-        # 附加参数，通常用于特殊场景下指定一些必要参数供模型判断，例如指定经纬度，并询问智能体此位置的天气。自定义键值对格式，其中键（key）仅支持设置为：latitude（纬度，此时值（Value）为纬度值，例如 39.9800718）。longitude（经度，此时值（Value）为经度值，例如 116.309314）。
-        extra_params: Optional[Dict[str, str]] = None
-        # 是否保存本次对话记录。true：（默认）会话中保存本次对话记录，包括本次对话的模型回复结果、模型执行中间结果。false：会话中不保存本次对话记录，后续也无法通过任何方式查看本次对话信息、消息详情。在同一个会话中再次发起对话时，本次会话也不会作为上下文传递给模型。
-        auto_save_history: Optional[bool] = None
-        # 设置对话流的自定义输入参数的值，具体用法和示例代码可参考[为自定义参数赋值](https://www.coze.cn/open/docs/tutorial/variable)。 对话流的输入参数 USER_INPUT 应在 additional_messages 中传入，在 parameters 中的 USER_INPUT 不生效。 如果 parameters 中未指定 CONVERSATION_NAME 或其他输入参数，则使用参数默认值运行对话流；如果指定了这些参数，则使用指定值。
-        parameters: Optional[Dict[str, Any]] = None
-
-    class TurnDetectionType(str, Enum):
-        # server_vad ：自由对话模式，语音数据会传输到服务器端进行实时分析，服务器端的语音活动检测算法会判断用户是否在说话。
-        SERVER_VAD = "server_vad"
-        # client_interrupt：（默认）按键说话模式，客户端实时分析语音数据，并检测用户是否已停止说话。
-        CLIENT_INTERRUPT = "client_interrupt"
-
-    class InterruptConfigMode(str, Enum):
-        # keyword_contains模式下，说话内容包含关键词才会打断模型回复。例如关键词"扣子"，用户正在说“你好呀扣子......” / “扣子你好呀”，模型回复都会被打断。
-        KEYWORD_CONTAINS = "keyword_contains"
-        # keyword_prefix模式下，说话内容前缀匹配关键词才会打断模型回复。例如关键词"扣子"，用户正在说“扣子你好呀......”，模型回复就会被打断，而用户说“你好呀扣子......”，模型回复不会被打断。
-        KEYWORD_PREFIX = "keyword_prefix"
 
     class InterruptConfig(BaseModel):
         # 打断模式
@@ -397,6 +397,29 @@ class ConversationAudioTranscriptUpdateEvent(WebsocketsEvent):
     data: Data
 
 
+_chat_event_factory = WebsocketsEventFactory(
+    {
+        WebsocketsEventType.CHAT_CREATED.value: ChatCreatedEvent,
+        WebsocketsEventType.CHAT_UPDATED.value: ChatUpdatedEvent,
+        WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED.value: InputAudioBufferCompletedEvent,
+        WebsocketsEventType.CONVERSATION_CHAT_CREATED.value: ConversationChatCreatedEvent,
+        WebsocketsEventType.CONVERSATION_CHAT_IN_PROGRESS.value: ConversationChatInProgressEvent,
+        WebsocketsEventType.CONVERSATION_MESSAGE_DELTA.value: ConversationMessageDeltaEvent,
+        WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_UPDATE.value: ConversationAudioTranscriptUpdateEvent,
+        WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED.value: ConversationAudioTranscriptCompletedEvent,
+        WebsocketsEventType.CONVERSATION_CHAT_REQUIRES_ACTION.value: ConversationChatRequiresActionEvent,
+        WebsocketsEventType.CONVERSATION_MESSAGE_COMPLETED.value: ConversationMessageCompletedEvent,
+        WebsocketsEventType.CONVERSATION_AUDIO_DELTA.value: ConversationAudioDeltaEvent,
+        WebsocketsEventType.CONVERSATION_AUDIO_COMPLETED.value: ConversationAudioCompletedEvent,
+        WebsocketsEventType.CONVERSATION_CHAT_COMPLETED.value: ConversationChatCompletedEvent,
+        WebsocketsEventType.CONVERSATION_CHAT_FAILED.value: ConversationChatFailedEvent,
+        WebsocketsEventType.CONVERSATION_CHAT_CANCELED.value: ConversationChatCanceledEvent,
+        WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STARTED.value: InputAudioBufferSpeechStartedEvent,
+        WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STOPPED.value: InputAudioBufferSpeechStoppedEvent,
+    }
+)
+
+
 class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
     # 对话连接成功
     def on_chat_created(self, cli: "WebsocketsChatClient", event: ChatCreatedEvent):
@@ -501,6 +524,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
             base_url=base_url,
             requester=requester,
             path="v1/chat",
+            event_factory=_chat_event_factory,
             query=remove_none_values(
                 {
                     "bot_id": bot_id,
@@ -529,144 +553,6 @@ class WebsocketsChatClient(WebsocketsBaseClient):
 
     def input_audio_buffer_complete(self) -> None:
         self._input_queue.put(InputAudioBufferCompleteEvent.model_validate({}))
-
-    def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]:
-        event_id = message.get("id") or ""
-        detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
-        event_type = message.get("event_type") or ""
-        data = message.get("data") or {}
-        if event_type == WebsocketsEventType.CHAT_CREATED.value:
-            return ChatCreatedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        elif event_type == WebsocketsEventType.CHAT_UPDATED.value:
-            return ChatUpdatedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": ChatUpdateEvent.Data.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED.value:
-            return InputAudioBufferCompletedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_CREATED.value:
-            return ConversationChatCreatedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": Chat.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_IN_PROGRESS.value:
-            return ConversationChatInProgressEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_MESSAGE_DELTA.value:
-            return ConversationMessageDeltaEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": Message.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_UPDATE.value:
-            return ConversationAudioTranscriptUpdateEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": ConversationAudioTranscriptUpdateEvent.Data.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED.value:
-            return ConversationAudioTranscriptCompletedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": ConversationAudioTranscriptCompletedEvent.Data.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_REQUIRES_ACTION.value:
-            return ConversationChatRequiresActionEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": Chat.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_MESSAGE_COMPLETED.value:
-            return ConversationMessageCompletedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": Message.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_DELTA.value:
-            return ConversationAudioDeltaEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": Message.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_COMPLETED.value:
-            return ConversationAudioCompletedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_COMPLETED.value:
-            return ConversationChatCompletedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": Chat.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_FAILED.value:
-            return ConversationChatFailedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": Chat.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_CANCELED.value:
-            return ConversationChatCanceledEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        elif event_type == WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STARTED.value:
-            return InputAudioBufferSpeechStartedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        elif event_type == WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STOPPED.value:
-            return InputAudioBufferSpeechStoppedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        else:
-            log_warning("[%s] unknown event, type=%s, logid=%s", self._path, event_type, detail.logid)
-        return None
 
 
 class WebsocketsChatBuildClient(object):
@@ -785,6 +671,7 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
             base_url=base_url,
             requester=requester,
             path="v1/chat",
+            event_factory=_chat_event_factory,
             query=remove_none_values(
                 {
                     "bot_id": bot_id,
@@ -813,144 +700,6 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
 
     async def input_audio_buffer_complete(self) -> None:
         await self._input_queue.put(InputAudioBufferCompleteEvent.model_validate({}))
-
-    def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]:
-        event_id = message.get("id") or ""
-        detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
-        event_type = message.get("event_type") or ""
-        data = message.get("data") or {}
-        if event_type == WebsocketsEventType.CHAT_CREATED.value:
-            return ChatCreatedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        elif event_type == WebsocketsEventType.CHAT_UPDATED.value:
-            return ChatUpdatedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": ChatUpdateEvent.Data.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED.value:
-            return InputAudioBufferCompletedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_CREATED.value:
-            return ConversationChatCreatedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": Chat.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_IN_PROGRESS.value:
-            return ConversationChatInProgressEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_MESSAGE_DELTA.value:
-            return ConversationMessageDeltaEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": Message.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_UPDATE.value:
-            return ConversationAudioTranscriptUpdateEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": ConversationAudioTranscriptUpdateEvent.Data.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED.value:
-            return ConversationAudioTranscriptCompletedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": ConversationAudioTranscriptCompletedEvent.Data.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_REQUIRES_ACTION.value:
-            return ConversationChatRequiresActionEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": Chat.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_MESSAGE_COMPLETED.value:
-            return ConversationMessageCompletedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": Message.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_DELTA.value:
-            return ConversationAudioDeltaEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": Message.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_AUDIO_COMPLETED.value:
-            return ConversationAudioCompletedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_COMPLETED.value:
-            return ConversationChatCompletedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": Chat.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_FAILED.value:
-            return ConversationChatFailedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": Chat.model_validate(data),
-                }
-            )
-        elif event_type == WebsocketsEventType.CONVERSATION_CHAT_CANCELED.value:
-            return ConversationChatCanceledEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        elif event_type == WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STARTED.value:
-            return InputAudioBufferSpeechStartedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        elif event_type == WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STOPPED.value:
-            return InputAudioBufferSpeechStoppedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        else:
-            log_warning("[%s] unknown event, type=%s, logid=%s", self._path, event_type, detail.logid)
-        return None
 
 
 class AsyncWebsocketsChatBuildClient(object):

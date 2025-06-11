@@ -124,7 +124,7 @@ def get_model_default(model: type, field_name: str):
             return None
 
         if field.default_factory is not None:
-            return field.default_factory()
+            return field.default_factory()  # type: ignore
 
         return field.default if field.default is not None else None
     return None
