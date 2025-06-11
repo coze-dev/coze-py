@@ -9,6 +9,7 @@ from cozepy.util import remove_none_values, remove_url_trailing_slash
 from cozepy.websockets.audio.transcriptions import (
     InputAudioBufferAppendEvent,
     InputAudioBufferClearedEvent,
+    InputAudioBufferClearEvent,
     InputAudioBufferCompletedEvent,
     InputAudioBufferCompleteEvent,
 )
@@ -538,23 +539,39 @@ class WebsocketsChatClient(WebsocketsBaseClient):
             **kwargs,
         )
 
+    # 更新对话配置
     def chat_update(self, data: ChatUpdateEvent.Data) -> None:
         self._input_queue.put(ChatUpdateEvent.model_validate({"data": data}))
 
-    def conversation_chat_submit_tool_outputs(self, data: ConversationChatSubmitToolOutputsEvent.Data) -> None:
-        self._input_queue.put(ConversationChatSubmitToolOutputsEvent.model_validate({"data": data}))
-
-    def conversation_chat_cancel(self) -> None:
-        self._input_queue.put(ConversationChatCancelEvent.model_validate({}))
-
-    def conversation_message_create(self, data: ConversationMessageCreateEvent.Data) -> None:
-        self._input_queue.put(ConversationMessageCreateEvent.model_validate({"data": data}))
-
+    # 流式上传音频片段
     def input_audio_buffer_append(self, data: InputAudioBufferAppendEvent.Data) -> None:
         self._input_queue.put(InputAudioBufferAppendEvent.model_validate({"data": data}))
 
+    # 提交音频
     def input_audio_buffer_complete(self) -> None:
         self._input_queue.put(InputAudioBufferCompleteEvent.model_validate({}))
+
+        # 清除缓冲区音频
+
+    def input_audio_buffer_clear(self) -> None:
+        self._input_queue.put(InputAudioBufferClearEvent.model_validate({}))
+
+    # 手动提交对话内容
+    def conversation_chat_submit_tool_outputs(self, data: ConversationChatSubmitToolOutputsEvent.Data) -> None:
+        self._input_queue.put(ConversationChatSubmitToolOutputsEvent.model_validate({"data": data}))
+
+        # 清除上下文
+
+    def conversation_clear(self) -> None:
+        self._input_queue.put(ConversationClear.model_validate({}))
+
+    # 提交端插件执行结果
+    def conversation_chat_cancel(self) -> None:
+        self._input_queue.put(ConversationChatCancelEvent.model_validate({}))
+
+    # 打断智能体输出
+    def conversation_message_create(self, data: ConversationMessageCreateEvent.Data) -> None:
+        self._input_queue.put(ConversationMessageCreateEvent.model_validate({"data": data}))
 
 
 class WebsocketsChatBuildClient(object):
