@@ -1,11 +1,17 @@
 from enum import Enum, IntEnum
-from typing import Dict, Optional
+from typing import TYPE_CHECKING, Dict, Optional
 
 from pydantic import field_validator
 
 from cozepy.model import CozeModel, ListResponse
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
+
+if TYPE_CHECKING:
+    from .execute_nodes import (
+        AsyncWorkflowsRunsRunHistoriesExecuteNodesClient,
+        WorkflowsRunsRunHistoriesExecuteNodesClient,
+    )
 
 
 class WorkflowExecuteStatus(str, Enum):
@@ -100,6 +106,18 @@ class WorkflowsRunsRunHistoriesClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
+        self._execute_nodes: Optional[WorkflowsRunsRunHistoriesExecuteNodesClient] = None
+
+    @property
+    def execute_nodes(self) -> "WorkflowsRunsRunHistoriesExecuteNodesClient":
+        if self._execute_nodes is None:
+            from .execute_nodes import WorkflowsRunsRunHistoriesExecuteNodesClient
+
+            self._execute_nodes = WorkflowsRunsRunHistoriesExecuteNodesClient(
+                base_url=self._base_url, requester=self._requester
+            )
+        return self._execute_nodes
+
     def retrieve(self, *, workflow_id: str, execute_id: str) -> WorkflowRunHistory:
         """
         After the workflow runs async, retrieve the execution results.
@@ -121,6 +139,18 @@ class AsyncWorkflowsRunsRunHistoriesClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
+
+        self._execute_nodes: Optional[AsyncWorkflowsRunsRunHistoriesExecuteNodesClient] = None
+
+    @property
+    def execute_nodes(self) -> "AsyncWorkflowsRunsRunHistoriesExecuteNodesClient":
+        if self._execute_nodes is None:
+            from .execute_nodes import AsyncWorkflowsRunsRunHistoriesExecuteNodesClient
+
+            self._execute_nodes = AsyncWorkflowsRunsRunHistoriesExecuteNodesClient(
+                base_url=self._base_url, requester=self._requester
+            )
+        return self._execute_nodes
 
     async def retrieve(self, *, workflow_id: str, execute_id: str) -> WorkflowRunHistory:
         """
