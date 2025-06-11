@@ -4,6 +4,7 @@ from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
 if TYPE_CHECKING:
+    from .live import AsyncLiveClient, LiveClient
     from .rooms import AsyncRoomsClient, RoomsClient
     from .speech import AsyncSpeechClient, SpeechClient
     from .transcriptions import AsyncTranscriptionsClient, TranscriptionsClient
@@ -19,6 +20,7 @@ class AudioClient(object):
         self._voices: Optional[VoicesClient] = None
         self._speech: Optional[SpeechClient] = None
         self._transcriptions: Optional[TranscriptionsClient] = None
+        self._live: Optional[LiveClient] = None
 
     @property
     def rooms(self) -> "RoomsClient":
@@ -52,6 +54,14 @@ class AudioClient(object):
             self._voices = VoicesClient(base_url=self._base_url, requester=self._requester)
         return self._voices
 
+    @property
+    def live(self) -> "LiveClient":
+        if self._live is None:
+            from .live import LiveClient
+
+            self._live = LiveClient(base_url=self._base_url, requester=self._requester)
+        return self._live
+
 
 class AsyncAudioClient(object):
     def __init__(self, base_url: str, requester: Requester):
@@ -62,6 +72,7 @@ class AsyncAudioClient(object):
         self._voices: Optional[AsyncVoicesClient] = None
         self._speech: Optional[AsyncSpeechClient] = None
         self._transcriptions: Optional[AsyncTranscriptionsClient] = None
+        self._live: Optional[AsyncLiveClient] = None
 
     @property
     def rooms(self) -> "AsyncRoomsClient":
@@ -94,3 +105,11 @@ class AsyncAudioClient(object):
 
             self._transcriptions = AsyncTranscriptionsClient(base_url=self._base_url, requester=self._requester)
         return self._transcriptions
+
+    @property
+    def live(self) -> "AsyncLiveClient":
+        if self._live is None:
+            from .live import AsyncLiveClient
+
+            self._live = AsyncLiveClient(base_url=self._base_url, requester=self._requester)
+        return self._live

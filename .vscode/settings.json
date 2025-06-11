@@ -23,8 +23,9 @@
         "**/.DS_Store": true
     },
     "cSpell.words": [
+        "arequest",
         "cozepy",
         "logid",
         "respx"
-    ],
+    ]
 } 
