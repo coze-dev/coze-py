@@ -7,6 +7,7 @@ from typing import Optional
 from cozepy import (
     COZE_CN_BASE_URL,
     AsyncCoze,
+    AsyncTokenAuth,
     AsyncWebsocketsAudioTranscriptionsClient,
     AsyncWebsocketsAudioTranscriptionsEventHandler,
     AudioFormat,
@@ -16,7 +17,6 @@ from cozepy import (
     TranscriptionsMessageUpdateEvent,
     setup_logging,
 )
-from cozepy.auth import AsyncTokenAuth
 from cozepy.log import log_info
 
 

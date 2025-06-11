@@ -7,6 +7,7 @@ from typing import Optional
 from cozepy import (
     COZE_CN_BASE_URL,
     AsyncCoze,
+    AsyncTokenAuth,
     AsyncWebsocketsChatClient,
     AsyncWebsocketsChatEventHandler,
     AudioFormat,
@@ -22,7 +23,6 @@ from cozepy import (
     ToolOutput,
     setup_logging,
 )
-from cozepy.auth import AsyncTokenAuth
 from cozepy.log import log_info
 from cozepy.util import write_pcm_to_wav_file
 
