@@ -23,8 +23,10 @@
         "**/.DS_Store": true
     },
     "cSpell.words": [
+        "arequest",
         "cozepy",
         "logid",
         "respx"
     ],
+    "java.dependency.syncWithFolderExplorer": false,
 } 

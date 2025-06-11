@@ -1,3 +1,4 @@
+from .audio.live import LiveInfo, LiveType, StreamInfo
 from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
 from .audio.transcriptions import CreateTranscriptionsResp
@@ -192,6 +193,10 @@ __all__ = [
     "VERSION",
     # audio.rooms
     "CreateRoomResp",
+    # audio.live
+    "LiveInfo",
+    "StreamInfo",
+    "LiveType",
     # audio.voices
     "Voice",
     "AudioFormat",
