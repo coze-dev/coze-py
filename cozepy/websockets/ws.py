@@ -196,14 +196,13 @@ class WebsocketsEventFactory(object):
             return data_type
         return None
 
-    @classmethod
-    def create_event(cls, path: str, message: Dict) -> Optional[WebsocketsEvent]:
+    def create_event(self, path: str, message: Dict) -> Optional[WebsocketsEvent]:
         event_id = message.get("id") or ""
         detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
         event_type = message.get("event_type") or ""
         data = message.get("data") or {}
 
-        event_class = cls._event_type_to_class.get(event_type)
+        event_class = self._event_type_to_class.get(event_type)
         if not event_class:
             sub_warning("[%s] unknown event, type=%s, logid=%s", path, event_type, detail.logid)
             return None
@@ -214,10 +213,9 @@ class WebsocketsEventFactory(object):
         }
 
         if data:
-            data_class = cls.get_data_type(event_class)
+            data_class = self.get_data_type(event_class)
             if data_class:
                 event_data["data"] = data_class.model_validate(data)
-
         return event_class.model_validate(event_data)
 
 
