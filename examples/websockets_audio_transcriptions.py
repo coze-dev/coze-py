@@ -7,13 +7,13 @@ from typing import Optional
 from cozepy import (
     COZE_CN_BASE_URL,
     AsyncCoze,
+    AsyncTokenAuth,
     AsyncWebsocketsAudioTranscriptionsClient,
     AsyncWebsocketsAudioTranscriptionsEventHandler,
     AudioFormat,
     DeviceOAuthApp,
     InputAudioBufferAppendEvent,
     InputAudioBufferCompletedEvent,
-    TokenAuth,
     TranscriptionsMessageUpdateEvent,
     setup_logging,
 )
@@ -61,7 +61,7 @@ class AudioTranscriptionsEventHandlerSub(AsyncWebsocketsAudioTranscriptionsEvent
     """
 
     async def on_closed(self, cli: "AsyncWebsocketsAudioTranscriptionsClient"):
-        log_info("[examples] Connect closed")
+        log_info("[examples] connect closed")
 
     async def on_error(self, cli: "AsyncWebsocketsAudioTranscriptionsClient", e: Exception):
         log_info("[examples] Error occurred: %s", e)
@@ -99,7 +99,7 @@ async def main():
 
     # Initialize Coze client
     coze = AsyncCoze(
-        auth=TokenAuth(coze_api_token),
+        auth=AsyncTokenAuth(coze_api_token),
         base_url=coze_api_base,
     )
     # Initialize Audio

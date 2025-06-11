@@ -8,7 +8,8 @@ import traceback
 from abc import ABC
 from contextlib import asynccontextmanager, contextmanager
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set
+from functools import lru_cache
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, get_type_hints
 
 if sys.version_info >= (3, 8):
     # note: >=3.7,<3.8 not support asyncio
@@ -42,8 +43,8 @@ else:
 import websockets.sync.client
 from pydantic import BaseModel
 
-from cozepy import CozeAPIError
-from cozepy.log import log_debug, log_error, log_info
+from cozepy.exception import CozeAPIError
+from cozepy.log import log_debug, log_error, log_info, log_warning
 from cozepy.model import CozeModel
 from cozepy.request import Requester
 from cozepy.util import get_methods, get_model_default, remove_url_trailing_slash
@@ -184,6 +185,46 @@ class OutputAudio(BaseModel):
     voice_id: Optional[str] = None
 
 
+class WebsocketsEventFactory(object):
+    def __init__(self, event_type_to_class: Dict[str, Type[WebsocketsEvent]]):
+        self._event_type_to_class = event_type_to_class
+
+    @lru_cache(maxsize=128)
+    def get_event_class(
+        self,
+        event_type: str,
+    ) -> Tuple[Optional[Type[WebsocketsEvent]], Optional[Type[BaseModel]]]:
+        event_class = self._event_type_to_class.get(event_type)
+        if not event_class:
+            return None, None
+
+        type_hints = get_type_hints(event_class)
+        data_type = type_hints.get("data")
+        if data_type:
+            return event_class, data_type
+        return event_class, None
+
+    def create_event(self, path: str, message: Dict) -> Optional[WebsocketsEvent]:
+        event_id = message.get("id") or ""
+        detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
+        event_type = message.get("event_type") or ""
+        data = message.get("data") or {}
+
+        event_class, data_class = self.get_event_class(event_type)
+        if not event_class:
+            log_warning("[%s] unknown event, type=%s, logid=%s", path, event_type, detail.logid)
+            return None
+
+        event_data = {
+            "id": event_id,
+            "detail": detail,
+        }
+
+        if data and data_class:
+            event_data["data"] = data_class.model_validate(data)
+        return event_class.model_validate(event_data)
+
+
 class WebsocketsBaseClient(abc.ABC):
     class State(str, Enum):
         """
@@ -201,6 +242,7 @@ class WebsocketsBaseClient(abc.ABC):
         base_url: str,
         requester: Requester,
         path: str,
+        event_factory: WebsocketsEventFactory,
         query: Optional[Dict[str, str]] = None,
         on_event: Optional[Dict[WebsocketsEventType, Callable]] = None,
         wait_events: Optional[List[WebsocketsEventType]] = None,
@@ -216,6 +258,7 @@ class WebsocketsBaseClient(abc.ABC):
         self._on_event = on_event.copy() if on_event else {}
         self._headers = kwargs.get("headers")
         self._wait_events = wait_events.copy() if wait_events else []
+        self._event_factory = event_factory
 
         self._input_queue: queue.Queue[Optional[WebsocketsEvent]] = queue.Queue()
         self._ws: Optional[websockets.sync.client.ClientConnection] = None
@@ -301,7 +344,7 @@ class WebsocketsBaseClient(abc.ABC):
                     event_type = message.get("event_type")
                     log_debug("[%s] receive event, type=%s, event=%s", self._path, event_type, data)
 
-                    event = self._load_all_event(message)
+                    event = self._parse_event(message)
                     if event:
                         handler = self._on_event.get(event_type)
                         if handler:
@@ -313,7 +356,7 @@ class WebsocketsBaseClient(abc.ABC):
         except Exception as e:
             self._handle_error(e)
 
-    def _load_all_event(self, message: Dict) -> Optional[WebsocketsEvent]:
+    def _parse_event(self, message: Dict) -> Optional[WebsocketsEvent]:
         event_id = message.get("id") or ""
         event_type = message.get("event_type") or ""
         detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
@@ -327,10 +370,7 @@ class WebsocketsBaseClient(abc.ABC):
                     "data": CozeAPIError(code, msg, WebsocketsEvent.Detail.model_validate(detail).logid),
                 }
             )
-        return self._load_event(message)
-
-    @abc.abstractmethod
-    def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]: ...
+        return self._event_factory.create_event(self._path, message)
 
     def _wait_completed(self, events: List[WebsocketsEventType], wait_all: bool) -> None:
         while True:
@@ -432,6 +472,7 @@ class AsyncWebsocketsBaseClient(abc.ABC):
         base_url: str,
         requester: Requester,
         path: str,
+        event_factory: WebsocketsEventFactory,
         query: Optional[Dict[str, str]] = None,
         on_event: Optional[Dict[WebsocketsEventType, Callable]] = None,
         wait_events: Optional[List[WebsocketsEventType]] = None,
@@ -447,6 +488,7 @@ class AsyncWebsocketsBaseClient(abc.ABC):
         self._on_event = on_event.copy() if on_event else {}
         self._headers = kwargs.get("headers")
         self._wait_events = wait_events.copy() if wait_events else []
+        self._event_factory = event_factory
 
         self._input_queue: asyncio.Queue[Optional[WebsocketsEvent]] = asyncio.Queue()
         self._ws: Optional[AsyncWebsocketClientConnection] = None
@@ -523,13 +565,13 @@ class AsyncWebsocketsBaseClient(abc.ABC):
                 log_debug("[%s] receive event, type=%s, event=%s", self._path, event_type, data)
 
                 handler = self._on_event.get(event_type)
-                event = self._load_all_event(message)
+                event = self._parse_event(message)
                 if handler and event:
                     await handler(self, event)
         except Exception as e:
             await self._handle_error(e)
 
-    def _load_all_event(self, message: Dict) -> Optional[WebsocketsEvent]:
+    def _parse_event(self, message: Dict) -> Optional[WebsocketsEvent]:
         event_id = message.get("id") or ""
         event_type = message.get("event_type") or ""
         detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
@@ -543,10 +585,7 @@ class AsyncWebsocketsBaseClient(abc.ABC):
                     "data": CozeAPIError(code, msg, WebsocketsEvent.Detail.model_validate(detail).logid),
                 }
             )
-        return self._load_event(message)
-
-    @abc.abstractmethod
-    def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]: ...
+        return self._event_factory.create_event(self._path, message)
 
     async def _wait_completed(self, wait_events: List[WebsocketsEventType], wait_all: bool) -> None:
         future: asyncio.Future[None] = asyncio.Future()

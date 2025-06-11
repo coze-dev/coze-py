@@ -7,6 +7,7 @@ from typing import Optional
 from cozepy import (
     COZE_CN_BASE_URL,
     AsyncCoze,
+    AsyncTokenAuth,
     AsyncWebsocketsAudioSpeechClient,
     AsyncWebsocketsAudioSpeechEventHandler,
     DeviceOAuthApp,
@@ -14,7 +15,6 @@ from cozepy import (
     InputTextBufferCompletedEvent,
     SpeechAudioCompletedEvent,
     SpeechAudioUpdateEvent,
-    TokenAuth,
     setup_logging,
 )
 from cozepy.log import log_info
@@ -63,6 +63,9 @@ class AsyncWebsocketsAudioSpeechEventHandlerSub(AsyncWebsocketsAudioSpeechEventH
 
     delta = []
 
+    async def on_closed(self, cli: "AsyncWebsocketsAudioSpeechClient"):
+        log_info("[examples] connect closed")
+
     async def on_input_text_buffer_completed(
         self, cli: "AsyncWebsocketsAudioSpeechClient", event: InputTextBufferCompletedEvent
     ):
@@ -88,7 +91,7 @@ async def main():
 
     # Initialize Coze client
     coze = AsyncCoze(
-        auth=TokenAuth(coze_api_token),
+        auth=AsyncTokenAuth(coze_api_token),
         base_url=coze_api_base,
     )
 
