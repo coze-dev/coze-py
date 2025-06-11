@@ -19,10 +19,10 @@ from cozepy import (
     ConversationMessageDeltaEvent,
     DeviceOAuthApp,
     InputAudioBufferAppendEvent,
-    TokenAuth,
     ToolOutput,
     setup_logging,
 )
+from cozepy.auth import AsyncTokenAuth
 from cozepy.log import log_info
 from cozepy.util import write_pcm_to_wav_file
 
@@ -144,7 +144,7 @@ async def main():
 
     # Initialize Coze client
     coze = AsyncCoze(
-        auth=TokenAuth(coze_api_token),
+        auth=AsyncTokenAuth(coze_api_token),
         base_url=coze_api_base,
     )
     # Initialize Audio

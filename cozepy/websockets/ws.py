@@ -473,6 +473,7 @@ class AsyncWebsocketsBaseClient(abc.ABC):
         query: Optional[Dict[str, str]] = None,
         on_event: Optional[Dict[WebsocketsEventType, Callable]] = None,
         wait_events: Optional[List[WebsocketsEventType]] = None,
+        event_type_to_class: Optional[Dict[str, Type[WebsocketsEvent]]] = None,
         **kwargs,
     ):
         self._state = self.State.INITIALIZED
@@ -485,6 +486,7 @@ class AsyncWebsocketsBaseClient(abc.ABC):
         self._on_event = on_event.copy() if on_event else {}
         self._headers = kwargs.get("headers")
         self._wait_events = wait_events.copy() if wait_events else []
+        self._event_factory = WebsocketsEventFactory(event_type_to_class) if event_type_to_class else None
 
         self._input_queue: asyncio.Queue[Optional[WebsocketsEvent]] = asyncio.Queue()
         self._ws: Optional[AsyncWebsocketClientConnection] = None
@@ -581,10 +583,9 @@ class AsyncWebsocketsBaseClient(abc.ABC):
                     "data": CozeAPIError(code, msg, WebsocketsEvent.Detail.model_validate(detail).logid),
                 }
             )
-        return self._load_event(message)
-
-    @abc.abstractmethod
-    def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]: ...
+        if self._event_factory:
+            return self._event_factory.create_event(self._path, message)
+        return None
 
     async def _wait_completed(self, wait_events: List[WebsocketsEventType], wait_all: bool) -> None:
         future: asyncio.Future[None] = asyncio.Future()
