@@ -13,10 +13,10 @@ from cozepy import (
     DeviceOAuthApp,
     InputAudioBufferAppendEvent,
     InputAudioBufferCompletedEvent,
-    TokenAuth,
     TranscriptionsMessageUpdateEvent,
     setup_logging,
 )
+from cozepy.auth import AsyncTokenAuth
 from cozepy.log import log_info
 
 
@@ -99,7 +99,7 @@ async def main():
 
     # Initialize Coze client
     coze = AsyncCoze(
-        auth=TokenAuth(coze_api_token),
+        auth=AsyncTokenAuth(coze_api_token),
         base_url=coze_api_base,
     )
     # Initialize Audio

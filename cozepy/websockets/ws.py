@@ -8,8 +8,9 @@ import traceback
 from abc import ABC
 from contextlib import asynccontextmanager, contextmanager
 from enum import Enum
+from functools import lru_cache
 from multiprocessing.util import sub_warning
-from typing import Any, Callable, Dict, List, Optional, Set, Type, get_type_hints
+from typing import Any, Callable, Dict, List, Optional, Set, Type, Union, get_type_hints
 
 if sys.version_info >= (3, 8):
     # note: >=3.7,<3.8 not support asyncio
@@ -189,12 +190,20 @@ class WebsocketsEventFactory(object):
     def __init__(self, event_type_to_class: Dict[str, Type[WebsocketsEvent]]):
         self._event_type_to_class = event_type_to_class
 
-    def get_data_type(cls, event_class: WebsocketsEvent) -> Optional[Type[BaseModel]]:
+    @lru_cache(maxsize=128)
+    def get_event_class(
+        self,
+        event_type: str,
+    ) -> Union[Optional[Type[WebsocketsEvent]], Optional[Type[BaseModel]]]:
+        event_class = self._event_type_to_class.get(event_type)
+        if not event_class:
+            return None, None
+
         type_hints = get_type_hints(event_class)
         data_type = type_hints.get("data")
         if data_type:
-            return data_type
-        return None
+            return event_class, data_type
+        return event_class, None
 
     def create_event(self, path: str, message: Dict) -> Optional[WebsocketsEvent]:
         event_id = message.get("id") or ""
@@ -202,7 +211,7 @@ class WebsocketsEventFactory(object):
         event_type = message.get("event_type") or ""
         data = message.get("data") or {}
 
-        event_class = self._event_type_to_class.get(event_type)
+        event_class, data_class = self.get_event_class(event_type)
         if not event_class:
             sub_warning("[%s] unknown event, type=%s, logid=%s", path, event_type, detail.logid)
             return None
@@ -212,10 +221,8 @@ class WebsocketsEventFactory(object):
             "detail": detail,
         }
 
-        if data:
-            data_class = self.get_data_type(event_class)
-            if data_class:
-                event_data["data"] = data_class.model_validate(data)
+        if data and data_class:
+            event_data["data"] = data_class.model_validate(data)
         return event_class.model_validate(event_data)
 
 
