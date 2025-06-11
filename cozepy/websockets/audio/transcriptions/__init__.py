@@ -124,7 +124,6 @@ class InputAudioBufferCompletedEvent(WebsocketsEvent):
 
 
 # resp
-# resp
 class InputAudioBufferClearedEvent(WebsocketsEvent):
     """音频清除成功
 
@@ -165,7 +164,9 @@ class TranscriptionsMessageCompletedEvent(WebsocketsEvent):
 _audio_transcriptions_event_factory = WebsocketsEventFactory(
     {
         WebsocketsEventType.TRANSCRIPTIONS_CREATED.value: TranscriptionsCreatedEvent,
+        WebsocketsEventType.TRANSCRIPTIONS_UPDATED.value: TranscriptionsUpdatedEvent,
         WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED.value: InputAudioBufferCompletedEvent,
+        WebsocketsEventType.INPUT_AUDIO_BUFFER_CLEARED.value: InputAudioBufferClearedEvent,
         WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_UPDATE.value: TranscriptionsMessageUpdateEvent,
         WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_COMPLETED.value: TranscriptionsMessageCompletedEvent,
     }

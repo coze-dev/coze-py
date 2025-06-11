@@ -137,6 +137,7 @@ class SpeechAudioCompletedEvent(WebsocketsEvent):
 _audio_speech_event_factory = WebsocketsEventFactory(
     {
         WebsocketsEventType.SPEECH_CREATED.value: SpeechCreatedEvent,
+        WebsocketsEventType.SPEECH_UPDATED.value: SpeechUpdatedEvent,
         WebsocketsEventType.INPUT_TEXT_BUFFER_COMPLETED.value: InputTextBufferCompletedEvent,
         WebsocketsEventType.SPEECH_AUDIO_UPDATE.value: SpeechAudioUpdateEvent,
         WebsocketsEventType.SPEECH_AUDIO_COMPLETED.value: SpeechAudioCompletedEvent,
