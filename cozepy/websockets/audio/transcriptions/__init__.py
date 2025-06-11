@@ -321,14 +321,21 @@ class AsyncWebsocketsAudioTranscriptionsClient(AsyncWebsocketsBaseClient):
             **kwargs,
         )
 
-    async def transcriptions_update(self, data: InputAudio) -> None:
+    # 更新语音识别配置
+    async def transcriptions_update(self, data: TranscriptionsUpdateEvent.Data) -> None:
         await self._input_queue.put(TranscriptionsUpdateEvent.model_validate({"data": data}))
 
+    # 流式上传音频片段
     async def input_audio_buffer_append(self, data: InputAudioBufferAppendEvent.Data) -> None:
         await self._input_queue.put(InputAudioBufferAppendEvent.model_validate({"data": data}))
 
+    # 提交音频
     async def input_audio_buffer_complete(self) -> None:
         await self._input_queue.put(InputAudioBufferCompleteEvent.model_validate({}))
+
+    # 清除缓冲区音频
+    async def input_audio_buffer_clear(self) -> None:
+        await self._input_queue.put(InputAudioBufferClearEvent.model_validate({}))
 
 
 class AsyncWebsocketsAudioTranscriptionsBuildClient(object):
