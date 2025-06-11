@@ -9,7 +9,6 @@ from abc import ABC
 from contextlib import asynccontextmanager, contextmanager
 from enum import Enum
 from functools import lru_cache
-from multiprocessing.util import sub_warning
 from typing import Any, Callable, Dict, List, Optional, Set, Type, Union, get_type_hints
 
 if sys.version_info >= (3, 8):
@@ -45,7 +44,7 @@ import websockets.sync.client
 from pydantic import BaseModel
 
 from cozepy import CozeAPIError
-from cozepy.log import log_debug, log_error, log_info
+from cozepy.log import log_debug, log_error, log_info, log_warning
 from cozepy.model import CozeModel
 from cozepy.request import Requester
 from cozepy.util import get_methods, get_model_default, remove_url_trailing_slash
@@ -213,7 +212,7 @@ class WebsocketsEventFactory(object):
 
         event_class, data_class = self.get_event_class(event_type)
         if not event_class:
-            sub_warning("[%s] unknown event, type=%s, logid=%s", path, event_type, detail.logid)
+            log_warning("[%s] unknown event, type=%s, logid=%s", path, event_type, detail.logid)
             return None
 
         event_data = {
