@@ -174,27 +174,33 @@ _audio_transcriptions_event_factory = WebsocketsEventFactory(
 
 
 class WebsocketsAudioTranscriptionsEventHandler(WebsocketsBaseEventHandler):
+    # 连接成功
     def on_transcriptions_created(self, cli: "WebsocketsAudioTranscriptionsClient", event: TranscriptionsCreatedEvent):
         pass
 
+    # 配置更新成功
     def on_transcriptions_updated(self, cli: "WebsocketsAudioTranscriptionsClient", event: TranscriptionsUpdatedEvent):
         pass
 
+    # 音频提交完成
     def on_input_audio_buffer_completed(
         self, cli: "WebsocketsAudioTranscriptionsClient", event: InputAudioBufferCompletedEvent
     ):
         pass
 
+    # 音频清除成功
     def on_input_audio_buffer_cleared(
         self, cli: "WebsocketsAudioTranscriptionsClient", event: InputAudioBufferClearedEvent
     ):
         pass
 
+    # 识别出文字
     def on_transcriptions_message_update(
         self, cli: "WebsocketsAudioTranscriptionsClient", event: TranscriptionsMessageUpdateEvent
     ):
         pass
 
+    # 识别完成
     def on_transcriptions_message_completed(
         self, cli: "WebsocketsAudioTranscriptionsClient", event: TranscriptionsMessageCompletedEvent
     ):
@@ -258,31 +264,37 @@ class WebsocketsAudioTranscriptionsBuildClient(object):
 
 
 class AsyncWebsocketsAudioTranscriptionsEventHandler(AsyncWebsocketsBaseEventHandler):
+    # 连接成功
     async def on_transcriptions_created(
         self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: TranscriptionsCreatedEvent
     ):
         pass
 
+    # 配置更新成功
     async def on_transcriptions_updated(
         self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: TranscriptionsUpdatedEvent
     ):
         pass
 
+    # 音频提交完成
     async def on_input_audio_buffer_completed(
         self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: InputAudioBufferCompletedEvent
     ):
         pass
 
+    # 音频清除成功
     async def on_input_audio_buffer_cleared(
         self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: InputAudioBufferClearedEvent
     ):
         pass
 
+    # 识别出文字
     async def on_transcriptions_message_update(
         self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: TranscriptionsMessageUpdateEvent
     ):
         pass
 
+    # 识别完成
     async def on_transcriptions_message_completed(
         self, cli: "AsyncWebsocketsAudioTranscriptionsClient", event: TranscriptionsMessageCompletedEvent
     ):
