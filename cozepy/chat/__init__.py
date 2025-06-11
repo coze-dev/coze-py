@@ -424,11 +424,10 @@ def _async_chat_stream_handler(data: Dict, raw_response: httpx.Response) -> Chat
 
 
 class ToolOutput(CozeModel):
-    # The ID for reporting the running results. You can get this ID under the tool_calls field in response of the Chat
-    # API.
+    # 上报运行结果的 ID。你可以在扣子智能语音对话信令事件的 tool_calls 字段下查看此 ID。
     tool_call_id: str
 
-    # The execution result of the tool.
+    # 工具的执行结果。
     output: str
 
 
