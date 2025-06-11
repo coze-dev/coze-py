@@ -374,6 +374,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
             base_url=base_url,
             requester=requester,
             path="v1/chat",
+            event_type_to_class=_chat_event_type_to_class,
             query=remove_none_values(
                 {
                     "bot_id": bot_id,
@@ -382,7 +383,6 @@ class WebsocketsChatClient(WebsocketsBaseClient):
             ),
             on_event=on_event,  # type: ignore
             wait_events=[WebsocketsEventType.CONVERSATION_CHAT_COMPLETED],
-            event_type_to_class=_chat_event_type_to_class,
             **kwargs,
         )
 
@@ -521,6 +521,7 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
             base_url=base_url,
             requester=requester,
             path="v1/chat",
+            event_type_to_class=_chat_event_type_to_class,
             query=remove_none_values(
                 {
                     "bot_id": bot_id,
@@ -529,7 +530,6 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
             ),
             on_event=on_event,  # type: ignore
             wait_events=[WebsocketsEventType.CONVERSATION_CHAT_COMPLETED],
-            event_type_to_class=_chat_event_type_to_class,
             **kwargs,
         )
 

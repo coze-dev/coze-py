@@ -9,7 +9,7 @@ from abc import ABC
 from contextlib import asynccontextmanager, contextmanager
 from enum import Enum
 from functools import lru_cache
-from typing import Any, Callable, Dict, List, Optional, Set, Type, Union, get_type_hints
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, get_type_hints
 
 if sys.version_info >= (3, 8):
     # note: >=3.7,<3.8 not support asyncio
@@ -193,7 +193,7 @@ class WebsocketsEventFactory(object):
     def get_event_class(
         self,
         event_type: str,
-    ) -> Union[Optional[Type[WebsocketsEvent]], Optional[Type[BaseModel]]]:
+    ) -> Tuple[Optional[Type[WebsocketsEvent]], Optional[Type[BaseModel]]]:
         event_class = self._event_type_to_class.get(event_type)
         if not event_class:
             return None, None
@@ -242,10 +242,10 @@ class WebsocketsBaseClient(abc.ABC):
         base_url: str,
         requester: Requester,
         path: str,
+        event_type_to_class: Dict[str, WebsocketsEvent],
         query: Optional[Dict[str, str]] = None,
         on_event: Optional[Dict[WebsocketsEventType, Callable]] = None,
         wait_events: Optional[List[WebsocketsEventType]] = None,
-        event_type_to_class: Optional[Dict[str, Type[WebsocketsEvent]]] = None,
         **kwargs,
     ):
         self._state = self.State.INITIALIZED
@@ -474,10 +474,10 @@ class AsyncWebsocketsBaseClient(abc.ABC):
         base_url: str,
         requester: Requester,
         path: str,
+        event_type_to_class: Dict[str, WebsocketsEvent],
         query: Optional[Dict[str, str]] = None,
         on_event: Optional[Dict[WebsocketsEventType, Callable]] = None,
         wait_events: Optional[List[WebsocketsEventType]] = None,
-        event_type_to_class: Optional[Dict[str, Type[WebsocketsEvent]]] = None,
         **kwargs,
     ):
         self._state = self.State.INITIALIZED

@@ -119,9 +119,9 @@ class WebsocketsAudioTranscriptionsClient(WebsocketsBaseClient):
             base_url=base_url,
             requester=requester,
             path="v1/audio/transcriptions",
+            event_type_to_class=_audio_transcriptions_event_type_to_class,
             on_event=on_event,  # type: ignore
             wait_events=[WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_COMPLETED],
-            event_type_to_class=_audio_transcriptions_event_type_to_class,
             **kwargs,
         )
 
@@ -190,9 +190,9 @@ class AsyncWebsocketsAudioTranscriptionsClient(AsyncWebsocketsBaseClient):
             base_url=base_url,
             requester=requester,
             path="v1/audio/transcriptions",
+            event_type_to_class=_audio_transcriptions_event_type_to_class,
             on_event=on_event,  # type: ignore
             wait_events=[WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_COMPLETED],
-            event_type_to_class=_audio_transcriptions_event_type_to_class,
             **kwargs,
         )
 
