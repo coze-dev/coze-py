@@ -30,12 +30,12 @@ class WorkflowRunMode(IntEnum):
 
 
 class WorkflowRunHistoryNodeExecuteStatus(CozeModel):
-    node_id: Optional[str] = None
-    is_finish: Optional[bool] = None
-    update_time: Optional[int] = None
+    node_id: str
+    is_finish: bool
+    update_time: int
+    node_execute_uuid: str
     loop_index: Optional[int] = None
     batch_index: Optional[int] = None
-    node_execute_uuid: Optional[str] = None
     sub_execute_id: Optional[str] = None
 
 
