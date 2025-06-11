@@ -12,6 +12,7 @@ from cozepy.websockets.ws import (
     WebsocketsBaseClient,
     WebsocketsBaseEventHandler,
     WebsocketsEvent,
+    WebsocketsEventFactory,
     WebsocketsEventType,
 )
 
@@ -77,12 +78,14 @@ class TranscriptionsMessageCompletedEvent(WebsocketsEvent):
     event_type: WebsocketsEventType = WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_COMPLETED
 
 
-_audio_transcriptions_event_type_to_class = {
-    WebsocketsEventType.TRANSCRIPTIONS_CREATED.value: TranscriptionsCreatedEvent,
-    WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED.value: InputAudioBufferCompletedEvent,
-    WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_UPDATE.value: TranscriptionsMessageUpdateEvent,
-    WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_COMPLETED.value: TranscriptionsMessageCompletedEvent,
-}
+_audio_transcriptions_event_factory = WebsocketsEventFactory(
+    {
+        WebsocketsEventType.TRANSCRIPTIONS_CREATED.value: TranscriptionsCreatedEvent,
+        WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED.value: InputAudioBufferCompletedEvent,
+        WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_UPDATE.value: TranscriptionsMessageUpdateEvent,
+        WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_COMPLETED.value: TranscriptionsMessageCompletedEvent,
+    }
+)
 
 
 class WebsocketsAudioTranscriptionsEventHandler(WebsocketsBaseEventHandler):
@@ -119,7 +122,7 @@ class WebsocketsAudioTranscriptionsClient(WebsocketsBaseClient):
             base_url=base_url,
             requester=requester,
             path="v1/audio/transcriptions",
-            event_type_to_class=_audio_transcriptions_event_type_to_class,  # type: ignore
+            event_factory=_audio_transcriptions_event_factory,
             on_event=on_event,  # type: ignore
             wait_events=[WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_COMPLETED],
             **kwargs,
@@ -190,7 +193,7 @@ class AsyncWebsocketsAudioTranscriptionsClient(AsyncWebsocketsBaseClient):
             base_url=base_url,
             requester=requester,
             path="v1/audio/transcriptions",
-            event_type_to_class=_audio_transcriptions_event_type_to_class,  # type: ignore
+            event_factory=_audio_transcriptions_event_factory,
             on_event=on_event,  # type: ignore
             wait_events=[WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_COMPLETED],
             **kwargs,

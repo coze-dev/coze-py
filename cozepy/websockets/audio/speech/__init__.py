@@ -12,6 +12,7 @@ from cozepy.websockets.ws import (
     WebsocketsBaseClient,
     WebsocketsBaseEventHandler,
     WebsocketsEvent,
+    WebsocketsEventFactory,
     WebsocketsEventType,
 )
 
@@ -72,12 +73,14 @@ class SpeechAudioCompletedEvent(WebsocketsEvent):
     event_type: WebsocketsEventType = WebsocketsEventType.SPEECH_AUDIO_COMPLETED
 
 
-_audio_speech_event_type_to_class = {
-    WebsocketsEventType.SPEECH_CREATED.value: SpeechCreatedEvent,
-    WebsocketsEventType.INPUT_TEXT_BUFFER_COMPLETED.value: InputTextBufferCompletedEvent,
-    WebsocketsEventType.SPEECH_AUDIO_UPDATE.value: SpeechAudioUpdateEvent,
-    WebsocketsEventType.SPEECH_AUDIO_COMPLETED.value: SpeechAudioCompletedEvent,
-}
+_audio_speech_event_factory = WebsocketsEventFactory(
+    {
+        WebsocketsEventType.SPEECH_CREATED.value: SpeechCreatedEvent,
+        WebsocketsEventType.INPUT_TEXT_BUFFER_COMPLETED.value: InputTextBufferCompletedEvent,
+        WebsocketsEventType.SPEECH_AUDIO_UPDATE.value: SpeechAudioUpdateEvent,
+        WebsocketsEventType.SPEECH_AUDIO_COMPLETED.value: SpeechAudioCompletedEvent,
+    }
+)
 
 
 class WebsocketsAudioSpeechEventHandler(WebsocketsBaseEventHandler):
@@ -108,7 +111,7 @@ class WebsocketsAudioSpeechClient(WebsocketsBaseClient):
             base_url=base_url,
             requester=requester,
             path="v1/audio/speech",
-            event_type_to_class=_audio_speech_event_type_to_class,  # type: ignore
+            event_factory=_audio_speech_event_factory,
             on_event=on_event,  # type: ignore
             wait_events=[WebsocketsEventType.SPEECH_AUDIO_COMPLETED],
             **kwargs,
@@ -172,7 +175,7 @@ class AsyncWebsocketsAudioSpeechClient(AsyncWebsocketsBaseClient):
             base_url=base_url,
             requester=requester,
             path="v1/audio/speech",
-            event_type_to_class=_audio_speech_event_type_to_class,  # type: ignore
+            event_factory=_audio_speech_event_factory,
             on_event=on_event,  # type: ignore
             wait_events=[WebsocketsEventType.SPEECH_AUDIO_COMPLETED],
             **kwargs,

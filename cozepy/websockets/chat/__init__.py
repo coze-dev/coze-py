@@ -19,6 +19,7 @@ from cozepy.websockets.ws import (
     WebsocketsBaseClient,
     WebsocketsBaseEventHandler,
     WebsocketsEvent,
+    WebsocketsEventFactory,
     WebsocketsEventType,
 )
 
@@ -274,25 +275,27 @@ class ConversationAudioTranscriptUpdateEvent(WebsocketsEvent):
     data: Data
 
 
-_chat_event_type_to_class = {
-    WebsocketsEventType.CHAT_CREATED.value: ChatCreatedEvent,
-    WebsocketsEventType.CHAT_UPDATED.value: ChatUpdatedEvent,
-    WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED.value: InputAudioBufferCompletedEvent,
-    WebsocketsEventType.CONVERSATION_CHAT_CREATED.value: ConversationChatCreatedEvent,
-    WebsocketsEventType.CONVERSATION_CHAT_IN_PROGRESS.value: ConversationChatInProgressEvent,
-    WebsocketsEventType.CONVERSATION_MESSAGE_DELTA.value: ConversationMessageDeltaEvent,
-    WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_UPDATE.value: ConversationAudioTranscriptUpdateEvent,
-    WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED.value: ConversationAudioTranscriptCompletedEvent,
-    WebsocketsEventType.CONVERSATION_CHAT_REQUIRES_ACTION.value: ConversationChatRequiresActionEvent,
-    WebsocketsEventType.CONVERSATION_MESSAGE_COMPLETED.value: ConversationMessageCompletedEvent,
-    WebsocketsEventType.CONVERSATION_AUDIO_DELTA.value: ConversationAudioDeltaEvent,
-    WebsocketsEventType.CONVERSATION_AUDIO_COMPLETED.value: ConversationAudioCompletedEvent,
-    WebsocketsEventType.CONVERSATION_CHAT_COMPLETED.value: ConversationChatCompletedEvent,
-    WebsocketsEventType.CONVERSATION_CHAT_FAILED.value: ConversationChatFailedEvent,
-    WebsocketsEventType.CONVERSATION_CHAT_CANCELED.value: ConversationChatCanceledEvent,
-    WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STARTED.value: InputAudioBufferSpeechStartedEvent,
-    WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STOPPED.value: InputAudioBufferSpeechStoppedEvent,
-}
+_chat_event_factory = WebsocketsEventFactory(
+    {
+        WebsocketsEventType.CHAT_CREATED.value: ChatCreatedEvent,
+        WebsocketsEventType.CHAT_UPDATED.value: ChatUpdatedEvent,
+        WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED.value: InputAudioBufferCompletedEvent,
+        WebsocketsEventType.CONVERSATION_CHAT_CREATED.value: ConversationChatCreatedEvent,
+        WebsocketsEventType.CONVERSATION_CHAT_IN_PROGRESS.value: ConversationChatInProgressEvent,
+        WebsocketsEventType.CONVERSATION_MESSAGE_DELTA.value: ConversationMessageDeltaEvent,
+        WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_UPDATE.value: ConversationAudioTranscriptUpdateEvent,
+        WebsocketsEventType.CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED.value: ConversationAudioTranscriptCompletedEvent,
+        WebsocketsEventType.CONVERSATION_CHAT_REQUIRES_ACTION.value: ConversationChatRequiresActionEvent,
+        WebsocketsEventType.CONVERSATION_MESSAGE_COMPLETED.value: ConversationMessageCompletedEvent,
+        WebsocketsEventType.CONVERSATION_AUDIO_DELTA.value: ConversationAudioDeltaEvent,
+        WebsocketsEventType.CONVERSATION_AUDIO_COMPLETED.value: ConversationAudioCompletedEvent,
+        WebsocketsEventType.CONVERSATION_CHAT_COMPLETED.value: ConversationChatCompletedEvent,
+        WebsocketsEventType.CONVERSATION_CHAT_FAILED.value: ConversationChatFailedEvent,
+        WebsocketsEventType.CONVERSATION_CHAT_CANCELED.value: ConversationChatCanceledEvent,
+        WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STARTED.value: InputAudioBufferSpeechStartedEvent,
+        WebsocketsEventType.INPUT_AUDIO_BUFFER_SPEECH_STOPPED.value: InputAudioBufferSpeechStoppedEvent,
+    }
+)
 
 
 class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
@@ -374,7 +377,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
             base_url=base_url,
             requester=requester,
             path="v1/chat",
-            event_type_to_class=_chat_event_type_to_class,  # type: ignore
+            event_factory=_chat_event_factory,
             query=remove_none_values(
                 {
                     "bot_id": bot_id,
@@ -521,7 +524,7 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
             base_url=base_url,
             requester=requester,
             path="v1/chat",
-            event_type_to_class=_chat_event_type_to_class,  # type: ignore
+            event_factory=_chat_event_factory,
             query=remove_none_values(
                 {
                     "bot_id": bot_id,

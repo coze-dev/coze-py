@@ -43,7 +43,7 @@ else:
 import websockets.sync.client
 from pydantic import BaseModel
 
-from cozepy import CozeAPIError
+from cozepy.exception import CozeAPIError
 from cozepy.log import log_debug, log_error, log_info, log_warning
 from cozepy.model import CozeModel
 from cozepy.request import Requester
@@ -242,7 +242,7 @@ class WebsocketsBaseClient(abc.ABC):
         base_url: str,
         requester: Requester,
         path: str,
-        event_type_to_class: Dict[str, Type[WebsocketsEvent]],
+        event_factory: WebsocketsEventFactory,
         query: Optional[Dict[str, str]] = None,
         on_event: Optional[Dict[WebsocketsEventType, Callable]] = None,
         wait_events: Optional[List[WebsocketsEventType]] = None,
@@ -258,7 +258,7 @@ class WebsocketsBaseClient(abc.ABC):
         self._on_event = on_event.copy() if on_event else {}
         self._headers = kwargs.get("headers")
         self._wait_events = wait_events.copy() if wait_events else []
-        self._event_factory = WebsocketsEventFactory(event_type_to_class)
+        self._event_factory = event_factory
 
         self._input_queue: queue.Queue[Optional[WebsocketsEvent]] = queue.Queue()
         self._ws: Optional[websockets.sync.client.ClientConnection] = None
@@ -472,7 +472,7 @@ class AsyncWebsocketsBaseClient(abc.ABC):
         base_url: str,
         requester: Requester,
         path: str,
-        event_type_to_class: Dict[str, Type[WebsocketsEvent]],
+        event_factory: WebsocketsEventFactory,
         query: Optional[Dict[str, str]] = None,
         on_event: Optional[Dict[WebsocketsEventType, Callable]] = None,
         wait_events: Optional[List[WebsocketsEventType]] = None,
@@ -488,7 +488,7 @@ class AsyncWebsocketsBaseClient(abc.ABC):
         self._on_event = on_event.copy() if on_event else {}
         self._headers = kwargs.get("headers")
         self._wait_events = wait_events.copy() if wait_events else []
-        self._event_factory = WebsocketsEventFactory(event_type_to_class)
+        self._event_factory = event_factory
 
         self._input_queue: asyncio.Queue[Optional[WebsocketsEvent]] = asyncio.Queue()
         self._ws: Optional[AsyncWebsocketClientConnection] = None
