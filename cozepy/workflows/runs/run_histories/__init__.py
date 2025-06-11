@@ -1,11 +1,17 @@
 from enum import Enum, IntEnum
-from typing import Optional
+from typing import TYPE_CHECKING, Dict, Optional
 
 from pydantic import field_validator
 
 from cozepy.model import CozeModel, ListResponse
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
+
+if TYPE_CHECKING:
+    from .execute_nodes import (
+        AsyncWorkflowsRunsRunHistoriesExecuteNodesClient,
+        WorkflowsRunsRunHistoriesExecuteNodesClient,
+    )
 
 
 class WorkflowExecuteStatus(str, Enum):
@@ -21,6 +27,16 @@ class WorkflowRunMode(IntEnum):
     SYNCHRONOUS = 0
     STREAMING = 1
     ASYNCHRONOUS = 2
+
+
+class WorkflowRunHistoryNodeExecuteStatus(CozeModel):
+    node_id: str
+    is_finish: bool
+    update_time: int
+    node_execute_uuid: str
+    loop_index: Optional[int] = None
+    batch_index: Optional[int] = None
+    sub_execute_id: Optional[str] = None
 
 
 class WorkflowRunHistory(CozeModel):
@@ -75,6 +91,8 @@ class WorkflowRunHistory(CozeModel):
     # and output information of each workflow node.
     debug_url: str
 
+    node_execute_status: Optional[Dict[str, WorkflowRunHistoryNodeExecuteStatus]] = None
+
     @field_validator("error_code", mode="before")
     @classmethod
     def error_code_empty_str_to_zero(cls, v):
@@ -87,6 +105,18 @@ class WorkflowsRunsRunHistoriesClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
+
+        self._execute_nodes: Optional[WorkflowsRunsRunHistoriesExecuteNodesClient] = None
+
+    @property
+    def execute_nodes(self) -> "WorkflowsRunsRunHistoriesExecuteNodesClient":
+        if self._execute_nodes is None:
+            from .execute_nodes import WorkflowsRunsRunHistoriesExecuteNodesClient
+
+            self._execute_nodes = WorkflowsRunsRunHistoriesExecuteNodesClient(
+                base_url=self._base_url, requester=self._requester
+            )
+        return self._execute_nodes
 
     def retrieve(self, *, workflow_id: str, execute_id: str) -> WorkflowRunHistory:
         """
@@ -109,6 +139,18 @@ class AsyncWorkflowsRunsRunHistoriesClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
+
+        self._execute_nodes: Optional[AsyncWorkflowsRunsRunHistoriesExecuteNodesClient] = None
+
+    @property
+    def execute_nodes(self) -> "AsyncWorkflowsRunsRunHistoriesExecuteNodesClient":
+        if self._execute_nodes is None:
+            from .execute_nodes import AsyncWorkflowsRunsRunHistoriesExecuteNodesClient
+
+            self._execute_nodes = AsyncWorkflowsRunsRunHistoriesExecuteNodesClient(
+                base_url=self._base_url, requester=self._requester
+            )
+        return self._execute_nodes
 
     async def retrieve(self, *, workflow_id: str, execute_id: str) -> WorkflowRunHistory:
         """
