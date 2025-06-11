@@ -176,6 +176,7 @@ from .websockets.ws import (
     WebsocketsEvent,
     WebsocketsEventType,
 )
+from .workflows import PublishStatus, WorkflowInfo, WorkflowMode
 from .workflows.runs import (
     WorkflowEvent,
     WorkflowEventError,
@@ -344,6 +345,10 @@ __all__ = [
     "OpusConfig",
     "PCMConfig",
     "OutputAudio",
+    # workflows
+    "WorkflowInfo",
+    "WorkflowMode",
+    "PublishStatus",
     # workflows.runs
     "WorkflowRunResult",
     "WorkflowEventType",
