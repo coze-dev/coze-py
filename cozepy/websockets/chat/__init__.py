@@ -431,27 +431,27 @@ class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
     def on_chat_updated(self, cli: "WebsocketsChatClient", event: ChatUpdatedEvent):
         pass
 
-    # 对话创建成功
+    # 对话开始
     def on_conversation_chat_created(self, cli: "WebsocketsChatClient", event: ConversationChatCreatedEvent):
         pass
 
-    # 对话进行中
+    # 对话正在处理
     def on_conversation_chat_in_progress(self, cli: "WebsocketsChatClient", event: ConversationChatInProgressEvent):
         pass
 
-    # 对话消息增量
+    # 增量消息
     def on_conversation_message_delta(self, cli: "WebsocketsChatClient", event: ConversationMessageDeltaEvent):
         pass
 
-    # 对话音频增量
+    # 增量语音
     def on_conversation_audio_delta(self, cli: "WebsocketsChatClient", event: ConversationAudioDeltaEvent):
         pass
 
-    # 对话消息完成
+    # 消息完成
     def on_conversation_message_completed(self, cli: "WebsocketsChatClient", event: ConversationMessageCompletedEvent):
         pass
 
-    # 对话音频完成
+    # 语音回复完成
     def on_conversation_audio_completed(self, cli: "WebsocketsChatClient", event: ConversationAudioCompletedEvent):
         pass
 
@@ -475,7 +475,7 @@ class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
     def on_conversation_cleared(self, cli: "WebsocketsChatClient", event: ConversationClearedEvent):
         pass
 
-    # 对话中断
+    # 智能体输出中断
     def on_conversation_chat_canceled(self, cli: "WebsocketsChatClient", event: ConversationChatCanceledEvent):
         pass
 
@@ -581,76 +581,103 @@ class WebsocketsChatBuildClient(object):
 
 
 class AsyncWebsocketsChatEventHandler(AsyncWebsocketsBaseEventHandler):
+    # 对话连接成功
     async def on_chat_created(self, cli: "AsyncWebsocketsChatClient", event: ChatCreatedEvent):
         pass
 
+    # 对话配置成功
     async def on_chat_updated(self, cli: "AsyncWebsocketsChatClient", event: ChatUpdatedEvent):
         pass
 
-    async def on_input_audio_buffer_completed(
-        self, cli: "AsyncWebsocketsChatClient", event: InputAudioBufferCompletedEvent
-    ):
-        pass
-
+    # 对话开始
     async def on_conversation_chat_created(self, cli: "AsyncWebsocketsChatClient", event: ConversationChatCreatedEvent):
         pass
 
+    # 对话正在处理
     async def on_conversation_chat_in_progress(
         self, cli: "AsyncWebsocketsChatClient", event: ConversationChatInProgressEvent
     ):
         pass
 
+    # 增量消息
     async def on_conversation_message_delta(
         self, cli: "AsyncWebsocketsChatClient", event: ConversationMessageDeltaEvent
     ):
         pass
 
-    async def on_conversation_audio_transcript_update(
-        self, cli: "AsyncWebsocketsChatClient", event: ConversationAudioTranscriptUpdateEvent
-    ):
+    # 增量语音
+    async def on_conversation_audio_delta(self, cli: "AsyncWebsocketsChatClient", event: ConversationAudioDeltaEvent):
         pass
 
-    async def on_conversation_audio_transcript_completed(
-        self, cli: "AsyncWebsocketsChatClient", event: ConversationAudioTranscriptCompletedEvent
-    ):
-        pass
-
-    async def on_conversation_chat_requires_action(
-        self, cli: "AsyncWebsocketsChatClient", event: ConversationChatRequiresActionEvent
-    ):
-        pass
-
+    # 消息完成
     async def on_conversation_message_completed(
         self, cli: "AsyncWebsocketsChatClient", event: ConversationMessageCompletedEvent
     ):
         pass
 
-    async def on_conversation_audio_delta(self, cli: "AsyncWebsocketsChatClient", event: ConversationAudioDeltaEvent):
-        pass
-
+    # 语音回复完成
     async def on_conversation_audio_completed(
         self, cli: "AsyncWebsocketsChatClient", event: ConversationAudioCompletedEvent
     ):
         pass
 
+    # 对话完成
     async def on_conversation_chat_completed(
         self, cli: "AsyncWebsocketsChatClient", event: ConversationChatCompletedEvent
     ):
         pass
 
+    # 对话失败
     async def on_conversation_chat_failed(self, cli: "AsyncWebsocketsChatClient", event: ConversationChatFailedEvent):
         pass
 
+    # 音频提交完成
+    async def on_input_audio_buffer_completed(
+        self, cli: "AsyncWebsocketsChatClient", event: InputAudioBufferCompletedEvent
+    ):
+        pass
+
+    # 音频清除成功
+    async def on_input_audio_buffer_cleared(
+        self, cli: "AsyncWebsocketsChatClient", event: InputAudioBufferClearedEvent
+    ):
+        pass
+
+    # 上下文清除完成
+    async def on_conversation_cleared(self, cli: "AsyncWebsocketsChatClient", event: ConversationClearedEvent):
+        pass
+
+    # 智能体输出中断
     async def on_conversation_chat_canceled(
         self, cli: "AsyncWebsocketsChatClient", event: ConversationChatCanceledEvent
     ):
         pass
 
+    # 用户语音识别字幕
+    async def on_conversation_audio_transcript_update(
+        self, cli: "AsyncWebsocketsChatClient", event: ConversationAudioTranscriptUpdateEvent
+    ):
+        pass
+
+    # 用户语音识别完成
+    async def on_conversation_audio_transcript_completed(
+        self, cli: "AsyncWebsocketsChatClient", event: ConversationAudioTranscriptCompletedEvent
+    ):
+        pass
+
+    # 端插件请求
+    async def on_conversation_chat_requires_action(
+        self, cli: "AsyncWebsocketsChatClient", event: ConversationChatRequiresActionEvent
+    ):
+        pass
+
+    # 用户开始说话
     async def on_input_audio_buffer_speech_started(
         self, cli: "AsyncWebsocketsChatClient", event: InputAudioBufferSpeechStartedEvent
     ):
         pass
 
+    # 用户结束说话
     async def on_input_audio_buffer_speech_stopped(
         self, cli: "AsyncWebsocketsChatClient", event: InputAudioBufferSpeechStoppedEvent
     ):
