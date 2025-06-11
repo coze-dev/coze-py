@@ -374,7 +374,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
             base_url=base_url,
             requester=requester,
             path="v1/chat",
-            event_type_to_class=_chat_event_type_to_class,
+            event_type_to_class=_chat_event_type_to_class,  # type: ignore
             query=remove_none_values(
                 {
                     "bot_id": bot_id,
@@ -521,7 +521,7 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
             base_url=base_url,
             requester=requester,
             path="v1/chat",
-            event_type_to_class=_chat_event_type_to_class,
+            event_type_to_class=_chat_event_type_to_class,  # type: ignore
             query=remove_none_values(
                 {
                     "bot_id": bot_id,

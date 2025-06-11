@@ -103,7 +103,7 @@ class WebsocketsAudioSpeechClient(WebsocketsBaseClient):
             base_url=base_url,
             requester=requester,
             path="v1/audio/speech",
-            event_type_to_class=_audio_speech_event_type_to_class,
+            event_type_to_class=_audio_speech_event_type_to_class,  # type: ignore
             on_event=on_event,  # type: ignore
             wait_events=[WebsocketsEventType.SPEECH_AUDIO_COMPLETED],
             **kwargs,
@@ -167,7 +167,7 @@ class AsyncWebsocketsAudioSpeechClient(AsyncWebsocketsBaseClient):
             base_url=base_url,
             requester=requester,
             path="v1/audio/speech",
-            event_type_to_class=_audio_speech_event_type_to_class,
+            event_type_to_class=_audio_speech_event_type_to_class,  # type: ignore
             on_event=on_event,  # type: ignore
             wait_events=[WebsocketsEventType.SPEECH_AUDIO_COMPLETED],
             **kwargs,
