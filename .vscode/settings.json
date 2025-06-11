@@ -27,6 +27,5 @@
         "cozepy",
         "logid",
         "respx"
-    ],
-    "java.dependency.syncWithFolderExplorer": false,
+    ]
 } 
