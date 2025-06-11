@@ -344,7 +344,7 @@ class WebsocketsBaseClient(abc.ABC):
                     event_type = message.get("event_type")
                     log_debug("[%s] receive event, type=%s, event=%s", self._path, event_type, data)
 
-                    event = self._load_all_event(message)
+                    event = self._parse_event(message)
                     if event:
                         handler = self._on_event.get(event_type)
                         if handler:
@@ -356,7 +356,7 @@ class WebsocketsBaseClient(abc.ABC):
         except Exception as e:
             self._handle_error(e)
 
-    def _load_all_event(self, message: Dict) -> Optional[WebsocketsEvent]:
+    def _parse_event(self, message: Dict) -> Optional[WebsocketsEvent]:
         event_id = message.get("id") or ""
         event_type = message.get("event_type") or ""
         detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
@@ -565,13 +565,13 @@ class AsyncWebsocketsBaseClient(abc.ABC):
                 log_debug("[%s] receive event, type=%s, event=%s", self._path, event_type, data)
 
                 handler = self._on_event.get(event_type)
-                event = self._load_all_event(message)
+                event = self._parse_event(message)
                 if handler and event:
                     await handler(self, event)
         except Exception as e:
             await self._handle_error(e)
 
-    def _load_all_event(self, message: Dict) -> Optional[WebsocketsEvent]:
+    def _parse_event(self, message: Dict) -> Optional[WebsocketsEvent]:
         event_id = message.get("id") or ""
         event_type = message.get("event_type") or ""
         detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
