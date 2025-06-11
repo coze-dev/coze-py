@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Optional
 
 from cozepy.model import CozeModel
@@ -25,6 +26,12 @@ class RoomVideoConfig(CozeModel):
     stream_video_type: Optional[str]
 
 
+class RoomMode(str, Enum):
+    DEFAULT = "default"
+    S2S = "s2s"
+    PODCAST = "podcast"
+
+
 class RoomConfig(CozeModel):
     # The audio config of the room.
     audio_config: Optional[RoomAudioConfig]
@@ -32,6 +39,8 @@ class RoomConfig(CozeModel):
     video_config: Optional[RoomVideoConfig]
     # 自定义开场白
     prologue_content: Optional[str]
+    # 房间模式
+    room_mode: Optional[RoomMode]
 
 
 class CreateRoomResp(CozeModel):
