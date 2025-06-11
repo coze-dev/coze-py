@@ -146,15 +146,23 @@ _audio_speech_event_factory = WebsocketsEventFactory(
 
 
 class WebsocketsAudioSpeechEventHandler(WebsocketsBaseEventHandler):
+    # 语音合成连接成功
     def on_speech_created(self, cli: "WebsocketsAudioSpeechClient", event: SpeechCreatedEvent):
         pass
 
+    # 配置更新完成
+    def on_speech_updated(self, cli: "WebsocketsAudioSpeechClient", event: SpeechUpdatedEvent):
+        pass
+
+    # input_text_buffer 提交完成
     def on_input_text_buffer_completed(self, cli: "WebsocketsAudioSpeechClient", event: InputTextBufferCompletedEvent):
         pass
 
+    # 合成增量语音
     def on_speech_audio_update(self, cli: "WebsocketsAudioSpeechClient", event: SpeechAudioUpdateEvent):
         pass
 
+    # 合成完成
     def on_speech_audio_completed(self, cli: "WebsocketsAudioSpeechClient", event: SpeechAudioCompletedEvent):
         pass
 
@@ -179,14 +187,17 @@ class WebsocketsAudioSpeechClient(WebsocketsBaseClient):
             **kwargs,
         )
 
+    # 更新语音合成配置
+    def speech_update(self, event: SpeechUpdateEvent) -> None:
+        self._input_queue.put(event)
+
+    # 流式输入文字
     def input_text_buffer_append(self, data: InputTextBufferAppendEvent.Data) -> None:
         self._input_queue.put(InputTextBufferAppendEvent.model_validate({"data": data}))
 
+    # 提交文字
     def input_text_buffer_complete(self) -> None:
         self._input_queue.put(InputTextBufferCompleteEvent.model_validate({}))
-
-    def speech_update(self, event: SpeechUpdateEvent) -> None:
-        self._input_queue.put(event)
 
 
 class WebsocketsAudioSpeechBuildClient(object):
@@ -206,17 +217,25 @@ class WebsocketsAudioSpeechBuildClient(object):
 
 
 class AsyncWebsocketsAudioSpeechEventHandler(AsyncWebsocketsBaseEventHandler):
+    # 语音合成连接成功
     async def on_speech_created(self, cli: "AsyncWebsocketsAudioSpeechClient", event: SpeechCreatedEvent):
         pass
 
+    # 配置更新完成
+    async def on_speech_updated(self, cli: "AsyncWebsocketsAudioSpeechClient", event: SpeechUpdatedEvent):
+        pass
+
+    # input_text_buffer 提交完成
     async def on_input_text_buffer_completed(
         self, cli: "AsyncWebsocketsAudioSpeechClient", event: InputTextBufferCompletedEvent
     ):
         pass
 
+    # 合成增量语音
     async def on_speech_audio_update(self, cli: "AsyncWebsocketsAudioSpeechClient", event: SpeechAudioUpdateEvent):
         pass
 
+    # 合成完成
     async def on_speech_audio_completed(
         self, cli: "AsyncWebsocketsAudioSpeechClient", event: SpeechAudioCompletedEvent
     ):
@@ -243,14 +262,17 @@ class AsyncWebsocketsAudioSpeechClient(AsyncWebsocketsBaseClient):
             **kwargs,
         )
 
+    # 更新语音合成配置
+    async def speech_update(self, event: SpeechUpdateEvent) -> None:
+        await self._input_queue.put(event)
+
+    # 流式输入文字
     async def input_text_buffer_append(self, data: InputTextBufferAppendEvent.Data) -> None:
         await self._input_queue.put(InputTextBufferAppendEvent.model_validate({"data": data}))
 
+    # 提交文字
     async def input_text_buffer_complete(self) -> None:
         await self._input_queue.put(InputTextBufferCompleteEvent.model_validate({}))
-
-    async def speech_update(self, data: SpeechUpdateEvent.Data) -> None:
-        await self._input_queue.put(SpeechUpdateEvent.model_validate({"data": data}))
 
 
 class AsyncWebsocketsAudioSpeechBuildClient(object):

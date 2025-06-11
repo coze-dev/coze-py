@@ -61,9 +61,9 @@ class WebsocketsEventType(str, Enum):
 
     # v1/audio/speech
     # req
+    SPEECH_UPDATE = "speech.update"  # 更新语音合成配置
     INPUT_TEXT_BUFFER_APPEND = "input_text_buffer.append"  # 流式输入文字
     INPUT_TEXT_BUFFER_COMPLETE = "input_text_buffer.complete"  # 提交文字
-    SPEECH_UPDATE = "speech.update"  # 更新语音合成配置
     # resp
     # v1/audio/speech
     SPEECH_CREATED = "speech.created"  # 语音合成连接成功
