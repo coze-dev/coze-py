@@ -23,7 +23,7 @@ class PublishStatus(str, Enum):
     UNPUBLISHED_DRAFT = "unpublished_draft"  # 未发布的最新草稿版本
 
 
-class Workflow(CozeModel):
+class WorkflowInfo(CozeModel):
     workflow_id: str
     workflow_name: str
     description: str
@@ -31,8 +31,8 @@ class Workflow(CozeModel):
     app_id: str
 
 
-class _PrivateListWorkflowData(CozeModel, NumberPagedResponse[Workflow]):
-    items: List[Workflow]
+class _PrivateListWorkflowData(CozeModel, NumberPagedResponse[WorkflowInfo]):
+    items: List[WorkflowInfo]
     has_more: bool
 
     def get_total(self) -> Optional[int]:
@@ -41,7 +41,7 @@ class _PrivateListWorkflowData(CozeModel, NumberPagedResponse[Workflow]):
     def get_has_more(self) -> Optional[bool]:
         return self.has_more
 
-    def get_items(self) -> List[Workflow]:
+    def get_items(self) -> List[WorkflowInfo]:
         return self.items
 
 
@@ -77,7 +77,7 @@ class WorkflowsClient(object):
         publish_status: Optional[PublishStatus] = None,
         page_num: int = 1,
         page_size: int = 100,
-    ) -> NumberPaged[Workflow]:
+    ) -> NumberPaged[WorkflowInfo]:
         url = f"{self._base_url}/v1/workflows"
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
@@ -139,7 +139,7 @@ class AsyncWorkflowsClient(object):
         page_num: int = 1,
         page_size: int = 100,
         **kwargs,
-    ) -> AsyncNumberPaged[Workflow]:
+    ) -> AsyncNumberPaged[WorkflowInfo]:
         url = f"{self._base_url}/v1/workflows"
         headers: Optional[dict] = kwargs.get("headers")
 
