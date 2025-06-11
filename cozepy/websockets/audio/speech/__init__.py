@@ -61,7 +61,7 @@ class SpeechAudioUpdateEvent(WebsocketsEvent):
 
         @field_validator("delta", mode="before")
         @classmethod
-        def validate_delta(cls, delta: bytes):
+        def validate_delta(cls, delta: str):
             return base64.b64decode(delta)
 
     event_type: WebsocketsEventType = WebsocketsEventType.SPEECH_AUDIO_UPDATE
