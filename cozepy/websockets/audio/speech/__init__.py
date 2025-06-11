@@ -59,7 +59,7 @@ class SpeechAudioUpdateEvent(WebsocketsEvent):
         def serialize_delta(self, delta: bytes, _info):
             return base64.b64encode(delta)
 
-        @field_validator("delta")
+        @field_validator("delta", mode="before")
         @classmethod
         def validate_delta(cls, delta: bytes):
             return base64.b64decode(delta)
