@@ -3,7 +3,6 @@ from typing import Callable, Dict, Optional, Union
 
 from pydantic import BaseModel, field_serializer
 
-from cozepy.log import log_warning
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 from cozepy.websockets.ws import (
@@ -78,6 +77,14 @@ class TranscriptionsMessageCompletedEvent(WebsocketsEvent):
     event_type: WebsocketsEventType = WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_COMPLETED
 
 
+_audio_transcriptions_event_type_to_class = {
+    WebsocketsEventType.TRANSCRIPTIONS_CREATED.value: TranscriptionsCreatedEvent,
+    WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED.value: InputAudioBufferCompletedEvent,
+    WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_UPDATE.value: TranscriptionsMessageUpdateEvent,
+    WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_COMPLETED.value: TranscriptionsMessageCompletedEvent,
+}
+
+
 class WebsocketsAudioTranscriptionsEventHandler(WebsocketsBaseEventHandler):
     def on_transcriptions_created(self, cli: "WebsocketsAudioTranscriptionsClient", event: TranscriptionsCreatedEvent):
         pass
@@ -114,6 +121,7 @@ class WebsocketsAudioTranscriptionsClient(WebsocketsBaseClient):
             path="v1/audio/transcriptions",
             on_event=on_event,  # type: ignore
             wait_events=[WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_COMPLETED],
+            event_type_to_class=_audio_transcriptions_event_type_to_class,
             **kwargs,
         )
 
@@ -125,48 +133,6 @@ class WebsocketsAudioTranscriptionsClient(WebsocketsBaseClient):
 
     def input_audio_buffer_complete(self) -> None:
         self._input_queue.put(InputAudioBufferCompleteEvent.model_validate({}))
-
-    def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]:
-        event_id = message.get("id") or ""
-        event_type = message.get("event_type") or ""
-        detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
-        data = message.get("data") or {}
-        if event_type == WebsocketsEventType.TRANSCRIPTIONS_CREATED.value:
-            return TranscriptionsCreatedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        elif event_type == WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED.value:
-            return InputAudioBufferCompletedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        elif event_type == WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_UPDATE.value:
-            return TranscriptionsMessageUpdateEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": TranscriptionsMessageUpdateEvent.Data.model_validate(
-                        {
-                            "content": data.get("content") or "",
-                        }
-                    ),
-                }
-            )
-        elif event_type == WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_COMPLETED.value:
-            return TranscriptionsMessageCompletedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        else:
-            log_warning("[v1/audio/transcriptions] unknown event=%s, logid=%s", event_type, detail.logid)
-        return None
 
 
 class WebsocketsAudioTranscriptionsBuildClient(object):
@@ -226,6 +192,7 @@ class AsyncWebsocketsAudioTranscriptionsClient(AsyncWebsocketsBaseClient):
             path="v1/audio/transcriptions",
             on_event=on_event,  # type: ignore
             wait_events=[WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_COMPLETED],
+            event_type_to_class=_audio_transcriptions_event_type_to_class,
             **kwargs,
         )
 
@@ -237,48 +204,6 @@ class AsyncWebsocketsAudioTranscriptionsClient(AsyncWebsocketsBaseClient):
 
     async def input_audio_buffer_complete(self) -> None:
         await self._input_queue.put(InputAudioBufferCompleteEvent.model_validate({}))
-
-    def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]:
-        event_id = message.get("id") or ""
-        event_type = message.get("event_type") or ""
-        detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
-        data = message.get("data") or {}
-        if event_type == WebsocketsEventType.TRANSCRIPTIONS_CREATED.value:
-            return TranscriptionsCreatedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        elif event_type == WebsocketsEventType.INPUT_AUDIO_BUFFER_COMPLETED.value:
-            return InputAudioBufferCompletedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        elif event_type == WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_UPDATE.value:
-            return TranscriptionsMessageUpdateEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                    "data": TranscriptionsMessageUpdateEvent.Data.model_validate(
-                        {
-                            "content": data.get("content") or "",
-                        }
-                    ),
-                }
-            )
-        elif event_type == WebsocketsEventType.TRANSCRIPTIONS_MESSAGE_COMPLETED.value:
-            return TranscriptionsMessageCompletedEvent.model_validate(
-                {
-                    "id": event_id,
-                    "detail": detail,
-                }
-            )
-        else:
-            log_warning("[v1/audio/transcriptions] unknown event=%s, logid=%s", event_type, detail.logid)
-        return None
 
 
 class AsyncWebsocketsAudioTranscriptionsBuildClient(object):

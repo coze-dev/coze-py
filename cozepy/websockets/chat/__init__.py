@@ -274,7 +274,6 @@ class ConversationAudioTranscriptUpdateEvent(WebsocketsEvent):
     data: Data
 
 
-# 事件类型到事件类的映射
 _chat_event_type_to_class = {
     WebsocketsEventType.CHAT_CREATED.value: ChatCreatedEvent,
     WebsocketsEventType.CHAT_UPDATED.value: ChatUpdatedEvent,
