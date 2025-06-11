@@ -551,8 +551,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
     def input_audio_buffer_complete(self) -> None:
         self._input_queue.put(InputAudioBufferCompleteEvent.model_validate({}))
 
-        # 清除缓冲区音频
-
+    # 清除缓冲区音频
     def input_audio_buffer_clear(self) -> None:
         self._input_queue.put(InputAudioBufferClearEvent.model_validate({}))
 
@@ -560,8 +559,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
     def conversation_chat_submit_tool_outputs(self, data: ConversationChatSubmitToolOutputsEvent.Data) -> None:
         self._input_queue.put(ConversationChatSubmitToolOutputsEvent.model_validate({"data": data}))
 
-        # 清除上下文
-
+    # 清除上下文
     def conversation_clear(self) -> None:
         self._input_queue.put(ConversationClear.model_validate({}))
 
@@ -729,23 +727,37 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
             **kwargs,
         )
 
+    # 更新对话配置
     async def chat_update(self, data: ChatUpdateEvent.Data) -> None:
         await self._input_queue.put(ChatUpdateEvent.model_validate({"data": data}))
 
-    async def conversation_chat_submit_tool_outputs(self, data: ConversationChatSubmitToolOutputsEvent.Data) -> None:
-        await self._input_queue.put(ConversationChatSubmitToolOutputsEvent.model_validate({"data": data}))
-
-    async def conversation_chat_cancel(self) -> None:
-        await self._input_queue.put(ConversationChatCancelEvent.model_validate({}))
-
-    async def conversation_message_create(self, data: ConversationMessageCreateEvent.Data) -> None:
-        await self._input_queue.put(ConversationMessageCreateEvent.model_validate({"data": data}))
-
+    # 流式上传音频片段
     async def input_audio_buffer_append(self, data: InputAudioBufferAppendEvent.Data) -> None:
         await self._input_queue.put(InputAudioBufferAppendEvent.model_validate({"data": data}))
 
+    # 提交音频
     async def input_audio_buffer_complete(self) -> None:
         await self._input_queue.put(InputAudioBufferCompleteEvent.model_validate({}))
+
+    # 清除缓冲区音频
+    async def input_audio_buffer_clear(self) -> None:
+        await self._input_queue.put(InputAudioBufferClearEvent.model_validate({}))
+
+    # 手动提交对话内容
+    async def conversation_chat_submit_tool_outputs(self, data: ConversationChatSubmitToolOutputsEvent.Data) -> None:
+        await self._input_queue.put(ConversationChatSubmitToolOutputsEvent.model_validate({"data": data}))
+
+    # 清除上下文
+    async def conversation_clear(self) -> None:
+        await self._input_queue.put(ConversationClear.model_validate({}))
+
+    # 提交端插件执行结果
+    async def conversation_chat_cancel(self) -> None:
+        await self._input_queue.put(ConversationChatCancelEvent.model_validate({}))
+
+    # 打断智能体输出
+    async def conversation_message_create(self, data: ConversationMessageCreateEvent.Data) -> None:
+        await self._input_queue.put(ConversationMessageCreateEvent.model_validate({"data": data}))
 
 
 class AsyncWebsocketsChatBuildClient(object):
