@@ -191,12 +191,12 @@ from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
 
 __all__ = [
     "VERSION",
-    # audio.rooms
-    "CreateRoomResp",
     # audio.live
     "LiveInfo",
     "StreamInfo",
     "LiveType",
+    # audio.rooms
+    "CreateRoomResp",
     # audio.voices
     "Voice",
     "AudioFormat",
