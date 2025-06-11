@@ -91,7 +91,7 @@ class WorkflowRunHistory(CozeModel):
     # and output information of each workflow node.
     debug_url: str
 
-    node_execute_status: Dict[str, WorkflowRunHistoryNodeExecuteStatus]
+    node_execute_status: Optional[Dict[str, WorkflowRunHistoryNodeExecuteStatus]] = None
 
     @field_validator("error_code", mode="before")
     @classmethod
