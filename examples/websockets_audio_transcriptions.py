@@ -61,7 +61,7 @@ class AudioTranscriptionsEventHandlerSub(AsyncWebsocketsAudioTranscriptionsEvent
     """
 
     async def on_closed(self, cli: "AsyncWebsocketsAudioTranscriptionsClient"):
-        log_info("[examples] Connect closed")
+        log_info("[examples] connect closed")
 
     async def on_error(self, cli: "AsyncWebsocketsAudioTranscriptionsClient", e: Exception):
         log_info("[examples] Error occurred: %s", e)

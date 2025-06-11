@@ -1,7 +1,7 @@
 import base64
 from typing import Callable, Dict, Optional, Union
 
-from pydantic import BaseModel, field_serializer
+from pydantic import BaseModel, field_serializer, field_validator
 
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
@@ -57,6 +57,11 @@ class SpeechAudioUpdateEvent(WebsocketsEvent):
         @field_serializer("delta")
         def serialize_delta(self, delta: bytes, _info):
             return base64.b64encode(delta)
+
+        @field_validator("delta")
+        @classmethod
+        def validate_delta(cls, delta: bytes):
+            return base64.b64decode(delta)
 
     event_type: WebsocketsEventType = WebsocketsEventType.SPEECH_AUDIO_UPDATE
     data: Data

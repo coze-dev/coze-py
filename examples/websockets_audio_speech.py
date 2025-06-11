@@ -63,6 +63,9 @@ class AsyncWebsocketsAudioSpeechEventHandlerSub(AsyncWebsocketsAudioSpeechEventH
 
     delta = []
 
+    async def on_closed(self, cli: "AsyncWebsocketsAudioSpeechClient"):
+        log_info("[examples] connect closed")
+
     async def on_input_text_buffer_completed(
         self, cli: "AsyncWebsocketsAudioSpeechClient", event: InputTextBufferCompletedEvent
     ):
