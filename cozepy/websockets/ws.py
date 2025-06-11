@@ -8,7 +8,8 @@ import traceback
 from abc import ABC
 from contextlib import asynccontextmanager, contextmanager
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set
+from multiprocessing.util import sub_warning
+from typing import Any, Callable, Dict, List, Optional, Set, Type, get_type_hints
 
 if sys.version_info >= (3, 8):
     # note: >=3.7,<3.8 not support asyncio
@@ -184,6 +185,42 @@ class OutputAudio(BaseModel):
     voice_id: Optional[str] = None
 
 
+class WebsocketsEventFactory(object):
+    def __init__(self, event_type_to_class: Dict[str, Type[WebsocketsEvent]]):
+        self._event_type_to_class = event_type_to_class
+
+    def get_data_type(cls, event_class: WebsocketsEvent) -> Optional[Type[BaseModel]]:
+        type_hints = get_type_hints(event_class)
+        data_type = type_hints.get("data")
+        if data_type:
+            return data_type
+        return None
+
+    @classmethod
+    def create_event(cls, path: str, message: Dict) -> Optional[WebsocketsEvent]:
+        event_id = message.get("id") or ""
+        detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
+        event_type = message.get("event_type") or ""
+        data = message.get("data") or {}
+
+        event_class = cls._event_type_to_class.get(event_type)
+        if not event_class:
+            sub_warning("[%s] unknown event, type=%s, logid=%s", path, event_type, detail.logid)
+            return None
+
+        event_data = {
+            "id": event_id,
+            "detail": detail,
+        }
+
+        if data:
+            data_class = cls.get_data_type(event_class)
+            if data_class:
+                event_data["data"] = data_class.model_validate(data)
+
+        return event_class.model_validate(event_data)
+
+
 class WebsocketsBaseClient(abc.ABC):
     class State(str, Enum):
         """
@@ -204,6 +241,7 @@ class WebsocketsBaseClient(abc.ABC):
         query: Optional[Dict[str, str]] = None,
         on_event: Optional[Dict[WebsocketsEventType, Callable]] = None,
         wait_events: Optional[List[WebsocketsEventType]] = None,
+        event_type_to_class: Optional[Dict[str, Type[WebsocketsEvent]]] = None,
         **kwargs,
     ):
         self._state = self.State.INITIALIZED
@@ -216,6 +254,7 @@ class WebsocketsBaseClient(abc.ABC):
         self._on_event = on_event.copy() if on_event else {}
         self._headers = kwargs.get("headers")
         self._wait_events = wait_events.copy() if wait_events else []
+        self._event_factory = WebsocketsEventFactory(event_type_to_class) if event_type_to_class else None
 
         self._input_queue: queue.Queue[Optional[WebsocketsEvent]] = queue.Queue()
         self._ws: Optional[websockets.sync.client.ClientConnection] = None
@@ -327,10 +366,9 @@ class WebsocketsBaseClient(abc.ABC):
                     "data": CozeAPIError(code, msg, WebsocketsEvent.Detail.model_validate(detail).logid),
                 }
             )
-        return self._load_event(message)
-
-    @abc.abstractmethod
-    def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]: ...
+        if self._event_factory:
+            return self._event_factory.create_event(self._path, message)
+        return None
 
     def _wait_completed(self, events: List[WebsocketsEventType], wait_all: bool) -> None:
         while True:
