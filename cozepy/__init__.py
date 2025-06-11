@@ -185,7 +185,13 @@ from .workflows.runs import (
     WorkflowEventType,
     WorkflowRunResult,
 )
-from .workflows.runs.run_histories import WorkflowExecuteStatus, WorkflowRunHistory, WorkflowRunMode
+from .workflows.runs.run_histories import (
+    WorkflowExecuteStatus,
+    WorkflowRunHistory,
+    WorkflowRunHistoryNodeExecuteStatus,
+    WorkflowRunMode,
+)
+from .workflows.runs.run_histories.execute_nodes import WorkflowNodeExecuteHistory
 from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
 
 __all__ = [
@@ -356,6 +362,9 @@ __all__ = [
     "WorkflowExecuteStatus",
     "WorkflowRunMode",
     "WorkflowRunHistory",
+    "WorkflowRunHistoryNodeExecuteStatus",
+    # workflows.runs.run_histories.execute_nodes
+    "WorkflowNodeExecuteHistory",
     # workspaces
     "WorkspaceRoleType",
     "WorkspaceType",
