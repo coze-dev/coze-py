@@ -1,9 +1,12 @@
 from enum import Enum
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from cozepy.model import AsyncTokenPaged, CozeModel, NumberPaged, TokenPaged, TokenPagedResponse
 from cozepy.request import HTTPRequest, Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
+
+if TYPE_CHECKING:
+    from cozepy.api_apps.events import APIAppsEventsClient, AsyncAPIAppsEventsClient
 
 
 class AppType(str, Enum):
@@ -45,6 +48,16 @@ class APIAppsClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
+
+        self._events: Optional[APIAppsEventsClient] = None
+
+    @property
+    def events(self) -> "APIAppsEventsClient":
+        if not self._events:
+            from .events import APIAppsEventsClient
+
+            self._events = APIAppsEventsClient(self._base_url, self._requester)
+        return self._events
 
     def create(
         self,
@@ -140,6 +153,16 @@ class AsyncAPIAppsClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
+
+        self._events: Optional[AsyncAPIAppsEventsClient] = None
+
+    @property
+    def events(self) -> "AsyncAPIAppsEventsClient":
+        if not self._events:
+            from .events import AsyncAPIAppsEventsClient
+
+            self._events = AsyncAPIAppsEventsClient(self._base_url, self._requester)
+        return self._events
 
     async def create(
         self,
