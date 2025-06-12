@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import TYPE_CHECKING, List, Optional
 
-from cozepy.model import AsyncTokenPaged, CozeModel, NumberPaged, TokenPaged, TokenPagedResponse
+from cozepy.model import AsyncTokenPaged, CozeModel, TokenPaged, TokenPagedResponse
 from cozepy.request import HTTPRequest, Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
 
@@ -16,9 +16,10 @@ class AppType(str, Enum):
 
 class APIApp(CozeModel):
     id: str
-    type: AppType
-    connector_id: Optional[str] = None
+    app_type: AppType
     verify_token: str
+    name: Optional[str] = None
+    connector_id: Optional[str] = None
     callback_url: Optional[str] = None
 
 
@@ -123,7 +124,7 @@ class APIAppsClient(object):
 
     def list(
         self, *, app_type: Optional[AppType] = None, page_token: str = "", page_size: int = 20
-    ) -> NumberPaged[APIApp]:
+    ) -> TokenPaged[APIApp]:
         url = f"{self._base_url}/v1/api_apps"
 
         def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
@@ -228,11 +229,11 @@ class AsyncAPIAppsClient(object):
 
     async def list(
         self, *, app_type: Optional[AppType] = None, page_token: str = "", page_size: int = 20
-    ) -> NumberPaged[APIApp]:
+    ) -> TokenPaged[APIApp]:
         url = f"{self._base_url}/v1/api_apps"
 
-        def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
-            return self._requester.make_request(
+        async def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
+            return await self._requester.amake_request(
                 "GET",
                 url,
                 params=remove_none_values(

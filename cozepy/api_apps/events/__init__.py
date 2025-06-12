@@ -1,8 +1,15 @@
 from typing import List, Optional
 
-from cozepy.model import CozeModel
+from cozepy.model import AsyncTokenPaged, CozeModel, HTTPRequest, TokenPaged, TokenPagedResponse
 from cozepy.request import Requester
-from cozepy.util import remove_url_trailing_slash
+from cozepy.util import remove_none_values, remove_url_trailing_slash
+
+
+class APIAppEvent(CozeModel):
+    app_id: str
+    name: str
+    description: str
+    event_type: str
 
 
 class CreateAPIAppsEventsResp(CozeModel):
@@ -15,6 +22,20 @@ class UpdateAPIAppsEventsResp(CozeModel):
 
 class DeleteAPIAppsEventsResp(CozeModel):
     pass
+
+
+class _PrivateListAPIAppsEventsData(CozeModel, TokenPagedResponse[APIAppEvent]):
+    items: List[APIAppEvent]
+    next_page_token: str
+
+    def get_next_page_token(self) -> Optional[str]:
+        return self.next_page_token
+
+    def get_has_more(self) -> Optional[bool]:
+        return None
+
+    def get_items(self) -> List[APIAppEvent]:
+        return self.items
 
 
 class APIAppsEventsClient(object):
@@ -45,6 +66,30 @@ class APIAppsEventsClient(object):
         headers: Optional[dict] = kwargs.get("headers")
 
         return self._requester.request("delete", url, False, cast=DeleteAPIAppsEventsResp, body=body, headers=headers)
+
+    def list(self, *, app_id: str, page_token: str = "", page_size: int = 20) -> TokenPaged[APIAppEvent]:
+        url = f"{self._base_url}/v1/api_apps/{app_id}/events"
+
+        def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
+            return self._requester.make_request(
+                "GET",
+                url,
+                params=remove_none_values(
+                    {
+                        "page_size": i_page_size,
+                        "page_token": i_page_token,
+                    }
+                ),
+                cast=_PrivateListAPIAppsEventsData,
+                stream=False,
+            )
+
+        return TokenPaged(
+            page_token=page_token,
+            page_size=page_size,
+            requestor=self._requester,
+            request_maker=request_maker,
+        )
 
 
 class AsyncAPIAppsEventsClient(object):
@@ -78,4 +123,28 @@ class AsyncAPIAppsEventsClient(object):
 
         return await self._requester.arequest(
             "delete", url, False, cast=DeleteAPIAppsEventsResp, body=body, headers=headers
+        )
+
+    async def list(self, *, app_id: str, page_token: str = "", page_size: int = 20) -> TokenPaged[APIAppEvent]:
+        url = f"{self._base_url}/v1/api_apps/{app_id}/events"
+
+        async def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
+            return self._requester.amake_request(
+                "GET",
+                url,
+                params=remove_none_values(
+                    {
+                        "page_size": i_page_size,
+                        "page_token": i_page_token,
+                    }
+                ),
+                cast=_PrivateListAPIAppsEventsData,
+                stream=False,
+            )
+
+        return await AsyncTokenPaged.build(
+            page_token=page_token,
+            page_size=page_size,
+            requestor=self._requester,
+            request_maker=request_maker,
         )
