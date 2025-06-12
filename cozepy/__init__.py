@@ -1,6 +1,20 @@
 from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
 from .audio.transcriptions import CreateTranscriptionsResp
+from .audio.voiceprint_groups import (
+    CreateVoicePrintGroupResp,
+    DeleteVoicePrintGroupResp,
+    UpdateVoicePrintGroupResp,
+    VoicePrintGroup,
+)
+from .audio.voiceprint_groups.features import (
+    CreateVoicePrintGroupFeatureResp,
+    DeleteVoicePrintGroupFeatureResp,
+    FeatureScore,
+    SpeakerIdentifyResp,
+    UpdateVoicePrintGroupFeatureResp,
+    VoicePrintGroupFeature,
+)
 from .audio.voices import Voice
 from .auth import (
     AsyncAuth,
@@ -197,6 +211,18 @@ __all__ = [
     "AudioFormat",
     # audio.transcriptions
     "CreateTranscriptionsResp",
+    # audio.voiceprint_groups
+    "VoicePrintGroup",
+    "CreateVoicePrintGroupResp",
+    "UpdateVoicePrintGroupResp",
+    "DeleteVoicePrintGroupResp",
+    # audio.voiceprint_groups.features
+    "VoicePrintGroupFeature",
+    "CreateVoicePrintGroupFeatureResp",
+    "UpdateVoicePrintGroupFeatureResp",
+    "DeleteVoicePrintGroupFeatureResp",
+    "SpeakerIdentifyResp",
+    "FeatureScore",
     # auth
     "load_oauth_app_from_config",
     "AsyncDeviceOAuthApp",
