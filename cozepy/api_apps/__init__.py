@@ -76,11 +76,13 @@ class APIAppsClient(object):
         :return: The api app object.
         """
         url = f"{self._base_url}/v1/api_apps"
-        body = {
-            "app_type": app_type,
-            "name": name,
-            "connector_id": connector_id,
-        }
+        body = remove_none_values(
+            {
+                "app_type": app_type,
+                "name": name,
+                "connector_id": connector_id,
+            }
+        )
         headers: Optional[dict] = kwargs.get("headers")
 
         return self._requester.request("post", url, False, cast=APIApp, body=body, headers=headers)
@@ -181,11 +183,13 @@ class AsyncAPIAppsClient(object):
         :return: The api app object.
         """
         url = f"{self._base_url}/v1/api_apps"
-        body = {
-            "app_type": app_type,
-            "name": name,
-            "connector_id": connector_id,
-        }
+        body = remove_none_values(
+            {
+                "app_type": app_type,
+                "name": name,
+                "connector_id": connector_id,
+            }
+        )
         headers: Optional[dict] = kwargs.get("headers")
 
         return await self._requester.arequest("post", url, False, cast=APIApp, body=body, headers=headers)
