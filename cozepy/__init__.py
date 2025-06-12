@@ -1,7 +1,12 @@
 from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
 from .audio.transcriptions import CreateTranscriptionsResp
-from .audio.voiceprint_groups import CreateVoicePrintGroupResp, DeleteVoicePrintGroupResp, UpdateVoicePrintGroupResp
+from .audio.voiceprint_groups import (
+    CreateVoicePrintGroupResp,
+    DeleteVoicePrintGroupResp,
+    UpdateVoicePrintGroupResp,
+    VoicePrintGroup,
+)
 from .audio.voices import Voice
 from .auth import (
     AsyncAuth,
@@ -199,6 +204,7 @@ __all__ = [
     # audio.transcriptions
     "CreateTranscriptionsResp",
     # audio.voiceprint_groups
+    "VoicePrintGroup",
     "CreateVoicePrintGroupResp",
     "UpdateVoicePrintGroupResp",
     "DeleteVoicePrintGroupResp",
