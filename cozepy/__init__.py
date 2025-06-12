@@ -1,3 +1,5 @@
+from .api_apps import APIApp, AppType, DeleteAPIAppsResp, UpdateAPIAppsResp
+from .api_apps.events import CreateAPIAppsEventsResp, DeleteAPIAppsEventsResp
 from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
 from .audio.transcriptions import CreateTranscriptionsResp
@@ -190,6 +192,14 @@ from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
 
 __all__ = [
     "VERSION",
+    # api_apps
+    "APIApp",
+    "AppType",
+    "UpdateAPIAppsResp",
+    "DeleteAPIAppsResp",
+    # api_apps.events
+    "CreateAPIAppsEventsResp",
+    "DeleteAPIAppsEventsResp",
     # audio.rooms
     "CreateRoomResp",
     # audio.voices
