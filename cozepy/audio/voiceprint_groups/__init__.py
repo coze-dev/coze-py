@@ -1,8 +1,11 @@
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
+
+if TYPE_CHECKING:
+    from .features import AsyncVoiceprintGroupsFeaturesClient, VoiceprintGroupsFeaturesClient
 
 
 class CreateVoicePrintGroupResp(CozeModel):
@@ -45,6 +48,16 @@ class VoiceprintGroupsClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
+
+        self._features: Optional[VoiceprintGroupsFeaturesClient] = None
+
+    @property
+    def features(self) -> "VoiceprintGroupsFeaturesClient":
+        if self._features is None:
+            from .features import VoiceprintGroupsFeaturesClient
+
+            self._features = VoiceprintGroupsFeaturesClient(base_url=self._base_url, requester=self._requester)
+        return self._features
 
     def create(
         self,
@@ -148,6 +161,16 @@ class AsyncVoiceprintGroupsClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
+
+        self._features: Optional[AsyncVoiceprintGroupsFeaturesClient] = None
+
+    @property
+    def features(self) -> "AsyncVoiceprintGroupsFeaturesClient":
+        if self._features is None:
+            from .features import AsyncVoiceprintGroupsFeaturesClient
+
+            self._features = AsyncVoiceprintGroupsFeaturesClient(base_url=self._base_url, requester=self._requester)
+        return self._features
 
     async def create(
         self,
