@@ -201,6 +201,7 @@ from .workflows.runs import (
 )
 from .workflows.runs.run_histories import WorkflowExecuteStatus, WorkflowRunHistory, WorkflowRunMode
 from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
+from .workspaces.members import CreateWorkspaceMemberResp, DeleteWorkspaceMemberResp, WorkspaceMember
 
 __all__ = [
     # workspaces.members
