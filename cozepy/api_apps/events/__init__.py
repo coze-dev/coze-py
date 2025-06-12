@@ -45,3 +45,37 @@ class APIAppsEventsClient(object):
         headers: Optional[dict] = kwargs.get("headers")
 
         return self._requester.request("delete", url, False, cast=DeleteAPIAppsEventsResp, body=body, headers=headers)
+
+
+class AsyncAPIAppsEventsClient(object):
+    def __init__(self, base_url: str, requester: Requester):
+        self._base_url = remove_url_trailing_slash(base_url)
+        self._requester = requester
+
+    async def create(
+        self,
+        *,
+        app_id: str,
+        event_types: List[str],
+        **kwargs,
+    ) -> CreateAPIAppsEventsResp:
+        url = f"{self._base_url}/v1/api_apps/{app_id}/events"
+        body = {
+            "event_types": event_types,
+        }
+        headers: Optional[dict] = kwargs.get("headers")
+
+        return await self._requester.arequest(
+            "post", url, False, cast=CreateAPIAppsEventsResp, body=body, headers=headers
+        )
+
+    async def delete(self, *, app_id: str, event_types: List[str], **kwargs) -> DeleteAPIAppsEventsResp:
+        url = f"{self._base_url}/v1/api_apps/{app_id}/events"
+        body = {
+            "event_types": event_types,
+        }
+        headers: Optional[dict] = kwargs.get("headers")
+
+        return await self._requester.arequest(
+            "delete", url, False, cast=DeleteAPIAppsEventsResp, body=body, headers=headers
+        )

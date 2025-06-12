@@ -498,6 +498,101 @@ class TokenPaged(PagedBase[T]):
         return False
 
 
+class AsyncTokenPaged(AsyncPagedBase[T]):
+    def __init__(
+        self,
+        page_token: str,
+        page_size: int,
+        requestor: "Requester",
+        request_maker: Callable[[str, int], Coroutine[None, None, HTTPRequest]],
+    ):
+        self.page_token = page_token
+        self.page_size = page_size
+
+        self._next_page_token = None
+        self._has_more = None
+        self._items = None
+        self._raw_response: Optional[httpx.Response] = None
+
+        self._requestor = requestor
+        self._request_maker = request_maker
+
+    async def __aiter__(self) -> AsyncIterator[T]:
+        async for page in self.iter_pages():
+            for item in page.items:
+                yield item
+
+    async def iter_pages(self) -> AsyncIterator["AsyncTokenPaged[T]"]:
+        yield self
+
+        current_page = self
+        while AsyncTokenPaged._is_page_has_more(current_page):
+            page: AsyncTokenPaged[T] = await AsyncTokenPaged.build(
+                page_token=self._next_page_token,
+                page_size=self.page_size,
+                requestor=self._requestor,
+                request_maker=self._request_maker,
+            )
+            current_page = page
+            yield page
+
+    @property
+    def response(self) -> HTTPResponse:
+        return HTTPResponse(self._raw_response)  # type: ignore
+
+    @property
+    def items(self) -> List[T]:
+        return self._items or cast(List[T], [])
+
+    @property
+    def has_more(self) -> bool:
+        return AsyncTokenPaged._is_page_has_more(self)
+
+    @property
+    def total(self) -> int:
+        return self._total or 0
+
+    async def _fetch_page(self):
+        """
+
+        :rtype: object
+        """
+        if self._next_page_token is not None:
+            return
+        request = await self._request_maker(self.page_token, self.page_size)
+        res: TokenPagedResponse[T] = await self._requestor.asend(request)
+        self._next_page_token = res.get_next_page_token()
+        self._has_more = res.get_has_more()
+        self._items = res.get_items()
+        self._raw_response = res._raw_response
+
+    @staticmethod
+    def _is_page_has_more(page: "AsyncTokenPaged[T]") -> bool:
+        if page._has_more is not None:
+            return page._has_more
+        if page._next_page_token is not None:
+            return page._next_page_token != ""
+        if page._items is not None and page._items and len(page._items) >= page.page_size:
+            return True
+        return False
+
+    @staticmethod
+    async def build(
+        page_token: str,
+        page_size: int,
+        requestor: "Requester",
+        request_maker: Callable[[str, int], Coroutine[None, None, HTTPRequest]],
+    ) -> "AsyncTokenPaged[T]":
+        page: AsyncTokenPaged[T] = AsyncTokenPaged(
+            page_token=page_token,
+            page_size=page_size,
+            requestor=requestor,
+            request_maker=request_maker,
+        )
+        await page._fetch_page()
+        return page
+
+
 class LastIDPagedResponse(Generic[T], abc.ABC):
     @abc.abstractmethod
     def get_first_id(self) -> str: ...

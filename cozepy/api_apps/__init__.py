@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List, Optional
 
-from cozepy.model import CozeModel, NumberPaged, TokenPaged, TokenPagedResponse
+from cozepy.model import AsyncTokenPaged, CozeModel, NumberPaged, TokenPaged, TokenPagedResponse
 from cozepy.request import HTTPRequest, Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
 
@@ -129,6 +129,101 @@ class APIAppsClient(object):
             )
 
         return TokenPaged(
+            page_token=page_token,
+            page_size=page_size,
+            requestor=self._requester,
+            request_maker=request_maker,
+        )
+
+
+class AsyncAPIAppsClient(object):
+    def __init__(self, base_url: str, requester: Requester):
+        self._base_url = remove_url_trailing_slash(base_url)
+        self._requester = requester
+
+    async def create(
+        self,
+        *,
+        app_type: AppType,
+        name: Optional[str] = None,
+        connector_id: Optional[str] = None,
+        **kwargs,
+    ) -> APIApp:
+        """create api app
+
+        :param app_type: The type of the api app.
+        :param name: The name of the api app, required when app_type is normal.
+        :param connector_id: The connector id of the api app, required when app_type is connector.
+        :return: The api app object.
+        """
+        url = f"{self._base_url}/v1/api_apps"
+        body = {
+            "app_type": app_type,
+            "name": name,
+            "connector_id": connector_id,
+        }
+        headers: Optional[dict] = kwargs.get("headers")
+
+        return await self._requester.arequest("post", url, False, cast=APIApp, body=body, headers=headers)
+
+    async def update(
+        self,
+        *,
+        app_id: str,
+        name: Optional[str] = None,
+        callback_url: Optional[str] = None,
+        **kwargs,
+    ) -> UpdateAPIAppsResp:
+        """
+        update api app
+
+        :param app_id: The id of the api app.
+        :param name: The name of the api app, required when app_type is normal.
+        :param callback_url: The callback url of the api app.
+        """
+        url = f"{self._base_url}/v1/api_apps/{app_id}"
+        body = {
+            "name": name,
+            "callback_url": callback_url,
+        }
+        headers: Optional[dict] = kwargs.get("headers")
+
+        return await self._requester.arequest(
+            "post",
+            url,
+            False,
+            cast=UpdateAPIAppsResp,
+            body=body,
+            headers=headers,
+        )
+
+    async def delete(self, *, app_id: str, **kwargs) -> DeleteAPIAppsResp:
+        url = f"{self._base_url}/v1/api_apps/{app_id}"
+        headers: Optional[dict] = kwargs.get("headers")
+
+        return await self._requester.arequest("delete", url, False, cast=DeleteAPIAppsResp, headers=headers)
+
+    async def list(
+        self, *, app_type: Optional[AppType] = None, page_token: str = "", page_size: int = 20
+    ) -> NumberPaged[APIApp]:
+        url = f"{self._base_url}/v1/api_apps"
+
+        def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
+            return self._requester.make_request(
+                "GET",
+                url,
+                params=remove_none_values(
+                    {
+                        "app_type": app_type,
+                        "page_size": i_page_size,
+                        "page_token": i_page_token,
+                    }
+                ),
+                cast=_PrivateListAPIAppsData,
+                stream=False,
+            )
+
+        return await AsyncTokenPaged.build(
             page_token=page_token,
             page_size=page_size,
             requestor=self._requester,
