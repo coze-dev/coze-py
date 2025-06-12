@@ -490,8 +490,8 @@ class TokenPaged(PagedBase[T]):
     def _is_page_has_more(page: "TokenPaged[T]") -> bool:
         if page._has_more is not None:
             return page._has_more
-        if page._next_page_token is not None:
-            return page._next_page_token != ""
+        if page._next_page_token is not None and page._next_page_token != "":
+            return True
         if page._items is not None and page._items and len(page._items) >= page.page_size:
             return True
 
@@ -570,8 +570,8 @@ class AsyncTokenPaged(AsyncPagedBase[T]):
     def _is_page_has_more(page: "AsyncTokenPaged[T]") -> bool:
         if page._has_more is not None:
             return page._has_more
-        if page._next_page_token is not None:
-            return page._next_page_token != ""
+        if page._next_page_token is not None and page._next_page_token != "":
+            return True
         if page._items is not None and page._items and len(page._items) >= page.page_size:
             return True
         return False
