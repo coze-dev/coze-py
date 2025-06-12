@@ -204,10 +204,6 @@ from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
 from .workspaces.members import CreateWorkspaceMemberResp, DeleteWorkspaceMemberResp, WorkspaceMember
 
 __all__ = [
-    # workspaces.members
-    "WorkspaceMember",
-    "CreateWorkspaceMemberResp",
-    "DeleteWorkspaceMemberResp",
     "VERSION",
     # audio.rooms
     "CreateRoomResp",
@@ -391,6 +387,10 @@ __all__ = [
     "WorkspaceRoleType",
     "WorkspaceType",
     "Workspace",
+    # workspaces.members
+    "CreateWorkspaceMemberResp",
+    "DeleteWorkspaceMemberResp",
+    "WorkspaceMember",
     # templates
     "TemplateDuplicateResp",
     "TemplateEntityType",
