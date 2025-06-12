@@ -1,3 +1,4 @@
+from .api_apps import APIApp, APIAppsClient, AppType, AsyncAPIAppsClient
 from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
 from .audio.transcriptions import CreateTranscriptionsResp
@@ -399,4 +400,9 @@ __all__ = [
     # request
     "SyncHTTPClient",
     "AsyncHTTPClient",
+    # api_apps
+    "APIApp",
+    "AppType",
+    "APIAppsClient",
+    "AsyncAPIAppsClient",
 ]
