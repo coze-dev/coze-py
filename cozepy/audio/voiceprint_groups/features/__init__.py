@@ -85,6 +85,8 @@ class VoiceprintGroupsFeaturesClient(object):
             {
                 "name": name,
                 "desc": desc,
+                "sample_rate": sample_rate,
+                "channel": channel,
             }
         )
 

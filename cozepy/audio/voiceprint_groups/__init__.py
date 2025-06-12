@@ -208,7 +208,7 @@ class AsyncVoiceprintGroupsClient(object):
         )
 
         return await self._requester.arequest(
-            "post", url, False, cast=UpdateVoicePrintGroupResp, headers=headers, body=body
+            "put", url, False, cast=UpdateVoicePrintGroupResp, headers=headers, body=body
         )
 
     async def delete(
