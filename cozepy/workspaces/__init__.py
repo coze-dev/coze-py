@@ -31,6 +31,7 @@ class Workspace(CozeModel):
     role_type: WorkspaceRoleType
     # workspace type
     workspace_type: WorkspaceType
+    enterprise_id: str
 
 
 class _PrivateListWorkspacesData(CozeModel, NumberPagedResponse[Workspace]):

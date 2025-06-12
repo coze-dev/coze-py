@@ -2,6 +2,7 @@
 This example is about how to list workspaces.
 """
 
+import logging
 import os
 from typing import Optional
 
@@ -11,6 +12,7 @@ from cozepy import (
     DeviceOAuthApp,  # noqa
     TokenAuth,
 )
+from cozepy.log import setup_logging
 
 
 def get_coze_api_base() -> str:
@@ -39,9 +41,29 @@ def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
 
 # Init the Coze client through the access_token.
 coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_base())
+
+
+def setup_examples_logger():
+    coze_log = os.getenv("COZE_LOG")
+    if coze_log:
+        setup_logging(logging.getLevelNamesMapping().get(coze_log.upper(), logging.INFO))
+
+
+setup_examples_logger()
+
+
 # Call the api to get workspace list.
-workspaces = coze.workspaces.list()
+workspaces = coze.workspaces.list(
+    user_id="7064468330176",
+    coze_account_id="2100965937",
+    headers={
+        "x-tt-env": "ppe_openapi_space",
+        "x-use-ppe": "1",
+    },
+)
+
+
 for workspace in workspaces:
     # workspaces is an iterator. Traversing workspaces will automatically turn pages and
     # get all workspace results.
-    print("Get workspace", workspace.id, workspace.name)
+    print(workspace.model_dump_json(indent=2))
