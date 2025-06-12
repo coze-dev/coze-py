@@ -7,6 +7,12 @@ from .audio.voiceprint_groups import (
     UpdateVoicePrintGroupResp,
     VoicePrintGroup,
 )
+from .audio.voiceprint_groups.features import (
+    CreateVoicePrintGroupFeatureResp,
+    DeleteVoicePrintGroupFeatureResp,
+    UpdateVoicePrintGroupFeatureResp,
+    VoicePrintGroupFeature,
+)
 from .audio.voices import Voice
 from .auth import (
     AsyncAuth,
@@ -208,6 +214,11 @@ __all__ = [
     "CreateVoicePrintGroupResp",
     "UpdateVoicePrintGroupResp",
     "DeleteVoicePrintGroupResp",
+    # audio.voiceprint_groups.features
+    "VoicePrintGroupFeature",
+    "CreateVoicePrintGroupFeatureResp",
+    "UpdateVoicePrintGroupFeatureResp",
+    "DeleteVoicePrintGroupFeatureResp",
     # auth
     "load_oauth_app_from_config",
     "AsyncDeviceOAuthApp",
