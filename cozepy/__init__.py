@@ -191,6 +191,11 @@ from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
 
 __all__ = [
     "VERSION",
+    # api_apps
+    "APIApp",
+    "AppType",
+    "APIAppsClient",
+    "AsyncAPIAppsClient",
     # audio.rooms
     "CreateRoomResp",
     # audio.voices
@@ -400,9 +405,4 @@ __all__ = [
     # request
     "SyncHTTPClient",
     "AsyncHTTPClient",
-    # api_apps
-    "APIApp",
-    "AppType",
-    "APIAppsClient",
-    "AsyncAPIAppsClient",
 ]
