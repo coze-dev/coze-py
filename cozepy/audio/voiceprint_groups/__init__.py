@@ -64,7 +64,6 @@ class VoiceprintGroupsClient(object):
         *,
         name: str,
         desc: str,
-        coze_account_id: Optional[str] = None,
         **kwargs,
     ) -> CreateVoicePrintGroupResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups"
@@ -73,7 +72,6 @@ class VoiceprintGroupsClient(object):
             {
                 "name": name,
                 "desc": desc,
-                "coze_account_id": coze_account_id,
             }
         )
 
@@ -96,7 +94,7 @@ class VoiceprintGroupsClient(object):
             }
         )
 
-        return self._requester.request("post", url, False, cast=UpdateVoicePrintGroupResp, headers=headers, body=body)
+        return self._requester.request("put", url, False, cast=UpdateVoicePrintGroupResp, headers=headers, body=body)
 
     def delete(
         self,
@@ -115,9 +113,8 @@ class VoiceprintGroupsClient(object):
         name: Optional[str] = None,
         group_id: Optional[str] = None,
         user_id: Optional[str] = None,
-        coze_account_id: Optional[str] = None,
         page_num: int = 1,
-        page_size: int = 100,
+        page_size: int = 10,
     ) -> NumberPaged[VoicePrintGroup]:
         """
         Get available voices, including system voices + user cloned voices
@@ -140,7 +137,6 @@ class VoiceprintGroupsClient(object):
                         "name": name,
                         "group_id": group_id,
                         "user_id": user_id,
-                        "coze_account_id": coze_account_id,
                         "page_num": i_page_num,
                         "page_size": i_page_size,
                     }
@@ -177,7 +173,6 @@ class AsyncVoiceprintGroupsClient(object):
         *,
         name: str,
         desc: str,
-        coze_account_id: Optional[str] = None,
         **kwargs,
     ) -> CreateVoicePrintGroupResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups"
@@ -186,7 +181,6 @@ class AsyncVoiceprintGroupsClient(object):
             {
                 "name": name,
                 "desc": desc,
-                "coze_account_id": coze_account_id,
             }
         )
 
@@ -232,7 +226,6 @@ class AsyncVoiceprintGroupsClient(object):
         name: Optional[str] = None,
         group_id: Optional[str] = None,
         user_id: Optional[str] = None,
-        coze_account_id: Optional[str] = None,
         page_num: int = 1,
         page_size: int = 100,
     ) -> AsyncNumberPaged[VoicePrintGroup]:
@@ -257,7 +250,6 @@ class AsyncVoiceprintGroupsClient(object):
                         "name": name,
                         "group_id": group_id,
                         "user_id": user_id,
-                        "coze_account_id": coze_account_id,
                         "page_num": i_page_num,
                         "page_size": i_page_size,
                     }

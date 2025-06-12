@@ -6,6 +6,13 @@ from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
 
 
+class UserInfo(CozeModel):
+    id: int  # todo
+    name: str
+    nickname: str
+    avatar_url: str
+
+
 class VoicePrintGroupFeature(CozeModel):
     id: str
     group_id: str
@@ -15,6 +22,7 @@ class VoicePrintGroupFeature(CozeModel):
     updated_at: int
     desc: str
     icon_url: str
+    user_info: UserInfo
 
 
 class FeatureScore(CozeModel):
@@ -64,8 +72,10 @@ class VoiceprintGroupsFeaturesClient(object):
         *,
         group_id: str,
         name: str,
-        desc: str,
         file: FileTypes,
+        desc: Optional[str] = None,
+        sample_rate: Optional[int] = None,
+        channel: Optional[int] = None,
         **kwargs,
     ) -> CreateVoicePrintGroupFeatureResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features"
@@ -86,18 +96,23 @@ class VoiceprintGroupsFeaturesClient(object):
         self,
         *,
         group_id: str,
-        name: str,
-        desc: str,
-        file: FileTypes,
+        feature_id: str,
+        name: Optional[str] = None,
+        desc: Optional[str] = None,
+        file: Optional[FileTypes] = None,
+        sample_rate: Optional[int] = None,
+        channel: Optional[int] = None,
         **kwargs,
     ) -> UpdateVoicePrintGroupFeatureResp:
-        url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features"
+        url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features/{feature_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        files = {"file": _try_fix_file(file)}
+        files = {"file": _try_fix_file(file)} if file else None
         body = remove_none_values(
             {
                 "name": name,
                 "desc": desc,
+                "sample_rate": sample_rate,
+                "channel": channel,
             }
         )
 
@@ -122,7 +137,7 @@ class VoiceprintGroupsFeaturesClient(object):
         *,
         group_id: str,
         page_num: int = 1,
-        page_size: int = 100,
+        page_size: int = 10,
     ) -> NumberPaged[VoicePrintGroupFeature]:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features"
 
@@ -151,8 +166,10 @@ class VoiceprintGroupsFeaturesClient(object):
         self,
         *,
         group_id: str,
-        top_k: int,
         file: FileTypes,
+        top_k: Optional[int] = None,
+        sample_rate: Optional[int] = None,
+        channel: Optional[int] = None,
         **kwargs,
     ) -> SpeakerIdentifyResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/speaker_identify"
@@ -161,6 +178,8 @@ class VoiceprintGroupsFeaturesClient(object):
         body = remove_none_values(
             {
                 "top_k": top_k,
+                "sample_rate": sample_rate,
+                "channel": channel,
             }
         )
 
@@ -179,8 +198,10 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
         *,
         group_id: str,
         name: str,
-        desc: str,
         file: FileTypes,
+        desc: Optional[str] = None,
+        sample_rate: Optional[int] = None,
+        channel: Optional[int] = None,
         **kwargs,
     ) -> CreateVoicePrintGroupFeatureResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features"
@@ -190,6 +211,8 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
             {
                 "name": name,
                 "desc": desc,
+                "sample_rate": sample_rate,
+                "channel": channel,
             }
         )
 
@@ -201,18 +224,23 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
         self,
         *,
         group_id: str,
-        name: str,
-        desc: str,
-        file: FileTypes,
+        feature_id: str,
+        name: Optional[str] = None,
+        desc: Optional[str] = None,
+        file: Optional[FileTypes] = None,
+        sample_rate: Optional[int] = None,
+        channel: Optional[int] = None,
         **kwargs,
     ) -> UpdateVoicePrintGroupFeatureResp:
-        url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features"
+        url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features/{feature_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        files = {"file": _try_fix_file(file)}
+        files = {"file": _try_fix_file(file)} if file else None
         body = remove_none_values(
             {
                 "name": name,
                 "desc": desc,
+                "sample_rate": sample_rate,
+                "channel": channel,
             }
         )
 
@@ -268,8 +296,10 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
         self,
         *,
         group_id: str,
-        top_k: int,
         file: FileTypes,
+        top_k: Optional[int] = None,
+        sample_rate: Optional[int] = None,
+        channel: Optional[int] = None,
         **kwargs,
     ) -> SpeakerIdentifyResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/speaker_identify"
@@ -278,6 +308,8 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
         body = remove_none_values(
             {
                 "top_k": top_k,
+                "sample_rate": sample_rate,
+                "channel": channel,
             }
         )
 
