@@ -129,7 +129,7 @@ class AsyncAPIAppsEventsClient(object):
         url = f"{self._base_url}/v1/api_apps/{app_id}/events"
 
         async def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
-            return self._requester.amake_request(
+            return await self._requester.amake_request(
                 "GET",
                 url,
                 params=remove_none_values(
