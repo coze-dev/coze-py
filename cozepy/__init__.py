@@ -203,6 +203,10 @@ from .workflows.runs.run_histories import WorkflowExecuteStatus, WorkflowRunHist
 from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
 
 __all__ = [
+    # workspaces.members
+    "WorkspaceMember",
+    "CreateWorkspaceMemberResp",
+    "DeleteWorkspaceMemberResp",
     "VERSION",
     # audio.rooms
     "CreateRoomResp",
