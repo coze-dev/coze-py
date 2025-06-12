@@ -1,6 +1,7 @@
 from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
 from .audio.transcriptions import CreateTranscriptionsResp
+from .audio.voiceprint_groups import CreateVoicePrintGroupResp, DeleteVoicePrintGroupResp, UpdateVoicePrintGroupResp
 from .audio.voices import Voice
 from .auth import (
     AsyncAuth,
@@ -197,6 +198,10 @@ __all__ = [
     "AudioFormat",
     # audio.transcriptions
     "CreateTranscriptionsResp",
+    # audio.voiceprint_groups
+    "CreateVoicePrintGroupResp",
+    "UpdateVoicePrintGroupResp",
+    "DeleteVoicePrintGroupResp",
     # auth
     "load_oauth_app_from_config",
     "AsyncDeviceOAuthApp",
