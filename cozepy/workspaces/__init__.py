@@ -1,9 +1,12 @@
 from enum import Enum
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
-from cozepy.util import remove_url_trailing_slash
+from cozepy.util import remove_none_values, remove_url_trailing_slash
+
+if TYPE_CHECKING:
+    from .members import AsyncWorkspacesMembersClient, WorkspacesMembersClient
 
 
 class WorkspaceRoleType(str, Enum):
@@ -45,26 +48,45 @@ class _PrivateListWorkspacesData(CozeModel, NumberPagedResponse[Workspace]):
 
 
 class WorkspacesClient(object):
-    """
-    Bot class.
-    """
-
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    def list(self, *, page_num: int = 1, page_size: int = 20, headers=None) -> NumberPaged[Workspace]:
+        self._members: Optional[WorkspacesMembersClient] = None
+
+    @property
+    def members(self) -> "WorkspacesMembersClient":
+        if not self._members:
+            from .members import WorkspacesMembersClient
+
+            self._members = WorkspacesMembersClient(self._base_url, self._requester)
+        return self._members
+
+    def list(
+        self,
+        *,
+        user_id: Optional[str] = None,
+        coze_account_id: Optional[str] = None,
+        page_num: int = 1,
+        page_size: int = 20,
+        **kwargs,
+    ) -> NumberPaged[Workspace]:
         url = f"{self._base_url}/v1/workspaces"
+        headers: Optional[dict] = kwargs.get("headers")
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
                 "GET",
                 url,
                 headers=headers,
-                params={
-                    "page_size": i_page_size,
-                    "page_num": i_page_num,
-                },
+                params=remove_none_values(
+                    {
+                        "page_size": i_page_size,
+                        "page_num": i_page_num,
+                        "user_id": user_id,
+                        "coze_account_id": coze_account_id,
+                    }
+                ),
                 cast=_PrivateListWorkspacesData,
                 stream=False,
             )
@@ -78,26 +100,45 @@ class WorkspacesClient(object):
 
 
 class AsyncWorkspacesClient(object):
-    """
-    Bot class.
-    """
-
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    async def list(self, *, page_num: int = 1, page_size: int = 20, headers=None) -> AsyncNumberPaged[Workspace]:
+        self._members: Optional[AsyncWorkspacesMembersClient] = None
+
+    @property
+    def members(self) -> "AsyncWorkspacesMembersClient":
+        if not self._members:
+            from .members import AsyncWorkspacesMembersClient
+
+            self._members = AsyncWorkspacesMembersClient(self._base_url, self._requester)
+        return self._members
+
+    async def list(
+        self,
+        *,
+        user_id: Optional[str] = None,
+        coze_account_id: Optional[str] = None,
+        page_num: int = 1,
+        page_size: int = 20,
+        **kwargs,
+    ) -> AsyncNumberPaged[Workspace]:
         url = f"{self._base_url}/v1/workspaces"
+        headers: Optional[dict] = kwargs.get("headers")
 
         async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return await self._requester.amake_request(
                 "GET",
                 url,
                 headers=headers,
-                params={
-                    "page_size": i_page_size,
-                    "page_num": i_page_num,
-                },
+                params=remove_none_values(
+                    {
+                        "page_size": i_page_size,
+                        "page_num": i_page_num,
+                        "user_id": user_id,
+                        "coze_account_id": coze_account_id,
+                    }
+                ),
                 cast=_PrivateListWorkspacesData,
                 stream=False,
             )

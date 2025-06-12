@@ -23,6 +23,8 @@
         "**/.DS_Store": true
     },
     "cSpell.words": [
+        "amake",
+        "arequest",
         "cozepy",
         "logid",
         "respx"
