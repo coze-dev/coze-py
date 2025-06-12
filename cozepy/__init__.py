@@ -1,4 +1,5 @@
-from .api_apps import APIApp, APIAppsClient, AppType, AsyncAPIAppsClient
+from .api_apps import APIApp, AppType, DeleteAPIAppsResp, UpdateAPIAppsResp
+from .api_apps.events import CreateAPIAppsEventsResp, DeleteAPIAppsEventsResp
 from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
 from .audio.transcriptions import CreateTranscriptionsResp
@@ -194,8 +195,11 @@ __all__ = [
     # api_apps
     "APIApp",
     "AppType",
-    "APIAppsClient",
-    "AsyncAPIAppsClient",
+    "UpdateAPIAppsResp",
+    "DeleteAPIAppsResp",
+    # api_apps.events
+    "CreateAPIAppsEventsResp",
+    "DeleteAPIAppsEventsResp",
     # audio.rooms
     "CreateRoomResp",
     # audio.voices
