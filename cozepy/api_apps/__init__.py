@@ -19,11 +19,11 @@ class APIApp(CozeModel):
     callback_url: Optional[str] = None
 
 
-class UpdateAPIAppResp(CozeModel):
+class UpdateAPIAppsResp(CozeModel):
     pass
 
 
-class DeleteAPIAppResp(CozeModel):
+class DeleteAPIAppsResp(CozeModel):
     pass
 
 
@@ -78,7 +78,7 @@ class APIAppsClient(object):
         name: Optional[str] = None,
         callback_url: Optional[str] = None,
         **kwargs,
-    ) -> UpdateAPIAppResp:
+    ) -> UpdateAPIAppsResp:
         """
         update api app
 
@@ -97,16 +97,16 @@ class APIAppsClient(object):
             "post",
             url,
             False,
-            cast=UpdateAPIAppResp,
+            cast=UpdateAPIAppsResp,
             body=body,
             headers=headers,
         )
 
-    def delete(self, *, app_id: str, **kwargs) -> DeleteAPIAppResp:
+    def delete(self, *, app_id: str, **kwargs) -> DeleteAPIAppsResp:
         url = f"{self._base_url}/v1/api_apps/{app_id}"
         headers: Optional[dict] = kwargs.get("headers")
 
-        return self._requester.request("delete", url, False, cast=DeleteAPIAppResp, headers=headers)
+        return self._requester.request("delete", url, False, cast=DeleteAPIAppsResp, headers=headers)
 
     def list(
         self, *, app_type: Optional[AppType] = None, page_token: str = "", page_size: int = 20
