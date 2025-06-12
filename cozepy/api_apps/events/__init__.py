@@ -125,7 +125,7 @@ class AsyncAPIAppsEventsClient(object):
             "delete", url, False, cast=DeleteAPIAppsEventsResp, body=body, headers=headers
         )
 
-    async def list(self, *, app_id: str, page_token: str = "", page_size: int = 20) -> TokenPaged[APIAppEvent]:
+    async def list(self, *, app_id: str, page_token: str = "", page_size: int = 20) -> AsyncTokenPaged[APIAppEvent]:
         url = f"{self._base_url}/v1/api_apps/{app_id}/events"
 
         async def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
