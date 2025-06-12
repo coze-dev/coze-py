@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, List, Optional
 
+from cozepy.audio.voiceprint_groups.features import UserInfo
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
@@ -28,6 +29,7 @@ class VoicePrintGroup(CozeModel):
     updated_at: int
     icon_url: str
     feature_count: int
+    user_info: UserInfo
 
 
 class _PrivateListVoicePrintGroupData(CozeModel, NumberPagedResponse[VoicePrintGroup]):

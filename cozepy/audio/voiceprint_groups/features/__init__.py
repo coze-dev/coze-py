@@ -7,7 +7,7 @@ from cozepy.util import remove_none_values, remove_url_trailing_slash
 
 
 class UserInfo(CozeModel):
-    id: int  # todo
+    id: str
     name: str
     nickname: str
     avatar_url: str
