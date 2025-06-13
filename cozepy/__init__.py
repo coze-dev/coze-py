@@ -4,14 +4,14 @@ from .audio.transcriptions import CreateTranscriptionsResp
 from .audio.voiceprint_groups import (
     CreateVoicePrintGroupResp,
     DeleteVoicePrintGroupResp,
+    FeatureScore,
+    SpeakerIdentifyResp,
     UpdateVoicePrintGroupResp,
     VoicePrintGroup,
 )
 from .audio.voiceprint_groups.features import (
     CreateVoicePrintGroupFeatureResp,
     DeleteVoicePrintGroupFeatureResp,
-    FeatureScore,
-    SpeakerIdentifyResp,
     UpdateVoicePrintGroupFeatureResp,
     VoicePrintGroupFeature,
 )
@@ -213,17 +213,17 @@ __all__ = [
     # audio.transcriptions
     "CreateTranscriptionsResp",
     # audio.voiceprint_groups
-    "VoicePrintGroup",
     "CreateVoicePrintGroupResp",
-    "UpdateVoicePrintGroupResp",
     "DeleteVoicePrintGroupResp",
+    "FeatureScore",
+    "SpeakerIdentifyResp",
+    "UpdateVoicePrintGroupResp",
+    "VoicePrintGroup",
     # audio.voiceprint_groups.features
     "VoicePrintGroupFeature",
     "CreateVoicePrintGroupFeatureResp",
     "UpdateVoicePrintGroupFeatureResp",
     "DeleteVoicePrintGroupFeatureResp",
-    "SpeakerIdentifyResp",
-    "FeatureScore",
     # auth
     "load_oauth_app_from_config",
     "AsyncDeviceOAuthApp",

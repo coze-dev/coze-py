@@ -26,7 +26,10 @@
         "amake",
         "arequest",
         "cozepy",
+        "JWT",
+        "JWTO",
         "logid",
+        "OAuth",
         "respx"
     ],
 } 

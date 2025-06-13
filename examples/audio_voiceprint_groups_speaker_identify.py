@@ -56,7 +56,7 @@ def setup_examples_logger():
 setup_examples_logger()
 
 
-speaker_identify_resp = coze.audio.voiceprint_groups.features.speaker_identify(
+speaker_identify_resp = coze.audio.voiceprint_groups.speaker_identify(
     group_id=voiceprint_group_id,
     file=voiceprint_group_feature_file,
 )
