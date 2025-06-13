@@ -340,7 +340,7 @@ class BotsClient(object):
         :return: bot object
         Bot 的配置信息
         """
-        url = f"{self._base_url}/v1/bot/get_online_info"
+        url = f"{self._base_url}/v1/bots/{bot_id}"
         params = {"bot_id": bot_id}
         headers: Optional[dict] = kwargs.get("headers")
 
@@ -515,7 +515,7 @@ class AsyncBotsClient(object):
         :return: bot object
         Bot 的配置信息
         """
-        url = f"{self._base_url}/v1/bot/get_online_info"
+        url = f"{self._base_url}/v1/bots/{bot_id}"
         params = {"bot_id": bot_id}
 
         return await self._requester.arequest("get", url, False, Bot, params=params)
