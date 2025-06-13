@@ -372,7 +372,7 @@ class BotsClient(object):
         :return: Specify the list of Bots published to the Bot as an API channel in space.
         指定空间发布到 Bot as API 渠道的 Bot 列表。
         """
-        url = f"{self._base_url}/v1/space/published_bots_list"
+        url = f"{self._base_url}/v1/bots"
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
@@ -520,7 +520,15 @@ class AsyncBotsClient(object):
 
         return await self._requester.arequest("get", url, False, Bot, params=params)
 
-    async def list(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> AsyncNumberPaged[SimpleBot]:
+    async def list(
+        self,
+        *,
+        space_id: str,
+        publish_status: Optional[PublishStatus] = None,
+        connector_id: Optional[str] = None,
+        page_num: int = 1,
+        page_size: int = 20,
+    ) -> AsyncNumberPaged[SimpleBot]:
         """
         Get the bots published as API service.
         查看指定空间发布到 Bot as API 渠道的 Bot 列表。
@@ -538,17 +546,21 @@ class AsyncBotsClient(object):
         :return: Specify the list of Bots published to the Bot as an API channel in space.
         指定空间发布到 Bot as API 渠道的 Bot 列表。
         """
-        url = f"{self._base_url}/v1/space/published_bots_list"
+        url = f"{self._base_url}/v1/bots"
 
         async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return await self._requester.amake_request(
                 "GET",
                 url,
-                params={
-                    "space_id": space_id,
-                    "page_size": i_page_size,
-                    "page_index": i_page_num,
-                },
+                params=remove_none_values(
+                    {
+                        "space_id": space_id,
+                        "page_size": i_page_size,
+                        "page_index": i_page_num,
+                        "publish_status": publish_status.value if publish_status else None,
+                        "connector_id": connector_id,
+                    }
+                ),
                 cast=_PrivateListBotsData,
                 stream=False,
             )
