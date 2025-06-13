@@ -54,8 +54,8 @@ setup_examples_logger()
 
 # Call the api to get workspace list.
 workspaces = coze.workspaces.list(
-    # user_id="7064468330176",
-    # coze_account_id="2100965937",
+    user_id="7064468330176",
+    coze_account_id="7491196930349875252",
     headers={
         "x-tt-env": "ppe_openapi_space",
         "x-use-ppe": "1",
