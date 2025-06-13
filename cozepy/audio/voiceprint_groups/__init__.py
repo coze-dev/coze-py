@@ -325,6 +325,6 @@ class AsyncVoiceprintGroupsClient(object):
             }
         )
 
-        return await self._requester.request(
+        return await self._requester.arequest(
             "post", url, False, cast=SpeakerIdentifyResp, headers=headers, body=body, files=files
         )

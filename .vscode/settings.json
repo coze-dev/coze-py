@@ -23,6 +23,7 @@
         "**/.DS_Store": true
     },
     "cSpell.words": [
+        "arequest",
         "cozepy",
         "JWT",
         "JWTO",
