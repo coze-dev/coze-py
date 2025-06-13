@@ -1,6 +1,8 @@
 from enum import Enum, IntEnum
 from typing import List, Optional
 
+from pydantic import Field, field_validator
+
 from cozepy.model import AsyncNumberPaged, CozeModel, NumberPaged, NumberPagedResponse
 from cozepy.request import HTTPRequest, Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
@@ -181,19 +183,26 @@ class Bot(CozeModel):
 
 
 class SimpleBot(CozeModel):
-    # The ID for the bot.
-    bot_id: str
-    # The name of the bot.
-    bot_name: str
-    # The description of the bot.
+    id: str
+    name: str
     description: str
-    # The URL address for the bot's avatar.
     icon_url: str
-    # The latest publish time of the bot, in the format of a 10-digit Unix timestamp in seconds (s).
-    # This API returns the list of bots sorted in descending order by this field.
-    publish_time: str
-    # owner user id
-    owner_user_id: Optional[str] = None
+    is_published: bool
+    updated_at: int
+    published_at: int
+    owner_user_id: str
+
+    # compatibility fields
+    bot_id: str = Field(alias="id")
+    bot_name: str = Field(alias="name")
+    publish_time: str = Field(alias="updated_at")
+
+    @field_validator("publish_time", mode="before")
+    @classmethod
+    def convert_to_string(cls, v):
+        if isinstance(v, int):
+            return str(v)
+        return v
 
 
 class UpdateBotResp(CozeModel):
@@ -201,7 +210,7 @@ class UpdateBotResp(CozeModel):
 
 
 class _PrivateListBotsData(CozeModel, NumberPagedResponse[SimpleBot]):
-    space_bots: List[SimpleBot]
+    items: List[SimpleBot]
     total: int
 
     def get_total(self) -> Optional[int]:
@@ -211,7 +220,7 @@ class _PrivateListBotsData(CozeModel, NumberPagedResponse[SimpleBot]):
         return None
 
     def get_items(self) -> List[SimpleBot]:
-        return self.space_bots
+        return self.items
 
 
 class BotsClient(object):
