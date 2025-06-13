@@ -45,11 +45,16 @@ coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_ba
 workspace_id = os.getenv("COZE_WORKSPACE_ID") or "your workspace id"
 # bot id
 bot_id = os.getenv("COZE_BOT_ID") or "your bot id"
-# Whether to print detailed logs
-is_debug = os.getenv("DEBUG")
 
-if is_debug:
-    setup_logging(logging.DEBUG)
+
+def setup_examples_logger():
+    coze_log = os.getenv("COZE_LOG")
+    if coze_log:
+        setup_logging(logging.getLevelNamesMapping().get(coze_log.upper(), logging.INFO))
+
+
+setup_examples_logger()
+
 
 bot = coze.bots.retrieve(bot_id=bot_id)
 print("retrieve bot", bot.model_dump_json(indent=2))
