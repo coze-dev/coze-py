@@ -185,6 +185,8 @@ class SimpleBot(CozeModel):
     # The latest publish time of the bot, in the format of a 10-digit Unix timestamp in seconds (s).
     # This API returns the list of bots sorted in descending order by this field.
     publish_time: str
+    # owner user id
+    owner_user_id: Optional[str] = None
 
 
 class UpdateBotResp(CozeModel):
