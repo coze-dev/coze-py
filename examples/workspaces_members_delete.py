@@ -1,16 +1,18 @@
 """
-This example is about how to list workspaces.
+This example is about how to create workspace members.
 """
 
+import logging
 import os
 from typing import Optional
 
 from cozepy import (
     COZE_CN_BASE_URL,
     Coze,
-    DeviceOAuthApp,  # noqa
+    DeviceOAuthApp,
     TokenAuth,
 )
+from cozepy.log import setup_logging
 
 
 def get_coze_api_base() -> str:
@@ -39,9 +41,29 @@ def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
 
 # Init the Coze client through the access_token.
 coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_base())
-# Call the api to get workspace list.
-workspaces = coze.workspaces.list()
-for workspace in workspaces:
-    # workspaces is an iterator. Traversing workspaces will automatically turn pages and
-    # get all workspace results.
-    print("Get workspace", workspace.id, workspace.name)
+# workspace id
+workspace_id = os.getenv("COZE_WORKSPACE_ID")
+# user id
+user_id = os.getenv("COZE_USER_ID")
+
+
+def setup_examples_logger():
+    coze_log = os.getenv("COZE_LOG")
+    if coze_log:
+        setup_logging(logging.getLevelNamesMapping().get(coze_log.upper(), logging.INFO))
+
+
+setup_examples_logger()
+
+
+create_workspaces_members_resp = coze.workspaces.members.delete(
+    workspace_id=workspace_id,
+    user_id_list=["2540310065840868", "1827856741040276"],
+    headers={
+        "x-tt-env": "ppe_openapi_space",
+        "x-use-ppe": "1",
+    },
+)
+
+
+print("logid", create_workspaces_members_resp.response.logid)
