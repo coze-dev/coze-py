@@ -10,9 +10,9 @@ class WorkspaceMember(CozeModel):
     user_id: str  # 用户ID
     role_type: WorkspaceRoleType  # 当前用户角色
 
-    user_nickname: Optional[str]  # 昵称（添加成员时不用传）
-    user_unique_name: Optional[str]  # 用户名（添加成员时不用传）
-    avatar_url: Optional[str]  # 头像 （添加成员时不用传）
+    user_nickname: Optional[str] = None  # 昵称（添加成员时不用传）
+    user_unique_name: Optional[str] = None  # 用户名（添加成员时不用传）
+    avatar_url: Optional[str] = None  # 头像 （添加成员时不用传）
 
 
 class CreateWorkspaceMemberResp(CozeModel):
@@ -39,7 +39,13 @@ class WorkspacesMembersClient(object):
         headers: Optional[dict] = kwargs.get("headers")
         body = remove_none_values(
             {
-                "user_list": [user.model_dump() for user in user_list],
+                "user_list": [
+                    {
+                        "user_id": user.user_id,
+                        "role_type": user.role_type,
+                    }
+                    for user in user_list
+                ],
             }
         )
         return self._requester.request(
@@ -114,7 +120,13 @@ class AsyncWorkspacesMembersClient(object):
         headers: Optional[dict] = kwargs.get("headers")
         body = remove_none_values(
             {
-                "user_list": [user.model_dump() for user in user_list],
+                "user_list": [
+                    {
+                        "user_id": user.user_id,
+                        "role_type": user.role_type,
+                    }
+                    for user in user_list
+                ],
             }
         )
         return await self._requester.arequest(

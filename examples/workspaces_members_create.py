@@ -62,9 +62,13 @@ create_workspaces_members_resp = coze.workspaces.members.create(
     workspace_id=workspace_id,
     user_list=[
         WorkspaceMember(
-            user_id=user_id,
+            user_id="2540310065840868",
             role_type=WorkspaceRoleType.ADMIN,
-        )
+        ),
+        WorkspaceMember(
+            user_id="1827856741040276",
+            role_type=WorkspaceRoleType.MEMBER,
+        ),
     ],
     headers={
         "x-tt-env": "ppe_openapi_space",
