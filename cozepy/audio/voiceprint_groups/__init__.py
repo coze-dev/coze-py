@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, List, Optional
 
 from cozepy.audio.voiceprint_groups.features import UserInfo
+from cozepy.files import FileTypes, _try_fix_file
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
@@ -30,6 +31,17 @@ class VoicePrintGroup(CozeModel):
     icon_url: str
     feature_count: int
     user_info: UserInfo
+
+
+class FeatureScore(CozeModel):
+    feature_id: str
+    feature_name: str
+    feature_desc: str
+    score: float
+
+
+class SpeakerIdentifyResp(CozeModel):
+    feature_score_list: List[FeatureScore]
 
 
 class _PrivateListVoicePrintGroupData(CozeModel, NumberPagedResponse[VoicePrintGroup]):
@@ -154,6 +166,31 @@ class VoiceprintGroupsClient(object):
             request_maker=request_maker,
         )
 
+    def speaker_identify(
+        self,
+        *,
+        group_id: str,
+        file: FileTypes,
+        top_k: Optional[int] = None,
+        sample_rate: Optional[int] = None,
+        channel: Optional[int] = None,
+        **kwargs,
+    ) -> SpeakerIdentifyResp:
+        url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/speaker_identify"
+        headers: Optional[dict] = kwargs.get("headers")
+        files = {"file": _try_fix_file(file)}
+        body = remove_none_values(
+            {
+                "top_k": top_k,
+                "sample_rate": sample_rate,
+                "channel": channel,
+            }
+        )
+
+        return self._requester.request(
+            "post", url, False, cast=SpeakerIdentifyResp, headers=headers, body=body, files=files
+        )
+
 
 class AsyncVoiceprintGroupsClient(object):
     def __init__(self, base_url: str, requester: Requester):
@@ -265,4 +302,29 @@ class AsyncVoiceprintGroupsClient(object):
             page_size=page_size,
             requestor=self._requester,
             request_maker=request_maker,
+        )
+
+    async def speaker_identify(
+        self,
+        *,
+        group_id: str,
+        file: FileTypes,
+        top_k: Optional[int] = None,
+        sample_rate: Optional[int] = None,
+        channel: Optional[int] = None,
+        **kwargs,
+    ) -> SpeakerIdentifyResp:
+        url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/speaker_identify"
+        headers: Optional[dict] = kwargs.get("headers")
+        files = {"file": _try_fix_file(file)}
+        body = remove_none_values(
+            {
+                "top_k": top_k,
+                "sample_rate": sample_rate,
+                "channel": channel,
+            }
+        )
+
+        return await self._requester.request(
+            "post", url, False, cast=SpeakerIdentifyResp, headers=headers, body=body, files=files
         )
