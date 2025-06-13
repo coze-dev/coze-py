@@ -4,14 +4,14 @@ from .audio.transcriptions import CreateTranscriptionsResp
 from .audio.voiceprint_groups import (
     CreateVoicePrintGroupResp,
     DeleteVoicePrintGroupResp,
+    FeatureScore,
+    SpeakerIdentifyResp,
     UpdateVoicePrintGroupResp,
     VoicePrintGroup,
 )
 from .audio.voiceprint_groups.features import (
     CreateVoicePrintGroupFeatureResp,
     DeleteVoicePrintGroupFeatureResp,
-    FeatureScore,
-    SpeakerIdentifyResp,
     UpdateVoicePrintGroupFeatureResp,
     VoicePrintGroupFeature,
 )
