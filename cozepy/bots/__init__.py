@@ -3,7 +3,14 @@ from typing import List, Optional
 
 from cozepy.model import AsyncNumberPaged, CozeModel, NumberPaged, NumberPagedResponse
 from cozepy.request import HTTPRequest, Requester
-from cozepy.util import remove_url_trailing_slash
+from cozepy.util import remove_none_values, remove_url_trailing_slash
+
+
+class PublishStatus(str, Enum):
+    ALL = "all"  # 所有智能体，且数据为最新草稿版本
+    PUBLISHED_ONLINE = "published_online"  # 已发布智能体的最新线上版本
+    PUBLISHED_DRAFT = "published_draft"  # 已发布的最新草稿版本
+    UNPUBLISHED_DRAFT = "unpublished_draft"  # 未发布的最新草稿版本
 
 
 class BotPromptInfo(CozeModel):
@@ -330,7 +337,15 @@ class BotsClient(object):
 
         return self._requester.request("get", url, False, Bot, params=params, headers=headers)
 
-    def list(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> NumberPaged[SimpleBot]:
+    def list(
+        self,
+        *,
+        space_id: str,
+        publish_status: Optional[PublishStatus] = None,
+        connector_id: Optional[str] = None,
+        page_num: int = 1,
+        page_size: int = 20,
+    ) -> NumberPaged[SimpleBot]:
         """
         Get the bots published as API service.
         查看指定空间发布到 Bot as API 渠道的 Bot 列表。
@@ -354,11 +369,15 @@ class BotsClient(object):
             return self._requester.make_request(
                 "GET",
                 url,
-                params={
-                    "space_id": space_id,
-                    "page_size": i_page_size,
-                    "page_index": i_page_num,
-                },
+                params=remove_none_values(
+                    {
+                        "space_id": space_id,
+                        "page_size": i_page_size,
+                        "page_index": i_page_num,
+                        "publish_status": publish_status.value if publish_status else None,
+                        "connector_id": connector_id,
+                    }
+                ),
                 cast=_PrivateListBotsData,
                 stream=False,
             )
