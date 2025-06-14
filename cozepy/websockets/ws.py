@@ -8,7 +8,8 @@ import traceback
 from abc import ABC
 from contextlib import asynccontextmanager, contextmanager
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set
+from functools import lru_cache
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, get_type_hints
 
 if sys.version_info >= (3, 8):
     # note: >=3.7,<3.8 not support asyncio
@@ -42,8 +43,8 @@ else:
 import websockets.sync.client
 from pydantic import BaseModel
 
-from cozepy import CozeAPIError
-from cozepy.log import log_debug, log_error, log_info
+from cozepy.exception import CozeAPIError
+from cozepy.log import log_debug, log_error, log_info, log_warning
 from cozepy.model import CozeModel
 from cozepy.request import Requester
 from cozepy.util import get_methods, get_model_default, remove_url_trailing_slash
@@ -56,63 +57,65 @@ class WebsocketsEventType(str, Enum):
     CLOSED = "closed"  # connection closed
 
     # error
-    ERROR = "error"  # received error event
+    ERROR = "error"  # 发生错误
 
     # v1/audio/speech
     # req
-    INPUT_TEXT_BUFFER_APPEND = "input_text_buffer.append"  # send text to server
-    INPUT_TEXT_BUFFER_COMPLETE = (
-        "input_text_buffer.complete"  # no text to send, after audio all received, can close connection
-    )
-    SPEECH_UPDATE = "speech.update"  # send speech config to server
+    SPEECH_UPDATE = "speech.update"  # 更新语音合成配置
+    INPUT_TEXT_BUFFER_APPEND = "input_text_buffer.append"  # 流式输入文字
+    INPUT_TEXT_BUFFER_COMPLETE = "input_text_buffer.complete"  # 提交文字
     # resp
     # v1/audio/speech
-    SPEECH_CREATED = "speech.created"  # after speech created
-    INPUT_TEXT_BUFFER_COMPLETED = "input_text_buffer.completed"  # received `input_text_buffer.complete` event
-    SPEECH_AUDIO_UPDATE = "speech.audio.update"  # received `speech.update` event
-    SPEECH_AUDIO_COMPLETED = "speech.audio.completed"  # all audio received, can close connection
+    SPEECH_CREATED = "speech.created"  # 语音合成连接成功
+    SPEECH_UPDATED = "speech.updated"  # 配置更新完成
+    INPUT_TEXT_BUFFER_COMPLETED = "input_text_buffer.completed"  # input_text_buffer 提交完成
+    SPEECH_AUDIO_UPDATE = "speech.audio.update"  # 合成增量语音
+    SPEECH_AUDIO_COMPLETED = "speech.audio.completed"  # 合成完成
 
     # v1/audio/transcriptions
     # req
-    INPUT_AUDIO_BUFFER_APPEND = "input_audio_buffer.append"  # send audio to server
-    INPUT_AUDIO_BUFFER_COMPLETE = (
-        "input_audio_buffer.complete"  # no audio to send, after text all received, can close connection
-    )
-    TRANSCRIPTIONS_UPDATE = "transcriptions.update"  # send transcriptions config to server
+    TRANSCRIPTIONS_UPDATE = "transcriptions.update"  # 更新语音识别配置
+    INPUT_AUDIO_BUFFER_APPEND = "input_audio_buffer.append"  # 流式上传音频片段
+    INPUT_AUDIO_BUFFER_COMPLETE = "input_audio_buffer.complete"  # 提交音频
+    INPUT_AUDIO_BUFFER_CLEAR = "input_audio_buffer.clear"  # 清除缓冲区音频
     # resp
-    TRANSCRIPTIONS_CREATED = "transcriptions.created"  # after transcriptions created
-    INPUT_AUDIO_BUFFER_COMPLETED = "input_audio_buffer.completed"  # received `input_audio_buffer.complete` event
-    TRANSCRIPTIONS_MESSAGE_UPDATE = "transcriptions.message.update"  # received `transcriptions.update` event
-    TRANSCRIPTIONS_MESSAGE_COMPLETED = "transcriptions.message.completed"  # all audio received, can close connection
+    TRANSCRIPTIONS_CREATED = "transcriptions.created"  # 连接成功
+    TRANSCRIPTIONS_UPDATED = "transcriptions.updated"  # 配置更新成功
+    INPUT_AUDIO_BUFFER_COMPLETED = "input_audio_buffer.completed"  # 音频提交完成
+    INPUT_AUDIO_BUFFER_CLEARED = "input_audio_buffer.cleared"  # 音频清除成功
+    TRANSCRIPTIONS_MESSAGE_UPDATE = "transcriptions.message.update"  # 识别出文字
+    TRANSCRIPTIONS_MESSAGE_COMPLETED = "transcriptions.message.completed"  # 识别完成
 
     # v1/chat
     # req
-    # INPUT_AUDIO_BUFFER_APPEND = "input_audio_buffer.append" # send audio to server
-    # INPUT_AUDIO_BUFFER_COMPLETE = "input_audio_buffer.complete" # no audio send, start chat
-    CHAT_UPDATE = "chat.update"  # send chat config to server
-    CONVERSATION_CHAT_SUBMIT_TOOL_OUTPUTS = "conversation.chat.submit_tool_outputs"  # send tool outputs to server
-    CONVERSATION_CHAT_CANCEL = "conversation.chat.cancel"  # send cancel chat to server
-    CONVERSATION_MESSAGE_CREATE = "conversation.message.create"  # send text or string_object chat to server
+    CHAT_UPDATE = "chat.update"  # 更新对话配置
+    # INPUT_AUDIO_BUFFER_APPEND = "input_audio_buffer.append"  # 流式上传音频片段
+    # INPUT_AUDIO_BUFFER_COMPLETE = "input_audio_buffer.complete"  # 提交音频
+    # INPUT_AUDIO_BUFFER_CLEAR = "input_audio_buffer.clear"  # 清除缓冲区音频
+    CONVERSATION_MESSAGE_CREATE = "conversation.message.create"  # 手动提交对话内容
+    CONVERSATION_CLEAR = "conversation.clear"  # 清除上下文
+    CONVERSATION_CHAT_SUBMIT_TOOL_OUTPUTS = "conversation.chat.submit_tool_outputs"  # 提交端插件执行结果
+    CONVERSATION_CHAT_CANCEL = "conversation.chat.cancel"  # 打断智能体输出
     # resp
-    CHAT_CREATED = "chat.created"
-    CHAT_UPDATED = "chat.updated"
-    # INPUT_AUDIO_BUFFER_COMPLETED = "input_audio_buffer.completed" # received `input_audio_buffer.complete` event
-    CONVERSATION_CHAT_CREATED = "conversation.chat.created"  # audio ast completed, chat started
-    CONVERSATION_CHAT_IN_PROGRESS = "conversation.chat.in_progress"
-    CONVERSATION_MESSAGE_DELTA = "conversation.message.delta"  # get agent text message update
-    CONVERSATION_CHAT_REQUIRES_ACTION = "conversation.chat.requires_action"  # need plugin submit
-    INPUT_AUDIO_BUFFER_SPEECH_STARTED = "input_audio_buffer.speech_started"  # 用户开始说话, 此事件表示服务端识别到用户正在说话。只有在 server_vad 模式下，才会返回此事件。
-    INPUT_AUDIO_BUFFER_SPEECH_STOPPED = "input_audio_buffer.speech_stopped"  # 用户结束说话, 此事件表示服务端识别到用户已停止说话。只有在 server_vad 模式下，才会返回此事件。
-    CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED = "conversation.audio_transcript.completed"
-    CONVERSATION_MESSAGE_COMPLETED = "conversation.message.completed"
-    CONVERSATION_AUDIO_DELTA = "conversation.audio.delta"  # get agent audio message update
-    CONVERSATION_AUDIO_COMPLETED = "conversation.audio.completed"
-    CONVERSATION_CHAT_COMPLETED = "conversation.chat.completed"  # all message received, can close connection
-    CONVERSATION_CHAT_FAILED = "conversation.chat.failed"
-    CONVERSATION_CHAT_CANCELED = "conversation.chat.canceled"  # chat canceled
-    CONVERSATION_AUDIO_TRANSCRIPT_UPDATE = (
-        "conversation.audio_transcript.update"  # 用户语音识别字幕, 用户语音识别的中间值，每次返回都是全量文本。
-    )
+    CHAT_CREATED = "chat.created"  # 对话连接成功
+    CHAT_UPDATED = "chat.updated"  # 对话配置成功
+    CONVERSATION_CHAT_CREATED = "conversation.chat.created"  # 对话开始
+    CONVERSATION_CHAT_IN_PROGRESS = "conversation.chat.in_progress"  # 对话正在处理
+    CONVERSATION_MESSAGE_DELTA = "conversation.message.delta"  # 增量消息
+    CONVERSATION_AUDIO_DELTA = "conversation.audio.delta"  # 增量语音
+    CONVERSATION_MESSAGE_COMPLETED = "conversation.message.completed"  # 消息完成
+    CONVERSATION_AUDIO_COMPLETED = "conversation.audio.completed"  # 语音回复完成
+    CONVERSATION_CHAT_COMPLETED = "conversation.chat.completed"  # 对话完成
+    CONVERSATION_CHAT_FAILED = "conversation.chat.failed"  # 对话失败
+    # INPUT_AUDIO_BUFFER_COMPLETED = "input_audio_buffer.completed"  # 音频提交完成
+    # INPUT_AUDIO_BUFFER_CLEARED = "input_audio_buffer.cleared"  # 音频清除成功
+    CONVERSATION_CLEARED = "conversation.cleared"  # 上下文清除完成
+    CONVERSATION_CHAT_CANCELED = "conversation.chat.canceled"  # 智能体输出中断
+    CONVERSATION_AUDIO_TRANSCRIPT_UPDATE = "conversation.audio_transcript.update"  # 用户语音识别字幕
+    CONVERSATION_AUDIO_TRANSCRIPT_COMPLETED = "conversation.audio_transcript.completed"  # 用户语音识别完成
+    CONVERSATION_CHAT_REQUIRES_ACTION = "conversation.chat.requires_action"  # 端插件请求
+    INPUT_AUDIO_BUFFER_SPEECH_STARTED = "input_audio_buffer.speech_started"  # 用户开始说话
+    INPUT_AUDIO_BUFFER_SPEECH_STOPPED = "input_audio_buffer.speech_stopped"  # 用户结束说话
 
 
 class WebsocketsEvent(CozeModel, ABC):
@@ -127,6 +130,8 @@ class WebsocketsEvent(CozeModel, ABC):
 
 
 class WebsocketsErrorEvent(WebsocketsEvent):
+    """发生错误"""
+
     event_type: WebsocketsEventType = WebsocketsEventType.ERROR
     data: CozeAPIError
 
@@ -184,6 +189,46 @@ class OutputAudio(BaseModel):
     voice_id: Optional[str] = None
 
 
+class WebsocketsEventFactory(object):
+    def __init__(self, event_type_to_class: Dict[str, Type[WebsocketsEvent]]):
+        self._event_type_to_class = event_type_to_class
+
+    @lru_cache(maxsize=128)
+    def get_event_class(
+        self,
+        event_type: str,
+    ) -> Tuple[Optional[Type[WebsocketsEvent]], Optional[Type[BaseModel]]]:
+        event_class = self._event_type_to_class.get(event_type)
+        if not event_class:
+            return None, None
+
+        type_hints = get_type_hints(event_class)
+        data_type = type_hints.get("data")
+        if data_type:
+            return event_class, data_type
+        return event_class, None
+
+    def create_event(self, path: str, message: Dict) -> Optional[WebsocketsEvent]:
+        event_id = message.get("id") or ""
+        detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
+        event_type = message.get("event_type") or ""
+        data = message.get("data") or {}
+
+        event_class, data_class = self.get_event_class(event_type)
+        if not event_class:
+            log_warning("[%s] unknown event, type=%s, logid=%s", path, event_type, detail.logid)
+            return None
+
+        event_data = {
+            "id": event_id,
+            "detail": detail,
+        }
+
+        if data and data_class:
+            event_data["data"] = data_class.model_validate(data)
+        return event_class.model_validate(event_data)
+
+
 class WebsocketsBaseClient(abc.ABC):
     class State(str, Enum):
         """
@@ -201,6 +246,7 @@ class WebsocketsBaseClient(abc.ABC):
         base_url: str,
         requester: Requester,
         path: str,
+        event_factory: WebsocketsEventFactory,
         query: Optional[Dict[str, str]] = None,
         on_event: Optional[Dict[WebsocketsEventType, Callable]] = None,
         wait_events: Optional[List[WebsocketsEventType]] = None,
@@ -216,6 +262,7 @@ class WebsocketsBaseClient(abc.ABC):
         self._on_event = on_event.copy() if on_event else {}
         self._headers = kwargs.get("headers")
         self._wait_events = wait_events.copy() if wait_events else []
+        self._event_factory = event_factory
 
         self._input_queue: queue.Queue[Optional[WebsocketsEvent]] = queue.Queue()
         self._ws: Optional[websockets.sync.client.ClientConnection] = None
@@ -301,7 +348,7 @@ class WebsocketsBaseClient(abc.ABC):
                     event_type = message.get("event_type")
                     log_debug("[%s] receive event, type=%s, event=%s", self._path, event_type, data)
 
-                    event = self._load_all_event(message)
+                    event = self._parse_event(message)
                     if event:
                         handler = self._on_event.get(event_type)
                         if handler:
@@ -313,7 +360,7 @@ class WebsocketsBaseClient(abc.ABC):
         except Exception as e:
             self._handle_error(e)
 
-    def _load_all_event(self, message: Dict) -> Optional[WebsocketsEvent]:
+    def _parse_event(self, message: Dict) -> Optional[WebsocketsEvent]:
         event_id = message.get("id") or ""
         event_type = message.get("event_type") or ""
         detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
@@ -327,10 +374,7 @@ class WebsocketsBaseClient(abc.ABC):
                     "data": CozeAPIError(code, msg, WebsocketsEvent.Detail.model_validate(detail).logid),
                 }
             )
-        return self._load_event(message)
-
-    @abc.abstractmethod
-    def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]: ...
+        return self._event_factory.create_event(self._path, message)
 
     def _wait_completed(self, events: List[WebsocketsEventType], wait_all: bool) -> None:
         while True:
@@ -432,6 +476,7 @@ class AsyncWebsocketsBaseClient(abc.ABC):
         base_url: str,
         requester: Requester,
         path: str,
+        event_factory: WebsocketsEventFactory,
         query: Optional[Dict[str, str]] = None,
         on_event: Optional[Dict[WebsocketsEventType, Callable]] = None,
         wait_events: Optional[List[WebsocketsEventType]] = None,
@@ -447,6 +492,7 @@ class AsyncWebsocketsBaseClient(abc.ABC):
         self._on_event = on_event.copy() if on_event else {}
         self._headers = kwargs.get("headers")
         self._wait_events = wait_events.copy() if wait_events else []
+        self._event_factory = event_factory
 
         self._input_queue: asyncio.Queue[Optional[WebsocketsEvent]] = asyncio.Queue()
         self._ws: Optional[AsyncWebsocketClientConnection] = None
@@ -523,13 +569,13 @@ class AsyncWebsocketsBaseClient(abc.ABC):
                 log_debug("[%s] receive event, type=%s, event=%s", self._path, event_type, data)
 
                 handler = self._on_event.get(event_type)
-                event = self._load_all_event(message)
+                event = self._parse_event(message)
                 if handler and event:
                     await handler(self, event)
         except Exception as e:
             await self._handle_error(e)
 
-    def _load_all_event(self, message: Dict) -> Optional[WebsocketsEvent]:
+    def _parse_event(self, message: Dict) -> Optional[WebsocketsEvent]:
         event_id = message.get("id") or ""
         event_type = message.get("event_type") or ""
         detail = WebsocketsEvent.Detail.model_validate(message.get("detail") or {})
@@ -543,10 +589,7 @@ class AsyncWebsocketsBaseClient(abc.ABC):
                     "data": CozeAPIError(code, msg, WebsocketsEvent.Detail.model_validate(detail).logid),
                 }
             )
-        return self._load_event(message)
-
-    @abc.abstractmethod
-    def _load_event(self, message: Dict) -> Optional[WebsocketsEvent]: ...
+        return self._event_factory.create_event(self._path, message)
 
     async def _wait_completed(self, wait_events: List[WebsocketsEventType], wait_all: bool) -> None:
         future: asyncio.Future[None] = asyncio.Future()

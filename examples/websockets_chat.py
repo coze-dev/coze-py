@@ -7,6 +7,7 @@ from typing import Optional
 from cozepy import (
     COZE_CN_BASE_URL,
     AsyncCoze,
+    AsyncTokenAuth,
     AsyncWebsocketsChatClient,
     AsyncWebsocketsChatEventHandler,
     AudioFormat,
@@ -19,7 +20,6 @@ from cozepy import (
     ConversationMessageDeltaEvent,
     DeviceOAuthApp,
     InputAudioBufferAppendEvent,
-    TokenAuth,
     ToolOutput,
     setup_logging,
 )
@@ -144,7 +144,7 @@ async def main():
 
     # Initialize Coze client
     coze = AsyncCoze(
-        auth=TokenAuth(coze_api_token),
+        auth=AsyncTokenAuth(coze_api_token),
         base_url=coze_api_base,
     )
     # Initialize Audio
