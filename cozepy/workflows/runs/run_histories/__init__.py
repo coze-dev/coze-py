@@ -118,7 +118,7 @@ class WorkflowsRunsRunHistoriesClient(object):
             )
         return self._execute_nodes
 
-    def retrieve(self, *, workflow_id: str, execute_id: str) -> WorkflowRunHistory:
+    def retrieve(self, *, workflow_id: str, execute_id: str, **kwargs) -> WorkflowRunHistory:
         """
         After the workflow runs async, retrieve the execution results.
 
@@ -129,7 +129,8 @@ class WorkflowsRunsRunHistoriesClient(object):
         :return: The result of the workflow execution
         """
         url = f"{self._base_url}/v1/workflows/{workflow_id}/run_histories/{execute_id}"
-        res = self._requester.request("get", url, False, ListResponse[WorkflowRunHistory])
+        headers: Optional[dict] = kwargs.get("headers")
+        res = self._requester.request("get", url, False, ListResponse[WorkflowRunHistory], headers=headers)
         data = res.data[0]
         data._raw_response = res._raw_response
         return data
@@ -152,7 +153,7 @@ class AsyncWorkflowsRunsRunHistoriesClient(object):
             )
         return self._execute_nodes
 
-    async def retrieve(self, *, workflow_id: str, execute_id: str) -> WorkflowRunHistory:
+    async def retrieve(self, *, workflow_id: str, execute_id: str, **kwargs) -> WorkflowRunHistory:
         """
         After the workflow runs async, retrieve the execution results.
 
@@ -163,7 +164,8 @@ class AsyncWorkflowsRunsRunHistoriesClient(object):
         :return: The result of the workflow execution
         """
         url = f"{self._base_url}/v1/workflows/{workflow_id}/run_histories/{execute_id}"
-        res = await self._requester.arequest("get", url, False, ListResponse[WorkflowRunHistory])
+        headers: Optional[dict] = kwargs.get("headers")
+        res = await self._requester.arequest("get", url, False, ListResponse[WorkflowRunHistory], headers=headers)
         data = res.data[0]
         data._raw_response = res._raw_response
         return data
