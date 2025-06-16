@@ -2,6 +2,20 @@ from .audio.live import LiveInfo, LiveType, StreamInfo
 from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
 from .audio.transcriptions import CreateTranscriptionsResp
+from .audio.voiceprint_groups import (
+    CreateVoicePrintGroupResp,
+    DeleteVoicePrintGroupResp,
+    FeatureScore,
+    SpeakerIdentifyResp,
+    UpdateVoicePrintGroupResp,
+    VoicePrintGroup,
+)
+from .audio.voiceprint_groups.features import (
+    CreateVoicePrintGroupFeatureResp,
+    DeleteVoicePrintGroupFeatureResp,
+    UpdateVoicePrintGroupFeatureResp,
+    VoicePrintGroupFeature,
+)
 from .audio.voices import Voice
 from .auth import (
     AsyncAuth,
@@ -202,6 +216,18 @@ __all__ = [
     "AudioFormat",
     # audio.transcriptions
     "CreateTranscriptionsResp",
+    # audio.voiceprint_groups
+    "CreateVoicePrintGroupResp",
+    "DeleteVoicePrintGroupResp",
+    "FeatureScore",
+    "SpeakerIdentifyResp",
+    "UpdateVoicePrintGroupResp",
+    "VoicePrintGroup",
+    # audio.voiceprint_groups.features
+    "VoicePrintGroupFeature",
+    "CreateVoicePrintGroupFeatureResp",
+    "UpdateVoicePrintGroupFeatureResp",
+    "DeleteVoicePrintGroupFeatureResp",
     # auth
     "load_oauth_app_from_config",
     "AsyncDeviceOAuthApp",
