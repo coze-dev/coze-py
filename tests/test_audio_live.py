@@ -10,20 +10,21 @@ def mock_live_info():
     return LiveInfo(
         app_id=random_hex(10),
         stream_infos=[
-            StreamInfo(stream_id=random_hex(10), name="test-stream", live_type=LiveType.ORIGIN),
-            StreamInfo(stream_id=random_hex(10), name="test-stream-2", live_type=LiveType.TRANSLATION),
+            StreamInfo(stream_id=random_hex(10), name=random_hex(10), live_type=LiveType.ORIGIN),
+            StreamInfo(stream_id=random_hex(10), name=random_hex(10), live_type=LiveType.TRANSLATION),
         ],
     )
 
 
 def mock_retrieve_live(respx_mock, live_id):
     live_info = mock_live_info()
-    raw_response = httpx.Response(
-        200,
-        json={"data": live_info.model_dump()},
-        headers={logid_key(): random_hex(10)},
+    respx_mock.get(f"/v1/audio/live/{live_id}").mock(
+        httpx.Response(
+            200,
+            json={"data": live_info.model_dump()},
+            headers={logid_key(): random_hex(10)},
+        )
     )
-    respx_mock.get(f"/v1/audio/live/{live_id}").mock(raw_response)
     return live_info
 
 
