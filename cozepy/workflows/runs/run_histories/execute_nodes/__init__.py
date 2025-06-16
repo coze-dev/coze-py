@@ -6,7 +6,9 @@ from cozepy.util import remove_url_trailing_slash
 
 
 class WorkflowNodeExecuteHistory(CozeModel):
+    # 节点是否执行完成。true 表示执行已完成，false表示执行未完成。
     is_finish: bool
+    # 节点的执行结果输出信息。
     node_output: Optional[str] = None
 
 
