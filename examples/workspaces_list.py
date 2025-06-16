@@ -41,6 +41,10 @@ def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
 
 # Init the Coze client through the access_token.
 coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_base())
+# coze user id
+user_id = os.getenv("COZE_USER_ID")
+# coze account id
+coze_account_id = os.getenv("COZE_ACCOUNT_ID")
 
 
 def setup_examples_logger():
@@ -54,8 +58,8 @@ setup_examples_logger()
 
 # Call the api to get workspace list.
 workspaces = coze.workspaces.list(
-    user_id="7064468330176",
-    coze_account_id="7491196930349875252",
+    user_id=user_id,
+    coze_account_id=coze_account_id,
     headers={
         "x-tt-env": "ppe_openapi_space",
         "x-use-ppe": "1",
@@ -67,3 +71,4 @@ for workspace in workspaces:
     # workspaces is an iterator. Traversing workspaces will automatically turn pages and
     # get all workspace results.
     print(workspace.model_dump_json(indent=2))
+print("logid", workspaces.response.logid)

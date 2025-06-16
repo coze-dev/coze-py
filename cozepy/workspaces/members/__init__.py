@@ -16,7 +16,16 @@ class WorkspaceMember(CozeModel):
 
 
 class CreateWorkspaceMemberResp(CozeModel):
-    pass
+    # 添加成功的用户ID列表
+    added_success_user_ids: List[str]
+    # 邀请成功的用户ID列表
+    invited_success_user_ids: List[str]
+    # 不存在用户ID列表
+    not_exist_user_ids: List[str]
+    # 已加入用户ID列表
+    already_joined_user_ids: List[str]
+    # 已邀请用户ID列表
+    already_invited_user_ids: List[str]
 
 
 class DeleteWorkspaceMemberResp(CozeModel):
