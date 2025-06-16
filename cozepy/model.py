@@ -436,6 +436,7 @@ class TokenPaged(PagedBase[T]):
         self._has_more = None
         self._items = None
         self._http_response: Optional[HTTPResponse] = None
+        self._total = None
 
         self._requestor = requestor
         self._request_maker = request_maker

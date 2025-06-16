@@ -202,6 +202,7 @@ class AsyncCoze(object):
         self._users: Optional[AsyncUsersClient] = None
         self._websockets: Optional[AsyncWebsocketsClient] = None
         self._variables: Optional[AsyncVariablesClient] = None
+        self._api_apps: Optional[AsyncAPIAppsClient] = None
 
     @property
     def bots(self) -> "AsyncBotsClient":
