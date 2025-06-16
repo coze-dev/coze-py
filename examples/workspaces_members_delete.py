@@ -43,8 +43,10 @@ def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
 coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_base())
 # workspace id
 workspace_id = os.getenv("COZE_WORKSPACE_ID")
-# user id
-user_id = os.getenv("COZE_USER_ID")
+# user id admin
+user_id_admin = os.getenv("COZE_USER_ID_ADMIN")
+# user id member
+user_id_member = os.getenv("COZE_USER_ID_MEMBER")
 
 
 def setup_examples_logger():
@@ -55,15 +57,21 @@ def setup_examples_logger():
 
 setup_examples_logger()
 
+user_id_list = []
+if user_id_admin:
+    user_id_list.append(user_id_admin)
+if user_id_member:
+    user_id_list.append(user_id_member)
 
-create_workspaces_members_resp = coze.workspaces.members.delete(
+
+delete_workspaces_members_resp = coze.workspaces.members.delete(
     workspace_id=workspace_id,
-    user_id_list=["2540310065840868", "1827856741040276"],
+    user_id_list=user_id_list,
     headers={
         "x-tt-env": "ppe_openapi_space",
         "x-use-ppe": "1",
     },
 )
 
-
-print("logid", create_workspaces_members_resp.response.logid)
+print("workspaces.members.delete", delete_workspaces_members_resp.model_dump_json(indent=2))
+print("logid", delete_workspaces_members_resp.response.logid)

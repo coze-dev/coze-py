@@ -29,7 +29,12 @@ class CreateWorkspaceMemberResp(CozeModel):
 
 
 class DeleteWorkspaceMemberResp(CozeModel):
-    pass
+    # 成功移除的成员列表
+    removed_success_user_ids: List[str]
+    # 不在空间的用户不进行处理
+    not_in_space_user_ids: List[str]
+    # 空间所有者不进行处理
+    owner_not_support_remove_user_ids: List[str]
 
 
 class WorkspacesMembersClient(object):
