@@ -233,7 +233,7 @@ class AsyncAPIAppsClient(object):
 
     async def list(
         self, *, app_type: Optional[AppType] = None, page_token: str = "", page_size: int = 20
-    ) -> TokenPaged[APIApp]:
+    ) -> AsyncTokenPaged[APIApp]:
         url = f"{self._base_url}/v1/api_apps"
 
         async def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
