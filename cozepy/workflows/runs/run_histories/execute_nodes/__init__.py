@@ -16,6 +16,12 @@ class WorkflowsRunsRunHistoriesExecuteNodesClient(object):
         self._requester = requester
 
     def retrieve(self, *, workflow_id: str, execute_id: str, node_execute_uuid: str) -> WorkflowNodeExecuteHistory:
+        """查询工作流节点的运行结果
+
+        :param workflow_id: 工作流 ID。
+        :param execute_id: 工作流执行 ID。
+        :param node_execute_uuid: 工作流异步运行结果 API 中返回的节点执行 uuid。
+        """
         url = (
             f"{self._base_url}/v1/workflows/{workflow_id}/run_histories/{execute_id}/execute_nodes/{node_execute_uuid}"
         )
@@ -30,6 +36,12 @@ class AsyncWorkflowsRunsRunHistoriesExecuteNodesClient(object):
     async def retrieve(
         self, *, workflow_id: str, execute_id: str, node_execute_uuid: str
     ) -> WorkflowNodeExecuteHistory:
+        """查询工作流节点的运行结果
+
+        :param workflow_id: 工作流 ID。
+        :param execute_id: 工作流执行 ID。
+        :param node_execute_uuid: 工作流异步运行结果 API 中返回的节点执行 uuid。
+        """
         url = (
             f"{self._base_url}/v1/workflows/{workflow_id}/run_histories/{execute_id}/execute_nodes/{node_execute_uuid}"
         )

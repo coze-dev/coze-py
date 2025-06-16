@@ -30,12 +30,19 @@ class WorkflowRunMode(IntEnum):
 
 
 class WorkflowRunHistoryNodeExecuteStatus(CozeModel):
+    # 工作流中的节点 ID。
     node_id: str
+    # 工作流中的节点是否已经运行结束。
     is_finish: bool
+    # 工作流上次运行的时间，采用 Unix 时间戳格式，单位为秒。
     update_time: int
+    # 节点每次执行的 ID，用于追踪和识别工作流中特定节点的单次执行情况。
     node_execute_uuid: str
+    # 当前节点在循环节点中的循环次数。
     loop_index: Optional[int] = None
+    # 当前节点在批处理节点中的执行次数。
     batch_index: Optional[int] = None
+    # 子流程执行的 ID。
     sub_execute_id: Optional[str] = None
 
 
