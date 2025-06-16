@@ -7,12 +7,13 @@ from tests.test_util import logid_key
 
 
 def mock_live_info():
-    app_id = random_hex(10)
-    stream_infos = [
-        StreamInfo(stream_id=random_hex(10), name="test-stream", live_type=LiveType.ORIGIN),
-        StreamInfo(stream_id=random_hex(10), name="test-stream-2", live_type=LiveType.TRANSLATION),
-    ]
-    live_info = LiveInfo(app_id=app_id, stream_infos=stream_infos)
+    live_info = LiveInfo(
+        app_id=random_hex(10),
+        stream_infos=[
+            StreamInfo(stream_id=random_hex(10), name="test-stream", live_type=LiveType.ORIGIN),
+            StreamInfo(stream_id=random_hex(10), name="test-stream-2", live_type=LiveType.TRANSLATION),
+        ],
+    )
     return live_info
 
 
