@@ -167,7 +167,7 @@ class Requester(object):
         params: dict = ...,
         headers: Optional[dict] = ...,
         body: dict = ...,
-        files: dict = ...,
+        files: Optional[dict] = ...,
         data_field: str = ...,
     ) -> T: ...
 
@@ -181,7 +181,7 @@ class Requester(object):
         params: dict = ...,
         headers: Optional[dict] = ...,
         body: dict = ...,
-        files: dict = ...,
+        files: Optional[dict] = ...,
         data_field: str = ...,
     ) -> List[T]: ...
 
@@ -195,7 +195,7 @@ class Requester(object):
         params: dict = ...,
         headers: Optional[dict] = ...,
         body: dict = ...,
-        files: dict = ...,
+        files: Optional[dict] = ...,
         data_field: str = ...,
     ) -> ListResponse[T]: ...
 
@@ -209,7 +209,7 @@ class Requester(object):
         params: dict = ...,
         headers: Optional[dict] = ...,
         body: dict = ...,
-        files: dict = ...,
+        files: Optional[dict] = ...,
         data_field: str = ...,
     ) -> FileHTTPResponse: ...
 
@@ -223,7 +223,7 @@ class Requester(object):
         params: dict = ...,
         headers: Optional[dict] = ...,
         body: dict = ...,
-        files: dict = ...,
+        files: Optional[dict] = ...,
         data_field: str = ...,
     ) -> IteratorHTTPResponse[str]: ...
 
@@ -237,7 +237,7 @@ class Requester(object):
         params: dict = ...,
         headers: Optional[dict] = ...,
         body: dict = ...,
-        files: dict = ...,
+        files: Optional[dict] = ...,
         data_field: str = ...,
     ) -> None: ...
 
@@ -299,7 +299,7 @@ class Requester(object):
         params: dict = ...,
         headers: Optional[dict] = ...,
         body: dict = ...,
-        files: dict = ...,
+        files: Optional[dict] = ...,
         data_field: str = ...,
     ) -> T: ...
 
@@ -313,7 +313,7 @@ class Requester(object):
         params: dict = ...,
         headers: Optional[dict] = ...,
         body: dict = ...,
-        files: dict = ...,
+        files: Optional[dict] = ...,
         data_field: str = ...,
     ) -> List[T]: ...
 
@@ -327,7 +327,7 @@ class Requester(object):
         params: dict = ...,
         headers: Optional[dict] = ...,
         body: dict = ...,
-        files: dict = ...,
+        files: Optional[dict] = ...,
         data_field: str = ...,
     ) -> ListResponse[T]: ...
 
@@ -341,7 +341,7 @@ class Requester(object):
         params: dict = ...,
         headers: Optional[dict] = ...,
         body: dict = ...,
-        files: dict = ...,
+        files: Optional[dict] = ...,
         data_field: str = ...,
     ) -> FileHTTPResponse: ...
 

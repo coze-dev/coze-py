@@ -24,8 +24,12 @@
     },
     "cSpell.words": [
         "CHATFLOW",
+        "arequest",
         "cozepy",
+        "JWT",
+        "JWTO",
         "logid",
+        "OAuth",
         "respx"
     ],
 } 
