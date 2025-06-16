@@ -171,8 +171,6 @@ class Bot(CozeModel):
     background_image_info: Optional[BotBackgroundImageInfo] = None
     # The list of variables configured for the bot. For more information, see Variable object.
     variables: Optional[List[BotVariable]] = None
-    # owner user id
-    owner_user_id: Optional[str] = None
 
 
 class SimpleBot(CozeModel):
