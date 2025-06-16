@@ -237,3 +237,68 @@ class TestAsyncWorkflowsRuns:
         assert res
         assert res.logid == execute_logid
         assert res.response.logid == current_logid
+
+
+@pytest.mark.respx(base_url="https://api.coze.com")
+class TestSyncWorkflowsList:
+    def test_sync_workflows_list(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+        url = "https://api.coze.com/v1/workflows"
+        mock_data = {
+            "items": [
+                {
+                    "workflow_id": "w1",
+                    "workflow_name": "name1",
+                    "description": "desc1",
+                    "icon_url": "icon1",
+                    "app_id": "app1",
+                },
+                {
+                    "workflow_id": "w2",
+                    "workflow_name": "name2",
+                    "description": "desc2",
+                    "icon_url": "icon2",
+                    "app_id": "app2",
+                },
+            ],
+            "has_more": False,
+        }
+        respx_mock.get(url).mock(return_value=httpx.Response(200, json=mock_data))
+        paged = coze.workflows.list(page_num=1, page_size=2)
+        items = list(paged)
+        assert len(items) == 2
+        assert items[0].workflow_id == "w1"
+        assert items[1].workflow_id == "w2"
+
+
+@pytest.mark.respx(base_url="https://api.coze.com")
+@pytest.mark.asyncio
+class TestAsyncWorkflowsList:
+    async def test_async_workflows_list(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        url = "https://api.coze.com/v1/workflows"
+        mock_data = {
+            "items": [
+                {
+                    "workflow_id": "w1",
+                    "workflow_name": "name1",
+                    "description": "desc1",
+                    "icon_url": "icon1",
+                    "app_id": "app1",
+                },
+                {
+                    "workflow_id": "w2",
+                    "workflow_name": "name2",
+                    "description": "desc2",
+                    "icon_url": "icon2",
+                    "app_id": "app2",
+                },
+            ],
+            "has_more": False,
+        }
+        respx_mock.get(url).mock(return_value=httpx.Response(200, json=mock_data))
+        paged = await coze.workflows.list(page_num=1, page_size=2)
+        items = [item async for item in paged]
+        assert len(items) == 2
+        assert items[0].workflow_id == "w1"
+        assert items[1].workflow_id == "w2"
