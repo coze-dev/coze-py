@@ -23,6 +23,7 @@ def mock_list_workspaces(respx_mock, total_count, page):
                             icon_url="icon_url",
                             role_type=WorkspaceRoleType.ADMIN,
                             workspace_type=WorkspaceType.PERSONAL,
+                            enterprise_id="",
                         ).model_dump()
                     ],
                 }

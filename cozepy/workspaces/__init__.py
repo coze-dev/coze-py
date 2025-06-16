@@ -31,6 +31,7 @@ class Workspace(CozeModel):
     role_type: WorkspaceRoleType
     # workspace type
     workspace_type: WorkspaceType
+    # enterprise id
     enterprise_id: str
 
 
