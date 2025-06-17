@@ -68,5 +68,15 @@ while True:
         break
     time.sleep(1)
 
-print("run_history:", run_history)
-print("logid:", run_history.logid)
+node_execute_uuids = [
+    node_execute_status.node_execute_uuid for node_execute_status in run_history.node_execute_status.values()
+]
+assert node_execute_uuids
+
+for node_execute_uuid in node_execute_uuids:
+    node_execute_history = coze.workflows.runs.run_histories.execute_nodes.retrieve(
+        workflow_id=workflow_id,
+        execute_id=workflow_run_result.execute_id,
+        node_execute_uuid=node_execute_uuid,
+    )
+    print("node_execute_history:", node_execute_history)
