@@ -115,7 +115,7 @@ class TestSyncWorkspacesMembers:
         workspace_id = random_hex(10)
         user_ids = [random_hex(10), random_hex(10)]
         mock_delete_workspaces_members(respx_mock, workspace_id, user_ids)
-        resp = coze.workspaces.members.delete(workspace_id=workspace_id, user_id_list=user_ids)
+        resp = coze.workspaces.members.delete(workspace_id=workspace_id, user_ids=user_ids)
         assert resp.removed_success_user_ids == user_ids
         assert resp.response.logid == "logid"
 
@@ -155,7 +155,7 @@ class TestAsyncWorkspacesMembers:
         workspace_id = random_hex(10)
         user_ids = [random_hex(10), random_hex(10)]
         mock_delete_workspaces_members(respx_mock, workspace_id, user_ids)
-        resp = await coze.workspaces.members.delete(workspace_id=workspace_id, user_id_list=user_ids)
+        resp = await coze.workspaces.members.delete(workspace_id=workspace_id, user_ids=user_ids)
         assert resp.removed_success_user_ids == user_ids
         assert resp.response.logid == "logid"
 

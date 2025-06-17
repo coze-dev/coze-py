@@ -57,16 +57,16 @@ def setup_examples_logger():
 
 setup_examples_logger()
 
-user_id_list = []
+user_ids = []
 if user_id_admin:
-    user_id_list.append(user_id_admin)
+    user_ids.append(user_id_admin)
 if user_id_member:
-    user_id_list.append(user_id_member)
+    user_ids.append(user_id_member)
 
 
 delete_workspaces_members_resp = coze.workspaces.members.delete(
     workspace_id=workspace_id,
-    user_id_list=user_id_list,
+    user_ids=user_ids,
     headers={
         "x-tt-env": "ppe_openapi_space",
         "x-use-ppe": "1",

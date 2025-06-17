@@ -32,7 +32,7 @@ class DeleteWorkspaceMemberResp(CozeModel):
     # 成功移除的成员列表
     removed_success_user_ids: List[str]
     # 不在空间的用户不进行处理
-    not_in_space_user_ids: List[str]
+    not_in_workspace_user_ids: List[str]
     # 空间所有者不进行处理
     owner_not_support_remove_user_ids: List[str]
 
@@ -70,14 +70,14 @@ class WorkspacesMembersClient(object):
         self,
         *,
         workspace_id: str,
-        user_id_list: List[str],
+        user_ids: List[str],
         **kwargs,
     ) -> DeleteWorkspaceMemberResp:
         url = f"{self._base_url}/v1/workspaces/{workspace_id}/members"
         headers: Optional[dict] = kwargs.get("headers")
         body = remove_none_values(
             {
-                "user_id_list": user_id_list,
+                "user_ids": user_ids,
             }
         )
         return self._requester.request(
@@ -151,14 +151,14 @@ class AsyncWorkspacesMembersClient(object):
         self,
         *,
         workspace_id: str,
-        user_id_list: List[str],
+        user_ids: List[str],
         **kwargs,
     ) -> DeleteWorkspaceMemberResp:
         url = f"{self._base_url}/v1/workspaces/{workspace_id}/members"
         headers: Optional[dict] = kwargs.get("headers")
         body = remove_none_values(
             {
-                "user_id_list": user_id_list,
+                "user_ids": user_ids,
             }
         )
         return await self._requester.arequest(
