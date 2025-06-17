@@ -329,7 +329,7 @@ class BotsClient(object):
 
         return self._requester.request("post", url, False, Bot, headers=headers, body=body)
 
-    def retrieve(self, *, bot_id: str, **kwargs) -> Bot:
+    def retrieve(self, *, bot_id: str, is_published: Optional[bool] = None, **kwargs) -> Bot:
         """
         Get the configuration information of the bot, which must have been published
         to the Bot as API channel.
@@ -344,9 +344,10 @@ class BotsClient(object):
         Bot 的配置信息
         """
         url = f"{self._base_url}/v1/bots/{bot_id}"
+        params = remove_none_values({"is_published": is_published})
         headers: Optional[dict] = kwargs.get("headers")
 
-        return self._requester.request("get", url, False, Bot, headers=headers)
+        return self._requester.request("get", url, False, Bot, params=params, headers=headers)
 
     def list(
         self,
@@ -506,7 +507,7 @@ class AsyncBotsClient(object):
 
         return await self._requester.arequest("post", url, False, Bot, headers=headers, body=body)
 
-    async def retrieve(self, *, bot_id: str, **kwargs) -> Bot:
+    async def retrieve(self, *, bot_id: str, is_published: Optional[bool] = None, **kwargs) -> Bot:
         """
         Get the configuration information of the bot, which must have been published
         to the Bot as API channel.
@@ -522,8 +523,9 @@ class AsyncBotsClient(object):
         """
         url = f"{self._base_url}/v1/bots/{bot_id}"
         headers: Optional[dict] = kwargs.get("headers")
+        params = remove_none_values({"is_published": is_published})
 
-        return await self._requester.arequest("get", url, False, Bot, headers=headers)
+        return await self._requester.arequest("get", url, False, Bot, params=params, headers=headers)
 
     async def list(
         self,
