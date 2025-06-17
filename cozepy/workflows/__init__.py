@@ -1,8 +1,8 @@
 from enum import Enum
 from typing import TYPE_CHECKING, List, Optional
 
-from cozepy import NumberPaged, NumberPagedResponse
-from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest
+from cozepy.bots import PublishStatus
+from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
 
@@ -14,13 +14,6 @@ if TYPE_CHECKING:
 class WorkflowMode(str, Enum):
     WORKFLOW = "workflow"
     CHATFLOW = "chatflow"
-
-
-class PublishStatus(str, Enum):
-    ALL = "all"  # 所有智能体，且数据为最新草稿版本
-    PUBLISHED_ONLINE = "published_online"  # 已发布智能体的最新线上版本
-    PUBLISHED_DRAFT = "published_draft"  # 已发布的最新草稿版本
-    UNPUBLISHED_DRAFT = "unpublished_draft"  # 未发布的最新草稿版本
 
 
 class WorkflowInfo(CozeModel):

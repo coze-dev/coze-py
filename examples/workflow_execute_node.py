@@ -1,9 +1,10 @@
 """
-This example is for describing how to retrieve a bot.
+This example describes how to use the workflow async run and retrieve the run history.
 """
 
 import logging
 import os
+import time
 from typing import Optional
 
 from cozepy import (
@@ -11,8 +12,9 @@ from cozepy import (
     Coze,
     DeviceOAuthApp,
     TokenAuth,
-    setup_logging,
+    WorkflowExecuteStatus,
 )
+from cozepy.log import setup_logging
 
 
 def get_coze_api_base() -> str:
@@ -41,10 +43,8 @@ def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
 
 # Init the Coze client through the access_token.
 coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_base())
-# workspace id
-workspace_id = os.getenv("COZE_WORKSPACE_ID") or "your workspace id"
-# bot id
-bot_id = os.getenv("COZE_BOT_ID") or "your bot id"
+# Create a workflow instance in Coze, copy the last number from the web link as the workflow's ID.
+workflow_id = os.getenv("COZE_WORKFLOW_ID")
 
 
 def setup_examples_logger():
@@ -56,6 +56,27 @@ def setup_examples_logger():
 setup_examples_logger()
 
 
-bot = coze.bots.retrieve(bot_id=bot_id)
-print("retrieve bot", bot.model_dump_json(indent=2))
-print("logid", bot.response.logid)
+workflow_run_result = coze.workflows.runs.create(workflow_id=workflow_id, is_async=True)
+run_history = None
+while True:
+    time.sleep(1)
+    run_history = coze.workflows.runs.run_histories.retrieve(
+        workflow_id=workflow_id,
+        execute_id=workflow_run_result.execute_id,
+    )
+    if run_history.execute_status == WorkflowExecuteStatus.SUCCESS:
+        break
+    time.sleep(1)
+
+node_execute_uuids = [
+    node_execute_status.node_execute_uuid for node_execute_status in run_history.node_execute_status.values()
+]
+assert node_execute_uuids
+
+for node_execute_uuid in node_execute_uuids:
+    node_execute_history = coze.workflows.runs.run_histories.execute_nodes.retrieve(
+        workflow_id=workflow_id,
+        execute_id=workflow_run_result.execute_id,
+        node_execute_uuid=node_execute_uuid,
+    )
+    print("node_execute_history:", node_execute_history)
