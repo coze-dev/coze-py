@@ -16,24 +16,25 @@ class WorkspaceMember(CozeModel):
 
 
 class CreateWorkspaceMemberResp(CozeModel):
-    # 添加成功的用户ID列表
+    # 团队或企业版成功添加的用户 ID 列表。
     added_success_user_ids: List[str]
-    # 邀请成功的用户ID列表
+    # 个人版中，发起邀请且用户同意加入的用户 ID 列表。
     invited_success_user_ids: List[str]
-    # 不存在用户ID列表
+    # 因用户不存在而导致添加失败的用户 ID 列表。
     not_exist_user_ids: List[str]
-    # 已加入用户ID列表
+    # 用户在该工作空间中已经存在，不重复添加。
     already_joined_user_ids: List[str]
-    # 已邀请用户ID列表
+    # 已经发起邀请但用户还未同意加入的用户 ID 列表。
+    # 仅个人版的空间添加用户时需要发出邀请，用户同意后才会加入空间。
     already_invited_user_ids: List[str]
 
 
 class DeleteWorkspaceMemberResp(CozeModel):
-    # 成功移除的成员列表
+    # 成功移除的成员列表。
     removed_success_user_ids: List[str]
-    # 不在空间的用户不进行处理
+    # 不在当前空间中的用户 ID 列表，这些用户不会被处理。
     not_in_workspace_user_ids: List[str]
-    # 空间所有者不进行处理
+    # 移除失败，该用户为空间所有者。
     owner_not_support_remove_user_ids: List[str]
 
 
@@ -49,6 +50,11 @@ class WorkspacesMembersClient(object):
         users: List[WorkspaceMember],
         **kwargs,
     ) -> CreateWorkspaceMemberResp:
+        """批量邀请用户加入空间
+
+        :param workspace_id: 需要添加用户的空间 ID。
+        :param users: 要添加的成员列表，单次最多添加 20 个成员。
+        """
         url = f"{self._base_url}/v1/workspaces/{workspace_id}/members"
         headers: Optional[dict] = kwargs.get("headers")
         body = remove_none_values(
@@ -73,6 +79,11 @@ class WorkspacesMembersClient(object):
         user_ids: List[str],
         **kwargs,
     ) -> DeleteWorkspaceMemberResp:
+        """ "批量移除空间中的用户
+
+        :param workspace_id: 需要移除用户的空间 ID。
+        :param user_ids: 要移除的成员，单次最多移除 5 个成员。
+        """
         url = f"{self._base_url}/v1/workspaces/{workspace_id}/members"
         headers: Optional[dict] = kwargs.get("headers")
         body = remove_none_values(
@@ -92,6 +103,13 @@ class WorkspacesMembersClient(object):
         page_size: int = 20,
         **kwargs,
     ) -> NumberPaged[WorkspaceMember]:
+        """查看空间成员列表
+
+        :param workspace_id: 需要查看成员列表的空间 ID。
+        :param page_num: 分页查询时的页码。最小值为 1，默认为 1，即从第一页数据开始返回。
+        :param page_size: 分页大小。取值范围为 1~50，默认为 20。
+        :return: 空间成员列表。
+        """
         url = f"{self._base_url}/v1/workspaces/{workspace_id}/members"
         headers: Optional[dict] = kwargs.get("headers")
 
@@ -130,6 +148,11 @@ class AsyncWorkspacesMembersClient(object):
         users: List[WorkspaceMember],
         **kwargs,
     ) -> CreateWorkspaceMemberResp:
+        """批量邀请用户加入空间
+
+        :param workspace_id: 需要添加用户的空间 ID。
+        :param users: 要添加的成员列表，单次最多添加 20 个成员。
+        """
         url = f"{self._base_url}/v1/workspaces/{workspace_id}/members"
         headers: Optional[dict] = kwargs.get("headers")
         body = remove_none_values(
@@ -154,6 +177,11 @@ class AsyncWorkspacesMembersClient(object):
         user_ids: List[str],
         **kwargs,
     ) -> DeleteWorkspaceMemberResp:
+        """ "批量移除空间中的用户
+
+        :param workspace_id: 需要移除用户的空间 ID。
+        :param user_ids: 要移除的成员，单次最多移除 5 个成员。
+        """
         url = f"{self._base_url}/v1/workspaces/{workspace_id}/members"
         headers: Optional[dict] = kwargs.get("headers")
         body = remove_none_values(
@@ -173,6 +201,13 @@ class AsyncWorkspacesMembersClient(object):
         page_size: int = 20,
         **kwargs,
     ) -> AsyncNumberPaged[WorkspaceMember]:
+        """查看空间成员列表
+
+        :param workspace_id: 需要查看成员列表的空间 ID。
+        :param page_num: 分页查询时的页码。最小值为 1，默认为 1，即从第一页数据开始返回。
+        :param page_size: 分页大小。取值范围为 1~50，默认为 20。
+        :return: 空间成员列表。
+        """
         url = f"{self._base_url}/v1/workspaces/{workspace_id}/members"
         headers: Optional[dict] = kwargs.get("headers")
 
