@@ -12,9 +12,10 @@ class SimpleApp(CozeModel):
     description: str
     icon_url: str
     is_published: bool
-    updated_at: int
-    published_at: int
     owner_user_id: str
+
+    published_at: Optional[int] = None
+    updated_at: Optional[int] = None
 
 
 class _PrivateListAppsData(CozeModel, NumberPagedResponse[SimpleApp]):
@@ -44,6 +45,7 @@ class AppsClient(object):
         connector_id: Optional[str] = None,
         page_num: int = 1,
         page_size: int = 20,
+        **kwargs,
     ) -> NumberPaged[SimpleApp]:
         """
         :param workspace_id: The ID of the workspace.
@@ -57,6 +59,7 @@ class AppsClient(object):
         指定 workspace 的 App 列表。
         """
         url = f"{self._base_url}/v1/apps"
+        headers: Optional[dict] = kwargs.get("headers")
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
@@ -71,6 +74,7 @@ class AppsClient(object):
                         "connector_id": connector_id,
                     }
                 ),
+                headers=headers,
                 cast=_PrivateListAppsData,
                 stream=False,
             )
@@ -96,6 +100,7 @@ class AsyncAppsClient(object):
         connector_id: Optional[str] = None,
         page_num: int = 1,
         page_size: int = 20,
+        **kwargs,
     ) -> AsyncNumberPaged[SimpleApp]:
         """
         :param workspace_id: The ID of the workspace.
@@ -109,6 +114,7 @@ class AsyncAppsClient(object):
         指定 workspace 的 App 列表。
         """
         url = f"{self._base_url}/v1/apps"
+        headers: Optional[dict] = kwargs.get("headers")
 
         async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return await self._requester.amake_request(
@@ -123,6 +129,7 @@ class AsyncAppsClient(object):
                         "connector_id": connector_id,
                     }
                 ),
+                headers=headers,
                 cast=_PrivateListAppsData,
                 stream=False,
             )
