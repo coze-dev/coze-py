@@ -191,8 +191,9 @@ class SimpleBot(CozeModel):
     icon_url: str
     is_published: bool
     updated_at: int
-    published_at: Optional[int] = None
     owner_user_id: str
+
+    published_at: Optional[int] = None
 
     # compatibility fields
     bot_id: str = Field(alias="id")
