@@ -60,10 +60,6 @@ setup_examples_logger()
 workspaces = coze.workspaces.list(
     user_id=user_id,
     coze_account_id=coze_account_id,
-    headers={
-        "x-tt-env": "ppe_openapi_space",
-        "x-use-ppe": "1",
-    },
 )
 
 

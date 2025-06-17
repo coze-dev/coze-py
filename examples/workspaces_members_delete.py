@@ -67,10 +67,6 @@ if user_id_member:
 delete_workspaces_members_resp = coze.workspaces.members.delete(
     workspace_id=workspace_id,
     user_ids=user_ids,
-    headers={
-        "x-tt-env": "ppe_openapi_space",
-        "x-use-ppe": "1",
-    },
 )
 
 print("workspaces.members.delete", delete_workspaces_members_resp.model_dump_json(indent=2))
