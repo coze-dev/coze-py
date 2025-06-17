@@ -23,7 +23,10 @@
         "**/.DS_Store": true
     },
     "cSpell.words": [
+        "amake",
         "arequest",
+        "asend",
+        "autouse",
         "cozepy",
         "JWT",
         "JWTO",

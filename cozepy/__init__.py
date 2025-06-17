@@ -207,6 +207,7 @@ from .workflows.runs.run_histories import (
 )
 from .workflows.runs.run_histories.execute_nodes import WorkflowNodeExecuteHistory
 from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
+from .workspaces.members import CreateWorkspaceMemberResp, DeleteWorkspaceMemberResp, WorkspaceMember
 
 __all__ = [
     "VERSION",
@@ -395,6 +396,10 @@ __all__ = [
     "WorkspaceRoleType",
     "WorkspaceType",
     "Workspace",
+    # workspaces.members
+    "CreateWorkspaceMemberResp",
+    "DeleteWorkspaceMemberResp",
+    "WorkspaceMember",
     # templates
     "TemplateDuplicateResp",
     "TemplateEntityType",
