@@ -1,9 +1,18 @@
 from enum import Enum, IntEnum
 from typing import List, Optional
 
+from pydantic import Field, field_validator
+
 from cozepy.model import AsyncNumberPaged, CozeModel, NumberPaged, NumberPagedResponse
 from cozepy.request import HTTPRequest, Requester
-from cozepy.util import remove_url_trailing_slash
+from cozepy.util import remove_none_values, remove_url_trailing_slash
+
+
+class PublishStatus(str, Enum):
+    ALL = "all"  # 所有智能体，且数据为最新草稿版本
+    PUBLISHED_ONLINE = "published_online"  # 已发布智能体的最新线上版本
+    PUBLISHED_DRAFT = "published_draft"  # 已发布的最新草稿版本
+    UNPUBLISHED_DRAFT = "unpublished_draft"  # 未发布的最新草稿版本
 
 
 class BotPromptInfo(CozeModel):
@@ -33,6 +42,14 @@ class BotModelInfo(CozeModel):
     model_id: str
     # The name of the model.
     model_name: str
+    # The temperature of the model.
+    temperature: float
+    # The top_p of the model.
+    top_p: float
+    # The context_round of the model.
+    context_round: int
+    # The max_tokens of the model.
+    max_tokens: int
 
 
 class BotMode(IntEnum):
@@ -138,6 +155,29 @@ class BotVariable(CozeModel):
     prompt_enable: bool
 
 
+class BotVoiceInfo(CozeModel):
+    voice_id: str
+    language_code: str
+
+
+class UserInputType(str, Enum):
+    """用户输入类型"""
+
+    # 文本输入
+    TEXT = "text"
+    # 语音通话
+    CALL = "call"
+    # 语音输入
+    VOICE = "voice"
+
+
+class BotWorkflowInfo(CozeModel):
+    id: str
+    name: str
+    description: str
+    icon_url: str
+
+
 class Bot(CozeModel):
     # The ID for the bot.
     bot_id: str
@@ -171,20 +211,38 @@ class Bot(CozeModel):
     background_image_info: Optional[BotBackgroundImageInfo] = None
     # The list of variables configured for the bot. For more information, see Variable object.
     variables: Optional[List[BotVariable]] = None
+    # The user ID of the bot's owner.
+    owner_user_id: Optional[str] = None
+    # The voice info for the bot.
+    voice_info_list: Optional[List[BotVoiceInfo]] = None
+    # The default user input type for the bot.
+    default_user_input_type: Optional[UserInputType] = None
+    # The workflow info for the bot.
+    workflow_info_list: Optional[List[BotWorkflowInfo]] = None
 
 
 class SimpleBot(CozeModel):
-    # The ID for the bot.
-    bot_id: str
-    # The name of the bot.
-    bot_name: str
-    # The description of the bot.
+    id: str
+    name: str
     description: str
-    # The URL address for the bot's avatar.
     icon_url: str
-    # The latest publish time of the bot, in the format of a 10-digit Unix timestamp in seconds (s).
-    # This API returns the list of bots sorted in descending order by this field.
-    publish_time: str
+    is_published: bool
+    updated_at: int
+    owner_user_id: str
+
+    published_at: Optional[int] = None
+
+    # compatibility fields
+    bot_id: str = Field(alias="id")
+    bot_name: str = Field(alias="name")
+    publish_time: str = Field(alias="updated_at")
+
+    @field_validator("publish_time", mode="before")
+    @classmethod
+    def convert_to_string(cls, v):
+        if isinstance(v, int):
+            return str(v)
+        return v
 
 
 class UpdateBotResp(CozeModel):
@@ -192,7 +250,7 @@ class UpdateBotResp(CozeModel):
 
 
 class _PrivateListBotsData(CozeModel, NumberPagedResponse[SimpleBot]):
-    space_bots: List[SimpleBot]
+    items: List[SimpleBot]
     total: int
 
     def get_total(self) -> Optional[int]:
@@ -202,7 +260,7 @@ class _PrivateListBotsData(CozeModel, NumberPagedResponse[SimpleBot]):
         return None
 
     def get_items(self) -> List[SimpleBot]:
-        return self.space_bots
+        return self.items
 
 
 class BotsClient(object):
@@ -308,7 +366,7 @@ class BotsClient(object):
 
         return self._requester.request("post", url, False, Bot, headers=headers, body=body)
 
-    def retrieve(self, *, bot_id: str, **kwargs) -> Bot:
+    def retrieve(self, *, bot_id: str, is_published: Optional[bool] = None, **kwargs) -> Bot:
         """
         Get the configuration information of the bot, which must have been published
         to the Bot as API channel.
@@ -322,13 +380,22 @@ class BotsClient(object):
         :return: bot object
         Bot 的配置信息
         """
-        url = f"{self._base_url}/v1/bot/get_online_info"
-        params = {"bot_id": bot_id}
+        url = f"{self._base_url}/v1/bots/{bot_id}"
+        params = remove_none_values({"is_published": is_published})
         headers: Optional[dict] = kwargs.get("headers")
 
         return self._requester.request("get", url, False, Bot, params=params, headers=headers)
 
-    def list(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> NumberPaged[SimpleBot]:
+    def list(
+        self,
+        *,
+        space_id: str,
+        publish_status: Optional[PublishStatus] = None,
+        connector_id: Optional[str] = None,
+        page_num: int = 1,
+        page_size: int = 20,
+        **kwargs,
+    ) -> NumberPaged[SimpleBot]:
         """
         Get the bots published as API service.
         查看指定空间发布到 Bot as API 渠道的 Bot 列表。
@@ -346,17 +413,23 @@ class BotsClient(object):
         :return: Specify the list of Bots published to the Bot as an API channel in space.
         指定空间发布到 Bot as API 渠道的 Bot 列表。
         """
-        url = f"{self._base_url}/v1/space/published_bots_list"
+        url = f"{self._base_url}/v1/bots"
+        headers: Optional[dict] = kwargs.get("headers")
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
                 "GET",
                 url,
-                params={
-                    "space_id": space_id,
-                    "page_size": i_page_size,
-                    "page_index": i_page_num,
-                },
+                params=remove_none_values(
+                    {
+                        "workspace_id": space_id,
+                        "page_size": i_page_size,
+                        "page_index": i_page_num,
+                        "publish_status": publish_status.value if publish_status else None,
+                        "connector_id": connector_id,
+                    }
+                ),
+                headers=headers,
                 cast=_PrivateListBotsData,
                 stream=False,
             )
@@ -471,7 +544,7 @@ class AsyncBotsClient(object):
 
         return await self._requester.arequest("post", url, False, Bot, headers=headers, body=body)
 
-    async def retrieve(self, *, bot_id: str) -> Bot:
+    async def retrieve(self, *, bot_id: str, is_published: Optional[bool] = None, **kwargs) -> Bot:
         """
         Get the configuration information of the bot, which must have been published
         to the Bot as API channel.
@@ -485,12 +558,22 @@ class AsyncBotsClient(object):
         :return: bot object
         Bot 的配置信息
         """
-        url = f"{self._base_url}/v1/bot/get_online_info"
-        params = {"bot_id": bot_id}
+        url = f"{self._base_url}/v1/bots/{bot_id}"
+        headers: Optional[dict] = kwargs.get("headers")
+        params = remove_none_values({"is_published": is_published})
 
-        return await self._requester.arequest("get", url, False, Bot, params=params)
+        return await self._requester.arequest("get", url, False, Bot, params=params, headers=headers)
 
-    async def list(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> AsyncNumberPaged[SimpleBot]:
+    async def list(
+        self,
+        *,
+        space_id: str,
+        publish_status: Optional[PublishStatus] = None,
+        connector_id: Optional[str] = None,
+        page_num: int = 1,
+        page_size: int = 20,
+        **kwargs,
+    ) -> AsyncNumberPaged[SimpleBot]:
         """
         Get the bots published as API service.
         查看指定空间发布到 Bot as API 渠道的 Bot 列表。
@@ -508,17 +591,23 @@ class AsyncBotsClient(object):
         :return: Specify the list of Bots published to the Bot as an API channel in space.
         指定空间发布到 Bot as API 渠道的 Bot 列表。
         """
-        url = f"{self._base_url}/v1/space/published_bots_list"
+        url = f"{self._base_url}/v1/bots"
+        headers: Optional[dict] = kwargs.get("headers")
 
         async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return await self._requester.amake_request(
                 "GET",
                 url,
-                params={
-                    "space_id": space_id,
-                    "page_size": i_page_size,
-                    "page_index": i_page_num,
-                },
+                params=remove_none_values(
+                    {
+                        "space_id": space_id,
+                        "page_size": i_page_size,
+                        "page_index": i_page_num,
+                        "publish_status": publish_status.value if publish_status else None,
+                        "connector_id": connector_id,
+                    }
+                ),
+                headers=headers,
                 cast=_PrivateListBotsData,
                 stream=False,
             )

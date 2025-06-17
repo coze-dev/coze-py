@@ -1,5 +1,5 @@
 """
-This example is for describing how to retrieve a bot.
+This example is for describing how to list apps.
 """
 
 import logging
@@ -42,9 +42,7 @@ def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
 # Init the Coze client through the access_token.
 coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_base())
 # workspace id
-workspace_id = os.getenv("COZE_WORKSPACE_ID") or "your workspace id"
-# bot id
-bot_id = os.getenv("COZE_BOT_ID") or "your bot id"
+workspace_id = os.getenv("COZE_WORKSPACE_ID")
 
 
 def setup_examples_logger():
@@ -56,6 +54,7 @@ def setup_examples_logger():
 setup_examples_logger()
 
 
-bot = coze.bots.retrieve(bot_id=bot_id)
-print("retrieve bot", bot.model_dump_json(indent=2))
-print("logid", bot.response.logid)
+apps = coze.apps.list(workspace_id=workspace_id)
+for app in apps:
+    print(app.model_dump_json(indent=2))
+print("logid", apps.response.logid)

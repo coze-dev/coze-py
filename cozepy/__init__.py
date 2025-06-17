@@ -1,3 +1,4 @@
+from .apps import SimpleApp
 from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
 from .audio.transcriptions import CreateTranscriptionsResp
@@ -50,11 +51,15 @@ from .bots import (
     BotPromptInfo,
     BotSuggestReplyInfo,
     BotVariable,
+    BotVoiceInfo,
+    BotWorkflowInfo,
     CanvasPosition,
     GradientPosition,
+    PublishStatus,
     SimpleBot,
     SuggestReplyMode,
     UpdateBotResp,
+    UserInputType,
     VariableChannel,
     VariableType,
 )
@@ -211,6 +216,9 @@ from .workspaces.members import CreateWorkspaceMemberResp, DeleteWorkspaceMember
 
 __all__ = [
     "VERSION",
+    # apps
+    "SimpleApp",
+    # audio
     # audio.rooms
     "CreateRoomResp",
     # audio.voices
@@ -252,24 +260,28 @@ __all__ = [
     "TokenAuth",
     "WebOAuthApp",
     # bots
-    "BotPromptInfo",
-    "BotOnboardingInfo",
+    "BackgroundImageInfo",
+    "Bot",
+    "BotBackgroundImageInfo",
     "BotKnowledge",
     "BotModelInfo",
+    "BotOnboardingInfo",
     "BotPluginAPIInfo",
     "BotPluginInfo",
-    "SuggestReplyMode",
+    "BotPromptInfo",
     "BotSuggestReplyInfo",
-    "GradientPosition",
-    "CanvasPosition",
-    "BackgroundImageInfo",
-    "BotBackgroundImageInfo",
-    "VariableType",
-    "VariableChannel",
     "BotVariable",
-    "Bot",
+    "BotVoiceInfo",
+    "BotWorkflowInfo",
+    "CanvasPosition",
+    "GradientPosition",
+    "PublishStatus",
     "SimpleBot",
+    "SuggestReplyMode",
     "UpdateBotResp",
+    "UserInputType",
+    "VariableChannel",
+    "VariableType",
     # chat
     "MessageRole",
     "MessageType",

@@ -1,5 +1,5 @@
 """
-This example is for describing how to retrieve a bot.
+This example is for describing how to list bots.
 """
 
 import logging
@@ -44,7 +44,7 @@ coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_ba
 # workspace id
 workspace_id = os.getenv("COZE_WORKSPACE_ID") or "your workspace id"
 # bot id
-bot_id = os.getenv("COZE_BOT_ID") or "your bot id"
+bot_id = os.getenv("COZE_BOT_ID")
 
 
 def setup_examples_logger():
@@ -56,6 +56,7 @@ def setup_examples_logger():
 setup_examples_logger()
 
 
-bot = coze.bots.retrieve(bot_id=bot_id)
-print("retrieve bot", bot.model_dump_json(indent=2))
-print("logid", bot.response.logid)
+bots = coze.bots.list(space_id=workspace_id)
+for bot in bots:
+    print(bot.model_dump_json(indent=2))
+print("logid", bots.response.logid)
