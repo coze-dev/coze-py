@@ -63,10 +63,6 @@ while True:
     run_history = coze.workflows.runs.run_histories.retrieve(
         workflow_id=workflow_id,
         execute_id=workflow_run_result.execute_id,
-        headers={
-            "x-tt-env": "ppe_get_node_history",
-            "x-use-ppe": "1",
-        },
     )
     if run_history.execute_status == WorkflowExecuteStatus.SUCCESS:
         break
