@@ -68,7 +68,7 @@ if user_id_member:
 
 create_workspaces_members_resp = coze.workspaces.members.create(
     workspace_id=workspace_id,
-    user_list=user_list,
+    users=user_list,
     headers={
         "x-tt-env": "ppe_openapi_space",
         "x-use-ppe": "1",

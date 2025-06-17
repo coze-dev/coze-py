@@ -46,19 +46,19 @@ class WorkspacesMembersClient(object):
         self,
         *,
         workspace_id: str,
-        user_list: List[WorkspaceMember],
+        users: List[WorkspaceMember],
         **kwargs,
     ) -> CreateWorkspaceMemberResp:
         url = f"{self._base_url}/v1/workspaces/{workspace_id}/members"
         headers: Optional[dict] = kwargs.get("headers")
         body = remove_none_values(
             {
-                "user_list": [
+                "users": [
                     {
                         "user_id": user.user_id,
                         "role_type": user.role_type,
                     }
-                    for user in user_list
+                    for user in users
                 ],
             }
         )
