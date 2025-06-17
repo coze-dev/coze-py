@@ -51,11 +51,15 @@ from .bots import (
     BotPromptInfo,
     BotSuggestReplyInfo,
     BotVariable,
+    BotVoiceInfo,
+    BotWorkflowInfo,
     CanvasPosition,
     GradientPosition,
+    PublishStatus,
     SimpleBot,
     SuggestReplyMode,
     UpdateBotResp,
+    UserInputType,
     VariableChannel,
     VariableType,
 )
@@ -211,8 +215,10 @@ from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
 from .workspaces.members import CreateWorkspaceMemberResp, DeleteWorkspaceMemberResp, WorkspaceMember
 
 __all__ = [
-    "SimpleApp",
     "VERSION",
+    # apps
+    "SimpleApp",
+    # audio
     # audio.rooms
     "CreateRoomResp",
     # audio.voices
@@ -264,6 +270,10 @@ __all__ = [
     "BotSuggestReplyInfo",
     "GradientPosition",
     "CanvasPosition",
+    "PublishStatus",
+    "BotVoiceInfo",
+    "UserInputType",
+    "BotWorkflowInfo",
     "BackgroundImageInfo",
     "BotBackgroundImageInfo",
     "VariableType",
