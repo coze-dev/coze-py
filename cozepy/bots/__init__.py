@@ -147,6 +147,11 @@ class BotVariable(CozeModel):
     prompt_enable: bool
 
 
+class BotVoiceInfo(CozeModel):
+    voice_id: str
+    language_code: str
+
+
 class Bot(CozeModel):
     # The ID for the bot.
     bot_id: str
@@ -182,6 +187,8 @@ class Bot(CozeModel):
     variables: Optional[List[BotVariable]] = None
     # The user ID of the bot's owner.
     owner_user_id: Optional[str] = None
+    # The voice info for the bot.
+    voice_info_list: Optional[List[BotVoiceInfo]] = None
 
 
 class SimpleBot(CozeModel):
