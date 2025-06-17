@@ -344,10 +344,9 @@ class BotsClient(object):
         Bot 的配置信息
         """
         url = f"{self._base_url}/v1/bots/{bot_id}"
-        params = {"bot_id": bot_id}
         headers: Optional[dict] = kwargs.get("headers")
 
-        return self._requester.request("get", url, False, Bot, params=params, headers=headers)
+        return self._requester.request("get", url, False, Bot, headers=headers)
 
     def list(
         self,
@@ -507,7 +506,7 @@ class AsyncBotsClient(object):
 
         return await self._requester.arequest("post", url, False, Bot, headers=headers, body=body)
 
-    async def retrieve(self, *, bot_id: str) -> Bot:
+    async def retrieve(self, *, bot_id: str, **kwargs) -> Bot:
         """
         Get the configuration information of the bot, which must have been published
         to the Bot as API channel.
@@ -522,9 +521,9 @@ class AsyncBotsClient(object):
         Bot 的配置信息
         """
         url = f"{self._base_url}/v1/bots/{bot_id}"
-        params = {"bot_id": bot_id}
+        headers: Optional[dict] = kwargs.get("headers")
 
-        return await self._requester.arequest("get", url, False, Bot, params=params)
+        return await self._requester.arequest("get", url, False, Bot, headers=headers)
 
     async def list(
         self,
