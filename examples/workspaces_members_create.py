@@ -59,16 +59,16 @@ def setup_examples_logger():
 
 setup_examples_logger()
 
-user_list = []
+users = []
 if user_id_admin:
-    user_list.append(WorkspaceMember(user_id=user_id_admin, role_type=WorkspaceRoleType.ADMIN))
+    users.append(WorkspaceMember(user_id=user_id_admin, role_type=WorkspaceRoleType.ADMIN))
 if user_id_member:
-    user_list.append(WorkspaceMember(user_id=user_id_member, role_type=WorkspaceRoleType.MEMBER))
+    users.append(WorkspaceMember(user_id=user_id_member, role_type=WorkspaceRoleType.MEMBER))
 
 
 create_workspaces_members_resp = coze.workspaces.members.create(
     workspace_id=workspace_id,
-    users=user_list,
+    users=users,
 )
 
 print("workspaces.members.create", create_workspaces_members_resp.model_dump_json(indent=2))

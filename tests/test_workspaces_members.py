@@ -105,7 +105,7 @@ class TestSyncWorkspacesMembers:
         mock_create_workspaces_members(respx_mock, workspace_id, user_ids)
         resp = coze.workspaces.members.create(
             workspace_id=workspace_id,
-            user_list=[WorkspaceMember(user_id=user_id, role_type=WorkspaceRoleType.MEMBER) for user_id in user_ids],
+            users=[WorkspaceMember(user_id=user_id, role_type=WorkspaceRoleType.MEMBER) for user_id in user_ids],
         )
         assert resp.added_success_user_ids == user_ids
         assert resp.response.logid == "logid"
@@ -145,7 +145,7 @@ class TestAsyncWorkspacesMembers:
         mock_create_workspaces_members(respx_mock, workspace_id, user_ids)
         resp = await coze.workspaces.members.create(
             workspace_id=workspace_id,
-            user_list=[WorkspaceMember(user_id=user_id, role_type=WorkspaceRoleType.MEMBER) for user_id in user_ids],
+            users=[WorkspaceMember(user_id=user_id, role_type=WorkspaceRoleType.MEMBER) for user_id in user_ids],
         )
         assert resp.added_success_user_ids == user_ids
         assert resp.response.logid == "logid"
