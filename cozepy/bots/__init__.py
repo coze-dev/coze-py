@@ -42,6 +42,14 @@ class BotModelInfo(CozeModel):
     model_id: str
     # The name of the model.
     model_name: str
+    # The temperature of the model.
+    temperature: float
+    # The top_p of the model.
+    top_p: float
+    # The context_round of the model.
+    context_round: int
+    # The max_tokens of the model.
+    max_tokens: int
 
 
 class BotMode(IntEnum):
@@ -152,6 +160,24 @@ class BotVoiceInfo(CozeModel):
     language_code: str
 
 
+class UserInputType(str, Enum):
+    """用户输入类型"""
+
+    # 文本输入
+    TEXT = "text"
+    # 语音通话
+    CALL = "call"
+    # 语音输入
+    VOICE = "voice"
+
+
+class BotWorkflowInfo(CozeModel):
+    id: str
+    name: str
+    description: str
+    icon_url: str
+
+
 class Bot(CozeModel):
     # The ID for the bot.
     bot_id: str
@@ -189,6 +215,10 @@ class Bot(CozeModel):
     owner_user_id: Optional[str] = None
     # The voice info for the bot.
     voice_info_list: Optional[List[BotVoiceInfo]] = None
+    # The default user input type for the bot.
+    default_user_input_type: Optional[UserInputType] = None
+    # The workflow info for the bot.
+    workflow_info_list: Optional[List[BotWorkflowInfo]] = None
 
 
 class SimpleBot(CozeModel):
