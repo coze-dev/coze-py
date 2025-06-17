@@ -13,9 +13,9 @@ class SimpleApp(CozeModel):
     icon_url: str
     is_published: bool
     owner_user_id: str
+    updated_at: int
 
     published_at: Optional[int] = None
-    updated_at: Optional[int] = None
 
 
 class _PrivateListAppsData(CozeModel, NumberPagedResponse[SimpleApp]):
