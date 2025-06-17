@@ -191,7 +191,7 @@ class SimpleBot(CozeModel):
     icon_url: str
     is_published: bool
     updated_at: int
-    published_at: int
+    published_at: Optional[int] = None
     owner_user_id: str
 
     # compatibility fields
@@ -356,6 +356,7 @@ class BotsClient(object):
         connector_id: Optional[str] = None,
         page_num: int = 1,
         page_size: int = 20,
+        **kwargs,
     ) -> NumberPaged[SimpleBot]:
         """
         Get the bots published as API service.
@@ -375,6 +376,7 @@ class BotsClient(object):
         指定空间发布到 Bot as API 渠道的 Bot 列表。
         """
         url = f"{self._base_url}/v1/bots"
+        headers: Optional[dict] = kwargs.get("headers")
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
@@ -382,13 +384,14 @@ class BotsClient(object):
                 url,
                 params=remove_none_values(
                     {
-                        "space_id": space_id,
+                        "workspace_id": space_id,
                         "page_size": i_page_size,
                         "page_index": i_page_num,
                         "publish_status": publish_status.value if publish_status else None,
                         "connector_id": connector_id,
                     }
                 ),
+                headers=headers,
                 cast=_PrivateListBotsData,
                 stream=False,
             )
@@ -530,6 +533,7 @@ class AsyncBotsClient(object):
         connector_id: Optional[str] = None,
         page_num: int = 1,
         page_size: int = 20,
+        **kwargs,
     ) -> AsyncNumberPaged[SimpleBot]:
         """
         Get the bots published as API service.
@@ -549,6 +553,7 @@ class AsyncBotsClient(object):
         指定空间发布到 Bot as API 渠道的 Bot 列表。
         """
         url = f"{self._base_url}/v1/bots"
+        headers: Optional[dict] = kwargs.get("headers")
 
         async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return await self._requester.amake_request(
@@ -563,6 +568,7 @@ class AsyncBotsClient(object):
                         "connector_id": connector_id,
                     }
                 ),
+                headers=headers,
                 cast=_PrivateListBotsData,
                 stream=False,
             )
