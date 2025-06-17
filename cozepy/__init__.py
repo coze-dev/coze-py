@@ -1,3 +1,4 @@
+from .apps import SimpleApp
 from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
 from .audio.transcriptions import CreateTranscriptionsResp
@@ -210,6 +211,7 @@ from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
 from .workspaces.members import CreateWorkspaceMemberResp, DeleteWorkspaceMemberResp, WorkspaceMember
 
 __all__ = [
+    "SimpleApp",
     "VERSION",
     # audio.rooms
     "CreateRoomResp",

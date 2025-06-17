@@ -1,8 +1,7 @@
 import httpx
 import pytest
 
-from cozepy import AsyncCoze, AsyncTokenAuth, Coze, TokenAuth
-from cozepy.apps import SimpleApp
+from cozepy import AsyncCoze, AsyncTokenAuth, Coze, SimpleApp, TokenAuth
 from cozepy.util import random_hex
 from tests.test_util import logid_key
 
