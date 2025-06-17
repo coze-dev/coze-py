@@ -1,11 +1,17 @@
 from enum import Enum, IntEnum
-from typing import Optional
+from typing import TYPE_CHECKING, Dict, Optional
 
 from pydantic import field_validator
 
 from cozepy.model import CozeModel, ListResponse
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
+
+if TYPE_CHECKING:
+    from .execute_nodes import (
+        AsyncWorkflowsRunsRunHistoriesExecuteNodesClient,
+        WorkflowsRunsRunHistoriesExecuteNodesClient,
+    )
 
 
 class WorkflowExecuteStatus(str, Enum):
@@ -21,6 +27,23 @@ class WorkflowRunMode(IntEnum):
     SYNCHRONOUS = 0
     STREAMING = 1
     ASYNCHRONOUS = 2
+
+
+class WorkflowRunHistoryNodeExecuteStatus(CozeModel):
+    # 工作流中的节点 ID。
+    node_id: str
+    # 工作流中的节点是否已经运行结束。
+    is_finish: bool
+    # 工作流上次运行的时间，采用 Unix 时间戳格式，单位为秒。
+    update_time: int
+    # 节点每次执行的 ID，用于追踪和识别工作流中特定节点的单次执行情况。
+    node_execute_uuid: str
+    # 当前节点在循环节点中的循环次数。
+    loop_index: Optional[int] = None
+    # 当前节点在批处理节点中的执行次数。
+    batch_index: Optional[int] = None
+    # 子流程执行的 ID。
+    sub_execute_id: Optional[str] = None
 
 
 class WorkflowRunHistory(CozeModel):
@@ -75,6 +98,8 @@ class WorkflowRunHistory(CozeModel):
     # and output information of each workflow node.
     debug_url: str
 
+    node_execute_status: Optional[Dict[str, WorkflowRunHistoryNodeExecuteStatus]] = None
+
     @field_validator("error_code", mode="before")
     @classmethod
     def error_code_empty_str_to_zero(cls, v):
@@ -88,7 +113,19 @@ class WorkflowsRunsRunHistoriesClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    def retrieve(self, *, workflow_id: str, execute_id: str) -> WorkflowRunHistory:
+        self._execute_nodes: Optional[WorkflowsRunsRunHistoriesExecuteNodesClient] = None
+
+    @property
+    def execute_nodes(self) -> "WorkflowsRunsRunHistoriesExecuteNodesClient":
+        if self._execute_nodes is None:
+            from .execute_nodes import WorkflowsRunsRunHistoriesExecuteNodesClient
+
+            self._execute_nodes = WorkflowsRunsRunHistoriesExecuteNodesClient(
+                base_url=self._base_url, requester=self._requester
+            )
+        return self._execute_nodes
+
+    def retrieve(self, *, workflow_id: str, execute_id: str, **kwargs) -> WorkflowRunHistory:
         """
         After the workflow runs async, retrieve the execution results.
 
@@ -99,7 +136,8 @@ class WorkflowsRunsRunHistoriesClient(object):
         :return: The result of the workflow execution
         """
         url = f"{self._base_url}/v1/workflows/{workflow_id}/run_histories/{execute_id}"
-        res = self._requester.request("get", url, False, ListResponse[WorkflowRunHistory])
+        headers: Optional[dict] = kwargs.get("headers")
+        res = self._requester.request("get", url, False, ListResponse[WorkflowRunHistory], headers=headers)
         data = res.data[0]
         data._raw_response = res._raw_response
         return data
@@ -110,7 +148,19 @@ class AsyncWorkflowsRunsRunHistoriesClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    async def retrieve(self, *, workflow_id: str, execute_id: str) -> WorkflowRunHistory:
+        self._execute_nodes: Optional[AsyncWorkflowsRunsRunHistoriesExecuteNodesClient] = None
+
+    @property
+    def execute_nodes(self) -> "AsyncWorkflowsRunsRunHistoriesExecuteNodesClient":
+        if self._execute_nodes is None:
+            from .execute_nodes import AsyncWorkflowsRunsRunHistoriesExecuteNodesClient
+
+            self._execute_nodes = AsyncWorkflowsRunsRunHistoriesExecuteNodesClient(
+                base_url=self._base_url, requester=self._requester
+            )
+        return self._execute_nodes
+
+    async def retrieve(self, *, workflow_id: str, execute_id: str, **kwargs) -> WorkflowRunHistory:
         """
         After the workflow runs async, retrieve the execution results.
 
@@ -121,7 +171,8 @@ class AsyncWorkflowsRunsRunHistoriesClient(object):
         :return: The result of the workflow execution
         """
         url = f"{self._base_url}/v1/workflows/{workflow_id}/run_histories/{execute_id}"
-        res = await self._requester.arequest("get", url, False, ListResponse[WorkflowRunHistory])
+        headers: Optional[dict] = kwargs.get("headers")
+        res = await self._requester.arequest("get", url, False, ListResponse[WorkflowRunHistory], headers=headers)
         data = res.data[0]
         data._raw_response = res._raw_response
         return data

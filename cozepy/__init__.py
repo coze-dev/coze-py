@@ -199,8 +199,15 @@ from .workflows.runs import (
     WorkflowEventType,
     WorkflowRunResult,
 )
-from .workflows.runs.run_histories import WorkflowExecuteStatus, WorkflowRunHistory, WorkflowRunMode
+from .workflows.runs.run_histories import (
+    WorkflowExecuteStatus,
+    WorkflowRunHistory,
+    WorkflowRunHistoryNodeExecuteStatus,
+    WorkflowRunMode,
+)
+from .workflows.runs.run_histories.execute_nodes import WorkflowNodeExecuteHistory
 from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
+from .workspaces.members import CreateWorkspaceMemberResp, DeleteWorkspaceMemberResp, WorkspaceMember
 
 __all__ = [
     "VERSION",
@@ -382,10 +389,17 @@ __all__ = [
     "WorkflowExecuteStatus",
     "WorkflowRunMode",
     "WorkflowRunHistory",
+    "WorkflowRunHistoryNodeExecuteStatus",
+    # workflows.runs.run_histories.execute_nodes
+    "WorkflowNodeExecuteHistory",
     # workspaces
     "WorkspaceRoleType",
     "WorkspaceType",
     "Workspace",
+    # workspaces.members
+    "CreateWorkspaceMemberResp",
+    "DeleteWorkspaceMemberResp",
+    "WorkspaceMember",
     # templates
     "TemplateDuplicateResp",
     "TemplateEntityType",
