@@ -52,7 +52,7 @@ def mock_delete_workspaces_members(respx_mock, workspace_id, user_ids):
             json={
                 "data": {
                     "removed_success_user_ids": user_ids,
-                    "not_in_space_user_ids": [],
+                    "not_in_workspace_user_ids": [],
                     "owner_not_support_remove_user_ids": [],
                 }
             },
