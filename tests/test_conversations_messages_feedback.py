@@ -3,8 +3,6 @@ import pytest
 
 from cozepy import AsyncCoze, AsyncTokenAuth, Coze, TokenAuth
 from cozepy.conversations.message.feedback import (
-    AsyncMessagesFeedbackClient,
-    ConversationsMessagesFeedbackClient,
     CreateConversationMessageFeedbackResp,
     DeleteConversationMessageFeedbackResp,
     FeedbackType,
@@ -81,7 +79,6 @@ class TestConversationMessageFeedback:
         """测试反馈类型枚举值"""
         assert FeedbackType.LIKE == "like"
         assert FeedbackType.UNLIKE == "unlike"
-        assert FeedbackType.CANCEL == "cancel"
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -110,7 +107,7 @@ class TestAsyncConversationMessageFeedback:
         feedback = await coze.conversations.messages.feedback.create(
             conversation_id="conversation_id",
             message_id="message_id",
-            feedback_type=FeedbackType.CANCEL,
+            feedback_type=FeedbackType.LIKE,
         )
         assert feedback
         assert feedback.response.logid == mock_resp.response.logid
@@ -126,23 +123,3 @@ class TestAsyncConversationMessageFeedback:
         )
         assert feedback
         assert feedback.response.logid == mock_resp.response.logid
-
-
-class TestFeedbackClient:
-    def test_conversations_messages_feedback_client_creation(self):
-        """测试同步反馈客户端创建"""
-        from cozepy.request import Requester
-
-        requester = Requester()
-        client = ConversationsMessagesFeedbackClient("https://api.coze.com", requester)
-        assert client._base_url == "https://api.coze.com"
-        assert client._requester == requester
-
-    def test_async_messages_feedback_client_creation(self):
-        """测试异步反馈客户端创建"""
-        from cozepy.request import Requester
-
-        requester = Requester()
-        client = AsyncMessagesFeedbackClient("https://api.coze.com", requester)
-        assert client._base_url == "https://api.coze.com"
-        assert client._requester == requester

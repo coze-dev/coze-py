@@ -13,7 +13,6 @@ class FeedbackType(str, Enum):
 
     LIKE = "like"  # 赞
     UNLIKE = "unlike"  # 踩
-    CANCEL = "cancel"  # 取消
 
 
 class CreateConversationMessageFeedbackResp(CozeModel):
