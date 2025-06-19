@@ -77,7 +77,7 @@ class VoiceprintGroupsClient(object):
         self,
         *,
         name: str,
-        desc: str,
+        desc: Optional[str] = None,
         **kwargs,
     ) -> CreateVoicePrintGroupResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups"
@@ -211,7 +211,7 @@ class AsyncVoiceprintGroupsClient(object):
         self,
         *,
         name: str,
-        desc: str,
+        desc: Optional[str] = None,
         **kwargs,
     ) -> CreateVoicePrintGroupResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups"
