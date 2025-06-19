@@ -7,7 +7,6 @@ import threading
 import traceback
 from abc import ABC
 from contextlib import asynccontextmanager, contextmanager
-from enum import Enum
 from functools import lru_cache
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, get_type_hints
 
@@ -45,13 +44,13 @@ from pydantic import BaseModel
 
 from cozepy.exception import CozeAPIError
 from cozepy.log import log_debug, log_error, log_info, log_warning
-from cozepy.model import CozeModel
+from cozepy.model import CozeModel, DynamicStrEnum
 from cozepy.request import Requester
 from cozepy.util import get_methods, get_model_default, remove_url_trailing_slash
 from cozepy.version import coze_client_user_agent, user_agent
 
 
-class WebsocketsEventType(str, Enum):
+class WebsocketsEventType(DynamicStrEnum):
     # common
     CLIENT_ERROR = "client_error"  # sdk error
     CLOSED = "closed"  # connection closed
@@ -230,7 +229,7 @@ class WebsocketsEventFactory(object):
 
 
 class WebsocketsBaseClient(abc.ABC):
-    class State(str, Enum):
+    class State(DynamicStrEnum):
         """
         initialized, connecting, connected, closing, closed
         """
@@ -460,7 +459,7 @@ class WebsocketsBaseEventHandler(object):
 
 
 class AsyncWebsocketsBaseClient(abc.ABC):
-    class State(str, Enum):
+    class State(DynamicStrEnum):
         """
         initialized, connecting, connected, closing, closed
         """
