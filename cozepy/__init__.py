@@ -222,10 +222,6 @@ from .workspaces.members import CreateWorkspaceMemberResp, DeleteWorkspaceMember
 
 __all__ = [
     "VERSION",
-    # conversations.message.feedback
-    "CreateConversationMessageFeedbackResp",
-    "DeleteConversationMessageFeedbackResp",
-    "FeedbackType",
     # apps
     "SimpleApp",
     # audio
@@ -316,6 +312,10 @@ __all__ = [
     # conversations
     "Conversation",
     "Section",
+    # conversations.message.feedback
+    "CreateConversationMessageFeedbackResp",
+    "DeleteConversationMessageFeedbackResp",
+    "FeedbackType",
     # files
     "File",
     # datasets
