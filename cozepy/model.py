@@ -148,14 +148,19 @@ class HTTPRequest(CozeModel, Generic[T]):
 
     @property
     def as_httpx(self) -> httpx.Request:
-        if self.files and self.json_body:
+        if self.files is not None and self.json_body:
+            files = {}
+            for k, v in self.files.items():
+                files[k] = v
+            for k, v in self.json_body.items():
+                files[k] = (None, v)
             return httpx.Request(
                 method=self.method,
                 url=self.url,
                 params=self.params,
                 headers=self.headers,
-                data=self.json_body,
-                files=self.files,
+                data={},
+                files=files,
             )
         return httpx.Request(
             method=self.method,
