@@ -1,17 +1,21 @@
-from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from cozepy import AudioFormat
 from cozepy.files import FileTypes, _try_fix_file
-from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
+from cozepy.model import AsyncNumberPaged, CozeModel, DynamicStrEnum, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
 
 
-class VoiceState(str, Enum):
+class VoiceState(DynamicStrEnum):
     INIT = "init"
     CLONED = "cloned"
     ALL = "all"
+
+
+class VoiceModelType(DynamicStrEnum):
+    BIG = "big"
+    SMALL = "small"
 
 
 class Voice(CozeModel):
@@ -44,6 +48,9 @@ class Voice(CozeModel):
 
     # Voice last update timestamp
     update_time: int
+
+    # Voice model type
+    model_type: Union[VoiceModelType, str]
 
     # Voice state
     state: Optional[VoiceState] = None
@@ -126,6 +133,7 @@ class VoicesClient(object):
         voice_state: Optional[VoiceState] = None,
         page_num: int = 1,
         page_size: int = 100,
+        **kwargs,
     ) -> NumberPaged[Voice]:
         """
         Get available voices, including system voices + user cloned voices
@@ -138,6 +146,7 @@ class VoicesClient(object):
         :return: list of Voice
         """
         url = f"{self._base_url}/v1/audio/voices"
+        headers: Optional[dict] = kwargs.get("headers")
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
@@ -151,6 +160,7 @@ class VoicesClient(object):
                         "page_size": i_page_size,
                     }
                 ),
+                headers=headers,
                 cast=_PrivateListVoiceData,
                 stream=False,
             )
