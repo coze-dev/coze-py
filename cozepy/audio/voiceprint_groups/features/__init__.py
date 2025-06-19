@@ -97,7 +97,7 @@ class VoiceprintGroupsFeaturesClient(object):
     ) -> UpdateVoicePrintGroupFeatureResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features/{feature_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        files = {"file": _try_fix_file(file)} if file else None
+        files = {"file": _try_fix_file(file)} if file else {}
         body = remove_none_values(
             {
                 "name": name,
