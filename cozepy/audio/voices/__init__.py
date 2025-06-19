@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import List, Optional
 
 from cozepy import AudioFormat
@@ -5,6 +6,12 @@ from cozepy.files import FileTypes, _try_fix_file
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
+
+
+class VoiceState(str, Enum):
+    INIT = "init"
+    CLONED = "cloned"
+    ALL = "all"
 
 
 class Voice(CozeModel):
@@ -113,6 +120,7 @@ class VoicesClient(object):
         self,
         *,
         filter_system_voice: bool = False,
+        voice_state: Optional[VoiceState] = None,
         page_num: int = 1,
         page_size: int = 100,
     ) -> NumberPaged[Voice]:
@@ -132,11 +140,14 @@ class VoicesClient(object):
             return self._requester.make_request(
                 "GET",
                 url,
-                params={
-                    "filter_system_voice": filter_system_voice,
-                    "page_num": i_page_num,
-                    "page_size": i_page_size,
-                },
+                params=remove_none_values(
+                    {
+                        "filter_system_voice": filter_system_voice,
+                        "voice_state": voice_state,
+                        "page_num": i_page_num,
+                        "page_size": i_page_size,
+                    }
+                ),
                 cast=_PrivateListVoiceData,
                 stream=False,
             )
@@ -206,7 +217,13 @@ class AsyncVoicesClient(object):
         return await self._requester.arequest("post", url, False, Voice, headers=headers, body=body, files=files)
 
     async def list(
-        self, *, filter_system_voice: bool = False, page_num: int = 1, page_size: int = 100, **kwargs
+        self,
+        *,
+        filter_system_voice: bool = False,
+        voice_state: Optional[VoiceState] = None,
+        page_num: int = 1,
+        page_size: int = 100,
+        **kwargs,
     ) -> AsyncNumberPaged[Voice]:
         """
         Get available voices, including system voices + user cloned voices
@@ -225,11 +242,14 @@ class AsyncVoicesClient(object):
             return await self._requester.amake_request(
                 "GET",
                 url,
-                params={
-                    "filter_system_voice": filter_system_voice,
-                    "page_num": i_page_num,
-                    "page_size": i_page_size,
-                },
+                params=remove_none_values(
+                    {
+                        "filter_system_voice": filter_system_voice,
+                        "voice_state": voice_state,
+                        "page_num": i_page_num,
+                        "page_size": i_page_size,
+                    }
+                ),
                 headers=headers,
                 cast=_PrivateListVoiceData,
                 stream=False,
