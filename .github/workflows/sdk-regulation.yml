@@ -9,7 +9,7 @@ on:
 permissions: write-all
 
 jobs:
-  test:
+  default:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
