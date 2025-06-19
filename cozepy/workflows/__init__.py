@@ -1,8 +1,7 @@
-from enum import Enum
 from typing import TYPE_CHECKING, List, Optional
 
 from cozepy.bots import PublishStatus
-from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
+from cozepy.model import AsyncNumberPaged, CozeModel, DynamicStrEnum, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
 
@@ -11,7 +10,7 @@ if TYPE_CHECKING:
     from .runs import AsyncWorkflowsRunsClient, WorkflowsRunsClient
 
 
-class WorkflowMode(str, Enum):
+class WorkflowMode(DynamicStrEnum):
     WORKFLOW = "workflow"
     CHATFLOW = "chatflow"
 

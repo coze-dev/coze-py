@@ -1,14 +1,14 @@
-from enum import Enum, IntEnum
+from enum import IntEnum
 from typing import List, Optional
 
 from pydantic import Field, field_validator
 
-from cozepy.model import AsyncNumberPaged, CozeModel, NumberPaged, NumberPagedResponse
+from cozepy.model import AsyncNumberPaged, CozeModel, DynamicStrEnum, NumberPaged, NumberPagedResponse
 from cozepy.request import HTTPRequest, Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
 
 
-class PublishStatus(str, Enum):
+class PublishStatus(DynamicStrEnum):
     ALL = "all"  # 所有智能体，且数据为最新草稿版本
     PUBLISHED_ONLINE = "published_online"  # 已发布智能体的最新线上版本
     PUBLISHED_DRAFT = "published_draft"  # 已发布的最新草稿版本
@@ -80,7 +80,7 @@ class BotPluginInfo(CozeModel):
     api_info_list: List[BotPluginAPIInfo]
 
 
-class SuggestReplyMode(str, Enum):
+class SuggestReplyMode(DynamicStrEnum):
     # The bot does not suggest replies.
     DISABLE = "disable"
     # The bot suggests replies.
@@ -118,14 +118,14 @@ class BotBackgroundImageInfo(CozeModel):
     mobile_background_image: Optional[BackgroundImageInfo] = None
 
 
-class VariableType(str, Enum):
+class VariableType(DynamicStrEnum):
     # The variable is a key-value pair.
     KVVariable = "KVVariable"
     # The variable is a list.
     ListVariable = "ListVariable"
 
 
-class VariableChannel(str, Enum):
+class VariableChannel(DynamicStrEnum):
     # The variable is a custom variable.
     VariableChannelCustom = "custom"
     # The variable is a system variable.
@@ -160,7 +160,7 @@ class BotVoiceInfo(CozeModel):
     language_code: str
 
 
-class UserInputType(str, Enum):
+class UserInputType(DynamicStrEnum):
     """用户输入类型"""
 
     # 文本输入

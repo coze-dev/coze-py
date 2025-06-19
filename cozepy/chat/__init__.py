@@ -1,14 +1,21 @@
 import base64
 import json
 import time
-from enum import Enum
 from typing import TYPE_CHECKING, Any, AsyncIterator, Dict, List, Optional, Union, overload
 
 import httpx
 from typing_extensions import Literal
 
 from cozepy.exception import CozeAPIError
-from cozepy.model import AsyncIteratorHTTPResponse, AsyncStream, CozeModel, IteratorHTTPResponse, ListResponse, Stream
+from cozepy.model import (
+    AsyncIteratorHTTPResponse,
+    AsyncStream,
+    CozeModel,
+    DynamicStrEnum,
+    IteratorHTTPResponse,
+    ListResponse,
+    Stream,
+)
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
@@ -16,7 +23,7 @@ if TYPE_CHECKING:
     from .message import AsyncChatMessagesClient, ChatMessagesClient
 
 
-class MessageRole(str, Enum):
+class MessageRole(DynamicStrEnum):
     # Indicates that the content of the message is sent by the user.
     USER = "user"
 
@@ -24,7 +31,7 @@ class MessageRole(str, Enum):
     ASSISTANT = "assistant"
 
 
-class MessageType(str, Enum):
+class MessageType(DynamicStrEnum):
     UNKNOWN = ""
 
     # User input content.
@@ -56,7 +63,7 @@ class MessageType(str, Enum):
     VERBOSE = "verbose"
 
 
-class MessageContentType(str, Enum):
+class MessageContentType(DynamicStrEnum):
     # Text.
     # 文本。
     TEXT = "text"
@@ -77,7 +84,7 @@ class MessageContentType(str, Enum):
     AUDIO = "audio"
 
 
-class MessageObjectStringType(str, Enum):
+class MessageObjectStringType(DynamicStrEnum):
     """
     The content type of the multimodal message.
     """
@@ -195,7 +202,7 @@ class Message(CozeModel):
         return b""
 
 
-class ChatStatus(str, Enum):
+class ChatStatus(DynamicStrEnum):
     """
     The running status of the session
     """
@@ -228,12 +235,12 @@ class ChatError(CozeModel):
     msg: str = ""
 
 
-class ChatRequiredActionType(str, Enum):
+class ChatRequiredActionType(DynamicStrEnum):
     UNKNOWN = ""
     SUBMIT_TOOL_OUTPUTS = "submit_tool_outputs"
 
 
-class ChatToolCallType(str, Enum):
+class ChatToolCallType(DynamicStrEnum):
     FUNCTION = "function"
     REPLY_MESSAGE = "reply_message"
 
@@ -327,7 +334,7 @@ class ChatPoll(CozeModel):
     messages: Optional[ListResponse[Message]] = None
 
 
-class ChatEventType(str, Enum):
+class ChatEventType(DynamicStrEnum):
     # Event for creating a conversation, indicating the start of the conversation.
     # 创建对话的事件，表示对话开始。
     CONVERSATION_CHAT_CREATED = "conversation.chat.created"
