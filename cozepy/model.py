@@ -708,7 +708,7 @@ class DynamicStrEnum(str, Enum):
 
         # 创建动态成员
         pseudo_member = str.__new__(cls, value)
-        pseudo_member._name_ = f"{value.upper()}"
+        pseudo_member._name_ = f"{value.upper()}".replace(".", "_")
         pseudo_member._value_ = value
 
         # 标记为动态创建

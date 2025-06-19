@@ -142,14 +142,14 @@ class TestDynamicStrEnum:
         # 创建多个动态值
         with pytest.warns(UserWarning):
             dynamic1 = TestEnum("dynamic1")
-            dynamic2 = TestEnum("dynamic2")
+            dynamic2 = TestEnum("message.delta")
 
         assert dynamic1 == "dynamic1"
-        assert dynamic2 == "dynamic2"
+        assert dynamic2 == "message.delta"
         assert dynamic1.is_dynamic
         assert dynamic2.is_dynamic
         assert dynamic1._name_ == "DYNAMIC1"
-        assert dynamic2._name_ == "DYNAMIC2"
+        assert dynamic2._name_ == "MESSAGE_DELTA"
 
     def test_case_sensitivity(self):
         """测试大小写敏感性"""

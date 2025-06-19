@@ -1,7 +1,6 @@
-from enum import Enum
 from typing import TYPE_CHECKING, List, Optional
 
-from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
+from cozepy.model import AsyncNumberPaged, CozeModel, DynamicStrEnum, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
 
@@ -9,13 +8,13 @@ if TYPE_CHECKING:
     from .members import AsyncWorkspacesMembersClient, WorkspacesMembersClient
 
 
-class WorkspaceRoleType(str, Enum):
+class WorkspaceRoleType(DynamicStrEnum):
     OWNER = "owner"
     ADMIN = "admin"
     MEMBER = "member"
 
 
-class WorkspaceType(str, Enum):
+class WorkspaceType(DynamicStrEnum):
     PERSONAL = "personal"
     TEAM = "team"
 
