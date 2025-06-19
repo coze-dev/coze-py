@@ -140,6 +140,7 @@ class VoicesClient(object):
         Tips: Voices cloned under each Volcano account can be reused within the team
 
         :param filter_system_voice: If True, system voices will not be returned.
+        :param voice_state: The state of the voice.
         :param page_num: The page number for paginated queries. Default is 1, meaning the data return starts from the
         first page.
         :param page_size: The size of pagination. Default is 100, meaning that 100 data entries are returned per page.
@@ -243,6 +244,7 @@ class AsyncVoicesClient(object):
         Tips: Voices cloned under each Volcano account can be reused within the team
 
         :param filter_system_voice: If True, system voices will not be returned.
+        :param voice_state: The state of the voice.
         :param page_num: The page number for paginated queries. Default is 1, meaning the data return starts from the
         first page.
         :param page_size: The size of pagination. Default is 100, meaning that 100 data entries are returned per page.
