@@ -46,7 +46,7 @@ class Voice(CozeModel):
     update_time: int
 
     # Voice state
-    voice_state: Optional[VoiceState] = None
+    state: Optional[VoiceState] = None
 
 
 class _PrivateListVoiceData(CozeModel, NumberPagedResponse[Voice]):
