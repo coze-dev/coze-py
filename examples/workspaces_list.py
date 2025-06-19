@@ -1,5 +1,5 @@
 """
-This example is for describing how to retrieve a bot.
+This example is about how to list workspaces.
 """
 
 import logging
@@ -9,10 +9,10 @@ from typing import Optional
 from cozepy import (
     COZE_CN_BASE_URL,
     Coze,
-    DeviceOAuthApp,
+    DeviceOAuthApp,  # noqa
     TokenAuth,
-    setup_logging,
 )
+from cozepy.log import setup_logging
 
 
 def get_coze_api_base() -> str:
@@ -41,10 +41,10 @@ def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
 
 # Init the Coze client through the access_token.
 coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_base())
-# workspace id
-workspace_id = os.getenv("COZE_WORKSPACE_ID") or "your workspace id"
-# bot id
-bot_id = os.getenv("COZE_BOT_ID") or "your bot id"
+# coze user id
+user_id = os.getenv("COZE_USER_ID")
+# coze account id
+coze_account_id = os.getenv("COZE_ACCOUNT_ID")
 
 
 def setup_examples_logger():
@@ -56,6 +56,15 @@ def setup_examples_logger():
 setup_examples_logger()
 
 
-bot = coze.bots.retrieve(bot_id=bot_id)
-print("retrieve bot", bot.model_dump_json(indent=2))
-print("logid", bot.response.logid)
+# Call the api to get workspace list.
+workspaces = coze.workspaces.list(
+    user_id=user_id,
+    coze_account_id=coze_account_id,
+)
+
+
+for workspace in workspaces:
+    # workspaces is an iterator. Traversing workspaces will automatically turn pages and
+    # get all workspace results.
+    print(workspace.model_dump_json(indent=2))
+print("logid", workspaces.response.logid)

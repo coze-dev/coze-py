@@ -1,12 +1,11 @@
-from enum import Enum
 from typing import Optional
 
-from cozepy.model import CozeModel
+from cozepy.model import CozeModel, DynamicStrEnum
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
 
-class TemplateEntityType(str, Enum):
+class TemplateEntityType(DynamicStrEnum):
     AGENT = "agent"
 
 

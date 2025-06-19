@@ -1,19 +1,18 @@
-from enum import Enum
 from typing import Optional
 
-from cozepy.model import FileHTTPResponse
+from cozepy.model import DynamicStrEnum, FileHTTPResponse
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
 
-class AudioFormat(str, Enum):
+class AudioFormat(DynamicStrEnum):
     WAV = "wav"
     PCM = "pcm"
     OGG_OPUS = "ogg_opus"
     MP3 = "mp3"
 
 
-class LanguageCode(str, Enum):
+class LanguageCode(DynamicStrEnum):
     ZH = "zh"
     EN = "en"
     JA = "ja"

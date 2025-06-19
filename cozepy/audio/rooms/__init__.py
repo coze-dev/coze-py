@@ -1,7 +1,6 @@
-from enum import Enum
 from typing import Optional
 
-from cozepy.model import CozeModel
+from cozepy.model import CozeModel, DynamicStrEnum
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
 
@@ -26,7 +25,7 @@ class RoomVideoConfig(CozeModel):
     stream_video_type: Optional[str]
 
 
-class RoomMode(str, Enum):
+class RoomMode(DynamicStrEnum):
     DEFAULT = "default"
     S2S = "s2s"
     PODCAST = "podcast"
