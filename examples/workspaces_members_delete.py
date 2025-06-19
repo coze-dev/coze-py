@@ -1,5 +1,5 @@
 """
-This example is for describing how to retrieve a bot.
+This example is about how to create workspace members.
 """
 
 import logging
@@ -11,8 +11,8 @@ from cozepy import (
     Coze,
     DeviceOAuthApp,
     TokenAuth,
-    setup_logging,
 )
+from cozepy.log import setup_logging
 
 
 def get_coze_api_base() -> str:
@@ -42,9 +42,11 @@ def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
 # Init the Coze client through the access_token.
 coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_base())
 # workspace id
-workspace_id = os.getenv("COZE_WORKSPACE_ID") or "your workspace id"
-# bot id
-bot_id = os.getenv("COZE_BOT_ID") or "your bot id"
+workspace_id = os.getenv("COZE_WORKSPACE_ID")
+# user id admin
+user_id_admin = os.getenv("COZE_USER_ID_ADMIN")
+# user id member
+user_id_member = os.getenv("COZE_USER_ID_MEMBER")
 
 
 def setup_examples_logger():
@@ -55,7 +57,17 @@ def setup_examples_logger():
 
 setup_examples_logger()
 
+user_ids = []
+if user_id_admin:
+    user_ids.append(user_id_admin)
+if user_id_member:
+    user_ids.append(user_id_member)
 
-bot = coze.bots.retrieve(bot_id=bot_id)
-print("retrieve bot", bot.model_dump_json(indent=2))
-print("logid", bot.response.logid)
+
+delete_workspaces_members_resp = coze.workspaces.members.delete(
+    workspace_id=workspace_id,
+    user_ids=user_ids,
+)
+
+print("workspaces.members.delete", delete_workspaces_members_resp.model_dump_json(indent=2))
+print("logid", delete_workspaces_members_resp.response.logid)

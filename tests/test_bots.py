@@ -6,6 +6,19 @@ from cozepy.util import random_hex
 from tests.test_util import logid_key
 
 
+def mock_simple_bot(bot_id: str):
+    return SimpleBot(
+        id=bot_id,
+        name="bot_name",
+        description="description",
+        icon_url="icon_url",
+        is_published=True,
+        updated_at=0,
+        owner_user_id=random_hex(10),
+        published_at=0,
+    )
+
+
 def mock_create_bot(
     respx_mock,
 ) -> Bot:
@@ -58,29 +71,31 @@ def mock_publish_bot(respx_mock) -> Bot:
 
 
 def mock_retrieve_bot(respx_mock) -> Bot:
+    bot_id = random_hex(10)
     bot = Bot(
-        bot_id="bot_id",
+        bot_id=bot_id,
         name="name",
         description="description",
         icon_url="icon_url",
         create_time=0,
-        update_time=0,
+        updated_at=0,
         version="version",
         logid=random_hex(10),
+        owner_user_id=random_hex(10),
     )
     bot._raw_response = httpx.Response(
         200,
         json={"data": bot.model_dump()},
         headers={logid_key(): random_hex(10)},
     )
-    respx_mock.get("/v1/bot/get_online_info").mock(bot._raw_response)
+    respx_mock.get(f"/v1/bots/{bot_id}").mock(bot._raw_response)
     return bot
 
 
 def mock_list_bot(respx_mock, total_count, page):
     logid = random_hex(10)
     respx_mock.get(
-        "https://api.coze.com/v1/space/published_bots_list",
+        "https://api.coze.com/v1/bots",
         params={
             "page_index": page,
         },
@@ -89,15 +104,7 @@ def mock_list_bot(respx_mock, total_count, page):
             200,
             json={
                 "data": {
-                    "space_bots": [
-                        SimpleBot(
-                            bot_id=f"id_{page}",
-                            bot_name="bot_name",
-                            description="description",
-                            icon_url="icon_url",
-                            publish_time="publish_time",
-                        ).model_dump()
-                    ],
+                    "items": [mock_simple_bot(f"id_{page}").model_dump()],
                     "total": total_count,
                 }
             },
@@ -145,7 +152,7 @@ class TestSyncBots:
 
         mock_bot = mock_retrieve_bot(respx_mock)
 
-        bot = coze.bots.retrieve(bot_id="bot id")
+        bot = coze.bots.retrieve(bot_id=mock_bot.bot_id)
         assert bot
         assert bot.response.logid is not None
         assert bot.response.logid == mock_bot.response.logid
@@ -225,7 +232,7 @@ class TestAsyncBots:
 
         mock_bot = mock_retrieve_bot(respx_mock)
 
-        bot = await coze.bots.retrieve(bot_id="bot id")
+        bot = await coze.bots.retrieve(bot_id=mock_bot.bot_id)
         assert bot
         assert bot.response.logid is not None
         assert bot.response.logid == mock_bot.response.logid
