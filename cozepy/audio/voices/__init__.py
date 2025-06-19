@@ -45,6 +45,9 @@ class Voice(CozeModel):
     # Voice last update timestamp
     update_time: int
 
+    # Voice state
+    voice_state: VoiceState
+
 
 class _PrivateListVoiceData(CozeModel, NumberPagedResponse[Voice]):
     voice_list: List[Voice]
