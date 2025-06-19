@@ -44,6 +44,17 @@ class EnumNamingRule(RegulationRule):
     def __init__(self):
         super().__init__(name="enum_naming", description="枚举的 key 必须全部大写，可以包含下划线，且必须使用大写字母")
 
+        # 需要忽略的旧代码枚举成员
+        self.ignored_members = [
+            "KVVariable",
+            "ListVariable",
+            "VariableChannelCustom",
+            "VariableChannelSystem",
+            "VariableChannelLocation",
+            "VariableChannelFeishu",
+            "VariableChannelAPP",
+        ]
+
     def check(self, file_path: str, tree: ast.AST) -> List[Dict[str, Any]]:
         violations = []
 
@@ -85,6 +96,9 @@ class EnumNamingRule(RegulationRule):
                 for target in node.targets:
                     if isinstance(target, ast.Name):
                         member_name = target.id
+                        # 检查是否在忽略列表中
+                        if member_name in self.ignored_members:
+                            continue
                         if not self._is_valid_enum_member_name(member_name):
                             violations.append(
                                 {
