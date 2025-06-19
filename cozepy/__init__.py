@@ -92,6 +92,11 @@ from .config import (
     DEFAULT_TIMEOUT,
 )
 from .conversations import Conversation, Section
+from .conversations.message.feedback import (
+    CreateConversationMessageFeedbackResp,
+    DeleteConversationMessageFeedbackResp,
+    FeedbackType,
+)
 from .coze import AsyncCoze, Coze
 from .datasets import CreateDatasetResp, Dataset, DatasetStatus, DocumentProgress
 from .datasets.documents import (
@@ -217,6 +222,10 @@ from .workspaces.members import CreateWorkspaceMemberResp, DeleteWorkspaceMember
 
 __all__ = [
     "VERSION",
+    # conversations.message.feedback
+    "CreateConversationMessageFeedbackResp",
+    "DeleteConversationMessageFeedbackResp",
+    "FeedbackType",
     # apps
     "SimpleApp",
     # audio
