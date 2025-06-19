@@ -1,0 +1,28 @@
+name: Check SDK Regulation
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  merge_group:
+
+permissions: write-all
+
+jobs:
+  default:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Install Dependencies
+        run: |
+          pip install poetry 
+          poetry install
+      - name: Check SDK Regulation
+        run: |
+          python .github/workflows/check_sdk_regulation.py
