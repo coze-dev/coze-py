@@ -740,7 +740,7 @@ class AsyncBotsClient(object):
         params = remove_none_values({"is_published": is_published})
         headers: Optional[dict] = kwargs.get("headers")
 
-        return self._requester.request("get", url, False, Bot, params=params, headers=headers)
+        return await self._requester.arequest("get", url, False, Bot, params=params, headers=headers)
 
     async def list(
         self,
