@@ -743,15 +743,14 @@ class AsyncBotsClient(object):
                 connector_id=connector_id,
                 page_num=page_num,
                 page_size=page_size,
+                **kwargs,
             )
         else:
-            return await self._list_v1(
-                space_id=space_id,
-                page_num=page_num,
-                page_size=page_size,
-            )
+            return await self._list_v1(space_id=space_id, page_num=page_num, page_size=page_size, **kwargs)
 
-    async def _list_v1(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> NumberPaged[SimpleBot]:
+    async def _list_v1(
+        self, *, space_id: str, page_num: int = 1, page_size: int = 20, **kwargs
+    ) -> AsyncNumberPaged[SimpleBot]:
         """
         Get the bots published as API service.
         查看指定空间发布到 Bot as API 渠道的 Bot 列表。

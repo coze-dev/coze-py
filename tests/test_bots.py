@@ -98,6 +98,23 @@ def mock_list_bot(respx_mock, total_count, page):
             headers={logid_key(): logid},
         )
     )
+    respx_mock.get(
+        "https://api.coze.com/v1/space/published_bots_list",
+        params={
+            "page_index": page,
+        },
+    ).mock(
+        httpx.Response(
+            200,
+            json={
+                "data": {
+                    "space_bots": [mock_simple_bot(f"id_{page}").model_dump()],
+                    "total": total_count,
+                }
+            },
+            headers={logid_key(): logid},
+        )
+    )
     return logid
 
 
