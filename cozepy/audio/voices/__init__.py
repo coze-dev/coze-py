@@ -8,14 +8,14 @@ from cozepy.util import remove_none_values, remove_url_trailing_slash
 
 
 class VoiceState(DynamicStrEnum):
-    INIT = "init"
-    CLONED = "cloned"
-    ALL = "all"
+    INIT = "init"  # 初始化
+    CLONED = "cloned"  # 已克隆
+    ALL = "all"  # 所有, 只有查询的时候有效
 
 
 class VoiceModelType(DynamicStrEnum):
-    BIG = "big"
-    SMALL = "small"
+    BIG = "big"  # 大模型音色
+    SMALL = "small"  # 小模型音色
 
 
 class Voice(CozeModel):
