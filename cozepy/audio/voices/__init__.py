@@ -156,7 +156,7 @@ class VoicesClient(object):
                 params=remove_none_values(
                     {
                         "filter_system_voice": filter_system_voice,
-                        "voice_state": voice_state,
+                        "voice_state": voice_state.value if voice_state else None,
                         "page_num": i_page_num,
                         "page_size": i_page_size,
                     }
@@ -260,7 +260,7 @@ class AsyncVoicesClient(object):
                 params=remove_none_values(
                     {
                         "filter_system_voice": filter_system_voice,
-                        "voice_state": voice_state,
+                        "voice_state": voice_state.value if voice_state else None,
                         "page_num": i_page_num,
                         "page_size": i_page_size,
                     }
