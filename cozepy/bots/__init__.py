@@ -227,7 +227,7 @@ class SimpleBot(CozeModel):
     description: str
     icon_url: str
     is_published: bool
-    updated_at: Optional[int] = None
+    updated_at: int
     owner_user_id: str
 
     published_at: Optional[int] = None
@@ -249,22 +249,27 @@ class UpdateBotResp(CozeModel):
     pass
 
 
-class _PrivateListBotsData(CozeModel, NumberPagedResponse[SimpleBot]):
-    items: List[SimpleBot]
-    total: int
-
-    def get_total(self) -> Optional[int]:
-        return self.total
-
-    def get_has_more(self) -> Optional[bool]:
-        return None
-
-    def get_items(self) -> List[SimpleBot]:
-        return self.items
-
-
 class _PrivateListBotsDataV1(CozeModel, NumberPagedResponse[SimpleBot]):
-    space_bots: List[SimpleBot]
+    class SimpleBotV1(CozeModel):
+        bot_id: str
+        bot_name: str
+        description: str
+        icon_url: str
+        publish_time: str
+
+        def to_simple_bot(self) -> SimpleBot:
+            return SimpleBot(
+                id=self.bot_id,
+                name=self.bot_name,
+                description=self.description,
+                icon_url=self.icon_url,
+                is_published=True,
+                updated_at=int(self.publish_time),
+                owner_user_id="",
+                published_at=int(self.publish_time),
+            )
+
+    space_bots: List[SimpleBotV1]
     total: int
 
     def get_total(self) -> Optional[int]:
@@ -274,7 +279,7 @@ class _PrivateListBotsDataV1(CozeModel, NumberPagedResponse[SimpleBot]):
         return None
 
     def get_items(self) -> List[SimpleBot]:
-        return self.space_bots
+        return [bot.to_simple_bot() for bot in self.space_bots]
 
 
 class _PrivateListBotsDataV2(CozeModel, NumberPagedResponse[SimpleBot]):
@@ -681,8 +686,41 @@ class AsyncBotsClient(object):
         connector_id: Optional[str] = None,
         page_num: int = 1,
         page_size: int = 20,
+        use_api_version: int = 1,
         **kwargs,
     ) -> AsyncNumberPaged[SimpleBot]:
+        """
+        查看指定空间的智能体列表
+
+        docs en: https://www.coze.com/docs/developer_guides/published_bots_list
+        docs zh: https://www.coze.cn/open/docs/developer_guides/bots_list_draft_published
+
+        :param space_id: The ID of the space.
+        Bot 所在的空间的 Space ID。Space ID 是空间的唯一标识。
+        :param page_num: Pagination size. The default is 20, meaning that 20 data entries are returned per page.
+        分页大小。默认为 20，即每页返回 20 条数据。
+        :param page_size: Page number for paginated queries. The default is 1,
+        meaning that the data return starts from the first page.
+        分页查询时的页码。默认为 1，即从第一页数据开始返回。
+        :return: Specify the list of Bots published to the Bot as an API channel in space.
+        指定空间发布到 Bot as API 渠道的 Bot 列表。
+        """
+        if use_api_version == 2:
+            return await self._list_v2(
+                workspace_id=space_id,
+                publish_status=publish_status,
+                connector_id=connector_id,
+                page_num=page_num,
+                page_size=page_size,
+            )
+        else:
+            return await self._list_v1(
+                space_id=space_id,
+                page_num=page_num,
+                page_size=page_size,
+            )
+
+    async def _list_v1(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> NumberPaged[SimpleBot]:
         """
         Get the bots published as API service.
         查看指定空间发布到 Bot as API 渠道的 Bot 列表。
@@ -700,16 +738,64 @@ class AsyncBotsClient(object):
         :return: Specify the list of Bots published to the Bot as an API channel in space.
         指定空间发布到 Bot as API 渠道的 Bot 列表。
         """
+        url = f"{self._base_url}/v1/space/published_bots_list"
+
+        async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return await self._requester.arequest(
+                "GET",
+                url,
+                params={
+                    "space_id": space_id,
+                    "page_size": i_page_size,
+                    "page_index": i_page_num,
+                },
+                cast=_PrivateListBotsDataV1,
+                stream=False,
+            )
+
+        return AsyncNumberPaged(
+            page_num=page_num,
+            page_size=page_size,
+            requestor=self._requester,
+            request_maker=request_maker,
+        )
+
+    async def _list_v2(
+        self,
+        *,
+        workspace_id: str,
+        publish_status: Optional[PublishStatus] = None,
+        connector_id: Optional[str] = None,
+        page_num: int = 1,
+        page_size: int = 20,
+        **kwargs,
+    ) -> AsyncNumberPaged[SimpleBot]:
+        """
+        查看指定空间的智能体列表
+
+        docs en: https://www.coze.com/docs/developer_guides/published_bots_list
+        docs zh: https://www.coze.cn/open/docs/developer_guides/bots_list_draft_published
+
+        :param workspace_id: The ID of the space.
+        Bot 所在的空间的 Space ID。Space ID 是空间的唯一标识。
+        :param page_num: Pagination size. The default is 20, meaning that 20 data entries are returned per page.
+        分页大小。默认为 20，即每页返回 20 条数据。
+        :param page_size: Page number for paginated queries. The default is 1,
+        meaning that the data return starts from the first page.
+        分页查询时的页码。默认为 1，即从第一页数据开始返回。
+        :return: Specify the list of Bots published to the Bot as an API channel in space.
+        指定空间发布到 Bot as API 渠道的 Bot 列表。
+        """
         url = f"{self._base_url}/v1/bots"
         headers: Optional[dict] = kwargs.get("headers")
 
         async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
-            return await self._requester.amake_request(
+            return await self._requester.arequest(
                 "GET",
                 url,
                 params=remove_none_values(
                     {
-                        "space_id": space_id,
+                        "workspace_id": workspace_id,
                         "page_size": i_page_size,
                         "page_index": i_page_num,
                         "publish_status": publish_status.value if publish_status else None,
@@ -717,11 +803,11 @@ class AsyncBotsClient(object):
                     }
                 ),
                 headers=headers,
-                cast=_PrivateListBotsData,
+                cast=_PrivateListBotsDataV2,
                 stream=False,
             )
 
-        return await AsyncNumberPaged.build(
+        return AsyncNumberPaged.build(
             page_num=page_num,
             page_size=page_size,
             requestor=self._requester,
