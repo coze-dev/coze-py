@@ -258,6 +258,12 @@ class _PrivateListBotsDataV1(CozeModel, NumberPagedResponse[SimpleBot]):
         publish_time: str
 
         def to_simple_bot(self) -> SimpleBot:
+            """
+            Convert this object to a SimpleBot instance using its attributes.
+            
+            Returns:
+                SimpleBot: A SimpleBot object populated with the corresponding fields from this instance.
+            """
             return SimpleBot(  # type: ignore[call-arg]
                 id=self.bot_id,
                 name=self.bot_name,
@@ -273,12 +279,21 @@ class _PrivateListBotsDataV1(CozeModel, NumberPagedResponse[SimpleBot]):
     total: int
 
     def get_total(self) -> Optional[int]:
+        """
+        Return the total number of items in the paged response, or None if not available.
+        """
         return self.total
 
     def get_has_more(self) -> Optional[bool]:
+        """
+        Always returns None, indicating that there is no additional page information available.
+        """
         return None
 
     def get_items(self) -> List[SimpleBot]:
+        """
+        Return a list of SimpleBot instances converted from the internal space_bots collection.
+        """
         return [bot.to_simple_bot() for bot in self.space_bots]
 
 
@@ -388,6 +403,16 @@ class BotsClient(object):
         )
 
     def publish(self, *, bot_id: str, connector_ids: Optional[List[str]] = None, **kwargs) -> Bot:
+        """
+        Publish a bot to specified connectors.
+        
+        Parameters:
+        	bot_id (str): The unique identifier of the bot to publish.
+        	connector_ids (Optional[List[str]]): List of connector IDs to publish the bot to. Defaults to ["1024"] if not provided.
+        
+        Returns:
+        	Bot: The published bot's updated information.
+        """
         url = f"{self._base_url}/v1/bot/publish"
         headers: Optional[dict] = kwargs.get("headers")
         if not connector_ids:
@@ -400,14 +425,18 @@ class BotsClient(object):
         return self._requester.request("post", url, False, Bot, headers=headers, body=body)
 
     def retrieve(self, *, bot_id: str, is_published: Optional[bool] = None, use_api_version: int = 1, **kwargs) -> Bot:
-        """查看智能体配置
-
-        查看指定智能体的配置信息，你可以查看该智能体已发布版本的配置，或当前草稿版本的配置。
-
-        docs: https://www.coze.cn/open/docs/developer_guides/get_metadata_draft_published
-
-        :param bot_id: 要查看的智能体 ID。
-        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 true。
+        """
+        Retrieve the configuration of a specified bot.
+        
+        You can obtain either the published or draft configuration of the bot by specifying the version. The API version used for retrieval can be selected with the `use_api_version` parameter.
+        
+        Parameters:
+            bot_id (str): The unique identifier of the bot to retrieve.
+            is_published (Optional[bool]): If set, filters the configuration by published status. Defaults to True.
+            use_api_version (int): API version to use for retrieval (1 or 2).
+        
+        Returns:
+            Bot: The configuration details of the requested bot.
         """
         if use_api_version == 2:
             return self._retrieve_v2(bot_id=bot_id, is_published=is_published, **kwargs)
@@ -416,17 +445,13 @@ class BotsClient(object):
 
     def _retrieve_v1(self, *, bot_id: str, **kwargs) -> Bot:
         """
-        Get the configuration information of the bot, which must have been published
-        to the Bot as API channel.
-        获取指定 Bot 的配置信息，此 Bot 必须已发布到 Bot as API 渠道中。
-
-        docs en: https://www.coze.com/docs/developer_guides/get_metadata
-        docs zh: https://www.coze.cn/docs/developer_guides/get_metadata
-
-        :param bot_id: The ID of the bot that the API interacts with.
-        要查看的 Bot ID。
-        :return: bot object
-        Bot 的配置信息
+        Retrieve the configuration of a published bot via the v1 API.
+        
+        Parameters:
+            bot_id (str): Unique identifier of the bot to retrieve.
+        
+        Returns:
+            Bot: The configuration details of the specified bot.
         """
         url = f"{self._base_url}/v1/bot/get_online_info"
         params = {"bot_id": bot_id}
@@ -435,14 +460,17 @@ class BotsClient(object):
         return self._requester.request("get", url, False, Bot, params=params, headers=headers)
 
     def _retrieve_v2(self, *, bot_id: str, is_published: Optional[bool] = None, **kwargs) -> Bot:
-        """查看智能体配置
-
-        查看指定智能体的配置信息，你可以查看该智能体已发布版本的配置，或当前草稿版本的配置。
-
-        docs: https://www.coze.cn/open/docs/developer_guides/get_metadata_draft_published
-
-        :param bot_id: 要查看的智能体 ID。
-        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 true。
+        """
+        Retrieve the configuration of a specified bot using API version 2.
+        
+        You can obtain either the published or draft configuration of the bot by specifying the `is_published` parameter.
+        
+        Parameters:
+            bot_id (str): The unique identifier of the bot to retrieve.
+            is_published (Optional[bool]): If True, retrieves the published version; if False, retrieves the draft version. Defaults to True.
+        
+        Returns:
+            Bot: The configuration details of the requested bot.
         """
         url = f"{self._base_url}/v1/bots/{bot_id}"
         params = remove_none_values({"is_published": is_published})
@@ -462,20 +490,18 @@ class BotsClient(object):
         **kwargs,
     ) -> NumberPaged[SimpleBot]:
         """
-        查看指定空间的智能体列表
-
-        docs en: https://www.coze.com/docs/developer_guides/published_bots_list
-        docs zh: https://www.coze.cn/open/docs/developer_guides/bots_list_draft_published
-
-        :param space_id: The ID of the space.
-        Bot 所在的空间的 Space ID。Space ID 是空间的唯一标识。
-        :param page_num: Pagination size. The default is 20, meaning that 20 data entries are returned per page.
-        分页大小。默认为 20，即每页返回 20 条数据。
-        :param page_size: Page number for paginated queries. The default is 1,
-        meaning that the data return starts from the first page.
-        分页查询时的页码。默认为 1，即从第一页数据开始返回。
-        :return: Specify the list of Bots published to the Bot as an API channel in space.
-        指定空间发布到 Bot as API 渠道的 Bot 列表。
+        List bots in a specified space with pagination, supporting both API version 1 and 2.
+        
+        Parameters:
+            space_id (str): Unique identifier of the space to list bots from.
+            publish_status (Optional[PublishStatus]): Filter bots by publish status (only used in API version 2).
+            connector_id (Optional[str]): Filter bots by connector ID (only used in API version 2).
+            page_num (int): Page number to retrieve, starting from 1.
+            page_size (int): Number of bots per page.
+            use_api_version (int): API version to use for the request (1 or 2).
+        
+        Returns:
+            NumberPaged[SimpleBot]: A paginated list of simple bot representations for the specified space.
         """
         if use_api_version == 2:
             return self._list_v2(
@@ -494,25 +520,29 @@ class BotsClient(object):
 
     def _list_v1(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> NumberPaged[SimpleBot]:
         """
-        Get the bots published as API service.
-        查看指定空间发布到 Bot as API 渠道的 Bot 列表。
-
-        docs en: https://www.coze.com/docs/developer_guides/published_bots_list
-        docs zh: https://www.coze.cn/docs/developer_guides/published_bots_list
-
-        :param space_id: The ID of the space.
-        Bot 所在的空间的 Space ID。Space ID 是空间的唯一标识。
-        :param page_num: Pagination size. The default is 20, meaning that 20 data entries are returned per page.
-        分页大小。默认为 20，即每页返回 20 条数据。
-        :param page_size: Page number for paginated queries. The default is 1,
-        meaning that the data return starts from the first page.
-        分页查询时的页码。默认为 1，即从第一页数据开始返回。
-        :return: Specify the list of Bots published to the Bot as an API channel in space.
-        指定空间发布到 Bot as API 渠道的 Bot 列表。
+        List bots published as API services in the specified space using the v1 endpoint.
+        
+        Parameters:
+            space_id (str): Unique identifier of the space to list bots from.
+            page_num (int, optional): Page number to retrieve, starting from 1. Defaults to 1.
+            page_size (int, optional): Number of bots per page. Defaults to 20.
+        
+        Returns:
+            NumberPaged[SimpleBot]: A paginated list of bots published to the API channel in the given space.
         """
         url = f"{self._base_url}/v1/space/published_bots_list"
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            """
+            Creates an HTTP GET request for a paginated list of bots using API version 1.
+            
+            Parameters:
+                i_page_num (int): The page index to retrieve.
+                i_page_size (int): The number of items per page.
+            
+            Returns:
+                HTTPRequest: The constructed HTTP request for the specified page.
+            """
             return self._requester.make_request(
                 "GET",
                 url,
@@ -543,25 +573,32 @@ class BotsClient(object):
         **kwargs,
     ) -> NumberPaged[SimpleBot]:
         """
-        查看指定空间的智能体列表
-
-        docs en: https://www.coze.com/docs/developer_guides/published_bots_list
-        docs zh: https://www.coze.cn/open/docs/developer_guides/bots_list_draft_published
-
-        :param workspace_id: The ID of the space.
-        Bot 所在的空间的 Space ID。Space ID 是空间的唯一标识。
-        :param page_num: Pagination size. The default is 20, meaning that 20 data entries are returned per page.
-        分页大小。默认为 20，即每页返回 20 条数据。
-        :param page_size: Page number for paginated queries. The default is 1,
-        meaning that the data return starts from the first page.
-        分页查询时的页码。默认为 1，即从第一页数据开始返回。
-        :return: Specify the list of Bots published to the Bot as an API channel in space.
-        指定空间发布到 Bot as API 渠道的 Bot 列表。
+        List bots in a specified workspace using the v2 API, with support for filtering and pagination.
+        
+        Parameters:
+            workspace_id (str): Unique identifier of the workspace to list bots from.
+            publish_status (Optional[PublishStatus]): Filter bots by their publish status.
+            connector_id (Optional[str]): Filter bots by connector ID.
+            page_num (int): Page number to retrieve, starting from 1.
+            page_size (int): Number of bots to return per page.
+        
+        Returns:
+            NumberPaged[SimpleBot]: A paginated list of bots in the workspace.
         """
         url = f"{self._base_url}/v1/bots"
         headers: Optional[dict] = kwargs.get("headers")
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            """
+            Constructs an HTTP GET request for retrieving a paginated list of bots using API version 2.
+            
+            Parameters:
+                i_page_num (int): The page index to retrieve.
+                i_page_size (int): The number of items per page.
+            
+            Returns:
+                HTTPRequest: The configured HTTP request for the paginated bots list.
+            """
             return self._requester.make_request(
                 "GET",
                 url,
@@ -678,6 +715,16 @@ class AsyncBotsClient(object):
         connector_ids: Optional[List[str]] = None,
         **kwargs,
     ) -> Bot:
+        """
+        Publish a bot to specified connectors asynchronously.
+        
+        Parameters:
+            bot_id (str): The unique identifier of the bot to publish.
+            connector_ids (Optional[List[str]]): List of connector IDs to publish the bot to. Defaults to ["1024"] if not provided.
+        
+        Returns:
+            Bot: The published bot's updated information.
+        """
         url = f"{self._base_url}/v1/bot/publish"
         headers: Optional[dict] = kwargs.get("headers")
         if not connector_ids:
@@ -692,14 +739,16 @@ class AsyncBotsClient(object):
     async def retrieve(
         self, *, bot_id: str, is_published: Optional[bool] = None, use_api_version: int = 1, **kwargs
     ) -> Bot:
-        """查看智能体配置
-
-        查看指定智能体的配置信息，你可以查看该智能体已发布版本的配置，或当前草稿版本的配置。
-
-        docs: https://www.coze.cn/open/docs/developer_guides/get_metadata_draft_published
-
-        :param bot_id: 要查看的智能体 ID。
-        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 true。
+        """
+        Retrieve the configuration of a specified bot, supporting both published and draft versions.
+        
+        Parameters:
+            bot_id (str): The unique identifier of the bot to retrieve.
+            is_published (Optional[bool]): If set, filters the configuration by published status. Defaults to True.
+            use_api_version (int): Selects the API version to use for retrieval (1 or 2).
+        
+        Returns:
+            Bot: The bot configuration data.
         """
         if use_api_version == 2:
             return await self._retrieve_v2(bot_id=bot_id, is_published=is_published, **kwargs)
@@ -708,17 +757,13 @@ class AsyncBotsClient(object):
 
     async def _retrieve_v1(self, *, bot_id: str, **kwargs) -> Bot:
         """
-        Get the configuration information of the bot, which must have been published
-        to the Bot as API channel.
-        获取指定 Bot 的配置信息，此 Bot 必须已发布到 Bot as API 渠道中。
-
-        docs en: https://www.coze.com/docs/developer_guides/get_metadata
-        docs zh: https://www.coze.cn/docs/developer_guides/get_metadata
-
-        :param bot_id: The ID of the bot that the API interacts with.
-        要查看的 Bot ID。
-        :return: bot object
-        Bot 的配置信息
+        Retrieve the configuration of a published bot using the v1 API.
+        
+        Parameters:
+            bot_id (str): The ID of the bot to retrieve.
+        
+        Returns:
+            Bot: The configuration details of the specified bot.
         """
         url = f"{self._base_url}/v1/bot/get_online_info"
         params = {"bot_id": bot_id}
@@ -727,14 +772,17 @@ class AsyncBotsClient(object):
         return await self._requester.arequest("get", url, False, Bot, params=params, headers=headers)
 
     async def _retrieve_v2(self, *, bot_id: str, is_published: Optional[bool] = None, **kwargs) -> Bot:
-        """查看智能体配置
-
-        查看指定智能体的配置信息，你可以查看该智能体已发布版本的配置，或当前草稿版本的配置。
-
-        docs: https://www.coze.cn/open/docs/developer_guides/get_metadata_draft_published
-
-        :param bot_id: 要查看的智能体 ID。
-        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 true。
+        """
+        Retrieve the configuration of a specified bot using API version 2.
+        
+        You can obtain either the published or draft configuration of the bot by specifying the `is_published` parameter.
+        
+        Parameters:
+            bot_id (str): The unique identifier of the bot to retrieve.
+            is_published (Optional[bool]): If True, retrieves the published version; if False, retrieves the draft version. Defaults to True.
+        
+        Returns:
+            Bot: The bot's configuration details.
         """
         url = f"{self._base_url}/v1/bots/{bot_id}"
         params = remove_none_values({"is_published": is_published})
@@ -754,20 +802,18 @@ class AsyncBotsClient(object):
         **kwargs,
     ) -> AsyncNumberPaged[SimpleBot]:
         """
-        查看指定空间的智能体列表
-
-        docs en: https://www.coze.com/docs/developer_guides/published_bots_list
-        docs zh: https://www.coze.cn/open/docs/developer_guides/bots_list_draft_published
-
-        :param space_id: The ID of the space.
-        Bot 所在的空间的 Space ID。Space ID 是空间的唯一标识。
-        :param page_num: Pagination size. The default is 20, meaning that 20 data entries are returned per page.
-        分页大小。默认为 20，即每页返回 20 条数据。
-        :param page_size: Page number for paginated queries. The default is 1,
-        meaning that the data return starts from the first page.
-        分页查询时的页码。默认为 1，即从第一页数据开始返回。
-        :return: Specify the list of Bots published to the Bot as an API channel in space.
-        指定空间发布到 Bot as API 渠道的 Bot 列表。
+        Asynchronously retrieves a paginated list of bots in the specified space.
+        
+        Parameters:
+            space_id (str): Unique identifier of the space to list bots from.
+            publish_status (Optional[PublishStatus]): Filter bots by publish status (only supported in API version 2).
+            connector_id (Optional[str]): Filter bots by connector ID (only supported in API version 2).
+            page_num (int): Page number to retrieve, starting from 1.
+            page_size (int): Number of bots per page.
+            use_api_version (int): API version to use for the request (1 or 2).
+        
+        Returns:
+            AsyncNumberPaged[SimpleBot]: An asynchronous paginated iterator of SimpleBot objects for the specified space.
         """
         if use_api_version == 2:
             return await self._list_v2(
@@ -785,25 +831,29 @@ class AsyncBotsClient(object):
         self, *, space_id: str, page_num: int = 1, page_size: int = 20, **kwargs
     ) -> AsyncNumberPaged[SimpleBot]:
         """
-        Get the bots published as API service.
-        查看指定空间发布到 Bot as API 渠道的 Bot 列表。
-
-        docs en: https://www.coze.com/docs/developer_guides/published_bots_list
-        docs zh: https://www.coze.cn/docs/developer_guides/published_bots_list
-
-        :param space_id: The ID of the space.
-        Bot 所在的空间的 Space ID。Space ID 是空间的唯一标识。
-        :param page_num: Pagination size. The default is 20, meaning that 20 data entries are returned per page.
-        分页大小。默认为 20，即每页返回 20 条数据。
-        :param page_size: Page number for paginated queries. The default is 1,
-        meaning that the data return starts from the first page.
-        分页查询时的页码。默认为 1，即从第一页数据开始返回。
-        :return: Specify the list of Bots published to the Bot as an API channel in space.
-        指定空间发布到 Bot as API 渠道的 Bot 列表。
+        Asynchronously retrieves a paginated list of bots published as API services within a specified space.
+        
+        Parameters:
+            space_id (str): Unique identifier of the space to list bots from.
+            page_num (int, optional): Page number to retrieve, starting from 1. Defaults to 1.
+            page_size (int, optional): Number of bots per page. Defaults to 20.
+        
+        Returns:
+            AsyncNumberPaged[SimpleBot]: An asynchronous iterator over pages of SimpleBot objects published as API services in the space.
         """
         url = f"{self._base_url}/v1/space/published_bots_list"
 
         async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            """
+            Asynchronously creates an HTTP GET request for a paginated list of bots using API version 1.
+            
+            Parameters:
+                i_page_num (int): The page index to retrieve.
+                i_page_size (int): The number of items per page.
+            
+            Returns:
+                HTTPRequest: The constructed HTTP request for the specified page.
+            """
             return await self._requester.amake_request(
                 "GET",
                 url,
@@ -834,25 +884,32 @@ class AsyncBotsClient(object):
         **kwargs,
     ) -> AsyncNumberPaged[SimpleBot]:
         """
-        查看指定空间的智能体列表
-
-        docs en: https://www.coze.com/docs/developer_guides/published_bots_list
-        docs zh: https://www.coze.cn/open/docs/developer_guides/bots_list_draft_published
-
-        :param workspace_id: The ID of the space.
-        Bot 所在的空间的 Space ID。Space ID 是空间的唯一标识。
-        :param page_num: Pagination size. The default is 20, meaning that 20 data entries are returned per page.
-        分页大小。默认为 20，即每页返回 20 条数据。
-        :param page_size: Page number for paginated queries. The default is 1,
-        meaning that the data return starts from the first page.
-        分页查询时的页码。默认为 1，即从第一页数据开始返回。
-        :return: Specify the list of Bots published to the Bot as an API channel in space.
-        指定空间发布到 Bot as API 渠道的 Bot 列表。
+        Asynchronously retrieves a paginated list of bots in the specified workspace using the v2 API.
+        
+        Parameters:
+            workspace_id (str): Unique identifier of the workspace to list bots from.
+            publish_status (Optional[PublishStatus]): Optional filter for bot publish status.
+            connector_id (Optional[str]): Optional filter for connector ID.
+            page_num (int): Page number to retrieve, starting from 1.
+            page_size (int): Number of bots per page.
+        
+        Returns:
+            AsyncNumberPaged[SimpleBot]: An asynchronous paginated iterator over SimpleBot objects in the workspace.
         """
         url = f"{self._base_url}/v1/bots"
         headers: Optional[dict] = kwargs.get("headers")
 
         async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            """
+            Asynchronously creates an HTTP GET request for a paginated list of bots using API version 2.
+            
+            Parameters:
+                i_page_num (int): The page index to retrieve.
+                i_page_size (int): The number of items per page.
+            
+            Returns:
+                HTTPRequest: The constructed HTTP request for the specified page.
+            """
             return await self._requester.amake_request(
                 "GET",
                 url,

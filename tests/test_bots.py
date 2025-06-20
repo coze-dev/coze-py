@@ -7,6 +7,15 @@ from tests.test_util import logid_key
 
 
 def mock_simple_bot(bot_id: str) -> SimpleBot:
+    """
+    Create a SimpleBot instance with preset attributes and a random owner user ID.
+    
+    Parameters:
+        bot_id (str): The unique identifier for the bot.
+    
+    Returns:
+        SimpleBot: A SimpleBot object with the specified ID and fixed attribute values.
+    """
     return SimpleBot(
         id=bot_id,
         name="bot_name",
@@ -20,6 +29,15 @@ def mock_simple_bot(bot_id: str) -> SimpleBot:
 
 
 def mock_bot(bot_id) -> Bot:
+    """
+    Create a Bot instance with fixed attributes and random logid and owner user ID.
+    
+    Parameters:
+        bot_id: The unique identifier for the bot.
+    
+    Returns:
+        Bot: A Bot object with preset values and random logid and owner_user_id.
+    """
     return Bot(
         bot_id=bot_id,
         name="name",
@@ -36,6 +54,12 @@ def mock_bot(bot_id) -> Bot:
 def mock_create_bot(
     respx_mock,
 ) -> Bot:
+    """
+    Mocks the bot creation API endpoint and returns a Bot instance with a simulated response.
+    
+    Returns:
+        Bot: The mocked Bot instance with an attached HTTP response.
+    """
     bot = mock_bot("bot_id")
     bot._raw_response = httpx.Response(
         200,
@@ -56,6 +80,12 @@ def mock_update_bot(
 
 
 def mock_publish_bot(respx_mock) -> Bot:
+    """
+    Mocks the bot publishing API endpoint and returns a Bot instance with a simulated response.
+    
+    Returns:
+        Bot: The mocked Bot instance with a preset publish response.
+    """
     bot = mock_bot("bot_id")
     bot._raw_response = httpx.Response(
         200,
@@ -67,6 +97,15 @@ def mock_publish_bot(respx_mock) -> Bot:
 
 
 def mock_retrieve_bot(respx_mock, use_api_version=1) -> Bot:
+    """
+    Mock the bot retrieval API endpoint for testing, supporting both v1 and v2 endpoints.
+    
+    Parameters:
+        use_api_version (int): Specifies which API version to mock. Version 1 uses `/v1/bot/get_online_info`; version 2 uses `/v1/bots/{bot_id}`.
+    
+    Returns:
+        Bot: A mocked Bot instance with a preset raw HTTP response.
+    """
     bot_id = random_hex(10)
     bot = mock_bot(bot_id)
     bot._raw_response = httpx.Response(
@@ -82,6 +121,17 @@ def mock_retrieve_bot(respx_mock, use_api_version=1) -> Bot:
 
 
 def mock_list_bot(respx_mock, total_count, page, use_api_version=1):
+    """
+    Mock the bot listing API endpoint for the specified API version and page, returning a paginated list of bots.
+    
+    Parameters:
+        total_count (int): The total number of bots to include in the mocked response.
+        page (int): The page index to mock in the response.
+        use_api_version (int, optional): The API version to mock (1 or 2). Defaults to 1.
+    
+    Returns:
+        str: The generated logid included in the mocked response headers.
+    """
     logid = random_hex(10)
     if use_api_version == 1:
         respx_mock.get(
@@ -157,6 +207,9 @@ class TestSyncBots:
         assert bot.bot_id == mock_bot.bot_id
 
     def test_sync_bots_retrieve(self, respx_mock):
+        """
+        Tests synchronous retrieval of a bot using both API version 1 and 2, asserting that the returned bot matches the mocked bot and includes the expected logid.
+        """
         coze = Coze(auth=TokenAuth(token="token"))
 
         for use_api_version in [1, 2]:
@@ -169,6 +222,9 @@ class TestSyncBots:
             assert bot.bot_id == mock_bot.bot_id
 
     def test_sync_bots_list_v1(self, respx_mock):
+        """
+        Tests synchronous bot listing for both API versions, verifying pagination and correct retrieval of bot items and pages.
+        """
         coze = Coze(auth=TokenAuth(token="token"))
 
         for use_api_version in [1, 2]:
@@ -239,6 +295,9 @@ class TestAsyncBots:
         assert bot.bot_id == mock_bot.bot_id
 
     async def test_async_bots_retrieve(self, respx_mock):
+        """
+        Asynchronously tests bot retrieval for both API versions, asserting that the returned bot matches the mocked bot and includes the expected logid.
+        """
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         for use_api_version in [1, 2]:
@@ -251,6 +310,11 @@ class TestAsyncBots:
             assert bot.bot_id == mock_bot.bot_id
 
     async def test_async_bots_list(self, respx_mock):
+        """
+        Asynchronously tests the bot listing functionality for both API versions, verifying pagination and iteration over bots and pages.
+        
+        This test mocks paginated bot list responses for two API versions, then asserts that the asynchronous client correctly retrieves all bots and handles pagination flags when iterating over both individual bots and pages.
+        """
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         for use_api_version in [1, 2]:
