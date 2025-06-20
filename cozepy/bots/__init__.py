@@ -784,7 +784,7 @@ class AsyncBotsClient(object):
                 stream=False,
             )
 
-        return AsyncNumberPaged(
+        return await AsyncNumberPaged(
             page_num=page_num,
             page_size=page_size,
             requestor=self._requester,
@@ -838,7 +838,7 @@ class AsyncBotsClient(object):
                 stream=False,
             )
 
-        return AsyncNumberPaged.build(
+        return await AsyncNumberPaged.build(
             page_num=page_num,
             page_size=page_size,
             requestor=self._requester,
