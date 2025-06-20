@@ -689,7 +689,24 @@ class AsyncBotsClient(object):
 
         return await self._requester.arequest("post", url, False, Bot, headers=headers, body=body)
 
-    async def retrieve(self, *, bot_id: str, is_published: Optional[bool] = None, **kwargs) -> Bot:
+    async def retrieve(
+        self, *, bot_id: str, is_published: Optional[bool] = None, use_api_version: int = 1, **kwargs
+    ) -> Bot:
+        """查看智能体配置
+
+        查看指定智能体的配置信息，你可以查看该智能体已发布版本的配置，或当前草稿版本的配置。
+
+        docs: https://www.coze.cn/open/docs/developer_guides/get_metadata_draft_published
+
+        :param bot_id: 要查看的智能体 ID。
+        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 true。
+        """
+        if use_api_version == 2:
+            return await self._retrieve_v2(bot_id=bot_id, is_published=is_published, **kwargs)
+        else:
+            return await self._retrieve_v1(bot_id=bot_id, **kwargs)
+
+    async def _retrieve_v1(self, *, bot_id: str, **kwargs) -> Bot:
         """
         Get the configuration information of the bot, which must have been published
         to the Bot as API channel.
@@ -703,11 +720,27 @@ class AsyncBotsClient(object):
         :return: bot object
         Bot 的配置信息
         """
-        url = f"{self._base_url}/v1/bots/{bot_id}"
+        url = f"{self._base_url}/v1/bot/get_online_info"
+        params = {"bot_id": bot_id}
         headers: Optional[dict] = kwargs.get("headers")
-        params = remove_none_values({"is_published": is_published})
 
         return await self._requester.arequest("get", url, False, Bot, params=params, headers=headers)
+
+    async def _retrieve_v2(self, *, bot_id: str, is_published: Optional[bool] = None, **kwargs) -> Bot:
+        """查看智能体配置
+
+        查看指定智能体的配置信息，你可以查看该智能体已发布版本的配置，或当前草稿版本的配置。
+
+        docs: https://www.coze.cn/open/docs/developer_guides/get_metadata_draft_published
+
+        :param bot_id: 要查看的智能体 ID。
+        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 true。
+        """
+        url = f"{self._base_url}/v1/bots/{bot_id}"
+        params = remove_none_values({"is_published": is_published})
+        headers: Optional[dict] = kwargs.get("headers")
+
+        return self._requester.request("get", url, False, Bot, params=params, headers=headers)
 
     async def list(
         self,
@@ -771,7 +804,7 @@ class AsyncBotsClient(object):
         url = f"{self._base_url}/v1/space/published_bots_list"
 
         async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
-            return await self._requester.arequest(
+            return await self._requester.amake_request(
                 "GET",
                 url,
                 params={
@@ -820,7 +853,7 @@ class AsyncBotsClient(object):
         headers: Optional[dict] = kwargs.get("headers")
 
         async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
-            return await self._requester.arequest(
+            return await self._requester.amake_request(
                 "GET",
                 url,
                 params=remove_none_values(
