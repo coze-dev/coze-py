@@ -258,7 +258,7 @@ class _PrivateListBotsDataV1(CozeModel, NumberPagedResponse[SimpleBot]):
         publish_time: str
 
         def to_simple_bot(self) -> SimpleBot:
-            return SimpleBot(
+            return SimpleBot(  # type: ignore[call-arg]
                 id=self.bot_id,
                 name=self.bot_name,
                 description=self.description,
