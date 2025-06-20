@@ -3,9 +3,26 @@ import time
 import httpx
 import pytest
 
-from cozepy import AsyncCoze, AsyncTokenAuth, AudioFormat, Coze, TokenAuth, Voice
+from cozepy import AsyncCoze, AsyncTokenAuth, AudioFormat, Coze, TokenAuth, Voice, VoiceModelType, VoiceState
 from cozepy.util import random_hex
 from tests.test_util import logid_key
+
+
+def mock_voice() -> Voice:
+    return Voice(
+        voice_id="voice_id",
+        name="name",
+        is_system_voice=False,
+        language_code="language_code",
+        language_name="language_name",
+        preview_text="preview_text",
+        preview_audio="preview_audio",
+        available_training_times=1,
+        create_time=int(time.time()),
+        update_time=int(time.time()),
+        model_type=VoiceModelType.BIG,
+        state=VoiceState.INIT,
+    )
 
 
 def mock_list_voices(respx_mock) -> str:
@@ -14,20 +31,7 @@ def mock_list_voices(respx_mock) -> str:
         200,
         json={
             "data": {
-                "voice_list": [
-                    Voice(
-                        voice_id="voice_id",
-                        name="name",
-                        is_system_voice=False,
-                        language_code="language_code",
-                        language_name="language_name",
-                        preview_text="preview_text",
-                        preview_audio="preview_audio",
-                        available_training_times=1,
-                        create_time=int(time.time()),
-                        update_time=int(time.time()),
-                    ).model_dump()
-                ],
+                "voice_list": [mock_voice().model_dump()],
                 "has_more": False,
             }
         },
@@ -40,18 +44,7 @@ def mock_list_voices(respx_mock) -> str:
 
 
 def mock_clone_voice(respx_mock) -> Voice:
-    voice = Voice(
-        voice_id="voice_id",
-        name="name",
-        is_system_voice=False,
-        language_code="language_code",
-        language_name="language_name",
-        preview_text="preview_text",
-        preview_audio="preview_audio",
-        available_training_times=1,
-        create_time=int(time.time()),
-        update_time=int(time.time()),
-    )
+    voice = mock_voice()
     voice._raw_response = httpx.Response(
         200,
         json={"data": voice.model_dump()},
