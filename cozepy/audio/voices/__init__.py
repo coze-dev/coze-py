@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from cozepy import AudioFormat
 from cozepy.files import FileTypes, _try_fix_file
@@ -50,10 +50,10 @@ class Voice(CozeModel):
     update_time: int
 
     # Voice model type
-    model_type: Union[VoiceModelType, str]
+    model_type: VoiceModelType
 
     # Voice state
-    state: Optional[VoiceState] = None
+    state: VoiceState
 
 
 class _PrivateListVoiceData(CozeModel, NumberPagedResponse[Voice]):

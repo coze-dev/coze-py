@@ -16,7 +16,7 @@ from .audio.voiceprint_groups.features import (
     UpdateVoicePrintGroupFeatureResp,
     VoicePrintGroupFeature,
 )
-from .audio.voices import Voice, VoiceState
+from .audio.voices import Voice, VoiceModelType, VoiceState
 from .auth import (
     AsyncAuth,
     AsyncDeviceOAuthApp,
@@ -224,6 +224,7 @@ __all__ = [
     "CreateRoomResp",
     # audio.voices
     "VoiceState",
+    "VoiceModelType",
     "Voice",
     "AudioFormat",
     # audio.transcriptions
