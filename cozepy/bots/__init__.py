@@ -227,7 +227,7 @@ class SimpleBot(CozeModel):
     description: str
     icon_url: str
     is_published: bool
-    updated_at: int
+    updated_at: Optional[int] = None
     owner_user_id: str
 
     published_at: Optional[int] = None
@@ -264,7 +264,7 @@ class _PrivateListBotsData(CozeModel, NumberPagedResponse[SimpleBot]):
 
 
 class _PrivateListBotsDataV1(CozeModel, NumberPagedResponse[SimpleBot]):
-    items: List[SimpleBot]
+    space_bots: List[SimpleBot]
     total: int
 
     def get_total(self) -> Optional[int]:
@@ -274,7 +274,7 @@ class _PrivateListBotsDataV1(CozeModel, NumberPagedResponse[SimpleBot]):
         return None
 
     def get_items(self) -> List[SimpleBot]:
-        return self.items
+        return self.space_bots
 
 
 class _PrivateListBotsDataV2(CozeModel, NumberPagedResponse[SimpleBot]):
