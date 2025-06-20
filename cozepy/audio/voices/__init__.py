@@ -130,6 +130,7 @@ class VoicesClient(object):
         self,
         *,
         filter_system_voice: bool = False,
+        model_type: Optional[VoiceModelType] = None,
         voice_state: Optional[VoiceState] = None,
         page_num: int = 1,
         page_size: int = 100,
@@ -140,6 +141,7 @@ class VoicesClient(object):
         Tips: Voices cloned under each Volcano account can be reused within the team
 
         :param filter_system_voice: If True, system voices will not be returned.
+        :param model_type: The type of the voice.
         :param voice_state: The state of the voice.
         :param page_num: The page number for paginated queries. Default is 1, meaning the data return starts from the
         first page.
@@ -157,6 +159,7 @@ class VoicesClient(object):
                     {
                         "filter_system_voice": filter_system_voice,
                         "voice_state": voice_state.value if voice_state else None,
+                        "model_type": model_type.value if model_type else None,
                         "page_num": i_page_num,
                         "page_size": i_page_size,
                     }
@@ -234,6 +237,7 @@ class AsyncVoicesClient(object):
         self,
         *,
         filter_system_voice: bool = False,
+        model_type: Optional[VoiceModelType] = None,
         voice_state: Optional[VoiceState] = None,
         page_num: int = 1,
         page_size: int = 100,
@@ -244,6 +248,7 @@ class AsyncVoicesClient(object):
         Tips: Voices cloned under each Volcano account can be reused within the team
 
         :param filter_system_voice: If True, system voices will not be returned.
+        :param model_type: The type of the voice.
         :param voice_state: The state of the voice.
         :param page_num: The page number for paginated queries. Default is 1, meaning the data return starts from the
         first page.
@@ -261,6 +266,7 @@ class AsyncVoicesClient(object):
                     {
                         "filter_system_voice": filter_system_voice,
                         "voice_state": voice_state.value if voice_state else None,
+                        "model_type": model_type.value if model_type else None,
                         "page_num": i_page_num,
                         "page_size": i_page_size,
                     }
