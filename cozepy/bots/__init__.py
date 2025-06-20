@@ -263,6 +263,20 @@ class _PrivateListBotsData(CozeModel, NumberPagedResponse[SimpleBot]):
         return self.items
 
 
+class _PrivateListBotsDataV1(CozeModel, NumberPagedResponse[SimpleBot]):
+    items: List[SimpleBot]
+    total: int
+
+    def get_total(self) -> Optional[int]:
+        return self.total
+
+    def get_has_more(self) -> Optional[bool]:
+        return None
+
+    def get_items(self) -> List[SimpleBot]:
+        return self.items
+
+
 class _PrivateListBotsDataV2(CozeModel, NumberPagedResponse[SimpleBot]):
     items: List[SimpleBot]
     total: int
@@ -408,6 +422,7 @@ class BotsClient(object):
         connector_id: Optional[str] = None,
         page_num: int = 1,
         page_size: int = 20,
+        use_api_version: int = 1,
         **kwargs,
     ) -> NumberPaged[SimpleBot]:
         """
@@ -426,24 +441,51 @@ class BotsClient(object):
         :return: Specify the list of Bots published to the Bot as an API channel in space.
         指定空间发布到 Bot as API 渠道的 Bot 列表。
         """
-        url = f"{self._base_url}/v1/bots"
-        headers: Optional[dict] = kwargs.get("headers")
+        if use_api_version == 2:
+            return self._list_v2(
+                workspace_id=space_id,
+                publish_status=publish_status,
+                connector_id=connector_id,
+                page_num=page_num,
+                page_size=page_size,
+            )
+        else:
+            return self._list_v1(
+                space_id=space_id,
+                page_num=page_num,
+                page_size=page_size,
+            )
+
+    def _list_v1(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> NumberPaged[SimpleBot]:
+        """
+        Get the bots published as API service.
+        查看指定空间发布到 Bot as API 渠道的 Bot 列表。
+
+        docs en: https://www.coze.com/docs/developer_guides/published_bots_list
+        docs zh: https://www.coze.cn/docs/developer_guides/published_bots_list
+
+        :param space_id: The ID of the space.
+        Bot 所在的空间的 Space ID。Space ID 是空间的唯一标识。
+        :param page_num: Pagination size. The default is 20, meaning that 20 data entries are returned per page.
+        分页大小。默认为 20，即每页返回 20 条数据。
+        :param page_size: Page number for paginated queries. The default is 1,
+        meaning that the data return starts from the first page.
+        分页查询时的页码。默认为 1，即从第一页数据开始返回。
+        :return: Specify the list of Bots published to the Bot as an API channel in space.
+        指定空间发布到 Bot as API 渠道的 Bot 列表。
+        """
+        url = f"{self._base_url}/v1/space/published_bots_list"
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
                 "GET",
                 url,
-                params=remove_none_values(
-                    {
-                        "workspace_id": space_id,
-                        "page_size": i_page_size,
-                        "page_index": i_page_num,
-                        "publish_status": publish_status.value if publish_status else None,
-                        "connector_id": connector_id,
-                    }
-                ),
-                headers=headers,
-                cast=_PrivateListBotsData,
+                params={
+                    "space_id": space_id,
+                    "page_size": i_page_size,
+                    "page_index": i_page_num,
+                },
+                cast=_PrivateListBotsDataV1,
                 stream=False,
             )
 
@@ -457,7 +499,7 @@ class BotsClient(object):
     def _list_v2(
         self,
         *,
-        space_id: str,
+        workspace_id: str,
         publish_status: Optional[PublishStatus] = None,
         connector_id: Optional[str] = None,
         page_num: int = 1,
@@ -470,7 +512,7 @@ class BotsClient(object):
         docs en: https://www.coze.com/docs/developer_guides/published_bots_list
         docs zh: https://www.coze.cn/open/docs/developer_guides/bots_list_draft_published
 
-        :param space_id: The ID of the space.
+        :param workspace_id: The ID of the space.
         Bot 所在的空间的 Space ID。Space ID 是空间的唯一标识。
         :param page_num: Pagination size. The default is 20, meaning that 20 data entries are returned per page.
         分页大小。默认为 20，即每页返回 20 条数据。
@@ -489,7 +531,7 @@ class BotsClient(object):
                 url,
                 params=remove_none_values(
                     {
-                        "workspace_id": space_id,
+                        "workspace_id": workspace_id,
                         "page_size": i_page_size,
                         "page_index": i_page_num,
                         "publish_status": publish_status.value if publish_status else None,
@@ -497,7 +539,7 @@ class BotsClient(object):
                     }
                 ),
                 headers=headers,
-                cast=_PrivateListBotsData,
+                cast=_PrivateListBotsDataV2,
                 stream=False,
             )
 
