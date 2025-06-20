@@ -44,12 +44,12 @@ class BotModelInfo(CozeModel):
     model_name: str
     # The temperature of the model.
     temperature: float
-    # The top_p of the model.
-    top_p: float
     # The context_round of the model.
     context_round: int
     # The max_tokens of the model.
     max_tokens: int
+    # The top_p of the model.
+    top_p: Optional[float] = None
 
 
 class BotMode(IntEnum):
@@ -399,7 +399,22 @@ class BotsClient(object):
 
         return self._requester.request("post", url, False, Bot, headers=headers, body=body)
 
-    def retrieve(self, *, bot_id: str, is_published: Optional[bool] = None, **kwargs) -> Bot:
+    def retrieve(self, *, bot_id: str, is_published: Optional[bool] = None, use_api_version: int = 1, **kwargs) -> Bot:
+        """查看智能体配置
+
+        查看指定智能体的配置信息，你可以查看该智能体已发布版本的配置，或当前草稿版本的配置。
+
+        docs: https://www.coze.cn/open/docs/developer_guides/get_metadata_draft_published
+
+        :param bot_id: 要查看的智能体 ID。
+        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 true。
+        """
+        if use_api_version == 2:
+            return self._retrieve_v2(bot_id=bot_id, is_published=is_published, **kwargs)
+        else:
+            return self._retrieve_v1(bot_id=bot_id, **kwargs)
+
+    def _retrieve_v1(self, *, bot_id: str, **kwargs) -> Bot:
         """
         Get the configuration information of the bot, which must have been published
         to the Bot as API channel.
@@ -412,6 +427,22 @@ class BotsClient(object):
         要查看的 Bot ID。
         :return: bot object
         Bot 的配置信息
+        """
+        url = f"{self._base_url}/v1/bot/get_online_info"
+        params = {"bot_id": bot_id}
+        headers: Optional[dict] = kwargs.get("headers")
+
+        return self._requester.request("get", url, False, Bot, params=params, headers=headers)
+
+    def _retrieve_v2(self, *, bot_id: str, is_published: Optional[bool] = None, **kwargs) -> Bot:
+        """查看智能体配置
+
+        查看指定智能体的配置信息，你可以查看该智能体已发布版本的配置，或当前草稿版本的配置。
+
+        docs: https://www.coze.cn/open/docs/developer_guides/get_metadata_draft_published
+
+        :param bot_id: 要查看的智能体 ID。
+        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 true。
         """
         url = f"{self._base_url}/v1/bots/{bot_id}"
         params = remove_none_values({"is_published": is_published})
