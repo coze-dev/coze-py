@@ -1,3 +1,4 @@
+from .apps import SimpleApp
 from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
 from .audio.transcriptions import CreateTranscriptionsResp
@@ -15,7 +16,7 @@ from .audio.voiceprint_groups.features import (
     UpdateVoicePrintGroupFeatureResp,
     VoicePrintGroupFeature,
 )
-from .audio.voices import Voice
+from .audio.voices import Voice, VoiceModelType, VoiceState
 from .auth import (
     AsyncAuth,
     AsyncDeviceOAuthApp,
@@ -50,11 +51,15 @@ from .bots import (
     BotPromptInfo,
     BotSuggestReplyInfo,
     BotVariable,
+    BotVoiceInfo,
+    BotWorkflowInfo,
     CanvasPosition,
     GradientPosition,
+    PublishStatus,
     SimpleBot,
     SuggestReplyMode,
     UpdateBotResp,
+    UserInputType,
     VariableChannel,
     VariableType,
 )
@@ -190,6 +195,7 @@ from .websockets.ws import (
     WebsocketsEvent,
     WebsocketsEventType,
 )
+from .workflows import WorkflowInfo, WorkflowMode
 from .workflows.runs import (
     WorkflowEvent,
     WorkflowEventError,
@@ -199,14 +205,26 @@ from .workflows.runs import (
     WorkflowEventType,
     WorkflowRunResult,
 )
-from .workflows.runs.run_histories import WorkflowExecuteStatus, WorkflowRunHistory, WorkflowRunMode
+from .workflows.runs.run_histories import (
+    WorkflowExecuteStatus,
+    WorkflowRunHistory,
+    WorkflowRunHistoryNodeExecuteStatus,
+    WorkflowRunMode,
+)
+from .workflows.runs.run_histories.execute_nodes import WorkflowNodeExecuteHistory
 from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
+from .workspaces.members import CreateWorkspaceMemberResp, DeleteWorkspaceMemberResp, WorkspaceMember
 
 __all__ = [
     "VERSION",
+    # apps
+    "SimpleApp",
+    # audio
     # audio.rooms
     "CreateRoomResp",
     # audio.voices
+    "VoiceState",
+    "VoiceModelType",
     "Voice",
     "AudioFormat",
     # audio.transcriptions
@@ -245,24 +263,28 @@ __all__ = [
     "TokenAuth",
     "WebOAuthApp",
     # bots
-    "BotPromptInfo",
-    "BotOnboardingInfo",
+    "BackgroundImageInfo",
+    "Bot",
+    "BotBackgroundImageInfo",
     "BotKnowledge",
     "BotModelInfo",
+    "BotOnboardingInfo",
     "BotPluginAPIInfo",
     "BotPluginInfo",
-    "SuggestReplyMode",
+    "BotPromptInfo",
     "BotSuggestReplyInfo",
-    "GradientPosition",
-    "CanvasPosition",
-    "BackgroundImageInfo",
-    "BotBackgroundImageInfo",
-    "VariableType",
-    "VariableChannel",
     "BotVariable",
-    "Bot",
+    "BotVoiceInfo",
+    "BotWorkflowInfo",
+    "CanvasPosition",
+    "GradientPosition",
+    "PublishStatus",
     "SimpleBot",
+    "SuggestReplyMode",
     "UpdateBotResp",
+    "UserInputType",
+    "VariableChannel",
+    "VariableType",
     # chat
     "MessageRole",
     "MessageType",
@@ -370,6 +392,9 @@ __all__ = [
     "OpusConfig",
     "PCMConfig",
     "OutputAudio",
+    # workflows
+    "WorkflowInfo",
+    "WorkflowMode",
     # workflows.runs
     "WorkflowRunResult",
     "WorkflowEventType",
@@ -382,10 +407,17 @@ __all__ = [
     "WorkflowExecuteStatus",
     "WorkflowRunMode",
     "WorkflowRunHistory",
+    "WorkflowRunHistoryNodeExecuteStatus",
+    # workflows.runs.run_histories.execute_nodes
+    "WorkflowNodeExecuteHistory",
     # workspaces
     "WorkspaceRoleType",
     "WorkspaceType",
     "Workspace",
+    # workspaces.members
+    "CreateWorkspaceMemberResp",
+    "DeleteWorkspaceMemberResp",
+    "WorkspaceMember",
     # templates
     "TemplateDuplicateResp",
     "TemplateEntityType",

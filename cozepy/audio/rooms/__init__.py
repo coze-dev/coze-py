@@ -1,7 +1,6 @@
-from enum import Enum
 from typing import Optional
 
-from cozepy.model import CozeModel
+from cozepy.model import CozeModel, DynamicStrEnum
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
 
@@ -24,9 +23,13 @@ class RoomVideoConfig(CozeModel):
     # main: 主流，包括通过摄像头/麦克风的内部采集机制获取的流，以及通过自定义采集方式获取的流。
     # screen: 屏幕流，用于屏幕共享或屏幕录制的视频流。
     stream_video_type: Optional[str]
+    # 视频抽帧速率, 默认值是 1, 范围 [1, 24]
+    video_frame_rate: Optional[int]
+    # 视频帧过期时间,单位为s，默认值是1，范围[1, 10]
+    video_frame_expire_duration: Optional[int]
 
 
-class RoomMode(str, Enum):
+class RoomMode(DynamicStrEnum):
     DEFAULT = "default"
     S2S = "s2s"
     PODCAST = "podcast"

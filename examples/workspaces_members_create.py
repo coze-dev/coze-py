@@ -1,5 +1,5 @@
 """
-This example is for describing how to retrieve a bot.
+This example is about how to create workspace members.
 """
 
 import logging
@@ -11,8 +11,10 @@ from cozepy import (
     Coze,
     DeviceOAuthApp,
     TokenAuth,
-    setup_logging,
+    WorkspaceMember,
+    WorkspaceRoleType,
 )
+from cozepy.log import setup_logging
 
 
 def get_coze_api_base() -> str:
@@ -42,9 +44,11 @@ def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
 # Init the Coze client through the access_token.
 coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_base())
 # workspace id
-workspace_id = os.getenv("COZE_WORKSPACE_ID") or "your workspace id"
-# bot id
-bot_id = os.getenv("COZE_BOT_ID") or "your bot id"
+workspace_id = os.getenv("COZE_WORKSPACE_ID")
+# user id admin
+user_id_admin = os.getenv("COZE_USER_ID_ADMIN")
+# user id member
+user_id_member = os.getenv("COZE_USER_ID_MEMBER")
 
 
 def setup_examples_logger():
@@ -55,7 +59,17 @@ def setup_examples_logger():
 
 setup_examples_logger()
 
+users = []
+if user_id_admin:
+    users.append(WorkspaceMember(user_id=user_id_admin, role_type=WorkspaceRoleType.ADMIN))
+if user_id_member:
+    users.append(WorkspaceMember(user_id=user_id_member, role_type=WorkspaceRoleType.MEMBER))
 
-bot = coze.bots.retrieve(bot_id=bot_id)
-print("retrieve bot", bot.model_dump_json(indent=2))
-print("logid", bot.response.logid)
+
+create_workspaces_members_resp = coze.workspaces.members.create(
+    workspace_id=workspace_id,
+    users=users,
+)
+
+print("workspaces.members.create", create_workspaces_members_resp.model_dump_json(indent=2))
+print("logid", create_workspaces_members_resp.response.logid)

@@ -1,4 +1,6 @@
 import abc
+import warnings
+from enum import Enum
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -146,14 +148,19 @@ class HTTPRequest(CozeModel, Generic[T]):
 
     @property
     def as_httpx(self) -> httpx.Request:
-        if self.files and self.json_body:
+        if self.files is not None and self.json_body:
+            files = {}
+            for k, v in self.files.items():
+                files[k] = v
+            for k, v in self.json_body.items():
+                files[k] = (None, v)
             return httpx.Request(
                 method=self.method,
                 url=self.url,
                 params=self.params,
                 headers=self.headers,
-                data=self.json_body,
-                files=self.files,
+                data={},
+                files=files,
             )
         return httpx.Request(
             method=self.method,
@@ -692,3 +699,31 @@ class AsyncStream(Generic[T]):
 
     def _make_data(self):
         return dict(map(lambda x: (x, ""), self._fields))
+
+
+class DynamicStrEnum(str, Enum):
+    """
+    动态字符串枚举基类
+    """
+
+    @classmethod
+    def _missing_(cls, value):
+        # 发出警告
+        warnings.warn(f"Unknown {cls.__name__} value: {value}", UserWarning)
+
+        # 创建动态成员
+        pseudo_member = str.__new__(cls, value)
+        pseudo_member._name_ = f"{value.upper()}".replace(".", "_")
+        pseudo_member._value_ = value
+
+        # 标记为动态创建
+        pseudo_member._is_dynamic = True
+
+        return pseudo_member
+
+    @property
+    def is_dynamic(self) -> bool:
+        """
+        检查此枚举成员是否为动态创建的
+        """
+        return getattr(self, "_is_dynamic", False)

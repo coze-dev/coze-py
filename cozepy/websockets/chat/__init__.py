@@ -1,9 +1,9 @@
-from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
 from cozepy import Chat, Message, ToolOutput
+from cozepy.model import DynamicStrEnum
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
 from cozepy.websockets.audio.transcriptions import (
@@ -50,19 +50,19 @@ class ChatUpdateEvent(WebsocketsEvent):
         # 设置对话流的自定义输入参数的值，具体用法和示例代码可参考[为自定义参数赋值](https://www.coze.cn/open/docs/tutorial/variable)。 对话流的输入参数 USER_INPUT 应在 additional_messages 中传入，在 parameters 中的 USER_INPUT 不生效。 如果 parameters 中未指定 CONVERSATION_NAME 或其他输入参数，则使用参数默认值运行对话流；如果指定了这些参数，则使用指定值。
         parameters: Optional[Dict[str, Any]] = None
 
-    class TurnDetectionType(str, Enum):
+    class TurnDetectionType(DynamicStrEnum):
         # server_vad ：自由对话模式，语音数据会传输到服务器端进行实时分析，服务器端的语音活动检测算法会判断用户是否在说话。
         SERVER_VAD = "server_vad"
         # client_interrupt：（默认）按键说话模式，客户端实时分析语音数据，并检测用户是否已停止说话。
         CLIENT_INTERRUPT = "client_interrupt"
 
-    class InterruptConfigMode(str, Enum):
+    class InterruptConfigMode(DynamicStrEnum):
         # keyword_contains模式下，说话内容包含关键词才会打断模型回复。例如关键词"扣子"，用户正在说“你好呀扣子......” / “扣子你好呀”，模型回复都会被打断。
         KEYWORD_CONTAINS = "keyword_contains"
         # keyword_prefix模式下，说话内容前缀匹配关键词才会打断模型回复。例如关键词"扣子"，用户正在说“扣子你好呀......”，模型回复就会被打断，而用户说“你好呀扣子......”，模型回复不会被打断。
         KEYWORD_PREFIX = "keyword_prefix"
 
-    class ASRConfigUserLanguage(str, Enum):
+    class ASRConfigUserLanguage(DynamicStrEnum):
         COMMON = "common"  # 大模型语音识别，可自动识别中英粤。
         ZH = "zh"  # 小模型语音识别，中文。
         CANT = "cant"  # 小模型语音识别，粤语。
