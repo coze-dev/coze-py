@@ -1,4 +1,5 @@
 from .apps import SimpleApp
+from .audio.live import LiveInfo, LiveType, StreamInfo
 from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
 from .audio.transcriptions import CreateTranscriptionsResp
@@ -222,6 +223,10 @@ from .workspaces.members import CreateWorkspaceMemberResp, DeleteWorkspaceMember
 
 __all__ = [
     "VERSION",
+    # audio.live
+    "LiveInfo",
+    "StreamInfo",
+    "LiveType",
     # apps
     "SimpleApp",
     # audio
