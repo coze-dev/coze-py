@@ -56,6 +56,18 @@ def mock_chat_stream(respx_mock, content: str) -> str:
     return logid
 
 
+def mock_chat_stream_json_fail(respx_mock) -> str:
+    logid = random_hex(10)
+    respx_mock.post("/v3/chat").mock(
+        httpx.Response(
+            200,
+            headers={"content-type": "application/json", logid_key(): logid},
+            content='{"code":4000,"msg":"json fail"}',
+        )
+    )
+    return logid
+
+
 def mock_chat_retrieve(respx_mock, conversation_id: str, status: ChatStatus):
     logid = random_hex(10)
     chat = make_chat(conversation_id, status)
@@ -234,6 +246,18 @@ class TestSyncChat:
         assert stream.response.logid == mock_logid
 
         with pytest.raises(Exception, match="error event"):
+            list(stream)
+
+    def test_sync_chat_stream_json_error(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        mock_logid = mock_chat_stream_json_fail(respx_mock)
+        stream = coze.chat.stream(bot_id="bot", user_id="user")
+        assert stream
+        assert stream.response.logid is not None
+        assert stream.response.logid == mock_logid
+
+        with pytest.raises(Exception, match="code: 4000, msg: json fail"):
             list(stream)
 
     def test_sync_chat_stream_failed(self, respx_mock):
