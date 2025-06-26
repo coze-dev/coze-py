@@ -251,13 +251,13 @@ class TestSyncChat:
     def test_sync_chat_stream_json_error(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        mock_logid = mock_chat_stream_json_fail(respx_mock)
-        stream = coze.chat.stream(bot_id="bot", user_id="user")
-        assert stream
-        assert stream.response.logid is not None
-        assert stream.response.logid == mock_logid
-
         with pytest.raises(Exception, match="code: 4000, msg: json fail"):
+            mock_logid = mock_chat_stream_json_fail(respx_mock)
+            stream = coze.chat.stream(bot_id="bot", user_id="user")
+            assert stream
+            assert stream.response.logid is not None
+            assert stream.response.logid == mock_logid
+
             list(stream)
 
     def test_sync_chat_stream_failed(self, respx_mock):
