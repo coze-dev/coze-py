@@ -1,0 +1,42 @@
+name: Chat Stream Chat CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  merge_group:
+
+permissions: write-all
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    name: chat stream test (Python ${{ matrix.python-version }} on ${{ matrix.os-label }})
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        os: [ "ubuntu-latest" ]
+        os-label: [ "Ubuntu" ]
+        include:
+          - { python-version: "3.8", os: "windows-latest", os-label: "Windows" }
+          - { python-version: "3.8", os: "macos-latest", os-label: "macOS" }
+          - { python-version: "3.7", os: "ubuntu-22.04", os-label: "Ubuntu" }
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "${{ matrix.python-version }}"
+      - name: Install Dependencies
+        run: |
+          cd chat_stream_test
+          pip install uv 
+          uv sync
+      - name: Run chat stream test
+        run: |
+          cd chat_stream_test
+          uv run main.py
+        env:
+          COZE_API_TOKEN: ${{ secrets.COZE_API_TOKEN }}
+          COZE_BOT_ID: ${{ secrets.COZE_BOT_ID }}

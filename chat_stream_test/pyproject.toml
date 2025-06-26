@@ -1,0 +1,9 @@
+[project]
+name = "tmp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "cozepy>=0.16.2",
+]
