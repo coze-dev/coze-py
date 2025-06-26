@@ -15,6 +15,7 @@ from cozepy import (
     ChatStatus,
     ChatUsage,
     Coze,
+    CozeAPIError,
     Message,
     MessageObjectString,
     TokenAuth,
@@ -251,7 +252,7 @@ class TestSyncChat:
     def test_sync_chat_stream_json_error(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        with pytest.raises(Exception, match="code: 4000, msg: json fail"):
+        with pytest.raises(CozeAPIError, match="code: 4000, msg: json fail"):
             mock_logid = mock_chat_stream_json_fail(respx_mock)
             stream = coze.chat.stream(bot_id="bot", user_id="user")
             assert stream
@@ -461,7 +462,7 @@ class TestAsyncChatConversationMessage:
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
         mock_chat_stream_json_fail(respx_mock)
 
-        with pytest.raises(Exception, match="code: 4000, msg: json fail"):
+        with pytest.raises(CozeAPIError, match="code: 4000, msg: json fail"):
             stream = coze.chat.stream(bot_id="bot", user_id="user")
             assert stream
             [event async for event in stream]
