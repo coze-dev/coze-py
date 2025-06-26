@@ -467,6 +467,7 @@ class Requester(object):
         if resp_content_type:
             resp_content_type = resp_content_type.lower()
         logid = response.headers.get("x-tt-logid")
+        print("resp_content_type", resp_content_type)
         if stream and "event-stream" in resp_content_type:
             if is_async:
                 return AsyncIteratorHTTPResponse(response, response.aiter_lines())
