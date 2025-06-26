@@ -457,6 +457,15 @@ class TestAsyncChatConversationMessage:
         with pytest.raises(Exception, match="error event"):
             [event async for event in stream]
 
+    async def test_async_chat_stream_json_error(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        mock_chat_stream_json_fail(respx_mock)
+
+        with pytest.raises(Exception, match="code: 4000, msg: json fail"):
+            stream = coze.chat.stream(bot_id="bot", user_id="user")
+            assert stream
+            [event async for event in stream]
+
     async def test_async_chat_stream_failed(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
