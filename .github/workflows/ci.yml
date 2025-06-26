@@ -42,6 +42,11 @@ jobs:
           poetry run mypy .
       - name: Run tests
         run: poetry run pytest --cov --cov-report=xml
+      - name: Run Chat Stream
+        run: python main.py
+        env:
+          COZE_API_TOKEN: ${{ secrets.COZE_API_TOKEN }}
+          COZE_BOT_ID: ${{ secrets.COZE_BOT_ID }}
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
