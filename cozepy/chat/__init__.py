@@ -17,7 +17,7 @@ from cozepy.model import (
     Stream,
 )
 from cozepy.request import Requester
-from cozepy.util import remove_url_trailing_slash
+from cozepy.util import remove_none_values, remove_url_trailing_slash
 
 if TYPE_CHECKING:
     from .message import AsyncChatMessagesClient, ChatMessagesClient
@@ -497,6 +497,7 @@ class ChatClient(object):
         meta_data: Optional[Dict[str, str]] = None,
         conversation_id: Optional[str] = None,
         parameters: Optional[Dict[str, Any]] = None,
+        enable_card: Optional[bool] = None,
         **kwargs,
     ) -> Stream[ChatEvent]:
         """
@@ -527,6 +528,7 @@ class ChatClient(object):
             meta_data=meta_data,
             conversation_id=conversation_id,
             parameters=parameters,
+            enable_card=enable_card,
             **kwargs,
         )
 
@@ -608,6 +610,7 @@ class ChatClient(object):
         meta_data: Optional[Dict[str, str]] = ...,
         conversation_id: Optional[str] = ...,
         parameters: Optional[Dict[str, Any]] = ...,
+        enable_card: Optional[bool] = ...,
     ) -> Stream[ChatEvent]: ...
 
     @overload
@@ -623,6 +626,7 @@ class ChatClient(object):
         meta_data: Optional[Dict[str, str]] = ...,
         conversation_id: Optional[str] = ...,
         parameters: Optional[Dict[str, Any]] = ...,
+        enable_card: Optional[bool] = ...,
     ) -> Chat: ...
 
     def _create(
@@ -637,6 +641,7 @@ class ChatClient(object):
         meta_data: Optional[Dict[str, str]] = None,
         conversation_id: Optional[str] = None,
         parameters: Optional[Dict[str, Any]] = None,
+        enable_card: Optional[bool] = None,
         **kwargs,
     ) -> Union[Chat, Stream[ChatEvent]]:
         """
@@ -646,16 +651,19 @@ class ChatClient(object):
         params = {
             "conversation_id": conversation_id if conversation_id else None,
         }
-        body = {
-            "bot_id": bot_id,
-            "user_id": user_id,
-            "additional_messages": [i.model_dump() for i in additional_messages] if additional_messages else [],
-            "stream": stream,
-            "custom_variables": custom_variables,
-            "auto_save_history": auto_save_history,
-            "meta_data": meta_data,
-            "parameters": parameters,
-        }
+        body = remove_none_values(
+            {
+                "bot_id": bot_id,
+                "user_id": user_id,
+                "additional_messages": [i.model_dump() for i in additional_messages] if additional_messages else [],
+                "stream": stream,
+                "custom_variables": custom_variables,
+                "auto_save_history": auto_save_history,
+                "meta_data": meta_data,
+                "parameters": parameters,
+                "enable_card": enable_card,
+            }
+        )
         headers: Optional[dict] = kwargs.get("headers")
         if not stream:
             return self._requester.request(
@@ -851,6 +859,8 @@ class AsyncChatClient(object):
         meta_data: Optional[Dict[str, str]] = None,
         conversation_id: Optional[str] = None,
         parameters: Optional[Dict[str, Any]] = None,
+        enable_card: Optional[bool] = None,
+        **kwargs,
     ) -> AsyncIterator[ChatEvent]:
         """
         Call the Chat API with streaming to send messages to a published Coze bot.
@@ -880,6 +890,8 @@ class AsyncChatClient(object):
             meta_data=meta_data,
             conversation_id=conversation_id,
             parameters=parameters,
+            enable_card=enable_card,
+            **kwargs,
         ):
             yield item
 
@@ -896,6 +908,7 @@ class AsyncChatClient(object):
         meta_data: Optional[Dict[str, str]] = ...,
         conversation_id: Optional[str] = ...,
         parameters: Optional[Dict[str, Any]] = ...,
+        enable_card: Optional[bool] = ...,
     ) -> AsyncStream[ChatEvent]: ...
 
     @overload
@@ -911,6 +924,7 @@ class AsyncChatClient(object):
         meta_data: Optional[Dict[str, str]] = ...,
         conversation_id: Optional[str] = ...,
         parameters: Optional[Dict[str, Any]] = ...,
+        enable_card: Optional[bool] = ...,
     ) -> Chat: ...
 
     async def _create(
@@ -925,6 +939,8 @@ class AsyncChatClient(object):
         meta_data: Optional[Dict[str, str]] = None,
         conversation_id: Optional[str] = None,
         parameters: Optional[Dict[str, Any]] = None,
+        enable_card: Optional[bool] = None,
+        **kwargs,
     ) -> Union[Chat, AsyncStream[ChatEvent]]:
         """
         Create a conversation.
@@ -934,16 +950,20 @@ class AsyncChatClient(object):
         params = {
             "conversation_id": conversation_id if conversation_id else None,
         }
-        body = {
-            "bot_id": bot_id,
-            "user_id": user_id,
-            "additional_messages": [i.model_dump() for i in additional_messages] if additional_messages else [],
-            "stream": stream,
-            "custom_variables": custom_variables,
-            "auto_save_history": auto_save_history,
-            "meta_data": meta_data,
-            "parameters": parameters,
-        }
+        body = remove_none_values(
+            {
+                "bot_id": bot_id,
+                "user_id": user_id,
+                "additional_messages": [i.model_dump() for i in additional_messages] if additional_messages else [],
+                "stream": stream,
+                "custom_variables": custom_variables,
+                "auto_save_history": auto_save_history,
+                "meta_data": meta_data,
+                "parameters": parameters,
+                "enable_card": enable_card,
+            }
+        )
+        headers: Optional[dict] = kwargs.get("headers")
         if not stream:
             return await self._requester.arequest(
                 "post",
@@ -952,6 +972,7 @@ class AsyncChatClient(object):
                 Chat,
                 params=params,
                 body=body,
+                headers=headers,
             )
 
         resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
@@ -961,6 +982,7 @@ class AsyncChatClient(object):
             None,
             params=params,
             body=body,
+            headers=headers,
         )
 
         return AsyncStream(
