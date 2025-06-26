@@ -32,6 +32,7 @@ jobs:
         run: |
           pip install poetry 
           poetry install
+          pip install -e .
       # - name: Build
       #   run: |
       #     poetry build
