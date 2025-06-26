@@ -1,3 +1,4 @@
+from dataclasses import Field
 from typing import Optional
 
 from cozepy.model import CozeModel, DynamicStrEnum
@@ -33,6 +34,20 @@ class RoomMode(DynamicStrEnum):
     DEFAULT = "default"
     S2S = "s2s"
     PODCAST = "podcast"
+    TRANSLATE = "translate"
+
+
+"""
+struct TranslateConfig {
+    1: optional string From (go.tag = "json:\"from\"") // 翻译源语言
+    2: optional string To (go.tag = "json:\"to\"") // 翻译目标语言
+}
+"""
+
+
+class TranslateConfig(CozeModel):
+    from_: Optional[str] = Field(alias="from")
+    to: Optional[str]
 
 
 class RoomConfig(CozeModel):
@@ -44,6 +59,8 @@ class RoomConfig(CozeModel):
     prologue_content: Optional[str]
     # 房间模式
     room_mode: Optional[RoomMode]
+    # 同传配置，仅在房间模式为同传时生效
+    translate_config: Optional[TranslateConfig]
 
 
 class CreateRoomResp(CozeModel):
