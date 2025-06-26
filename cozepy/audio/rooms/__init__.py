@@ -1,5 +1,6 @@
-from dataclasses import Field
 from typing import Optional
+
+from pydantic import Field
 
 from cozepy.model import CozeModel, DynamicStrEnum
 from cozepy.request import Requester
