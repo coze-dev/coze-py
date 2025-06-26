@@ -1,6 +1,7 @@
 from typing import (
     TYPE_CHECKING,
     Any,
+    Dict,
     List,
     Optional,
     Tuple,
@@ -272,23 +273,6 @@ class Requester(object):
 
         return self.send(request)
 
-    def send(
-        self,
-        request: HTTPRequest,
-    ) -> Union[T, List[T], ListResponse[T], IteratorHTTPResponse[str], FileHTTPResponse, None]:
-        """
-        Send a request to the server.
-        """
-        return self._parse_response(
-            method=request.method,
-            url=request.url,
-            is_async=False,
-            response=self.sync_client.send(request.as_httpx, stream=request.stream),
-            cast=request.cast,
-            stream=request.stream,
-            data_field=request.data_field,
-        )
-
     @overload
     async def arequest(
         self,
@@ -394,15 +378,32 @@ class Requester(object):
         )
 
         response = await self.async_client.send(request.as_httpx, stream=stream)
-        return self._parse_response(
+        return await self._aparse_response(
             method, url, True, response=response, cast=cast, stream=stream, data_field=data_field
+        )
+
+    def send(
+        self,
+        request: HTTPRequest,
+    ) -> Union[T, List[T], ListResponse[T], IteratorHTTPResponse[str], FileHTTPResponse, None]:
+        """
+        Send a request to the server.
+        """
+        return self._parse_response(
+            method=request.method,
+            url=request.url,
+            is_async=False,
+            response=self.sync_client.send(request.as_httpx, stream=request.stream),
+            cast=request.cast,
+            stream=request.stream,
+            data_field=request.data_field,
         )
 
     async def asend(
         self,
         request: HTTPRequest,
     ) -> Union[T, List[T], ListResponse[T], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None]:
-        return self._parse_response(
+        return await self._aparse_response(
             method=request.method,
             url=request.url,
             is_async=True,
@@ -500,6 +501,82 @@ class Requester(object):
                 res._raw_response = response  # type: ignore
             return res  # type: ignore
 
+    @overload
+    async def _aparse_response(
+        self,
+        method: str,
+        url: str,
+        is_async: Literal[False],
+        response: httpx.Response,
+        cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
+        stream: bool = ...,
+        data_field: str = ...,
+    ) -> Union[T, List[T], ListResponse[T], IteratorHTTPResponse[str], FileHTTPResponse, None]: ...
+
+    @overload
+    async def _aparse_response(
+        self,
+        method: str,
+        url: str,
+        is_async: Literal[True],
+        response: httpx.Response,
+        cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
+        stream: bool = ...,
+        data_field: str = ...,
+    ) -> Union[T, List[T], ListResponse[T], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None]: ...
+
+    async def _aparse_response(
+        self,
+        method: str,
+        url: str,
+        is_async: Literal[True, False],
+        response: httpx.Response,
+        cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
+        stream: bool = False,
+        data_field: str = "data",
+    ) -> Union[
+        T, List[T], ListResponse[T], IteratorHTTPResponse[str], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None
+    ]:
+        # application/json
+        # text/event-stream
+        # audio/<xx>
+        resp_content_type = response.headers.get("content-type")
+        if resp_content_type:
+            resp_content_type = resp_content_type.lower()
+        logid = response.headers.get("x-tt-logid")
+        if stream and "event-stream" in resp_content_type:
+            if is_async:
+                return AsyncIteratorHTTPResponse(response, response.aiter_lines())
+            return IteratorHTTPResponse(response, response.iter_lines())
+
+        if resp_content_type and "audio" in resp_content_type:
+            return FileHTTPResponse(response)  # type: ignore
+
+        code, msg, debug_url, data = await self._aparse_requests_code_msg(method, url, response, data_field)
+
+        if code is not None and code > 0:
+            log_warning("request %s#%s failed, logid=%s, code=%s, msg=%s", method, url, logid, code, msg)
+            raise CozeAPIError(code, msg, logid, debug_url)
+        elif code is None and msg != "":
+            log_warning("request %s#%s failed, logid=%s, msg=%s", method, url, logid, msg)
+            if msg in COZE_PKCE_AUTH_ERROR_TYPE_ENUMS:
+                raise CozePKCEAuthError(CozePKCEAuthErrorType(msg), logid)
+            raise CozeAPIError(code, msg, logid, debug_url)
+        if isinstance(cast, List):
+            item_cast = cast[0]
+            return [item_cast.model_validate(item) for item in data]
+        elif hasattr(cast, "__origin__") and cast.__origin__ is ListResponse:  # type: ignore
+            item_cast = get_args(cast)[0]
+            return ListResponse(response, [item_cast.model_validate(item) for item in data])
+        else:
+            if cast is None:
+                return None
+
+            res = cast.model_validate(data) if data is not None else cast()  # type: ignore
+            if hasattr(res, "_raw_response"):
+                res._raw_response = response  # type: ignore
+            return res  # type: ignore
+
     def _parse_requests_code_msg(
         self, method: str, url: str, response: Response, data_field: str = "data"
     ) -> Tuple[Optional[int], str, Optional[str], Any]:
@@ -514,6 +591,31 @@ class Requester(object):
                 response.text,
                 response.headers.get("x-tt-logid"),
             ) from e
+        return self._format_requests_code_msg(method, url, body, data_field)
+
+    async def _aparse_requests_code_msg(
+        self, method: str, url: str, response: Response, data_field: str = "data"
+    ) -> Tuple[Optional[int], str, Optional[str], Any]:
+        try:
+            await response.aread()
+            body = response.json()
+            logid = response.headers.get("x-tt-logid")
+            log_debug("request %s#%s responding, logid=%s, data=%s", method, url, logid, body)
+        except Exception as e:  # noqa: E722
+            raise CozeAPIError(
+                response.status_code,
+                response.text,
+                response.headers.get("x-tt-logid"),
+            ) from e
+        return self._format_requests_code_msg(method, url, body, data_field)
+
+    def _format_requests_code_msg(
+        self,
+        method: str,
+        url: str,
+        body: Dict[str, Any],
+        data_field: str = "data",
+    ) -> Tuple[Optional[int], str, Optional[str], Any]:
         debug_url = body.get("debug_url")
         if "code" in body and "msg" in body and int(body["code"]) > 0:
             return int(body["code"]), body["msg"], debug_url, body.get(data_field)
