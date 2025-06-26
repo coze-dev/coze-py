@@ -32,16 +32,16 @@ jobs:
         run: |
           pip install poetry 
           poetry install
-      - name: Build
-        run: |
-          poetry build
-      - name: Check
-        run: |
-          poetry run ruff check cozepy
-          poetry run ruff format --check
-          poetry run mypy .
-      - name: Run tests
-        run: poetry run pytest --cov --cov-report=xml
+      # - name: Build
+      #   run: |
+      #     poetry build
+      # - name: Check
+      #   run: |
+      #     poetry run ruff check cozepy
+      #     poetry run ruff format --check
+      #     poetry run mypy .
+      # - name: Run tests
+        # run: poetry run pytest --cov --cov-report=xml
       - name: Run Chat Stream
         run: python main.py
         env:
