@@ -180,7 +180,7 @@ class TestAsyncWorkflowsChat:
         with pytest.raises(Exception, match="error event"):
             _ = [event async for event in stream]
 
-    async def test_sync_chat_stream_json_error(self, respx_mock):
+    async def test_async_chat_stream_json_error(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_workflows_chat_stream_json_fail(respx_mock)

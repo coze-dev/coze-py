@@ -374,13 +374,18 @@ class Requester(object):
         """
         method = method.upper()
         request = await self.amake_request(
-            method, url, params=params, headers=headers, json=body, files=files, stream=stream
+            method,
+            url,
+            params=params,
+            headers=headers,
+            json=body,
+            files=files,
+            cast=cast,
+            data_field=data_field,
+            stream=stream,
         )
 
-        response = await self.async_client.send(request.as_httpx, stream=stream)
-        return await self._aparse_response(
-            method, url, True, response=response, cast=cast, stream=stream, data_field=data_field
-        )
+        return await self.asend(request)
 
     def send(
         self,
