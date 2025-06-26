@@ -254,9 +254,6 @@ class Requester(object):
         files: Optional[dict] = None,
         data_field: str = "data",
     ) -> Union[T, List[T], ListResponse[T], IteratorHTTPResponse[str], FileHTTPResponse, None]:
-        """
-        Send a request to the server.
-        """
         method = method.upper()
 
         request = self.make_request(
@@ -369,9 +366,6 @@ class Requester(object):
         files: Optional[dict] = None,
         data_field: str = "data",
     ) -> Union[T, List[T], ListResponse[T], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None]:
-        """
-        Send a request to the server.
-        """
         method = method.upper()
         request = await self.amake_request(
             method,
@@ -391,13 +385,9 @@ class Requester(object):
         self,
         request: HTTPRequest,
     ) -> Union[T, List[T], ListResponse[T], IteratorHTTPResponse[str], FileHTTPResponse, None]:
-        """
-        Send a request to the server.
-        """
         return self._parse_response(
             method=request.method,
             url=request.url,
-            is_async=False,
             response=self.sync_client.send(request.as_httpx, stream=request.stream),
             cast=request.cast,
             stream=request.stream,
@@ -411,7 +401,6 @@ class Requester(object):
         return await self._aparse_response(
             method=request.method,
             url=request.url,
-            is_async=True,
             response=await self.async_client.send(request.as_httpx, stream=request.stream),
             cast=request.cast,
             stream=request.stream,
@@ -430,42 +419,15 @@ class Requester(object):
             self._async_client = AsyncHTTPClient()
         return self._async_client
 
-    @overload
     def _parse_response(
         self,
         method: str,
         url: str,
-        is_async: Literal[False],
-        response: httpx.Response,
-        cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
-        stream: bool = ...,
-        data_field: str = ...,
-    ) -> Union[T, List[T], ListResponse[T], IteratorHTTPResponse[str], FileHTTPResponse, None]: ...
-
-    @overload
-    def _parse_response(
-        self,
-        method: str,
-        url: str,
-        is_async: Literal[True],
-        response: httpx.Response,
-        cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
-        stream: bool = ...,
-        data_field: str = ...,
-    ) -> Union[T, List[T], ListResponse[T], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None]: ...
-
-    def _parse_response(
-        self,
-        method: str,
-        url: str,
-        is_async: Literal[True, False],
         response: httpx.Response,
         cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
         stream: bool = False,
         data_field: str = "data",
-    ) -> Union[
-        T, List[T], ListResponse[T], IteratorHTTPResponse[str], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None
-    ]:
+    ) -> Union[T, List[T], ListResponse[T], IteratorHTTPResponse[str], FileHTTPResponse, None]:
         # application/json
         # text/event-stream
         # audio/<xx>
@@ -474,8 +436,6 @@ class Requester(object):
             resp_content_type = resp_content_type.lower()
         logid = response.headers.get("x-tt-logid")
         if stream and "event-stream" in resp_content_type:
-            if is_async:
-                return AsyncIteratorHTTPResponse(response, response.aiter_lines())
             return IteratorHTTPResponse(response, response.iter_lines())
 
         if resp_content_type and "audio" in resp_content_type:
@@ -506,42 +466,15 @@ class Requester(object):
                 res._raw_response = response  # type: ignore
             return res  # type: ignore
 
-    @overload
     async def _aparse_response(
         self,
         method: str,
         url: str,
-        is_async: Literal[False],
-        response: httpx.Response,
-        cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
-        stream: bool = ...,
-        data_field: str = ...,
-    ) -> Union[T, List[T], ListResponse[T], IteratorHTTPResponse[str], FileHTTPResponse, None]: ...
-
-    @overload
-    async def _aparse_response(
-        self,
-        method: str,
-        url: str,
-        is_async: Literal[True],
-        response: httpx.Response,
-        cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
-        stream: bool = ...,
-        data_field: str = ...,
-    ) -> Union[T, List[T], ListResponse[T], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None]: ...
-
-    async def _aparse_response(
-        self,
-        method: str,
-        url: str,
-        is_async: Literal[True, False],
         response: httpx.Response,
         cast: Union[Type[T], List[Type[T]], Type[ListResponse[T]], Type[FileHTTPResponse], None],
         stream: bool = False,
         data_field: str = "data",
-    ) -> Union[
-        T, List[T], ListResponse[T], IteratorHTTPResponse[str], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None
-    ]:
+    ) -> Union[T, List[T], ListResponse[T], AsyncIteratorHTTPResponse[str], FileHTTPResponse, None]:
         # application/json
         # text/event-stream
         # audio/<xx>
@@ -550,9 +483,7 @@ class Requester(object):
             resp_content_type = resp_content_type.lower()
         logid = response.headers.get("x-tt-logid")
         if stream and "event-stream" in resp_content_type:
-            if is_async:
-                return AsyncIteratorHTTPResponse(response, response.aiter_lines())
-            return IteratorHTTPResponse(response, response.iter_lines())
+            return AsyncIteratorHTTPResponse(response, response.aiter_lines())
 
         if resp_content_type and "audio" in resp_content_type:
             return FileHTTPResponse(response)  # type: ignore
