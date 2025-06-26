@@ -394,7 +394,7 @@ class Requester(object):
         )
 
         response = await self.async_client.send(request.as_httpx, stream=stream)
-        print("request")
+        print("request", stream)
         print(1, request.as_httpx.headers)
         try:
             print(2, response.request.headers)
