@@ -402,6 +402,13 @@ class Requester(object):
             pass
         print("response")
         print(response.headers)
+
+        # read stream response
+        print("read stream response")
+        if stream:
+            async for line in response.aiter_lines():
+                print("line", line)
+
         return self._parse_response(
             method, url, True, response=response, cast=cast, stream=stream, data_field=data_field
         )
