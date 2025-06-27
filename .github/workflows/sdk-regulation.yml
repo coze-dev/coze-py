@@ -21,8 +21,8 @@ jobs:
           python-version: "3.11"
       - name: Install Dependencies
         run: |
-          pip install poetry 
-          poetry install
+          pip install uv 
+          uv sync
       - name: Check SDK Regulation
         run: |
-          python .github/workflows/check_sdk_regulation.py
+          uv run .github/workflows/check_sdk_regulation.py

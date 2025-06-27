@@ -1,35 +1,50 @@
-[tool.poetry]
+[project]
 name = "cozepy"
 version = "0.16.2"
 description = "OpenAPI SDK for Coze(coze.com/coze.cn)"
-authors = ["chyroc <chyroc@bytedance.com>"]
+authors = [
+    {name = "chyroc", email = "chyroc@bytedance.com"}
+]
 readme = "README.md"
-license = "MIT"
-
-[tool.poetry.dependencies]
-python = "^3.7"
-pydantic = "^2.5.0"
-authlib = "^1.2.0"
-httpx = [
-    { version =  "^0.24.0", python = "<=3.7" },
-    { version =  "^0.27.0", python = "^3.8" },
-]
-typing-extensions = "^4.3.0"
-distro = "^1.9.0"
-websockets = [
-    { version = "^14.1.0", python = ">=3.9" },
-    { version = "^13.1.0", python = ">=3.8,<3.9" },
-    { version = "^11.0.3", python = ">=3.7,<3.8" },
+license = {text = "MIT"}
+requires-python = ">=3.7"
+dependencies = [
+    "pydantic>=2.5.0",
+    "authlib>=1.2.0",
+    "httpx>=0.24.0; python_version<='3.7'",
+    "httpx>=0.27.0; python_version>='3.8'",
+    "typing-extensions>=4.3.0",
+    "distro>=1.9.0",
+    "websockets>=14.1.0; python_version>='3.9'",
+    "websockets>=13.1.0,<14.0.0; python_version>='3.8' and python_version<'3.9'",
+    "websockets>=11.0.3,<12.0.0; python_version>='3.7' and python_version<'3.8'",
 ]
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.0.0"
-pytest-cov = "^4.0.0"
-pytest-asyncio = "^0.21.0"
-ruff = "^0.6.0"
-pre-commit = "^2.9.0"
-respx = "^0.21.1"
-mypy = "^1.0.0"
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
+    "ruff>=0.6.0",
+    "pre-commit>=2.9.0",
+    "respx>=0.21.1",
+    "mypy>=1.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
+    "ruff>=0.6.0",
+    "pre-commit>=2.9.0",
+    "respx>=0.21.1",
+    "mypy>=1.0.0",
+]
 
 [tool.ruff]
 line-length = 120
@@ -53,7 +68,3 @@ exclude_lines = [
     "if TYPE_CHECKING.*:",
     "raise NotImplementedError",
 ]
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
