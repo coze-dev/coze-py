@@ -1,5 +1,5 @@
 from enum import IntEnum
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from pydantic import Field, field_validator
 
@@ -38,18 +38,34 @@ class BotKnowledge(CozeModel):
 
 
 class BotModelInfo(CozeModel):
+    class ResponseFormat(DynamicStrEnum):
+        JSON = "json"
+        TEXT = "text"
+        MARKDOWN = "markdown"
+
     # The ID of the model.
     model_id: str
-    # The name of the model.
-    model_name: str
     # The temperature of the model.
     temperature: float
     # The context_round of the model.
     context_round: int
     # The max_tokens of the model.
     max_tokens: int
+    # The temperature of the model.
+    response_format: ResponseFormat
+    # The top_k of the model.
+    top_k: Optional[int] = None
     # The top_p of the model.
     top_p: Optional[float] = None
+    # The presence_penalty of the model.
+    presence_penalty: Optional[float] = None
+    # The frequency_penalty of the model.
+    frequency_penalty: Optional[float] = None
+    # The parameters of the model.
+    # claude: {"thinking_type": "disable/enable", "thinking_budget_tokens": 2000}
+    # gemini: {"thinking_type": "disable/enable"}
+    # doubao: {"thinking_type": "auto/disable/enable"}
+    parameters: Optional[Dict[str, str]] = None
 
 
 class BotMode(IntEnum):
