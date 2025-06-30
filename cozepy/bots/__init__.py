@@ -219,6 +219,8 @@ class Bot(CozeModel):
     default_user_input_type: Optional[UserInputType] = None
     # The workflow info for the bot.
     workflow_info_list: Optional[List[BotWorkflowInfo]] = None
+    # The folder ID for the bot.
+    folder_id: Optional[str] = None
 
 
 class SimpleBot(CozeModel):
@@ -230,6 +232,7 @@ class SimpleBot(CozeModel):
     updated_at: int
     owner_user_id: str
 
+    folder_id: Optional[str] = None
     published_at: Optional[int] = None
 
     # compatibility fields
