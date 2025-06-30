@@ -34,7 +34,7 @@ jobs:
           uv sync
       - name: Build
         run: |
-          uv run build
+          uv build
       - name: Check
         run: |
           uv run ruff check cozepy

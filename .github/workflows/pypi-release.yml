@@ -17,5 +17,5 @@ jobs:
           uv sync
       - name: Build and publish to pypi
         run: |
-          uv run build
-          uv run publish --token ${{ secrets.PYPI_TOKEN }}
+          uv build
+          uv publish --token ${{ secrets.PYPI_TOKEN }}
