@@ -30,7 +30,7 @@ jobs:
           python-version: "${{ matrix.python-version }}"
       - name: Install Dependencies
         run: |
-          pip install uv
+          curl -LsSf https://astral.sh/uv/install.sh | sh
           uv sync
       - name: Build
         run: |

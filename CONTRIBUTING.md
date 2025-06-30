@@ -3,7 +3,7 @@
 We use [uv](https://docs.astral.sh/uv/) to manage dependencies, you can install it by:
 
 ```shell
-python -m pip install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 And then install dependencies:

@@ -13,7 +13,7 @@ jobs:
           python-version: "3.12"
       - name: Install Dependencies
         run: |
-          pip install uv
+          curl -LsSf https://astral.sh/uv/install.sh | sh
           uv sync
       - name: Build and publish to pypi
         run: |
