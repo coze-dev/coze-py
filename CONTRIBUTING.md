@@ -1,31 +1,19 @@
 ## Setting up the environment
 
-create a virtual environment:
+We use [uv](https://docs.astral.sh/uv/) to manage dependencies, you can install it by:
 
 ```shell
-python -m venv ./.venv
-```
-
-active the virtual environment:
-
-```shell
-source ./.venv/bin/activate
-```
-
-We use [Poetry](https://python-poetry.org/) to manage dependencies, you can install it by:
-
-```shell
-python -m pip install poetry 
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 And then install dependencies:
 
 ```shell
-poetry install
+uv sync
 ```
 
 ## Pre Commit
 
 ```shell
-pre-commit install
+uv run pre-commit install
 ```
