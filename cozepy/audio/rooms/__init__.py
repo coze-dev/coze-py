@@ -63,7 +63,7 @@ class RoomConfig(CozeModel):
     # 同传配置，仅在房间模式为同传时生效
     translate_config: Optional[TranslateConfig]
     # 在进房后等待多长时间播放开场白，默认是500ms，[0, 5000]
-    prologue_wait_time: Optional[int]
+    prologue_delay_duration_ms: Optional[int]
 
 
 class CreateRoomResp(CozeModel):
