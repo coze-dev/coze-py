@@ -1,17 +1,19 @@
 import base64
 import json
 import time
-from typing import TYPE_CHECKING, Any, AsyncIterator, Dict, List, Optional, Union, overload
+from typing import TYPE_CHECKING, Any, AsyncIterator, Dict, Generic, List, Optional, Tuple, TypeVar, Union, overload
 
 import httpx
+from pydantic import BaseModel
 from typing_extensions import Literal
 
-from cozepy.exception import CozeAPIError
+from cozepy.exception import CozeAPIError, CozeInvalidEventError
 from cozepy.model import (
     AsyncIteratorHTTPResponse,
     AsyncStream,
     CozeModel,
     DynamicStrEnum,
+    HTTPResponse,
     IteratorHTTPResponse,
     ListResponse,
     Stream,
@@ -438,6 +440,87 @@ class ToolOutput(CozeModel):
     output: str
 
 
+T = TypeVar("T", bound=BaseModel)
+
+
+class StreamX(Generic[T]):
+    def __init__(
+        self,
+        raw_response: httpx.Response,
+        # iters: Iterator[str],
+        # fields: List[str],
+        # handler: Callable[[Dict[str, str], httpx.Response], T],
+    ):
+        self._iters = raw_response.iter_lines()
+        # self._fields = ['event', 'data']
+        # self._handler = _sync_chat_stream_handler
+        # self._raw_response = raw_response
+        self._consumed = False
+        self._finished = False
+
+    # @property
+    # def response(self) -> HTTPResponse:
+    # return HTTPResponse(self._raw_response)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self) -> T:
+        if self._finished:
+            print("re finished")
+            raise StopIteration
+        event = ""
+        data = ""
+        try:
+            for line in self._iters:
+                if line == "":
+                    continue
+                if line.startswith("event:"):
+                    event = line[6:]
+                elif line.startswith("data:"):
+                    data = line[5:]
+                    return _sync_chat_stream_handler({"event": event, "data": data}, None)
+                else:
+                    continue
+
+                # 只有在完全消费完响应后才标记为完成
+                self._finished = True
+                self._consumed = True
+                print("finished")
+                raise StopIteration
+        except Exception as e:
+            print(e)
+            self._finished = True
+            raise StopIteration from e
+            # print(event, data)
+        # return self._handler(self._extra_event(), self._raw_response)
+
+    # def _extra_event(self) -> Dict[str, str]:
+    #     data = dict(map(lambda x: (x, ""), self._fields))
+    #     times = 0
+
+    #     while times < len(data):
+    #         line = next(self._iters).strip()
+    #         if line == "":
+    #             continue
+
+    #         # log_debug("receive event, logid=%s, event=%s", self.response.logid, line)
+
+    #         field, value = self._extra_field_data(line, data)
+    #         data[field] = value
+    #         times += 1
+    #     return data
+
+    # def _extra_field_data(self, line: str, data: Dict[str, str]) -> Tuple[str, str]:
+    #     for field in self._fields:
+    #         if line.startswith(field + ":"):
+    #             if data[field] == "":
+    #                 return field, line[len(field) + 1 :].strip()
+    #             else:
+    #                 raise CozeInvalidEventError(field, line, self.response.logid)
+    #     raise CozeInvalidEventError("", line, self.response.logid)
+
+
 class ChatClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
@@ -500,24 +583,6 @@ class ChatClient(object):
         enable_card: Optional[bool] = None,
         **kwargs,
     ) -> Stream[ChatEvent]:
-        """
-        Call the Chat API with streaming to send messages to a published Coze bot.
-
-        docs en: https://www.coze.com/docs/developer_guides/chat_v3
-        docs zh: https://www.coze.cn/docs/developer_guides/chat_v3
-
-        :param bot_id: The ID of the bot that the API interacts with.
-        :param user_id: The user who calls the API to chat with the bot.
-        This parameter is defined, generated, and maintained by the user within their business system.
-        :param conversation_id: Indicate which conversation the chat is taking place in.
-        :param additional_messages: Additional information for the conversation. You can pass the user's query for this
-        conversation through this field. The array length is limited to 100, meaning up to 100 messages can be input.
-        :param custom_variables: The customized variable in a key-value pair.
-        :param auto_save_history: Whether to automatically save the history of conversation records.
-        :param meta_data: Additional information, typically used to encapsulate some business-related fields.
-        :param parameters: Additional parameters for the chat API. pass through to the workflow.
-        :return: iterator of ChatEvent
-        """
         return self._create(
             bot_id=bot_id,
             user_id=user_id,
@@ -597,38 +662,6 @@ class ChatClient(object):
         messages = self.messages.list(conversation_id=chat.conversation_id, chat_id=chat.id)
         return ChatPoll(chat=chat, messages=messages)
 
-    @overload
-    def _create(
-        self,
-        *,
-        bot_id: str,
-        user_id: str,
-        stream: Literal[True],
-        additional_messages: Optional[List[Message]] = ...,
-        custom_variables: Optional[Dict[str, str]] = ...,
-        auto_save_history: bool = ...,
-        meta_data: Optional[Dict[str, str]] = ...,
-        conversation_id: Optional[str] = ...,
-        parameters: Optional[Dict[str, Any]] = ...,
-        enable_card: Optional[bool] = ...,
-    ) -> Stream[ChatEvent]: ...
-
-    @overload
-    def _create(
-        self,
-        *,
-        bot_id: str,
-        user_id: str,
-        stream: Literal[False],
-        additional_messages: Optional[List[Message]] = ...,
-        custom_variables: Optional[Dict[str, str]] = ...,
-        auto_save_history: bool = ...,
-        meta_data: Optional[Dict[str, str]] = ...,
-        conversation_id: Optional[str] = ...,
-        parameters: Optional[Dict[str, Any]] = ...,
-        enable_card: Optional[bool] = ...,
-    ) -> Chat: ...
-
     def _create(
         self,
         *,
@@ -644,9 +677,6 @@ class ChatClient(object):
         enable_card: Optional[bool] = None,
         **kwargs,
     ) -> Union[Chat, Stream[ChatEvent]]:
-        """
-        Create a chat.
-        """
         url = f"{self._base_url}/v3/chat"
         params = {
             "conversation_id": conversation_id if conversation_id else None,
@@ -665,18 +695,8 @@ class ChatClient(object):
             }
         )
         headers: Optional[dict] = kwargs.get("headers")
-        if not stream:
-            return self._requester.request(
-                "post",
-                url,
-                False,
-                Chat,
-                params=params,
-                headers=headers,
-                body=body,
-            )
 
-        response: IteratorHTTPResponse[str] = self._requester.request(
+        response: httpx.Response = self._requester.request(
             "post",
             url,
             True,
@@ -685,12 +705,45 @@ class ChatClient(object):
             headers=headers,
             body=body,
         )
-        return Stream(
-            response._raw_response,
-            response.data,
-            fields=["event", "data"],
-            handler=_sync_chat_stream_handler,
-        )
+        # logid=response.headers.get("x-tt-logid")
+        # first_token_time = 0
+        # content=''
+        # for line in response.iter_lines():
+        #     try:
+        #         event=json.loads(line[5:])
+        #         type_=event.get('type') or ''
+        #         if content=='':
+        #             content = event.get('content') or ''
+        #         # print(type_, content)
+        #         if first_token_time==0 and type_ == 'answer' and content!='':
+        #             first_token_time = time.time() * 1000
+        #             # break
+        #         else:
+        #             continue
+        #     except Exception as e:
+        #         continue
+        # return first_token_time, content,logid
+        # return StreamX(
+        #     response,
+        #     # response.iter_lines(),
+        #     # fields=["event", "data"],
+        #     # handler=_sync_chat_stream_handler,
+        # )
+
+        event = ""
+        data = ""
+        for line in response.iter_lines():
+            if line == "":
+                continue
+            if line.startswith("event:"):
+                event = line[6:]
+            elif line.startswith("data:"):
+                data = line[5:]
+                yield _sync_chat_stream_handler({"event": event, "data": data}, None)
+                event = ""
+                data = ""
+            else:
+                continue
 
     def retrieve(
         self,

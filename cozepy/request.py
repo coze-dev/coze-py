@@ -158,90 +158,6 @@ class Requester(object):
             cast=cast,
         )
 
-    @overload
-    def request(
-        self,
-        method: str,
-        url: str,
-        stream: Literal[False],
-        cast: Type[T],
-        params: dict = ...,
-        headers: Optional[dict] = ...,
-        body: dict = ...,
-        files: Optional[dict] = ...,
-        data_field: str = ...,
-    ) -> T: ...
-
-    @overload
-    def request(
-        self,
-        method: str,
-        url: str,
-        stream: Literal[False],
-        cast: List[Type[T]],
-        params: dict = ...,
-        headers: Optional[dict] = ...,
-        body: dict = ...,
-        files: Optional[dict] = ...,
-        data_field: str = ...,
-    ) -> List[T]: ...
-
-    @overload
-    def request(
-        self,
-        method: str,
-        url: str,
-        stream: Literal[False],
-        cast: Type[ListResponse[T]],
-        params: dict = ...,
-        headers: Optional[dict] = ...,
-        body: dict = ...,
-        files: Optional[dict] = ...,
-        data_field: str = ...,
-    ) -> ListResponse[T]: ...
-
-    @overload
-    def request(
-        self,
-        method: str,
-        url: str,
-        stream: Literal[False],
-        cast: Type[FileHTTPResponse],
-        params: dict = ...,
-        headers: Optional[dict] = ...,
-        body: dict = ...,
-        files: Optional[dict] = ...,
-        data_field: str = ...,
-    ) -> FileHTTPResponse: ...
-
-    @overload
-    def request(
-        self,
-        method: str,
-        url: str,
-        stream: Literal[True],
-        cast: None,
-        params: dict = ...,
-        headers: Optional[dict] = ...,
-        body: dict = ...,
-        files: Optional[dict] = ...,
-        data_field: str = ...,
-    ) -> IteratorHTTPResponse[str]: ...
-
-    @overload
-    def request(
-        self,
-        method: str,
-        url: str,
-        stream: Literal[False],
-        cast: None,
-        params: dict = ...,
-        headers: Optional[dict] = ...,
-        body: dict = ...,
-        files: Optional[dict] = ...,
-        data_field: str = ...,
-    ) -> None: ...
-
     def request(
         self,
         method: str,
@@ -385,14 +301,7 @@ class Requester(object):
         self,
         request: HTTPRequest,
     ) -> Union[T, List[T], ListResponse[T], IteratorHTTPResponse[str], FileHTTPResponse, None]:
-        return self._parse_response(
-            method=request.method,
-            url=request.url,
-            response=self.sync_client.send(request.as_httpx, stream=request.stream),
-            cast=request.cast,
-            stream=request.stream,
-            data_field=request.data_field,
-        )
+        return self.sync_client.send(request.as_httpx, stream=request.stream)
 
     async def asend(
         self,
@@ -428,43 +337,7 @@ class Requester(object):
         stream: bool = False,
         data_field: str = "data",
     ) -> Union[T, List[T], ListResponse[T], IteratorHTTPResponse[str], FileHTTPResponse, None]:
-        # application/json
-        # text/event-stream
-        # audio/<xx>
-        resp_content_type = response.headers.get("content-type")
-        if resp_content_type:
-            resp_content_type = resp_content_type.lower()
-        logid = response.headers.get("x-tt-logid")
-        if stream and "event-stream" in resp_content_type:
-            return IteratorHTTPResponse(response, response.iter_lines())
-
-        if resp_content_type and "audio" in resp_content_type:
-            return FileHTTPResponse(response)  # type: ignore
-
-        code, msg, debug_url, data = self._parse_requests_code_msg(method, url, response, data_field)
-
-        if code is not None and code > 0:
-            log_warning("request %s#%s failed, logid=%s, code=%s, msg=%s", method, url, logid, code, msg)
-            raise CozeAPIError(code, msg, logid, debug_url)
-        elif code is None and msg != "":
-            log_warning("request %s#%s failed, logid=%s, msg=%s", method, url, logid, msg)
-            if msg in COZE_PKCE_AUTH_ERROR_TYPE_ENUMS:
-                raise CozePKCEAuthError(CozePKCEAuthErrorType(msg), logid)
-            raise CozeAPIError(code, msg, logid, debug_url)
-        if isinstance(cast, List):
-            item_cast = cast[0]
-            return [item_cast.model_validate(item) for item in data]
-        elif hasattr(cast, "__origin__") and cast.__origin__ is ListResponse:  # type: ignore
-            item_cast = get_args(cast)[0]
-            return ListResponse(response, [item_cast.model_validate(item) for item in data])
-        else:
-            if cast is None:
-                return None
-
-            res = cast.model_validate(data) if data is not None else cast()  # type: ignore
-            if hasattr(res, "_raw_response"):
-                res._raw_response = response  # type: ignore
-            return res  # type: ignore
+        return IteratorHTTPResponse(response, response.iter_lines())
 
     async def _aparse_response(
         self,
