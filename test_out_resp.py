@@ -76,16 +76,8 @@ class RequestTiming:
         }
 
     def __str__(self) -> str:
-        times = self.to_dict()
-        return (
-            f"URL: {self.url}\n"
-            f"DNS解析时间: {times['dns_time']}ms\n"
-            f"TLS握手时间: {times['tls_time']}ms\n"
-            f"请求发送时间: {times['request_time']}ms\n"
-            f"响应接收时间: {times['response_time']}ms\n"
-            f"总请求时间: {times['total_time']}ms\n"
-        )
-
+        return f'''dns: {round(self.dns_time * 1000, 2)}, tls: { round(self.tls_time * 1000, 2)}, req: {round(self.request_time * 1000, 2)}, resp: {round(self.response_time * 1000, 2)}, total: {round(self.total_time * 1000, 2)}'''
+       
 
 timings = {"data": []}
 
@@ -205,7 +197,7 @@ def test_coze(coze: Coze):
         "logid": logid,
         "e2e latency": first_token_time - start,
         "content": content,
-        "timing": timings["data"][-1].to_dict(),
+        "timing": str(timings["data"][-1]),
     }
 
 
