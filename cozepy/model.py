@@ -609,10 +609,22 @@ class Stream(Generic[T]):
         return HTTPResponse(self._raw_response)
 
     def __iter__(self):
-        return self
+        # return self
+        # def __next__(self) -> T:
+        while True:
+            try:
+                item = self._handler(self._extra_event(), self._raw_response)
+                print("item", item)
+                yield item
+            except StopIteration:
+                return
 
-    def __next__(self) -> T:
-        return self._handler(self._extra_event(), self._raw_response)
+    # def __next__(self) -> T:
+    #     try:
+    #         item = self._handler(self._extra_event(), self._raw_response)
+    #         yield item
+    #     except StopIteration:
+    #         return
 
     def _extra_event(self) -> Dict[str, str]:
         data = dict(map(lambda x: (x, ""), self._fields))
