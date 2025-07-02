@@ -666,8 +666,7 @@ class AsyncStream(Generic[T]):
 
     async def __aiter__(self) -> AsyncIterator[T]:
         async for item in self._iterator:
-            if item:
-                yield item
+            yield item
 
     async def __anext__(self) -> T:
         return await self._iterator.__anext__()
@@ -689,7 +688,6 @@ class AsyncStream(Generic[T]):
 
             if times >= len(self._fields):
                 try:
-                    # print(data)
                     event = self._handler(data, self._raw_response)
                     if event:
                         yield event
