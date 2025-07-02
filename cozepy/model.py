@@ -617,6 +617,15 @@ class Stream(Generic[T]):
             if item:
                 yield item
 
+    def __next__(self):
+        while True:
+            event_dict = self._extra_event()
+            if not event_dict:
+                raise StopIteration
+            item = self._handler(event_dict, self._raw_response)
+            if item:
+                return item
+
     def _extra_event(self) -> Optional[Dict[str, str]]:
         data = dict(map(lambda x: (x, ""), self._fields))
         times = 0

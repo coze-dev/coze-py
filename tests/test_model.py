@@ -2,6 +2,7 @@ from typing import Dict
 
 import httpx
 import pytest
+from httpx import Response
 
 from cozepy import AsyncStream, CozeInvalidEventError, ListResponse, Stream
 from cozepy.model import DynamicStrEnum
@@ -10,11 +11,7 @@ from cozepy.util import anext
 from .test_util import mock_response, to_async_iterator
 
 
-def mock_sync_handler(d: Dict[str, str], logid: str):
-    return d
-
-
-async def mock_async_handler(d: Dict[str, str], logid: str):
+def mock_sync_handler(d: Dict[str, str], response: Response):
     return d
 
 
@@ -42,7 +39,7 @@ class TestAsyncStream:
     async def test_asynv_stream_invalid_event(self):
         response = mock_response()
         items = ["event:x"]
-        s = AsyncStream(to_async_iterator(items), ["field"], mock_async_handler, response._raw_response)
+        s = AsyncStream(to_async_iterator(items), ["field"], mock_sync_handler, response._raw_response)
 
         with pytest.raises(CozeInvalidEventError, match="invalid event, data: event:x, logid: " + response.logid):
             await anext(s)
@@ -50,7 +47,7 @@ class TestAsyncStream:
     async def test_stream_invalid_field(self):
         response = mock_response()
         items = ["event:x1", "event:x2"]
-        s = AsyncStream(to_async_iterator(items), ["event", "second"], mock_async_handler, response._raw_response)
+        s = AsyncStream(to_async_iterator(items), ["event", "second"], mock_sync_handler, response._raw_response)
 
         with pytest.raises(
             CozeInvalidEventError, match="invalid event, field: event, data: event:x2, logid: " + response.logid
