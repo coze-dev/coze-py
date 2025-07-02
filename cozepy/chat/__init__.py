@@ -389,13 +389,11 @@ class ChatEvent(CozeModel):
     unknown: Optional[Dict] = None
 
 
-def _chat_stream_handler(data: Dict, raw_response: httpx.Response, is_async: bool = False) -> ChatEvent:
+def _chat_stream_handler(data: Dict, raw_response: httpx.Response) -> Optional[ChatEvent]:
     event = data["event"]
     event_data = data["data"]  # type: str
     if event == ChatEventType.DONE:
-        if is_async:
-            raise StopAsyncIteration
-        raise StopIteration
+        return None
     elif event == ChatEventType.ERROR:
         raise Exception(f"error event: {event_data}")  # TODO: error struct format
     elif event in [
@@ -420,14 +418,6 @@ def _chat_stream_handler(data: Dict, raw_response: httpx.Response, is_async: boo
         event = ChatEvent(event=ChatEventType.UNKNOWN, unknown=data)
         event._raw_response = raw_response
         return event
-
-
-def _sync_chat_stream_handler(data: Dict, raw_response: httpx.Response) -> ChatEvent:
-    return _chat_stream_handler(data, raw_response=raw_response, is_async=False)
-
-
-def _async_chat_stream_handler(data: Dict, raw_response: httpx.Response) -> ChatEvent:
-    return _chat_stream_handler(data, raw_response=raw_response, is_async=True)
 
 
 class ToolOutput(CozeModel):
@@ -689,7 +679,7 @@ class ChatClient(object):
             response._raw_response,
             response.data,
             fields=["event", "data"],
-            handler=_sync_chat_stream_handler,
+            handler=_chat_stream_handler,
         )
 
     def retrieve(
@@ -762,7 +752,7 @@ class ChatClient(object):
             params=params,
             body=body,
         )
-        return Stream(resp._raw_response, resp.data, fields=["event", "data"], handler=_sync_chat_stream_handler)
+        return Stream(resp._raw_response, resp.data, fields=["event", "data"], handler=_chat_stream_handler)
 
     def cancel(
         self,
@@ -986,7 +976,7 @@ class AsyncChatClient(object):
         )
 
         return AsyncStream(
-            resp.data, fields=["event", "data"], handler=_async_chat_stream_handler, raw_response=resp._raw_response
+            resp.data, fields=["event", "data"], handler=_chat_stream_handler, raw_response=resp._raw_response
         )
 
     async def retrieve(
@@ -1091,7 +1081,7 @@ class AsyncChatClient(object):
             "post", url, True, None, params=params, body=body
         )
         return AsyncStream(
-            resp.data, fields=["event", "data"], handler=_async_chat_stream_handler, raw_response=resp._raw_response
+            resp.data, fields=["event", "data"], handler=_chat_stream_handler, raw_response=resp._raw_response
         )
 
     async def cancel(
