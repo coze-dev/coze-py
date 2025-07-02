@@ -389,7 +389,7 @@ class ChatEvent(CozeModel):
     unknown: Optional[Dict] = None
 
 
-def _chat_stream_handler(data: Dict, raw_response: httpx.Response, is_async: bool = False) -> ChatEvent:
+def _chat_stream_handler(data: Dict, raw_response: httpx.Response, is_async: bool = False) -> Optional[ChatEvent]:
     event = data["event"]
     event_data = data["data"]  # type: str
     if event == ChatEventType.DONE:
@@ -687,8 +687,7 @@ class ChatClient(object):
         )
         return Stream(
             response._raw_response,
-            None,
-            # response.data,
+            response.data,
             fields=["event", "data"],
             handler=_sync_chat_stream_handler,
         )

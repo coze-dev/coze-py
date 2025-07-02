@@ -1,6 +1,5 @@
 import abc
 import warnings
-from email.contentmanager import raw_data_manager
 from enum import Enum
 from typing import (
     TYPE_CHECKING,
@@ -22,7 +21,6 @@ from typing import (
 )
 
 import httpx
-from distlib.compat import raw_input
 from pydantic import BaseModel, ConfigDict
 from typing_extensions import SupportsIndex
 
@@ -102,23 +100,19 @@ class ListResponse(Generic[T]):
         return iter(self.data)
 
     @overload
-    def __getitem__(self, key: SupportsIndex) -> T:
-        ...
+    def __getitem__(self, key: SupportsIndex) -> T: ...
 
     @overload
-    def __getitem__(self, key: slice) -> List[T]:
-        ...
+    def __getitem__(self, key: slice) -> List[T]: ...
 
     def __getitem__(self, key: Union[SupportsIndex, slice]) -> Union[T, List[T]]:
         return self.data[key]
 
     @overload
-    def __setitem__(self, key: SupportsIndex, value: T) -> None:
-        ...
+    def __setitem__(self, key: SupportsIndex, value: T) -> None: ...
 
     @overload
-    def __setitem__(self, key: slice, value: Iterable[T]) -> None:
-        ...
+    def __setitem__(self, key: slice, value: Iterable[T]) -> None: ...
 
     def __setitem__(self, key: Union[SupportsIndex, slice], value: Union[T, Iterable[T]]) -> None:
         if isinstance(key, slice):
@@ -241,11 +235,11 @@ class NumberPagedResponse(Generic[T], abc.ABC):
 
 class NumberPaged(PagedBase[T]):
     def __init__(
-            self,
-            page_num: int,
-            page_size: int,
-            requestor: "Requester",
-            request_maker: Callable[[int, int], HTTPRequest],
+        self,
+        page_num: int,
+        page_size: int,
+        requestor: "Requester",
+        request_maker: Callable[[int, int], HTTPRequest],
     ):
         self.page_num = page_num
         self.page_size = page_size
@@ -320,11 +314,11 @@ class NumberPaged(PagedBase[T]):
 
 class AsyncNumberPaged(AsyncPagedBase[T]):
     def __init__(
-            self,
-            page_num: int,
-            page_size: int,
-            requestor: "Requester",
-            request_maker: Callable[[int, int], Coroutine[None, None, HTTPRequest]],
+        self,
+        page_num: int,
+        page_size: int,
+        requestor: "Requester",
+        request_maker: Callable[[int, int], Coroutine[None, None, HTTPRequest]],
     ):
         self.page_num = page_num
         self.page_size = page_size
@@ -400,10 +394,10 @@ class AsyncNumberPaged(AsyncPagedBase[T]):
 
     @staticmethod
     async def build(
-            page_num: int,
-            page_size: int,
-            requestor: "Requester",
-            request_maker: Callable[[int, int], Coroutine[None, None, HTTPRequest]],
+        page_num: int,
+        page_size: int,
+        requestor: "Requester",
+        request_maker: Callable[[int, int], Coroutine[None, None, HTTPRequest]],
     ) -> "AsyncNumberPaged[T]":
         page: AsyncNumberPaged[T] = AsyncNumberPaged(
             page_num=page_num,
@@ -431,11 +425,11 @@ class LastIDPagedResponse(Generic[T], abc.ABC):
 
 class LastIDPaged(PagedBase[T]):
     def __init__(
-            self,
-            before_id: str,
-            after_id: str,
-            requestor: "Requester",
-            request_maker: Callable[[str, str], HTTPRequest],
+        self,
+        before_id: str,
+        after_id: str,
+        requestor: "Requester",
+        request_maker: Callable[[str, str], HTTPRequest],
     ):
         self.before_id = before_id
         self.after_id = after_id
@@ -508,11 +502,11 @@ class LastIDPaged(PagedBase[T]):
 
 class AsyncLastIDPaged(AsyncPagedBase[T]):
     def __init__(
-            self,
-            before_id: str,
-            after_id: str,
-            requestor: "Requester",
-            request_maker: Callable[[str, str], Coroutine[None, None, HTTPRequest]],
+        self,
+        before_id: str,
+        after_id: str,
+        requestor: "Requester",
+        request_maker: Callable[[str, str], Coroutine[None, None, HTTPRequest]],
     ):
         self.before_id = before_id
         self.after_id = after_id
@@ -562,10 +556,10 @@ class AsyncLastIDPaged(AsyncPagedBase[T]):
 
     @staticmethod
     async def build(
-            before_id: str,
-            after_id: str,
-            requestor: "Requester",
-            request_maker: Callable[[str, str], Coroutine[None, None, HTTPRequest]],
+        before_id: str,
+        after_id: str,
+        requestor: "Requester",
+        request_maker: Callable[[str, str], Coroutine[None, None, HTTPRequest]],
     ) -> "AsyncLastIDPaged[T]":
         page: AsyncLastIDPaged = AsyncLastIDPaged(
             before_id=before_id,
@@ -599,13 +593,13 @@ class AsyncLastIDPaged(AsyncPagedBase[T]):
 
 class Stream(Generic[T]):
     def __init__(
-            self,
-            raw_response: httpx.Response,
-            iters: Iterator[str],
-            fields: List[str],
-            handler: Callable[[Dict[str, str], httpx.Response], T],
+        self,
+        raw_response: httpx.Response,
+        iters: Iterator[str],
+        fields: List[str],
+        handler: Callable[[Dict[str, str], httpx.Response], T],
     ):
-        self._iters =raw_response.iter_lines()# iters
+        self._iters = iters
         self._fields = fields
         self._handler = handler
         self._raw_response = raw_response
@@ -615,31 +609,15 @@ class Stream(Generic[T]):
         return HTTPResponse(self._raw_response)
 
     def __iter__(self):
-        # return self
-        # def __next__(self) -> T:
-        try:
-            while True:
-                ddd = self._extra_event()
-                # print('ddd',ddd)
-                # if not ddd:
-                #     return
-                if ddd:
-                    item = self._handler(ddd, self._raw_response)
-                    if item:
-                        yield item
-                    if not item:
-                        return
-        except Exception as e:
-            print('===',e)
+        while True:
+            event_dict = self._extra_event()
+            if not event_dict:
+                break
+            item = self._handler(event_dict, self._raw_response)
+            if item:
+                yield item
 
-    # def __next__(self) -> T:
-    #     try:
-    #         item = self._handler(self._extra_event(), self._raw_response)
-    #         yield item
-    #     except StopIteration:
-    #         return
-
-    def _extra_event(self) -> Dict[str, str]:
+    def _extra_event(self) -> Optional[Dict[str, str]]:
         data = dict(map(lambda x: (x, ""), self._fields))
         times = 0
 
@@ -662,7 +640,7 @@ class Stream(Generic[T]):
         for field in self._fields:
             if line.startswith(field + ":"):
                 if data[field] == "":
-                    return field, line[len(field) + 1:].strip()
+                    return field, line[len(field) + 1 :].strip()
                 else:
                     raise CozeInvalidEventError(field, line, self.response.logid)
         raise CozeInvalidEventError("", line, self.response.logid)
@@ -670,11 +648,11 @@ class Stream(Generic[T]):
 
 class AsyncStream(Generic[T]):
     def __init__(
-            self,
-            iters: AsyncIterator[str],
-            fields: List[str],
-            handler: Callable[[Dict[str, str], httpx.Response], T],
-            raw_response: httpx.Response,
+        self,
+        iters: AsyncIterator[str],
+        fields: List[str],
+        handler: Callable[[Dict[str, str], httpx.Response], T],
+        raw_response: httpx.Response,
     ):
         self._iters = iters
         self._fields = fields
@@ -720,7 +698,7 @@ class AsyncStream(Generic[T]):
         for field in self._fields:
             if line.startswith(field + ":"):
                 if data[field] == "":
-                    return field, line[len(field) + 1:].strip()
+                    return field, line[len(field) + 1 :].strip()
                 else:
                     raise CozeInvalidEventError(field, line, self.response.logid)
         raise CozeInvalidEventError("", line, self.response.logid)
