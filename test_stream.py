@@ -218,4 +218,3 @@ coze = Coze(
 
 print(json.dumps(test_coze(coze), indent="  "))
 print(json.dumps(test_coze(coze), indent="  "))
-print(json.dumps(test_coze(coze), indent="  "))
