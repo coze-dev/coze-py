@@ -583,18 +583,89 @@ class ChatClient(object):
         enable_card: Optional[bool] = None,
         **kwargs,
     ) -> Stream[ChatEvent]:
-        return self._create(
-            bot_id=bot_id,
-            user_id=user_id,
-            stream=True,
-            additional_messages=additional_messages,
-            custom_variables=custom_variables,
-            auto_save_history=auto_save_history,
-            meta_data=meta_data,
-            conversation_id=conversation_id,
-            parameters=parameters,
-            enable_card=enable_card,
-            **kwargs,
+        url = f"{self._base_url}/v3/chat"
+        params = {
+            "conversation_id": conversation_id if conversation_id else None,
+        }
+        body = remove_none_values(
+            {
+                "bot_id": bot_id,
+                "user_id": user_id,
+                "additional_messages": [i.model_dump() for i in additional_messages] if additional_messages else [],
+                "stream": True,
+                "custom_variables": custom_variables,
+                "auto_save_history": auto_save_history,
+                "meta_data": meta_data,
+                "parameters": parameters,
+                "enable_card": enable_card,
+            }
+        )
+        headers: Optional[dict] = kwargs.get("headers")
+
+        response: httpx.Response = self._requester.request(
+            "post",
+            url,
+            True,
+            None,
+            params=params,
+            headers=headers,
+            body=body,
+        )
+        event = ""
+        data = ""
+        for line in response.iter_lines():
+            if line == "":
+                continue
+            if line.startswith("event:"):
+                event = line[6:]
+            elif line.startswith("data:"):
+                data = line[5:]
+                yield _sync_chat_stream_handler({"event": event, "data": data}, None)
+                event = ""
+                data = ""
+            else:
+                continue
+
+    def stream_response(
+        self,
+        *,
+        bot_id: str,
+        user_id: str,
+        additional_messages: Optional[List[Message]] = None,
+        custom_variables: Optional[Dict[str, str]] = None,
+        auto_save_history: bool = True,
+        meta_data: Optional[Dict[str, str]] = None,
+        conversation_id: Optional[str] = None,
+        parameters: Optional[Dict[str, Any]] = None,
+        enable_card: Optional[bool] = None,
+        **kwargs,
+    ) -> Stream[ChatEvent]:
+        url = f"{self._base_url}/v3/chat"
+        params = {
+            "conversation_id": conversation_id if conversation_id else None,
+        }
+        body = remove_none_values(
+            {
+                "bot_id": bot_id,
+                "user_id": user_id,
+                "additional_messages": [i.model_dump() for i in additional_messages] if additional_messages else [],
+                "stream": True,
+                "custom_variables": custom_variables,
+                "auto_save_history": auto_save_history,
+                "meta_data": meta_data,
+                "parameters": parameters,
+                "enable_card": enable_card,
+            }
+        )
+        headers: Optional[dict] = kwargs.get("headers")
+        return self._requester.request(
+            "post",
+            url,
+            True,
+            None,
+            params=params,
+            headers=headers,
+            body=body,
         )
 
     def create_and_poll(
@@ -705,31 +776,6 @@ class ChatClient(object):
             headers=headers,
             body=body,
         )
-        # logid=response.headers.get("x-tt-logid")
-        # first_token_time = 0
-        # content=''
-        # for line in response.iter_lines():
-        #     try:
-        #         event=json.loads(line[5:])
-        #         type_=event.get('type') or ''
-        #         if content=='':
-        #             content = event.get('content') or ''
-        #         # print(type_, content)
-        #         if first_token_time==0 and type_ == 'answer' and content!='':
-        #             first_token_time = time.time() * 1000
-        #             # break
-        #         else:
-        #             continue
-        #     except Exception as e:
-        #         continue
-        # return first_token_time, content,logid
-        # return StreamX(
-        #     response,
-        #     # response.iter_lines(),
-        #     # fields=["event", "data"],
-        #     # handler=_sync_chat_stream_handler,
-        # )
-
         event = ""
         data = ""
         for line in response.iter_lines():

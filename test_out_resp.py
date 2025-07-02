@@ -177,7 +177,7 @@ class TimingHTTPTransport(HTTPTransport):
 
 def test_coze(coze: Coze):
     start = time.time() * 1000
-    first_token_time, content, logid = coze.chat.stream(
+    response = coze.chat.stream_response(
         bot_id=bot_id,
         user_id="user_id",
         additional_messages=[
@@ -185,6 +185,21 @@ def test_coze(coze: Coze):
         ],
         headers={"x-tt-trace": "1"},
     )
+    logid = response.headers.get("x-tt-logid")
+    first_token_time = 0
+    content = ""
+    for line in response.iter_lines():
+        try:
+            event = json.loads(line[5:])
+            type_ = event.get("type") or ""
+            if content == "":
+                content = event.get("content") or ""
+            if first_token_time == 0 and type_ == "answer" and content != "":
+                first_token_time = time.time() * 1000
+            else:
+                continue
+        except Exception:
+            continue
 
     return {
         "logid": logid,

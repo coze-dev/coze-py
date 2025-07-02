@@ -183,7 +183,6 @@ class Requester(object):
             data_field=data_field,
             stream=stream,
         )
-
         return self.send(request)
 
     @overload
