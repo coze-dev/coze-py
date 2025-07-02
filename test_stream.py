@@ -5,6 +5,7 @@ import ssl
 import time
 from dataclasses import dataclass
 from typing import Dict
+import pudb
 
 from httpx._transports.default import HTTPTransport
 
@@ -35,6 +36,7 @@ class RequestTiming:
     # 可以计算请求的时间
     response_read_start: float = 0  # 7. httpx.response.read 之前, 开始读取响应时间
     response_read_end: float = 0  # 8. httpx.response.read 之后, 结束读取响应时间
+
     # 可以计算响应的时间
 
     @property
@@ -77,9 +79,7 @@ class RequestTiming:
         }
 
     def __str__(self) -> str:
-        return f'''dns: {round(self.dns_time * 1000, 2)}, tls: { round(self.tls_time * 1000, 2)}, req: {round(self.request_time * 1000, 2)}, resp: {round(self.response_time * 1000, 2)}, total: {round(self.total_time * 1000, 2)}'''
-      
-      
+        return f'''dns: {round(self.dns_time * 1000, 2)}, tls: {round(self.tls_time * 1000, 2)}, req: {round(self.request_time * 1000, 2)}, resp: {round(self.response_time * 1000, 2)}, total: {round(self.total_time * 1000, 2)}'''
 
 
 timings = {"data": []}
@@ -170,7 +170,7 @@ class TimingHTTPTransport(HTTPTransport):
             timing.end_time = time.time()  # 9
 
 
-def test_coze(coze: Coze):
+def run_coze(coze: Coze, bot_id: str):
     start = time.time() * 1000
     stream = coze.chat.stream(
         bot_id=bot_id,
@@ -183,16 +183,13 @@ def test_coze(coze: Coze):
 
     first_token_time = 0
     content = ""
-    try:
-        for event in stream:
-            if first_token_time == 0 and event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
-                if event.message.content != "":
-                    content = event.message.content
-                first_token_time = time.time() * 1000
-            else:
-                continue
-    except Exception:
-        pass
+    for event in stream:
+        if first_token_time == 0 and event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
+            if event.message.content != "":
+                content = event.message.content
+            first_token_time = time.time() * 1000
+        else:
+            continue
 
     return {
         # "logid": stream.response.logid,
@@ -201,14 +198,17 @@ def test_coze(coze: Coze):
         "timing": str(timings["data"][-1]),
     }
 
+if __name__ == '__main__':
+# 
+#
+# def test_stream():
+    coze_api_base = os.getenv("COZE_API_BASE") or COZE_CN_BASE_URL
+    coze_api_token = os.getenv("COZE_API_TOKEN")
+    bot_id = os.getenv("COZE_BOT_ID") or "bot id"
+    transport = TimingHTTPTransport()
+    coze = Coze(
+        auth=TokenAuth(token=coze_api_token), base_url=coze_api_base, http_client=SyncHTTPClient(transport=transport)
+    )
 
-coze_api_base = os.getenv("COZE_API_BASE") or COZE_CN_BASE_URL
-coze_api_token = os.getenv("COZE_API_TOKEN")
-bot_id = os.getenv("COZE_BOT_ID") or "bot id"
-transport = TimingHTTPTransport()
-coze = Coze(
-    auth=TokenAuth(token=coze_api_token), base_url=coze_api_base, http_client=SyncHTTPClient(transport=transport)
-)
-
-print(json.dumps(test_coze(coze), indent="  "))
-print(json.dumps(test_coze(coze), indent="  "))
+    print(json.dumps(run_coze(coze, bot_id), indent="  "))
+    print(json.dumps(run_coze(coze, bot_id), indent="  "))

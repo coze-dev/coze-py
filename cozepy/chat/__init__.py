@@ -397,7 +397,7 @@ def _chat_stream_handler(data: Dict, raw_response: httpx.Response, is_async: boo
     if event == ChatEventType.DONE:
         if is_async:
             raise StopAsyncIteration
-        raise StopIteration
+        return None
     elif event == ChatEventType.ERROR:
         raise Exception(f"error event: {event_data}")  # TODO: error struct format
     elif event in [
@@ -467,7 +467,6 @@ class StreamX(Generic[T]):
 
     def __next__(self) -> T:
         if self._finished:
-            print("re finished")
             raise StopIteration
         event = ""
         data = ""
@@ -613,18 +612,23 @@ class ChatClient(object):
         )
         event = ""
         data = ""
-        for line in response.iter_lines():
-            if line == "":
-                continue
-            if line.startswith("event:"):
-                event = line[6:]
-            elif line.startswith("data:"):
-                data = line[5:]
-                yield _sync_chat_stream_handler({"event": event, "data": data}, None)
-                event = ""
-                data = ""
-            else:
-                continue
+        try:
+            for line in response.iter_lines():
+                if line == "":
+                    continue
+                if line.startswith("event:"):
+                    event = line[6:]
+                elif line.startswith("data:"):
+                    data = line[5:]
+                    xxx=_sync_chat_stream_handler({"event": event, "data": data}, None)
+                    yield xxx
+                    event = ""
+                    data = ""
+                else:
+                    continue
+        finally:
+            pass
+            # response.close()
 
     def stream_response(
         self,

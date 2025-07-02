@@ -167,7 +167,7 @@ class TimingHTTPTransport(HTTPTransport):
             timing.end_time = time.time()  # 9
 
 
-def test_coze(coze: Coze):
+def run_coze(coze: Coze,bot_id):
     start = time.time() * 1000
     response = coze.chat.stream_response(
         bot_id=bot_id,
@@ -180,18 +180,21 @@ def test_coze(coze: Coze):
     logid = response.headers.get("x-tt-logid")
     first_token_time = 0
     content = ""
-    for line in response.iter_lines():
-        try:
-            event = json.loads(line[5:])
-            type_ = event.get("type") or ""
-            if content == "":
-                content = event.get("content") or ""
-            if first_token_time == 0 and type_ == "answer" and content != "":
-                first_token_time = time.time() * 1000
-            else:
+    try:
+        for line in response.iter_lines():
+            try:
+                event = json.loads(line[5:])
+                type_ = event.get("type") or ""
+                if content == "":
+                    content = event.get("content") or ""
+                if first_token_time == 0 and type_ == "answer" and content != "":
+                    first_token_time = time.time() * 1000
+                else:
+                    continue
+            except Exception:
                 continue
-        except Exception:
-            continue
+    finally:
+        response.close()
 
     return {
         "logid": logid,
@@ -201,13 +204,14 @@ def test_coze(coze: Coze):
     }
 
 
-coze_api_base = os.getenv("COZE_API_BASE") or COZE_CN_BASE_URL
-coze_api_token = os.getenv("COZE_API_TOKEN")
-bot_id = os.getenv("COZE_BOT_ID") or "bot id"
-transport = TimingHTTPTransport()
-coze = Coze(
-    auth=TokenAuth(token=coze_api_token), base_url=coze_api_base, http_client=SyncHTTPClient(transport=transport)
-)
+def test_no_stream():
+    coze_api_base = os.getenv("COZE_API_BASE") or COZE_CN_BASE_URL
+    coze_api_token = os.getenv("COZE_API_TOKEN")
+    bot_id = os.getenv("COZE_BOT_ID") or "bot id"
+    transport = TimingHTTPTransport()
+    coze = Coze(
+        auth=TokenAuth(token=coze_api_token), base_url=coze_api_base, http_client=SyncHTTPClient(transport=transport)
+    )
 
-print(json.dumps(test_coze(coze), indent="  "))
-print(json.dumps(test_coze(coze), indent="  "))
+    print(json.dumps(run_coze(coze,bot_id), indent="  "))
+    print(json.dumps(run_coze(coze,bot_id), indent="  "))
