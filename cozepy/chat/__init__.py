@@ -394,8 +394,8 @@ def _chat_stream_handler(data: Dict, raw_response: httpx.Response, is_async: boo
     event_data = data["data"]  # type: str
     if event == ChatEventType.DONE:
         if is_async:
-            raise StopAsyncIteration
-        raise StopIteration
+            return None
+        return None
     elif event == ChatEventType.ERROR:
         raise Exception(f"error event: {event_data}")  # TODO: error struct format
     elif event in [
@@ -687,7 +687,8 @@ class ChatClient(object):
         )
         return Stream(
             response._raw_response,
-            response.data,
+            None,
+            # response.data,
             fields=["event", "data"],
             handler=_sync_chat_stream_handler,
         )
