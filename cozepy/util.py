@@ -63,6 +63,18 @@ def remove_none_values(d: dict) -> dict:
     return {k: v for k, v in d.items() if v is not None}
 
 
+def dump_dict_exclude_none(d: dict) -> dict:
+    res = {}
+    for k, v in d.items():
+        if v is None:
+            continue
+        elif isinstance(v, BaseModel):
+            res[k] = v.model_dump(exclude_none=True)
+        else:
+            res[k] = v
+    return res
+
+
 def write_pcm_to_wav_file(
     pcm_data: bytes, filepath: str, channels: int = 1, sample_width: int = 2, frame_rate: int = 24000
 ):
