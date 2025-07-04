@@ -379,7 +379,14 @@ class ConversationChatCanceledEvent(WebsocketsEvent):
     docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#089ed144
     """
 
+    class Data(BaseModel):
+        # 输出中断类型枚举值，包括 1: 被用户语音说话打断  2: 用户主动 cancel  3: 手动提交对话内容
+        code: int
+        # 智能体输出中断的详细说明
+        msg: str
+
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_CANCELED
+    data: Data
 
 
 # resp
