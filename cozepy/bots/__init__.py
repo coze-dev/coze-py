@@ -51,7 +51,7 @@ class BotModelInfo(CozeModel):
     context_round: int
     # The max_tokens of the model.
     max_tokens: int
-    # The temperature of the model.
+    # The response format of the model.
     response_format: ResponseFormat
     # The top_k of the model.
     top_k: Optional[int] = None
@@ -62,7 +62,7 @@ class BotModelInfo(CozeModel):
     # The frequency_penalty of the model.
     frequency_penalty: Optional[float] = None
     # The parameters of the model.
-    # claude: {"thinking_type": "disable/enable", "thinking_budget_tokens": 2000}
+    # claude: {"thinking_type": "disable/enable", "thinking_budget_tokens": "2000"}
     # gemini: {"thinking_type": "disable/enable"}
     # doubao: {"thinking_type": "auto/disable/enable"}
     parameters: Optional[Dict[str, str]] = None
