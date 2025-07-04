@@ -45,6 +45,11 @@ exclude = [
     "tests/"
 ]
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--ignore=integrations"
+
+
 [tool.coverage.report]
 precision = 1
 skip_covered = true
