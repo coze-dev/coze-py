@@ -1,5 +1,7 @@
 from typing import Optional
 
+from pydantic import Field
+
 from cozepy.model import CozeModel, DynamicStrEnum
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
@@ -33,6 +35,20 @@ class RoomMode(DynamicStrEnum):
     DEFAULT = "default"
     S2S = "s2s"
     PODCAST = "podcast"
+    TRANSLATE = "translate"
+
+
+"""
+struct TranslateConfig {
+    1: optional string From (go.tag = "json:\"from\"") // 翻译源语言
+    2: optional string To (go.tag = "json:\"to\"") // 翻译目标语言
+}
+"""
+
+
+class TranslateConfig(CozeModel):
+    from_: Optional[str] = Field(alias="from")
+    to: Optional[str]
 
 
 class RoomConfig(CozeModel):
@@ -44,6 +60,10 @@ class RoomConfig(CozeModel):
     prologue_content: Optional[str]
     # 房间模式
     room_mode: Optional[RoomMode]
+    # 同传配置，仅在房间模式为同传时生效
+    translate_config: Optional[TranslateConfig]
+    # 在进房后等待多长时间播放开场白，默认是500ms，[0, 5000]
+    prologue_delay_duration_ms: Optional[int]
 
 
 class CreateRoomResp(CozeModel):

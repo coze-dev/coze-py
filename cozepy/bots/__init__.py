@@ -1,11 +1,11 @@
 from enum import IntEnum
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from pydantic import Field, field_validator
 
 from cozepy.model import AsyncNumberPaged, CozeModel, DynamicStrEnum, NumberPaged, NumberPagedResponse
 from cozepy.request import HTTPRequest, Requester
-from cozepy.util import remove_none_values, remove_url_trailing_slash
+from cozepy.util import dump_dict_exclude_none, remove_none_values, remove_url_trailing_slash
 
 
 class PublishStatus(DynamicStrEnum):
@@ -38,18 +38,34 @@ class BotKnowledge(CozeModel):
 
 
 class BotModelInfo(CozeModel):
+    class ResponseFormat(DynamicStrEnum):
+        JSON = "json"
+        TEXT = "text"
+        MARKDOWN = "markdown"
+
     # The ID of the model.
     model_id: str
-    # The name of the model.
-    model_name: str
     # The temperature of the model.
-    temperature: float
+    temperature: Optional[float] = None
     # The context_round of the model.
-    context_round: int
+    context_round: Optional[int] = None
     # The max_tokens of the model.
-    max_tokens: int
+    max_tokens: Optional[int] = None
+    # The response format of the model.
+    response_format: Optional[ResponseFormat] = None
+    # The top_k of the model.
+    top_k: Optional[int] = None
     # The top_p of the model.
     top_p: Optional[float] = None
+    # The presence_penalty of the model.
+    presence_penalty: Optional[float] = None
+    # The frequency_penalty of the model.
+    frequency_penalty: Optional[float] = None
+    # The parameters of the model.
+    # claude: {"thinking_type": "disabled/enable", "thinking_budget_tokens": "2000"}
+    # gemini: {"thinking_type": "disabled/enable"}
+    # doubao: {"thinking_type": "auto/disabled/enable"}
+    parameters: Optional[Dict[str, str]] = None
 
 
 class BotMode(IntEnum):
@@ -315,18 +331,22 @@ class BotsClient(object):
         prompt_info: Optional[BotPromptInfo] = None,
         onboarding_info: Optional[BotOnboardingInfo] = None,
         suggest_reply_info: Optional[BotSuggestReplyInfo] = None,
+        model_info_config: Optional[BotModelInfo] = None,
         **kwargs,
     ) -> Bot:
         url = f"{self._base_url}/v1/bot/create"
-        body = {
-            "space_id": space_id,
-            "name": name,
-            "description": description,
-            "icon_file_id": icon_file_id,
-            "prompt_info": prompt_info.model_dump() if prompt_info else None,
-            "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
-            "suggest_reply_info": suggest_reply_info.model_dump() if suggest_reply_info else None,
-        }
+        body = dump_dict_exclude_none(
+            {
+                "space_id": space_id,
+                "name": name,
+                "description": description,
+                "icon_file_id": icon_file_id,
+                "prompt_info": prompt_info,
+                "onboarding_info": onboarding_info,
+                "suggest_reply_info": suggest_reply_info,
+                "model_info_config": model_info_config,
+            }
+        )
         headers: Optional[dict] = kwargs.get("headers")
 
         return self._requester.request("post", url, False, Bot, body=body, headers=headers)
@@ -342,6 +362,7 @@ class BotsClient(object):
         onboarding_info: Optional[BotOnboardingInfo] = None,
         knowledge: Optional[BotKnowledge] = None,
         suggest_reply_info: Optional[BotSuggestReplyInfo] = None,
+        model_info_config: Optional[BotModelInfo] = None,
         **kwargs,
     ) -> UpdateBotResp:
         """
@@ -363,19 +384,23 @@ class BotsClient(object):
         :param onboarding_info: The settings related to the bot's opening remarks.
         :param knowledge: The knowledge base that the bot uses to answer user queries.
         :param suggest_reply_info: The suggest reply info for the bot.
+        :param model_info_config: The model configuration for the bot.
         :return: None
         """
         url = f"{self._base_url}/v1/bot/update"
-        body = {
-            "bot_id": bot_id,
-            "name": name,
-            "description": description,
-            "icon_file_id": icon_file_id,
-            "prompt_info": prompt_info.model_dump() if prompt_info else None,
-            "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
-            "knowledge": knowledge.model_dump() if knowledge else None,
-            "suggest_reply_info": suggest_reply_info.model_dump() if suggest_reply_info else None,
-        }
+        body = dump_dict_exclude_none(
+            {
+                "bot_id": bot_id,
+                "name": name,
+                "description": description,
+                "icon_file_id": icon_file_id,
+                "prompt_info": prompt_info,
+                "onboarding_info": onboarding_info,
+                "knowledge": knowledge,
+                "suggest_reply_info": suggest_reply_info,
+                "model_info_config": model_info_config,
+            }
+        )
         headers: Optional[dict] = kwargs.get("headers")
 
         return self._requester.request(
@@ -606,18 +631,22 @@ class AsyncBotsClient(object):
         prompt_info: Optional[BotPromptInfo] = None,
         onboarding_info: Optional[BotOnboardingInfo] = None,
         suggest_reply_info: Optional[BotSuggestReplyInfo] = None,
+        model_info_config: Optional[BotModelInfo] = None,
         **kwargs,
     ) -> Bot:
         url = f"{self._base_url}/v1/bot/create"
-        body = {
-            "space_id": space_id,
-            "name": name,
-            "description": description,
-            "icon_file_id": icon_file_id,
-            "prompt_info": prompt_info.model_dump() if prompt_info else None,
-            "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
-            "suggest_reply_info": suggest_reply_info.model_dump() if suggest_reply_info else None,
-        }
+        body = dump_dict_exclude_none(
+            {
+                "space_id": space_id,
+                "name": name,
+                "description": description,
+                "icon_file_id": icon_file_id,
+                "prompt_info": prompt_info,
+                "onboarding_info": onboarding_info,
+                "suggest_reply_info": suggest_reply_info,
+                "model_info_config": model_info_config,
+            }
+        )
         headers: Optional[dict] = kwargs.get("headers")
 
         return await self._requester.arequest("post", url, False, Bot, body=body, headers=headers)
@@ -633,6 +662,7 @@ class AsyncBotsClient(object):
         onboarding_info: Optional[BotOnboardingInfo] = None,
         knowledge: Optional[BotKnowledge] = None,
         suggest_reply_info: Optional[BotSuggestReplyInfo] = None,
+        model_info_config: Optional[BotModelInfo] = None,
         **kwargs,
     ) -> UpdateBotResp:
         """
@@ -654,19 +684,23 @@ class AsyncBotsClient(object):
         :param onboarding_info: The settings related to the bot's opening remarks.
         :param knowledge: The knowledge base that the bot uses to answer user queries.
         :param suggest_reply_info: The suggest reply info for the bot.
+        :param model_info_config: The model configuration for the bot.
         :return: None
         """
         url = f"{self._base_url}/v1/bot/update"
-        body = {
-            "bot_id": bot_id,
-            "name": name,
-            "description": description,
-            "icon_file_id": icon_file_id,
-            "prompt_info": prompt_info.model_dump() if prompt_info else None,
-            "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
-            "knowledge": knowledge.model_dump() if knowledge else None,
-            "suggest_reply_info": suggest_reply_info.model_dump() if suggest_reply_info else None,
-        }
+        body = dump_dict_exclude_none(
+            {
+                "bot_id": bot_id,
+                "name": name,
+                "description": description,
+                "icon_file_id": icon_file_id,
+                "prompt_info": prompt_info,
+                "onboarding_info": onboarding_info,
+                "knowledge": knowledge,
+                "suggest_reply_info": suggest_reply_info,
+                "model_info_config": model_info_config,
+            }
+        )
         headers: Optional[dict] = kwargs.get("headers")
 
         return await self._requester.arequest("post", url, False, cast=UpdateBotResp, body=body, headers=headers)
