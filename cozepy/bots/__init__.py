@@ -52,7 +52,7 @@ class BotModelInfo(CozeModel):
     # The max_tokens of the model.
     max_tokens: int
     # The response format of the model.
-    response_format: ResponseFormat
+    response_format: Optional[ResponseFormat] = None
     # The top_k of the model.
     top_k: Optional[int] = None
     # The top_p of the model.
