@@ -5,7 +5,7 @@ from pydantic import Field, field_validator
 
 from cozepy.model import AsyncNumberPaged, CozeModel, DynamicStrEnum, NumberPaged, NumberPagedResponse
 from cozepy.request import HTTPRequest, Requester
-from cozepy.util import dump_dict_exclude_none, remove_none_values, remove_url_trailing_slash
+from cozepy.util import dump_exclude_none, remove_none_values, remove_url_trailing_slash
 
 
 class PublishStatus(DynamicStrEnum):
@@ -335,7 +335,7 @@ class BotsClient(object):
         **kwargs,
     ) -> Bot:
         url = f"{self._base_url}/v1/bot/create"
-        body = dump_dict_exclude_none(
+        body = dump_exclude_none(
             {
                 "space_id": space_id,
                 "name": name,
@@ -388,7 +388,7 @@ class BotsClient(object):
         :return: None
         """
         url = f"{self._base_url}/v1/bot/update"
-        body = dump_dict_exclude_none(
+        body = dump_exclude_none(
             {
                 "bot_id": bot_id,
                 "name": name,
@@ -635,7 +635,7 @@ class AsyncBotsClient(object):
         **kwargs,
     ) -> Bot:
         url = f"{self._base_url}/v1/bot/create"
-        body = dump_dict_exclude_none(
+        body = dump_exclude_none(
             {
                 "space_id": space_id,
                 "name": name,
@@ -688,7 +688,7 @@ class AsyncBotsClient(object):
         :return: None
         """
         url = f"{self._base_url}/v1/bot/update"
-        body = dump_dict_exclude_none(
+        body = dump_exclude_none(
             {
                 "bot_id": bot_id,
                 "name": name,

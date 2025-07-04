@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from cozepy.model import CozeModel, DynamicStrEnum
 from cozepy.request import Requester
-from cozepy.util import remove_none_values, remove_url_trailing_slash
+from cozepy.util import dump_exclude_none, remove_url_trailing_slash
 
 
 class EnterpriseMemberRole(DynamicStrEnum):
@@ -41,15 +41,9 @@ class EnterprisesMembersClient(object):
     ) -> CreateEnterpriseMemberResp:
         url = f"{self._base_url}/v1/enterprises/{enterprise_id}/members"
         headers: Optional[dict] = kwargs.get("headers")
-        body = remove_none_values(
+        body = dump_exclude_none(
             {
-                "users": [
-                    {
-                        "user_id": user.user_id,
-                        "role": user.role,
-                    }
-                    for user in users
-                ],
+                "users": users,
             }
         )
         return self._requester.request(
@@ -66,7 +60,7 @@ class EnterprisesMembersClient(object):
     ) -> DeleteEnterpriseMemberResp:
         url = f"{self._base_url}/v1/enterprises/{enterprise_id}/members/{user_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        body = remove_none_values(
+        body = dump_exclude_none(
             {
                 "receiver_user_id": receiver_user_id,
             }
@@ -85,7 +79,7 @@ class EnterprisesMembersClient(object):
     ) -> UpdateEnterpriseMemberResp:
         url = f"{self._base_url}/v1/enterprises/{enterprise_id}/members/{user_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        body = remove_none_values(
+        body = dump_exclude_none(
             {
                 "role": role,
             }
@@ -109,17 +103,7 @@ class AsyncEnterprisesMembersClient(object):
     ) -> CreateEnterpriseMemberResp:
         url = f"{self._base_url}/v1/enterprises/{enterprise_id}/members"
         headers: Optional[dict] = kwargs.get("headers")
-        body = remove_none_values(
-            {
-                "users": [
-                    {
-                        "user_id": user.user_id,
-                        "role": user.role,
-                    }
-                    for user in users
-                ],
-            }
-        )
+        body = dump_exclude_none({"users": users})
         return await self._requester.arequest(
             "post", url, stream=False, cast=CreateEnterpriseMemberResp, headers=headers, body=body
         )
@@ -134,7 +118,7 @@ class AsyncEnterprisesMembersClient(object):
     ) -> DeleteEnterpriseMemberResp:
         url = f"{self._base_url}/v1/enterprises/{enterprise_id}/members/{user_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        body = remove_none_values(
+        body = dump_exclude_none(
             {
                 "receiver_user_id": receiver_user_id,
             }
@@ -153,7 +137,7 @@ class AsyncEnterprisesMembersClient(object):
     ) -> UpdateEnterpriseMemberResp:
         url = f"{self._base_url}/v1/enterprises/{enterprise_id}/members/{user_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        body = remove_none_values(
+        body = dump_exclude_none(
             {
                 "role": role,
             }

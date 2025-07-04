@@ -4,6 +4,8 @@ import inspect
 import random
 import sys
 import wave
+from enum import Enum
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -63,16 +65,19 @@ def remove_none_values(d: dict) -> dict:
     return {k: v for k, v in d.items() if v is not None}
 
 
-def dump_dict_exclude_none(d: dict) -> dict:
-    res = {}
-    for k, v in d.items():
-        if v is None:
-            continue
-        elif isinstance(v, BaseModel):
-            res[k] = v.model_dump(exclude_none=True)
-        else:
-            res[k] = v
-    return res
+def dump_exclude_none(d: Any) -> Any:
+    if d is None:
+        return d
+    elif isinstance(d, BaseModel):
+        return dump_exclude_none(d.model_dump(exclude_none=True))
+    elif isinstance(d, Enum):
+        return d.value
+    elif isinstance(d, dict):
+        return {k: dump_exclude_none(v) for k, v in d.items() if v is not None}
+    elif isinstance(d, list):
+        return [dump_exclude_none(v) for v in d if v is not None]
+    else:
+        return d
 
 
 def write_pcm_to_wav_file(
