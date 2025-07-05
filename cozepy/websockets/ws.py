@@ -242,6 +242,25 @@ def _log_receive_event(path: str, event_type: Optional[str], data: Union[str, by
     log_debug("[%s] receive event, type=%s, event=%s", path, event_type, data)
 
 
+def _log_send_event(path: str, event: WebsocketsEvent):
+    if logger.level > logging.DEBUG:
+        return
+    if event.event_type == WebsocketsEventType.INPUT_AUDIO_BUFFER_APPEND:
+        log_debug(
+            "[%s] send event, type=%s, event=%s",
+            path,
+            event.event_type.value,
+            json.dumps(event._dump_without_delta()),  # type: ignore
+        )
+    else:
+        log_debug(
+            "[%s] send event, type=%s, event=%s",
+            path,
+            event.event_type.value,
+            event.model_dump_json(exclude_none=True),
+        )
+
+
 class WebsocketsBaseClient(abc.ABC):
     class State(DynamicStrEnum):
         """
@@ -673,20 +692,7 @@ class AsyncWebsocketsBaseClient(abc.ABC):
     async def _send_event(self, event: Optional[WebsocketsEvent] = None) -> None:
         if not event or not self._ws:
             return
-        if event.event_type == WebsocketsEventType.INPUT_AUDIO_BUFFER_APPEND:
-            log_debug(
-                "[%s] send event, type=%s, event=%s",
-                self._path,
-                event.event_type.value,
-                json.dumps(event._dump_without_delta()),  # type: ignore
-            )
-        else:
-            log_debug(
-                "[%s] send event, type=%s, event=%s",
-                self._path,
-                event.event_type.value,
-                event.model_dump_json(exclude_none=True),
-            )
+        _log_send_event(self._path, event)
         await self._ws.send(event.model_dump_json(exclude_none=True))
 
 
