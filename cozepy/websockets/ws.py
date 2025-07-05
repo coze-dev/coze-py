@@ -450,7 +450,7 @@ class WebsocketsBaseClient(abc.ABC):
         if not event or not self._ws:
             return
         log_debug("[%s] send event, type=%s", self._path, event.event_type.value)
-        self._ws.send(event.model_dump_json())
+        self._ws.send(event.model_dump_json(exclude_none=True))
 
 
 def get_event_type_mapping(cls: Any) -> dict:
