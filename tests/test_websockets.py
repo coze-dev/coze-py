@@ -1,4 +1,5 @@
 import json
+import sys
 from typing import Optional
 
 try:
@@ -24,6 +25,7 @@ class MockEventWithNone(WebsocketsEvent):
     data: Optional[dict] = None  # This is the field with None
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="async websocket need python 3.8+")
 @pytest.mark.asyncio
 async def test_async_send_event_excludes_none_values():
     """
@@ -66,6 +68,7 @@ async def test_async_send_event_excludes_none_values():
         assert sent_payload_json["event_type"] == "chat.update"
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="async websocket need python 3.8+")
 @pytest.mark.asyncio
 async def test_log_send_event_is_called():
     """
