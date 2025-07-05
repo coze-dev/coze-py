@@ -237,9 +237,9 @@ def _log_receive_event(path: str, event_type: Optional[str], data: Union[str, by
         message = json.loads(data)
         if message and message.get("data") and message.get("data", {}).get("content"):
             message["data"]["content"] = f"<length: {len(message['data']['content'])}>"
-        log_debug("[%s] receive event, type=%s, event=%s", path, event_type, json.dumps(message))
-    else:
-        log_debug("[%s] receive event, type=%s, event=%s", path, event_type, data)
+            log_debug("[%s] receive event, type=%s, event=%s", path, event_type, json.dumps(message))
+            return
+    log_debug("[%s] receive event, type=%s, event=%s", path, event_type, data)
 
 
 class WebsocketsBaseClient(abc.ABC):
