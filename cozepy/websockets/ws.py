@@ -1,6 +1,7 @@
 import abc
 import asyncio
 import json
+import logging
 import queue
 import sys
 import threading
@@ -8,7 +9,7 @@ import traceback
 from abc import ABC
 from contextlib import asynccontextmanager, contextmanager
 from functools import lru_cache
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, get_type_hints
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union, get_type_hints
 
 if sys.version_info >= (3, 8):
     # note: >=3.7,<3.8 not support asyncio
@@ -43,7 +44,7 @@ import websockets.sync.client
 from pydantic import BaseModel
 
 from cozepy.exception import CozeAPIError
-from cozepy.log import log_debug, log_error, log_info, log_warning
+from cozepy.log import log_debug, log_error, log_info, log_warning, logger
 from cozepy.model import CozeModel, DynamicStrEnum
 from cozepy.request import Requester
 from cozepy.util import get_methods, get_model_default, remove_url_trailing_slash
@@ -101,6 +102,7 @@ class WebsocketsEventType(DynamicStrEnum):
     CONVERSATION_CHAT_CREATED = "conversation.chat.created"  # 对话开始
     CONVERSATION_CHAT_IN_PROGRESS = "conversation.chat.in_progress"  # 对话正在处理
     CONVERSATION_MESSAGE_DELTA = "conversation.message.delta"  # 增量消息
+    CONVERSATION_AUDIO_SENTENCE_START = "conversation.audio.sentence_start"  # 增量语音字幕
     CONVERSATION_AUDIO_DELTA = "conversation.audio.delta"  # 增量语音
     CONVERSATION_MESSAGE_COMPLETED = "conversation.message.completed"  # 消息完成
     CONVERSATION_AUDIO_COMPLETED = "conversation.audio.completed"  # 语音回复完成
@@ -228,6 +230,18 @@ class WebsocketsEventFactory(object):
         return event_class.model_validate(event_data)
 
 
+def _log_receive_event(path: str, event_type: Optional[str], data: Union[str, bytes]):
+    if logger.level > logging.DEBUG:
+        return
+    if event_type and event_type == "conversation.audio.delta":
+        message = json.loads(data)
+        if message and message.get("data") and message.get("data", {}).get("content"):
+            message["data"]["content"] = f"<length: {len(message['data']['content'])}>"
+        log_debug("[%s] receive event, type=%s, event=%s", path, event_type, json.dumps(message))
+    else:
+        log_debug("[%s] receive event, type=%s, event=%s", path, event_type, data)
+
+
 class WebsocketsBaseClient(abc.ABC):
     class State(DynamicStrEnum):
         """
@@ -345,7 +359,7 @@ class WebsocketsBaseClient(abc.ABC):
                     data = self._ws.recv(timeout=0.5)
                     message = json.loads(data)
                     event_type = message.get("event_type")
-                    log_debug("[%s] receive event, type=%s, event=%s", self._path, event_type, data)
+                    _log_receive_event(self._path, event_type, data)
 
                     event = self._parse_event(message)
                     if event:
@@ -565,7 +579,7 @@ class AsyncWebsocketsBaseClient(abc.ABC):
                 data = await self._ws.recv()
                 message = json.loads(data)
                 event_type = message.get("event_type")
-                log_debug("[%s] receive event, type=%s, event=%s", self._path, event_type, data)
+                _log_receive_event(self._path, event_type, data)
 
                 handler = self._on_event.get(event_type)
                 event = self._parse_event(message)
@@ -667,8 +681,13 @@ class AsyncWebsocketsBaseClient(abc.ABC):
                 json.dumps(event._dump_without_delta()),  # type: ignore
             )
         else:
-            log_debug("[%s] send event, type=%s, event=%s", self._path, event.event_type.value, event.model_dump_json())
-        await self._ws.send(event.model_dump_json())
+            log_debug(
+                "[%s] send event, type=%s, event=%s",
+                self._path,
+                event.event_type.value,
+                event.model_dump_json(exclude_none=True),
+            )
+        await self._ws.send(event.model_dump_json(exclude_none=True))
 
 
 class AsyncWebsocketsBaseEventHandler(object):
