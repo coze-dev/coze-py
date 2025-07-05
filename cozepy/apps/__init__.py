@@ -15,6 +15,7 @@ class SimpleApp(CozeModel):
     owner_user_id: str
     updated_at: int
 
+    folder_id: Optional[str] = None
     published_at: Optional[int] = None
 
 
