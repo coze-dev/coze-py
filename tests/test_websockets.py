@@ -1,6 +1,11 @@
 import json
 from typing import Optional
-from unittest.mock import AsyncMock, patch
+
+try:
+    from unittest.mock import AsyncMock
+except ImportError:
+    from unittest.mock import MagicMock as AsyncMock  # For Python < 3.8
+from unittest.mock import patch
 
 import pytest
 
