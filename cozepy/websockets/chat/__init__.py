@@ -540,7 +540,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
                 {
                     "bot_id": bot_id,
                     "workflow_id": workflow_id,
-                    "device_id": str(device_id),
+                    "device_id": str(device_id) if device_id is not None else None,
                 }
             ),
             on_event=on_event,  # type: ignore
@@ -732,7 +732,7 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
                 {
                     "bot_id": bot_id,
                     "workflow_id": workflow_id,
-                    "device_id": str(device_id),
+                    "device_id": str(device_id) if device_id is not None else None,
                 }
             ),
             on_event=on_event,  # type: ignore
