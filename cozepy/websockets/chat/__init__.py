@@ -526,6 +526,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
         bot_id: str,
         on_event: Union[WebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
         workflow_id: Optional[str] = None,
+        device_id: Optional[int] = None,
         **kwargs,
     ):
         if isinstance(on_event, WebsocketsChatEventHandler):
@@ -539,6 +540,7 @@ class WebsocketsChatClient(WebsocketsBaseClient):
                 {
                     "bot_id": bot_id,
                     "workflow_id": workflow_id,
+                    "device_id": str(device_id) if device_id is not None else None,
                 }
             ),
             on_event=on_event,  # type: ignore
@@ -590,6 +592,7 @@ class WebsocketsChatBuildClient(object):
         bot_id: str,
         on_event: Union[WebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
         workflow_id: Optional[str] = None,
+        device_id: Optional[int] = None,
         **kwargs,
     ) -> WebsocketsChatClient:
         return WebsocketsChatClient(
@@ -598,6 +601,7 @@ class WebsocketsChatBuildClient(object):
             bot_id=bot_id,
             on_event=on_event,  # type: ignore
             workflow_id=workflow_id,
+            device_id=device_id,
             **kwargs,
         )
 
@@ -714,6 +718,7 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
         bot_id: str,
         on_event: Union[AsyncWebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
         workflow_id: Optional[str] = None,
+        device_id: Optional[int] = None,
         **kwargs,
     ):
         if isinstance(on_event, AsyncWebsocketsChatEventHandler):
@@ -727,6 +732,7 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
                 {
                     "bot_id": bot_id,
                     "workflow_id": workflow_id,
+                    "device_id": str(device_id) if device_id is not None else None,
                 }
             ),
             on_event=on_event,  # type: ignore
@@ -778,6 +784,7 @@ class AsyncWebsocketsChatBuildClient(object):
         bot_id: str,
         on_event: Union[AsyncWebsocketsChatEventHandler, Dict[WebsocketsEventType, Callable]],
         workflow_id: Optional[str] = None,
+        device_id: Optional[int] = None,
         **kwargs,
     ) -> AsyncWebsocketsChatClient:
         return AsyncWebsocketsChatClient(
@@ -786,5 +793,6 @@ class AsyncWebsocketsChatBuildClient(object):
             bot_id=bot_id,
             on_event=on_event,  # type: ignore
             workflow_id=workflow_id,
+            device_id=device_id,
             **kwargs,
         )
