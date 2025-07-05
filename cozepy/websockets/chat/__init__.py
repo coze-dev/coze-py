@@ -251,6 +251,22 @@ class ConversationMessageDeltaEvent(WebsocketsEvent):
 
 
 # resp
+class ConversationAudioSentenceStartEvent(WebsocketsEvent):
+    """增量语音字幕
+
+    一条新的字幕句子，后续的 conversation.audio.delta 增量语音均属于当前字幕句子，可能有多个增量语音共同对应此句字幕的文字内容。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#2e67bf44
+    """
+
+    class Data(BaseModel):
+        # 新字幕句子的文本内容，后续相关 conversation.audio.delta 增量语音均对应此文本。
+        text: str
+
+    event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_AUDIO_SENTENCE_START
+    data: Data
+
+
+# resp
 class ConversationMessageCompletedEvent(WebsocketsEvent):
     """消息完成
 
@@ -412,6 +428,7 @@ _chat_event_factory = WebsocketsEventFactory(
         WebsocketsEventType.CONVERSATION_CHAT_CREATED.value: ConversationChatCreatedEvent,
         WebsocketsEventType.CONVERSATION_CHAT_IN_PROGRESS.value: ConversationChatInProgressEvent,
         WebsocketsEventType.CONVERSATION_MESSAGE_DELTA.value: ConversationMessageDeltaEvent,
+        WebsocketsEventType.CONVERSATION_AUDIO_SENTENCE_START.value: ConversationAudioSentenceStartEvent,
         WebsocketsEventType.CONVERSATION_AUDIO_DELTA.value: ConversationAudioDeltaEvent,
         WebsocketsEventType.CONVERSATION_MESSAGE_COMPLETED.value: ConversationMessageCompletedEvent,
         WebsocketsEventType.CONVERSATION_AUDIO_COMPLETED.value: ConversationAudioCompletedEvent,
@@ -449,6 +466,12 @@ class WebsocketsChatEventHandler(WebsocketsBaseEventHandler):
 
     # 增量消息
     def on_conversation_message_delta(self, cli: "WebsocketsChatClient", event: ConversationMessageDeltaEvent):
+        pass
+
+    # 增量语音字幕
+    def on_conversation_audio_sentence_start(
+        self, cli: "WebsocketsChatClient", event: ConversationAudioSentenceStartEvent
+    ):
         pass
 
     # 增量语音
@@ -628,6 +651,12 @@ class AsyncWebsocketsChatEventHandler(AsyncWebsocketsBaseEventHandler):
     # 增量消息
     async def on_conversation_message_delta(
         self, cli: "AsyncWebsocketsChatClient", event: ConversationMessageDeltaEvent
+    ):
+        pass
+
+    # 增量语音字幕
+    async def on_conversation_audio_sentence_start(
+        self, cli: "AsyncWebsocketsChatClient", event: ConversationAudioSentenceStartEvent
     ):
         pass
 
