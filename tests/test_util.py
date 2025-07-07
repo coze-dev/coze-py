@@ -5,8 +5,10 @@ import httpx
 import pytest
 
 from cozepy import COZE_COM_BASE_URL
+from cozepy.bots import BotMode
+from cozepy.enterprises.members import EnterpriseMember, EnterpriseMemberRole
 from cozepy.model import HTTPResponse
-from cozepy.util import anext, base64_encode_string, random_hex, remove_url_trailing_slash
+from cozepy.util import anext, base64_encode_string, dump_exclude_none, random_hex, remove_url_trailing_slash
 
 
 class ListAsyncIterator:
@@ -67,3 +69,28 @@ def mock_response(content: Optional[str] = None) -> HTTPResponse:
     if content:
         return HTTPResponse(httpx.Response(200, content=content, headers={logid_key(): random_hex(10)}))
     return HTTPResponse(httpx.Response(200, headers={logid_key(): random_hex(10)}))
+
+
+def test_dump_exclude_none():
+    # simple
+    assert int(1) == dump_exclude_none(1)
+    assert "test" == dump_exclude_none("test")
+    assert "enterprise_admin" == dump_exclude_none(EnterpriseMemberRole.ENTERPRISE_ADMIN)
+    assert int(1) == dump_exclude_none(BotMode.MULTI_AGENT)
+    assert {"role": "enterprise_admin", "user_id": "1"} == dump_exclude_none(
+        EnterpriseMember(user_id="1", role=EnterpriseMemberRole.ENTERPRISE_ADMIN)
+    )
+    # dict
+    assert {"a": 1} == dump_exclude_none({"a": 1})
+    assert {"a": 1} == dump_exclude_none({"a": 1, "b": None})
+    # dict of dict
+    assert {"a": {"b": 1}} == dump_exclude_none({"a": {"b": 1}})
+    assert {"a": {"role": "enterprise_admin", "user_id": "1"}} == dump_exclude_none(
+        {"a": EnterpriseMember(user_id="1", role=EnterpriseMemberRole.ENTERPRISE_ADMIN)}
+    )
+    assert [{"a": {"role": "enterprise_admin", "user_id": "1"}}] == dump_exclude_none(
+        [{"a": EnterpriseMember(user_id="1", role=EnterpriseMemberRole.ENTERPRISE_ADMIN)}]
+    )
+    # list
+    assert [1] == dump_exclude_none([1])
+    assert dump_exclude_none(None) is None

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cozepy"
-version = "0.16.2"
+version = "0.17.0"
 description = "OpenAPI SDK for Coze(coze.com/coze.cn)"
 authors = ["chyroc <chyroc@bytedance.com>"]
 readme = "README.md"
@@ -44,6 +44,11 @@ exclude = [
     "examples/",
     "tests/"
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--ignore=integrations"
+
 
 [tool.coverage.report]
 precision = 1

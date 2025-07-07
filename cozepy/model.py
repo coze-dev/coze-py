@@ -789,7 +789,7 @@ class Stream(Generic[T]):
         raw_response: httpx.Response,
         iters: Iterator[str],
         fields: List[str],
-        handler: Callable[[Dict[str, str], httpx.Response], T],
+        handler: Callable[[Dict[str, str], httpx.Response], Optional[T]],
     ):
         self._iters = iters
         self._fields = fields
@@ -801,17 +801,32 @@ class Stream(Generic[T]):
         return HTTPResponse(self._raw_response)
 
     def __iter__(self):
-        return self
+        while True:
+            event_dict = self._extra_event()
+            if not event_dict:
+                break
+            item = self._handler(event_dict, self._raw_response)
+            if item:
+                yield item
 
-    def __next__(self) -> T:
-        return self._handler(self._extra_event(), self._raw_response)
+    def __next__(self):
+        while True:
+            event_dict = self._extra_event()
+            if not event_dict:
+                raise StopIteration
+            item = self._handler(event_dict, self._raw_response)
+            if item:
+                return item
 
-    def _extra_event(self) -> Dict[str, str]:
+    def _extra_event(self) -> Optional[Dict[str, str]]:
         data = dict(map(lambda x: (x, ""), self._fields))
         times = 0
 
         while times < len(data):
-            line = next(self._iters).strip()
+            try:
+                line = next(self._iters).strip()
+            except StopIteration:
+                return None
             if line == "":
                 continue
 
@@ -837,7 +852,7 @@ class AsyncStream(Generic[T]):
         self,
         iters: AsyncIterator[str],
         fields: List[str],
-        handler: Callable[[Dict[str, str], httpx.Response], T],
+        handler: Callable[[Dict[str, str], httpx.Response], Optional[T]],
         raw_response: httpx.Response,
     ):
         self._iters = iters
@@ -874,7 +889,9 @@ class AsyncStream(Generic[T]):
 
             if times >= len(self._fields):
                 try:
-                    yield self._handler(data, self._raw_response)
+                    event = self._handler(data, self._raw_response)
+                    if event:
+                        yield event
                 except StopAsyncIteration:
                     return
                 data = self._make_data()

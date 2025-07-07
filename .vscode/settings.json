@@ -23,16 +23,19 @@
         "**/.DS_Store": true
     },
     "cSpell.words": [
-        "CHATFLOW",
         "amake",
+        "aread",
         "arequest",
         "asend",
         "autouse",
+        "BYTEVC",
+        "CHATFLOW",
         "cozepy",
+        "doubao",
         "JWT",
         "JWTO",
         "logid",
         "OAuth",
         "respx"
-    ],
+    ]
 } 

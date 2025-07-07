@@ -2,9 +2,20 @@ from typing import List, Optional
 
 from cozepy import AudioFormat
 from cozepy.files import FileTypes, _try_fix_file
-from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
+from cozepy.model import AsyncNumberPaged, CozeModel, DynamicStrEnum, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
+
+
+class VoiceState(DynamicStrEnum):
+    INIT = "init"  # 初始化
+    CLONED = "cloned"  # 已克隆
+    ALL = "all"  # 所有, 只有查询的时候有效
+
+
+class VoiceModelType(DynamicStrEnum):
+    BIG = "big"  # 大模型音色
+    SMALL = "small"  # 小模型音色
 
 
 class Voice(CozeModel):
@@ -37,6 +48,12 @@ class Voice(CozeModel):
 
     # Voice last update timestamp
     update_time: int
+
+    # Voice model type
+    model_type: VoiceModelType
+
+    # Voice state
+    state: VoiceState
 
 
 class _PrivateListVoiceData(CozeModel, NumberPagedResponse[Voice]):
@@ -113,30 +130,41 @@ class VoicesClient(object):
         self,
         *,
         filter_system_voice: bool = False,
+        model_type: Optional[VoiceModelType] = None,
+        voice_state: Optional[VoiceState] = None,
         page_num: int = 1,
         page_size: int = 100,
+        **kwargs,
     ) -> NumberPaged[Voice]:
         """
         Get available voices, including system voices + user cloned voices
         Tips: Voices cloned under each Volcano account can be reused within the team
 
         :param filter_system_voice: If True, system voices will not be returned.
+        :param model_type: The type of the voice.
+        :param voice_state: The state of the voice.
         :param page_num: The page number for paginated queries. Default is 1, meaning the data return starts from the
         first page.
         :param page_size: The size of pagination. Default is 100, meaning that 100 data entries are returned per page.
         :return: list of Voice
         """
         url = f"{self._base_url}/v1/audio/voices"
+        headers: Optional[dict] = kwargs.get("headers")
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
                 "GET",
                 url,
-                params={
-                    "filter_system_voice": filter_system_voice,
-                    "page_num": i_page_num,
-                    "page_size": i_page_size,
-                },
+                params=remove_none_values(
+                    {
+                        "filter_system_voice": filter_system_voice,
+                        "voice_state": voice_state.value if voice_state else None,
+                        "model_type": model_type.value if model_type else None,
+                        "page_num": i_page_num,
+                        "page_size": i_page_size,
+                    }
+                ),
+                headers=headers,
                 cast=_PrivateListVoiceData,
                 stream=False,
             )
@@ -206,13 +234,22 @@ class AsyncVoicesClient(object):
         return await self._requester.arequest("post", url, False, Voice, headers=headers, body=body, files=files)
 
     async def list(
-        self, *, filter_system_voice: bool = False, page_num: int = 1, page_size: int = 100, **kwargs
+        self,
+        *,
+        filter_system_voice: bool = False,
+        model_type: Optional[VoiceModelType] = None,
+        voice_state: Optional[VoiceState] = None,
+        page_num: int = 1,
+        page_size: int = 100,
+        **kwargs,
     ) -> AsyncNumberPaged[Voice]:
         """
         Get available voices, including system voices + user cloned voices
         Tips: Voices cloned under each Volcano account can be reused within the team
 
         :param filter_system_voice: If True, system voices will not be returned.
+        :param model_type: The type of the voice.
+        :param voice_state: The state of the voice.
         :param page_num: The page number for paginated queries. Default is 1, meaning the data return starts from the
         first page.
         :param page_size: The size of pagination. Default is 100, meaning that 100 data entries are returned per page.
@@ -225,11 +262,15 @@ class AsyncVoicesClient(object):
             return await self._requester.amake_request(
                 "GET",
                 url,
-                params={
-                    "filter_system_voice": filter_system_voice,
-                    "page_num": i_page_num,
-                    "page_size": i_page_size,
-                },
+                params=remove_none_values(
+                    {
+                        "filter_system_voice": filter_system_voice,
+                        "voice_state": voice_state.value if voice_state else None,
+                        "model_type": model_type.value if model_type else None,
+                        "page_num": i_page_num,
+                        "page_size": i_page_size,
+                    }
+                ),
                 headers=headers,
                 cast=_PrivateListVoiceData,
                 stream=False,

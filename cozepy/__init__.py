@@ -1,6 +1,7 @@
 from .api_apps import APIApp, AppType, DeleteAPIAppsResp, UpdateAPIAppsResp
 from .api_apps.events import CreateAPIAppsEventsResp, DeleteAPIAppsEventsResp
 from .apps import SimpleApp
+from .audio.live import LiveInfo, LiveType, StreamInfo
 from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
 from .audio.transcriptions import CreateTranscriptionsResp
@@ -18,7 +19,7 @@ from .audio.voiceprint_groups.features import (
     UpdateVoicePrintGroupFeatureResp,
     VoicePrintGroupFeature,
 )
-from .audio.voices import Voice
+from .audio.voices import Voice, VoiceModelType, VoiceState
 from .auth import (
     AsyncAuth,
     AsyncDeviceOAuthApp,
@@ -108,6 +109,7 @@ from .datasets.documents import (
     DocumentUpdateType,
 )
 from .datasets.images import Photo
+from .enterprises.members import EnterpriseMember, EnterpriseMemberRole
 from .exception import CozeAPIError, CozeError, CozeInvalidEventError, CozePKCEAuthError, CozePKCEAuthErrorType
 from .files import File
 from .log import setup_logging
@@ -167,6 +169,7 @@ from .websockets.chat import (
     ChatUpdateEvent,
     ConversationAudioCompletedEvent,
     ConversationAudioDeltaEvent,
+    ConversationAudioSentenceStartEvent,
     ConversationAudioTranscriptCompletedEvent,
     ConversationAudioTranscriptUpdateEvent,
     ConversationChatCanceledEvent,
@@ -227,12 +230,18 @@ __all__ = [
     # api_apps.events
     "CreateAPIAppsEventsResp",
     "DeleteAPIAppsEventsResp",
+    # audio.live
+    "LiveInfo",
+    "StreamInfo",
+    "LiveType",
     # apps
     "SimpleApp",
     # audio
     # audio.rooms
     "CreateRoomResp",
     # audio.voices
+    "VoiceState",
+    "VoiceModelType",
     "Voice",
     "AudioFormat",
     # audio.transcriptions
@@ -336,6 +345,9 @@ __all__ = [
     "DocumentSourceInfo",
     "DocumentUpdateRule",
     "DocumentBase",
+    # enterprises.members
+    "EnterpriseMember",
+    "EnterpriseMemberRole",
     # websockets.audio.speech
     "InputTextBufferAppendEvent",
     "InputTextBufferCompleteEvent",
@@ -375,6 +387,7 @@ __all__ = [
     "ConversationChatCreatedEvent",
     "ConversationChatInProgressEvent",
     "ConversationMessageDeltaEvent",
+    "ConversationAudioSentenceStartEvent",
     "ConversationMessageCompletedEvent",
     "ConversationAudioCompletedEvent",
     "ConversationAudioTranscriptCompletedEvent",

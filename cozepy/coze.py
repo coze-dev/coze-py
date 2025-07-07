@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from .chat import AsyncChatClient, ChatClient
     from .conversations import AsyncConversationsClient, ConversationsClient
     from .datasets import AsyncDatasetsClient, DatasetsClient
+    from .enterprises import AsyncEnterprisesClient, EnterprisesClient
     from .files import AsyncFilesClient, FilesClient
     from .knowledge import AsyncKnowledgeClient, KnowledgeClient  # deprecated
     from .templates import AsyncTemplatesClient, TemplatesClient
@@ -51,6 +52,7 @@ class Coze(object):
         self._variables: Optional[VariablesClient] = None
         self._api_apps: Optional[APIAppsClient] = None
         self._apps: Optional[AppsClient] = None
+        self._enterprises: Optional[EnterprisesClient] = None
 
     @property
     def bots(self) -> "BotsClient":
@@ -171,6 +173,14 @@ class Coze(object):
         return self._apps
 
     @property
+    def enterprises(self) -> "EnterprisesClient":
+        if not self._enterprises:
+            from .enterprises import EnterprisesClient
+
+            self._enterprises = EnterprisesClient(self._base_url, self._requester)
+        return self._enterprises
+
+    @property
     def api_apps(self) -> "APIAppsClient":
         if not self._api_apps:
             from .api_apps import APIAppsClient
@@ -213,6 +223,7 @@ class AsyncCoze(object):
         self._websockets: Optional[AsyncWebsocketsClient] = None
         self._variables: Optional[AsyncVariablesClient] = None
         self._apps: Optional[AsyncAppsClient] = None
+        self._enterprises: Optional[AsyncEnterprisesClient] = None
         self._api_apps: Optional[AsyncAPIAppsClient] = None
 
     @property
@@ -332,6 +343,13 @@ class AsyncCoze(object):
 
             self._apps = AsyncAppsClient(self._base_url, self._requester)
         return self._apps
+
+    def enterprises(self) -> "AsyncEnterprisesClient":
+        if not self._enterprises:
+            from .enterprises import AsyncEnterprisesClient
+
+            self._enterprises = AsyncEnterprisesClient(self._base_url, self._requester)
+        return self._enterprises
 
     @property
     def api_apps(self) -> "AsyncAPIAppsClient":
