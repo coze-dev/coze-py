@@ -27,12 +27,13 @@ class DeleteAPIAppsEventsResp(CozeModel):
 class _PrivateListAPIAppsEventsData(CozeModel, TokenPagedResponse[APIAppEvent]):
     items: List[APIAppEvent]
     next_page_token: str
+    has_more: bool
 
     def get_next_page_token(self) -> Optional[str]:
         return self.next_page_token
 
     def get_has_more(self) -> Optional[bool]:
-        return None
+        return self.has_more
 
     def get_items(self) -> List[APIAppEvent]:
         return self.items
@@ -67,8 +68,9 @@ class APIAppsEventsClient(object):
 
         return self._requester.request("delete", url, False, cast=DeleteAPIAppsEventsResp, body=body, headers=headers)
 
-    def list(self, *, app_id: str, page_token: str = "", page_size: int = 20) -> TokenPaged[APIAppEvent]:
+    def list(self, *, app_id: str, page_token: str = "", page_size: int = 20, **kwargs) -> TokenPaged[APIAppEvent]:
         url = f"{self._base_url}/v1/api_apps/{app_id}/events"
+        headers: Optional[dict] = kwargs.get("headers")
 
         def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
@@ -81,6 +83,7 @@ class APIAppsEventsClient(object):
                     }
                 ),
                 cast=_PrivateListAPIAppsEventsData,
+                headers=headers,
                 stream=False,
             )
 
@@ -125,8 +128,11 @@ class AsyncAPIAppsEventsClient(object):
             "delete", url, False, cast=DeleteAPIAppsEventsResp, body=body, headers=headers
         )
 
-    async def list(self, *, app_id: str, page_token: str = "", page_size: int = 20) -> AsyncTokenPaged[APIAppEvent]:
+    async def list(
+        self, *, app_id: str, page_token: str = "", page_size: int = 20, **kwargs
+    ) -> AsyncTokenPaged[APIAppEvent]:
         url = f"{self._base_url}/v1/api_apps/{app_id}/events"
+        headers: Optional[dict] = kwargs.get("headers")
 
         async def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
             return await self._requester.amake_request(
@@ -139,6 +145,7 @@ class AsyncAPIAppsEventsClient(object):
                     }
                 ),
                 cast=_PrivateListAPIAppsEventsData,
+                headers=headers,
                 stream=False,
             )
 
