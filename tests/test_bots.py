@@ -144,7 +144,7 @@ def mock_create_api_app(respx_mock) -> APIApp:
 def mock_update_api_app(respx_mock):
     logid = random_hex(10)
     raw_response = httpx.Response(200, json={"data": None}, headers={logid_key(): logid})
-    respx_mock.post("/v1/api_apps/app_id").mock(raw_response)
+    respx_mock.put("/v1/api_apps/app_id").mock(raw_response)
     return logid
 
 
@@ -182,6 +182,7 @@ def mock_list_api_app(respx_mock, total_count, page):
                     if page <= total_count
                     else [],
                     "next_page_token": str(page + 1) if page < total_count else "",
+                    "has_more": True if page < total_count else False,
                 }
             },
             headers={logid_key(): logid},

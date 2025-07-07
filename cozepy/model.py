@@ -461,7 +461,7 @@ class TokenPaged(PagedBase[T]):
         current_page = self
         while TokenPaged._is_page_has_more(current_page):
             current_page = TokenPaged(
-                page_token=current_page._next_page_token,
+                page_token=current_page._next_page_token or "",
                 page_size=self.page_size,
                 requestor=self._requestor,
                 request_maker=self._request_maker,
@@ -521,6 +521,7 @@ class AsyncTokenPaged(AsyncPagedBase[T]):
         self._has_more = None
         self._items = None
         self._raw_response: Optional[httpx.Response] = None
+        self._total = None
 
         self._requestor = requestor
         self._request_maker = request_maker
@@ -536,7 +537,7 @@ class AsyncTokenPaged(AsyncPagedBase[T]):
         current_page = self
         while AsyncTokenPaged._is_page_has_more(current_page):
             page: AsyncTokenPaged[T] = await AsyncTokenPaged.build(
-                page_token=current_page._next_page_token,
+                page_token=current_page._next_page_token or "",
                 page_size=self.page_size,
                 requestor=self._requestor,
                 request_maker=self._request_maker,
