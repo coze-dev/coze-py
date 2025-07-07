@@ -230,13 +230,13 @@ __all__ = [
     # api_apps.events
     "CreateAPIAppsEventsResp",
     "DeleteAPIAppsEventsResp",
+    # apps
+    "SimpleApp",
+    # audio
     # audio.live
     "LiveInfo",
     "StreamInfo",
     "LiveType",
-    # apps
-    "SimpleApp",
-    # audio
     # audio.rooms
     "CreateRoomResp",
     # audio.voices
