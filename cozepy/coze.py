@@ -50,9 +50,9 @@ class Coze(object):
         self._users: Optional[UsersClient] = None
         self._websockets: Optional[WebsocketsClient] = None
         self._variables: Optional[VariablesClient] = None
-        self._api_apps: Optional[APIAppsClient] = None
         self._apps: Optional[AppsClient] = None
         self._enterprises: Optional[EnterprisesClient] = None
+        self._api_apps: Optional[APIAppsClient] = None
 
     @property
     def bots(self) -> "BotsClient":
@@ -344,6 +344,7 @@ class AsyncCoze(object):
             self._apps = AsyncAppsClient(self._base_url, self._requester)
         return self._apps
 
+    @property
     def enterprises(self) -> "AsyncEnterprisesClient":
         if not self._enterprises:
             from .enterprises import AsyncEnterprisesClient
