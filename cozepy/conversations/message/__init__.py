@@ -1,9 +1,12 @@
-from typing import Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from cozepy.chat import Message, MessageContentType, MessageRole
 from cozepy.model import AsyncLastIDPaged, CozeModel, HTTPRequest, LastIDPaged, LastIDPagedResponse
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
+
+if TYPE_CHECKING:
+    from .feedback import AsyncMessagesFeedbackClient, ConversationsMessagesFeedbackClient
 
 
 class _PrivateListMessageResp(CozeModel, LastIDPagedResponse[Message]):
@@ -33,6 +36,16 @@ class MessagesClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
+
+        self._feedback: Optional["ConversationsMessagesFeedbackClient"] = None
+
+    @property
+    def feedback(self) -> "ConversationsMessagesFeedbackClient":
+        if not self._feedback:
+            from .feedback import ConversationsMessagesFeedbackClient
+
+            self._feedback = ConversationsMessagesFeedbackClient(self._base_url, self._requester)
+        return self._feedback
 
     def create(
         self,
@@ -216,6 +229,16 @@ class AsyncMessagesClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
+
+        self._feedback: Optional["AsyncMessagesFeedbackClient"] = None
+
+    @property
+    def feedback(self) -> "AsyncMessagesFeedbackClient":
+        if not self._feedback:
+            from .feedback import AsyncMessagesFeedbackClient
+
+            self._feedback = AsyncMessagesFeedbackClient(self._base_url, self._requester)
+        return self._feedback
 
     async def create(
         self,
