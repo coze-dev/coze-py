@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, List, Optional
 
 from cozepy.model import AsyncTokenPaged, CozeModel, TokenPaged, TokenPagedResponse
 from cozepy.request import HTTPRequest, Requester
-from cozepy.util import remove_none_values, remove_url_trailing_slash
+from cozepy.util import dump_exclude_none, remove_url_trailing_slash
 
 if TYPE_CHECKING:
     from cozepy.api_apps.events import APIAppsEventsClient, AsyncAPIAppsEventsClient
@@ -34,12 +34,13 @@ class DeleteAPIAppsResp(CozeModel):
 class _PrivateListAPIAppsData(CozeModel, TokenPagedResponse[APIApp]):
     items: List[APIApp]
     next_page_token: str
+    has_more: bool
 
     def get_next_page_token(self) -> Optional[str]:
         return self.next_page_token
 
     def get_has_more(self) -> Optional[bool]:
-        return None
+        return self.has_more
 
     def get_items(self) -> List[APIApp]:
         return self.items
@@ -76,7 +77,7 @@ class APIAppsClient(object):
         :return: The api app object.
         """
         url = f"{self._base_url}/v1/api_apps"
-        body = remove_none_values(
+        body = dump_exclude_none(
             {
                 "app_type": app_type,
                 "name": name,
@@ -103,14 +104,16 @@ class APIAppsClient(object):
         :param callback_url: The callback url of the api app.
         """
         url = f"{self._base_url}/v1/api_apps/{app_id}"
-        body = {
-            "name": name,
-            "callback_url": callback_url,
-        }
+        body = dump_exclude_none(
+            {
+                "name": name,
+                "callback_url": callback_url,
+            }
+        )
         headers: Optional[dict] = kwargs.get("headers")
 
         return self._requester.request(
-            "post",
+            "put",
             url,
             False,
             cast=UpdateAPIAppsResp,
@@ -125,15 +128,16 @@ class APIAppsClient(object):
         return self._requester.request("delete", url, False, cast=DeleteAPIAppsResp, headers=headers)
 
     def list(
-        self, *, app_type: Optional[AppType] = None, page_token: str = "", page_size: int = 20
+        self, *, app_type: Optional[AppType] = None, page_token: str = "", page_size: int = 20, **kwargs
     ) -> TokenPaged[APIApp]:
         url = f"{self._base_url}/v1/api_apps"
+        headers: Optional[dict] = kwargs.get("headers")
 
         def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
                 "GET",
                 url,
-                params=remove_none_values(
+                params=dump_exclude_none(
                     {
                         "app_type": app_type,
                         "page_size": i_page_size,
@@ -141,6 +145,7 @@ class APIAppsClient(object):
                     }
                 ),
                 cast=_PrivateListAPIAppsData,
+                headers=headers,
                 stream=False,
             )
 
@@ -183,7 +188,7 @@ class AsyncAPIAppsClient(object):
         :return: The api app object.
         """
         url = f"{self._base_url}/v1/api_apps"
-        body = remove_none_values(
+        body = dump_exclude_none(
             {
                 "app_type": app_type,
                 "name": name,
@@ -210,14 +215,16 @@ class AsyncAPIAppsClient(object):
         :param callback_url: The callback url of the api app.
         """
         url = f"{self._base_url}/v1/api_apps/{app_id}"
-        body = {
-            "name": name,
-            "callback_url": callback_url,
-        }
+        body = dump_exclude_none(
+            {
+                "name": name,
+                "callback_url": callback_url,
+            }
+        )
         headers: Optional[dict] = kwargs.get("headers")
 
         return await self._requester.arequest(
-            "post",
+            "put",
             url,
             False,
             cast=UpdateAPIAppsResp,
@@ -232,15 +239,16 @@ class AsyncAPIAppsClient(object):
         return await self._requester.arequest("delete", url, False, cast=DeleteAPIAppsResp, headers=headers)
 
     async def list(
-        self, *, app_type: Optional[AppType] = None, page_token: str = "", page_size: int = 20
+        self, *, app_type: Optional[AppType] = None, page_token: str = "", page_size: int = 20, **kwargs
     ) -> AsyncTokenPaged[APIApp]:
         url = f"{self._base_url}/v1/api_apps"
+        headers: Optional[dict] = kwargs.get("headers")
 
         async def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
             return await self._requester.amake_request(
                 "GET",
                 url,
-                params=remove_none_values(
+                params=dump_exclude_none(
                     {
                         "app_type": app_type,
                         "page_size": i_page_size,
@@ -248,6 +256,7 @@ class AsyncAPIAppsClient(object):
                     }
                 ),
                 cast=_PrivateListAPIAppsData,
+                headers=headers,
                 stream=False,
             )
 
