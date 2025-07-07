@@ -112,6 +112,7 @@ from .datasets.documents import (
     DocumentUpdateType,
 )
 from .datasets.images import Photo
+from .enterprises.members import EnterpriseMember, EnterpriseMemberRole
 from .exception import CozeAPIError, CozeError, CozeInvalidEventError, CozePKCEAuthError, CozePKCEAuthErrorType
 from .files import File
 from .log import setup_logging
@@ -171,6 +172,7 @@ from .websockets.chat import (
     ChatUpdateEvent,
     ConversationAudioCompletedEvent,
     ConversationAudioDeltaEvent,
+    ConversationAudioSentenceStartEvent,
     ConversationAudioTranscriptCompletedEvent,
     ConversationAudioTranscriptUpdateEvent,
     ConversationChatCanceledEvent,
@@ -342,6 +344,9 @@ __all__ = [
     "DocumentSourceInfo",
     "DocumentUpdateRule",
     "DocumentBase",
+    # enterprises.members
+    "EnterpriseMember",
+    "EnterpriseMemberRole",
     # websockets.audio.speech
     "InputTextBufferAppendEvent",
     "InputTextBufferCompleteEvent",
@@ -381,6 +386,7 @@ __all__ = [
     "ConversationChatCreatedEvent",
     "ConversationChatInProgressEvent",
     "ConversationMessageDeltaEvent",
+    "ConversationAudioSentenceStartEvent",
     "ConversationMessageCompletedEvent",
     "ConversationAudioCompletedEvent",
     "ConversationAudioTranscriptCompletedEvent",

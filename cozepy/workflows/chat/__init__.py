@@ -3,8 +3,7 @@ from typing import Any, AsyncIterator, Dict, List, Optional
 from cozepy.chat import (
     ChatEvent,
     Message,
-    _async_chat_stream_handler,
-    _sync_chat_stream_handler,
+    _chat_stream_handler,
 )
 from cozepy.model import AsyncIteratorHTTPResponse, AsyncStream, IteratorHTTPResponse, Stream
 from cozepy.request import Requester
@@ -92,7 +91,7 @@ class WorkflowsChatClient(object):
             response._raw_response,
             response.data,
             fields=["event", "data"],
-            handler=_sync_chat_stream_handler,
+            handler=_chat_stream_handler,
         )
 
 
@@ -176,5 +175,5 @@ class AsyncWorkflowsChatClient(object):
         )
 
         return AsyncStream(
-            resp.data, fields=["event", "data"], handler=_async_chat_stream_handler, raw_response=resp._raw_response
+            resp.data, fields=["event", "data"], handler=_chat_stream_handler, raw_response=resp._raw_response
         )

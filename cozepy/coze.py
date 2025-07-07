@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from .chat import AsyncChatClient, ChatClient
     from .conversations import AsyncConversationsClient, ConversationsClient
     from .datasets import AsyncDatasetsClient, DatasetsClient
+    from .enterprises import AsyncEnterprisesClient, EnterprisesClient
     from .files import AsyncFilesClient, FilesClient
     from .knowledge import AsyncKnowledgeClient, KnowledgeClient  # deprecated
     from .templates import AsyncTemplatesClient, TemplatesClient
@@ -49,6 +50,7 @@ class Coze(object):
         self._websockets: Optional[WebsocketsClient] = None
         self._variables: Optional[VariablesClient] = None
         self._apps: Optional[AppsClient] = None
+        self._enterprises: Optional[EnterprisesClient] = None
 
     @property
     def bots(self) -> "BotsClient":
@@ -168,6 +170,14 @@ class Coze(object):
             self._apps = AppsClient(self._base_url, self._requester)
         return self._apps
 
+    @property
+    def enterprises(self) -> "EnterprisesClient":
+        if not self._enterprises:
+            from .enterprises import EnterprisesClient
+
+            self._enterprises = EnterprisesClient(self._base_url, self._requester)
+        return self._enterprises
+
 
 class AsyncCoze(object):
     def __init__(
@@ -203,6 +213,7 @@ class AsyncCoze(object):
         self._websockets: Optional[AsyncWebsocketsClient] = None
         self._variables: Optional[AsyncVariablesClient] = None
         self._apps: Optional[AsyncAppsClient] = None
+        self._enterprises: Optional[AsyncEnterprisesClient] = None
 
     @property
     def bots(self) -> "AsyncBotsClient":
@@ -321,3 +332,11 @@ class AsyncCoze(object):
 
             self._apps = AsyncAppsClient(self._base_url, self._requester)
         return self._apps
+
+    @property
+    def enterprises(self) -> "AsyncEnterprisesClient":
+        if not self._enterprises:
+            from .enterprises import AsyncEnterprisesClient
+
+            self._enterprises = AsyncEnterprisesClient(self._base_url, self._requester)
+        return self._enterprises
