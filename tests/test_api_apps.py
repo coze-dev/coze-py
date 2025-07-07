@@ -3,6 +3,7 @@ import pytest
 
 from cozepy import AppType, AsyncCoze, AsyncTokenAuth, Coze, TokenAuth
 from cozepy.api_apps import APIApp
+from cozepy.api_apps.events import APIAppEvent
 from cozepy.util import random_hex
 from tests.test_util import logid_key
 
@@ -127,6 +128,42 @@ class TestSyncApiApps:
             assert app.id == f"id_{total_result}"
         assert total_result == total
 
+    def test_sync_api_apps_events(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+        app_id = "app_id"
+        respx_mock.post(f"https://api.coze.com/v1/api_apps/{app_id}/events").mock(
+            httpx.Response(200, json={"msg": "success", "code": 0})
+        )
+        respx_mock.delete(f"https://api.coze.com/v1/api_apps/{app_id}/events").mock(
+            httpx.Response(200, json={"msg": "success", "code": 0})
+        )
+        respx_mock.get(
+            f"https://api.coze.com/v1/api_apps/{app_id}/events",
+            params={"page_size": 20, "page_token": ""},
+        ).mock(
+            httpx.Response(
+                200,
+                json={
+                    "items": [
+                        APIAppEvent(
+                            app_id=app_id,
+                            name="name",
+                            description="description",
+                            event_type="event_type",
+                        ).model_dump()
+                    ],
+                    "next_page_token": "",
+                    "has_more": False,
+                },
+            )
+        )
+
+        coze.api_apps.events.create(app_id=app_id, event_types=["event_type"])
+        coze.api_apps.events.delete(app_id=app_id, event_types=["event_type"])
+        events = coze.api_apps.events.list(app_id=app_id)
+        assert len(events.items) == 1
+        assert events.items[0].app_id == app_id
+
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
@@ -170,3 +207,39 @@ class TestAsyncApiApps:
             app = page.items[0]
             assert app.id == f"id_{total_result}"
         assert total_result == total
+
+    async def test_async_api_apps_events(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        app_id = "app_id"
+        respx_mock.post(f"https://api.coze.com/v1/api_apps/{app_id}/events").mock(
+            httpx.Response(200, json={"msg": "success", "code": 0})
+        )
+        respx_mock.delete(f"https://api.coze.com/v1/api_apps/{app_id}/events").mock(
+            httpx.Response(200, json={"msg": "success", "code": 0})
+        )
+        respx_mock.get(
+            f"https://api.coze.com/v1/api_apps/{app_id}/events",
+            params={"page_size": 20, "page_token": ""},
+        ).mock(
+            httpx.Response(
+                200,
+                json={
+                    "items": [
+                        APIAppEvent(
+                            app_id=app_id,
+                            name="name",
+                            description="description",
+                            event_type="event_type",
+                        ).model_dump()
+                    ],
+                    "next_page_token": "",
+                    "has_more": False,
+                },
+            )
+        )
+
+        await coze.api_apps.events.create(app_id=app_id, event_types=["event_type"])
+        await coze.api_apps.events.delete(app_id=app_id, event_types=["event_type"])
+        events = await coze.api_apps.events.list(app_id=app_id)
+        assert len(events.items) == 1
+        assert events.items[0].app_id == app_id
