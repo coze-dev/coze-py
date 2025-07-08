@@ -33,7 +33,7 @@ class DeleteAPIAppsResp(CozeModel):
 
 class _PrivateListAPIAppsData(CozeModel, TokenPagedResponse[APIApp]):
     items: List[APIApp]
-    next_page_token: str
+    next_page_token: Optional[str] = None
     has_more: bool
 
     def get_next_page_token(self) -> Optional[str]:

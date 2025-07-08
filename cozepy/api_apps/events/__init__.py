@@ -6,7 +6,7 @@ from cozepy.util import dump_exclude_none, remove_none_values, remove_url_traili
 
 
 class APIAppEvent(CozeModel):
-    app_id: str
+    api_app_id: str
     name: str
     description: str
     event_type: str
@@ -26,7 +26,7 @@ class DeleteAPIAppsEventsResp(CozeModel):
 
 class _PrivateListAPIAppsEventsData(CozeModel, TokenPagedResponse[APIAppEvent]):
     items: List[APIAppEvent]
-    next_page_token: str
+    next_page_token: Optional[str] = None
     has_more: bool
 
     def get_next_page_token(self) -> Optional[str]:
@@ -47,11 +47,11 @@ class APIAppsEventsClient(object):
     def create(
         self,
         *,
-        app_id: str,
+        api_app_id: str,
         event_types: List[str],
         **kwargs,
     ) -> CreateAPIAppsEventsResp:
-        url = f"{self._base_url}/v1/api_apps/{app_id}/events"
+        url = f"{self._base_url}/v1/api_apps/{api_app_id}/events"
         body = dump_exclude_none(
             {
                 "event_types": event_types,
@@ -61,8 +61,8 @@ class APIAppsEventsClient(object):
 
         return self._requester.request("post", url, False, cast=CreateAPIAppsEventsResp, body=body, headers=headers)
 
-    def delete(self, *, app_id: str, event_types: List[str], **kwargs) -> DeleteAPIAppsEventsResp:
-        url = f"{self._base_url}/v1/api_apps/{app_id}/events"
+    def delete(self, *, api_app_id: str, event_types: List[str], **kwargs) -> DeleteAPIAppsEventsResp:
+        url = f"{self._base_url}/v1/api_apps/{api_app_id}/events"
         body = dump_exclude_none(
             {
                 "event_types": event_types,
@@ -72,8 +72,8 @@ class APIAppsEventsClient(object):
 
         return self._requester.request("delete", url, False, cast=DeleteAPIAppsEventsResp, body=body, headers=headers)
 
-    def list(self, *, app_id: str, page_token: str = "", page_size: int = 20, **kwargs) -> TokenPaged[APIAppEvent]:
-        url = f"{self._base_url}/v1/api_apps/{app_id}/events"
+    def list(self, *, api_app_id: str, page_token: str = "", page_size: int = 20, **kwargs) -> TokenPaged[APIAppEvent]:
+        url = f"{self._base_url}/v1/api_apps/{api_app_id}/events"
         headers: Optional[dict] = kwargs.get("headers")
 
         def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
@@ -107,11 +107,11 @@ class AsyncAPIAppsEventsClient(object):
     async def create(
         self,
         *,
-        app_id: str,
+        api_app_id: str,
         event_types: List[str],
         **kwargs,
     ) -> CreateAPIAppsEventsResp:
-        url = f"{self._base_url}/v1/api_apps/{app_id}/events"
+        url = f"{self._base_url}/v1/api_apps/{api_app_id}/events"
         body = dump_exclude_none(
             {
                 "event_types": event_types,
@@ -123,8 +123,8 @@ class AsyncAPIAppsEventsClient(object):
             "post", url, False, cast=CreateAPIAppsEventsResp, body=body, headers=headers
         )
 
-    async def delete(self, *, app_id: str, event_types: List[str], **kwargs) -> DeleteAPIAppsEventsResp:
-        url = f"{self._base_url}/v1/api_apps/{app_id}/events"
+    async def delete(self, *, api_app_id: str, event_types: List[str], **kwargs) -> DeleteAPIAppsEventsResp:
+        url = f"{self._base_url}/v1/api_apps/{api_app_id}/events"
         body = dump_exclude_none(
             {
                 "event_types": event_types,
@@ -137,9 +137,9 @@ class AsyncAPIAppsEventsClient(object):
         )
 
     async def list(
-        self, *, app_id: str, page_token: str = "", page_size: int = 20, **kwargs
+        self, *, api_app_id: str, page_token: str = "", page_size: int = 20, **kwargs
     ) -> AsyncTokenPaged[APIAppEvent]:
-        url = f"{self._base_url}/v1/api_apps/{app_id}/events"
+        url = f"{self._base_url}/v1/api_apps/{api_app_id}/events"
         headers: Optional[dict] = kwargs.get("headers")
 
         async def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
