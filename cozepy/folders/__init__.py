@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from cozepy.model import AsyncNumberPaged, CozeModel, DynamicStrEnum, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
-from cozepy.util import remove_none_values, remove_url_trailing_slash
+from cozepy.util import dump_exclude_none, remove_url_trailing_slash
 
 
 class FolderType(DynamicStrEnum):
@@ -16,7 +16,7 @@ class SimpleFolder(CozeModel):
     description: str
     workspace_id: str
     creator_user_id: str
-    parent_folder_id: Optional[str] = None
+    parent_folder_id: str
     children_count: Optional[int] = None
 
 
@@ -52,8 +52,8 @@ class FoldersClient(object):
     def list(
         self,
         *,
-        workspace_id: Optional[str] = None,
-        folder_type: Optional[FolderType] = None,
+        workspace_id: str,
+        folder_type: FolderType,
         parent_folder_id: Optional[str] = None,
         page_num: int = 1,
         page_size: int = 20,
@@ -67,7 +67,7 @@ class FoldersClient(object):
                 "GET",
                 url,
                 headers=headers,
-                params=remove_none_values(
+                params=dump_exclude_none(
                     {
                         "page_size": i_page_size,
                         "page_num": i_page_num,
@@ -106,8 +106,8 @@ class AsyncFoldersClient(object):
     async def list(
         self,
         *,
-        workspace_id: Optional[str] = None,
-        folder_type: Optional[FolderType] = None,
+        workspace_id: str,
+        folder_type: FolderType,
         parent_folder_id: Optional[str] = None,
         page_num: int = 1,
         page_size: int = 20,
@@ -121,7 +121,7 @@ class AsyncFoldersClient(object):
                 "GET",
                 url,
                 headers=headers,
-                params=remove_none_values(
+                params=dump_exclude_none(
                     {
                         "page_size": i_page_size,
                         "page_num": i_page_num,
