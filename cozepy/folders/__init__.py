@@ -16,7 +16,9 @@ class SimpleFolder(CozeModel):
     description: str
     workspace_id: str
     creator_user_id: str
-    parent_folder_id: str
+    folder_type: FolderType
+
+    parent_folder_id: Optional[str] = None
     children_count: Optional[int] = None
 
 

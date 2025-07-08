@@ -6,6 +6,18 @@ from cozepy.util import random_hex
 from tests.test_util import logid_key
 
 
+def mock_folder(id: str) -> SimpleFolder:
+    return SimpleFolder(
+        id=id,
+        name=random_hex(10),
+        description=random_hex(10),
+        workspace_id=random_hex(10),
+        creator_user_id=random_hex(10),
+        folder_type=FolderType.DEVELOPMENT,
+        parent_folder_id=random_hex(10),
+    )
+
+
 def mock_list_folders(respx_mock, total_count, page):
     logid = random_hex(10)
     respx_mock.get(
@@ -20,16 +32,7 @@ def mock_list_folders(respx_mock, total_count, page):
             200,
             json={
                 "data": {
-                    "items": [
-                        SimpleFolder(
-                            id=f"id_{page}",
-                            name=random_hex(10),
-                            description=random_hex(10),
-                            workspace_id=random_hex(10),
-                            creator_user_id=random_hex(10),
-                            parent_folder_id=random_hex(10),
-                        ).model_dump()
-                    ],
+                    "items": [mock_folder(f"id_{page}").model_dump()],
                     "total_count": total_count,
                 }
             },
@@ -42,13 +45,8 @@ def mock_list_folders(respx_mock, total_count, page):
 def mock_retrieve_folder(
     respx_mock,
 ) -> SimpleFolder:
-    folder = SimpleFolder(
-        id=random_hex(10),
-        name=random_hex(10),
-        description=random_hex(10),
-        workspace_id=random_hex(10),
-        creator_user_id=random_hex(10),
-        parent_folder_id=random_hex(10),
+    folder = mock_folder(
+        random_hex(10),
     )
     folder._raw_response = httpx.Response(
         200,
