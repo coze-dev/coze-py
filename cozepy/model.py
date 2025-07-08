@@ -409,6 +409,199 @@ class AsyncNumberPaged(AsyncPagedBase[T]):
         return page
 
 
+class TokenPagedResponse(Generic[T], abc.ABC):
+    @abc.abstractmethod
+    def get_next_page_token(self) -> Optional[str]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_has_more(self) -> Optional[bool]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_items(self) -> List[T]:
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def response(self) -> HTTPResponse:
+        raise NotImplementedError
+
+
+class TokenPaged(PagedBase[T]):
+    def __init__(
+        self,
+        page_token: str,
+        page_size: int,
+        requestor: "Requester",
+        request_maker: Callable[[str, int], HTTPRequest],
+    ):
+        self.page_token = page_token
+        self.page_size = page_size
+
+        self._next_page_token = None
+        self._has_more = None
+        self._items = None
+        self._http_response: Optional[HTTPResponse] = None
+        self._total = None
+
+        self._requestor = requestor
+        self._request_maker = request_maker
+
+        self._fetch_page()
+
+    def __iter__(self) -> Iterator[T]:  # type: ignore
+        for page in self.iter_pages():
+            for item in page.items:
+                yield item
+
+    def iter_pages(self) -> Iterator["TokenPaged[T]"]:
+        yield self
+
+        current_page = self
+        while TokenPaged._is_page_has_more(current_page):
+            current_page = TokenPaged(
+                page_token=current_page._next_page_token or "",
+                page_size=self.page_size,
+                requestor=self._requestor,
+                request_maker=self._request_maker,
+            )
+            yield current_page
+
+    @property
+    def response(self) -> HTTPResponse:
+        return self._http_response  # type: ignore
+
+    @property
+    def items(self) -> List[T]:
+        return self._items or cast(List[T], [])
+
+    @property
+    def has_more(self) -> bool:
+        return TokenPaged._is_page_has_more(self)
+
+    @property
+    def total(self) -> int:
+        return self._total or 0
+
+    def _fetch_page(self):
+        if self._total is not None or self._has_more is not None:
+            return
+        request: HTTPRequest = self._request_maker(self.page_token, self.page_size)
+        res: TokenPagedResponse[T] = self._requestor.send(request)
+        self._next_page_token = res.get_next_page_token()
+        self._has_more = res.get_has_more()
+        self._items = res.get_items()
+        self._http_response = res.response
+
+    @staticmethod
+    def _is_page_has_more(page: "TokenPaged[T]") -> bool:
+        if page._has_more is not None:
+            return page._has_more
+        if page._next_page_token is not None and page._next_page_token != "":
+            return True
+        if page._items is not None and page._items and len(page._items) >= page.page_size:
+            return True
+
+        return False
+
+
+class AsyncTokenPaged(AsyncPagedBase[T]):
+    def __init__(
+        self,
+        page_token: str,
+        page_size: int,
+        requestor: "Requester",
+        request_maker: Callable[[str, int], Coroutine[None, None, HTTPRequest]],
+    ):
+        self.page_token = page_token
+        self.page_size = page_size
+
+        self._next_page_token = None
+        self._has_more = None
+        self._items = None
+        self._raw_response: Optional[httpx.Response] = None
+        self._total = None
+
+        self._requestor = requestor
+        self._request_maker = request_maker
+
+    async def __aiter__(self) -> AsyncIterator[T]:
+        async for page in self.iter_pages():
+            for item in page.items:
+                yield item
+
+    async def iter_pages(self) -> AsyncIterator["AsyncTokenPaged[T]"]:
+        yield self
+
+        current_page = self
+        while AsyncTokenPaged._is_page_has_more(current_page):
+            page: AsyncTokenPaged[T] = await AsyncTokenPaged.build(
+                page_token=current_page._next_page_token or "",
+                page_size=self.page_size,
+                requestor=self._requestor,
+                request_maker=self._request_maker,
+            )
+            current_page = page
+            yield page
+
+    @property
+    def response(self) -> HTTPResponse:
+        return HTTPResponse(self._raw_response)  # type: ignore
+
+    @property
+    def items(self) -> List[T]:
+        return self._items or cast(List[T], [])
+
+    @property
+    def has_more(self) -> bool:
+        return AsyncTokenPaged._is_page_has_more(self)
+
+    @property
+    def total(self) -> int:
+        return self._total or 0
+
+    async def _fetch_page(self):
+        """
+
+        :rtype: object
+        """
+        if self._next_page_token is not None:
+            return
+        request = await self._request_maker(self.page_token, self.page_size)
+        res: TokenPagedResponse[T] = await self._requestor.asend(request)
+        self._next_page_token = res.get_next_page_token()
+        self._has_more = res.get_has_more()
+        self._items = res.get_items()
+        self._raw_response = res._raw_response
+
+    @staticmethod
+    def _is_page_has_more(page: "AsyncTokenPaged[T]") -> bool:
+        if page._has_more is not None:
+            return page._has_more
+        if page._next_page_token is not None and page._next_page_token != "":
+            return True
+        if page._items is not None and page._items and len(page._items) >= page.page_size:
+            return True
+        return False
+
+    @staticmethod
+    async def build(
+        page_token: str,
+        page_size: int,
+        requestor: "Requester",
+        request_maker: Callable[[str, int], Coroutine[None, None, HTTPRequest]],
+    ) -> "AsyncTokenPaged[T]":
+        page: AsyncTokenPaged[T] = AsyncTokenPaged(
+            page_token=page_token,
+            page_size=page_size,
+            requestor=requestor,
+            request_maker=request_maker,
+        )
+        await page._fetch_page()
+        return page
+
+
 class LastIDPagedResponse(Generic[T], abc.ABC):
     @abc.abstractmethod
     def get_first_id(self) -> str: ...
@@ -597,7 +790,7 @@ class Stream(Generic[T]):
         raw_response: httpx.Response,
         iters: Iterator[str],
         fields: List[str],
-        handler: Callable[[Dict[str, str], httpx.Response], T],
+        handler: Callable[[Dict[str, str], httpx.Response], Optional[T]],
     ):
         self._iters = iters
         self._fields = fields
@@ -609,17 +802,32 @@ class Stream(Generic[T]):
         return HTTPResponse(self._raw_response)
 
     def __iter__(self):
-        return self
+        while True:
+            event_dict = self._extra_event()
+            if not event_dict:
+                break
+            item = self._handler(event_dict, self._raw_response)
+            if item:
+                yield item
 
-    def __next__(self) -> T:
-        return self._handler(self._extra_event(), self._raw_response)
+    def __next__(self):
+        while True:
+            event_dict = self._extra_event()
+            if not event_dict:
+                raise StopIteration
+            item = self._handler(event_dict, self._raw_response)
+            if item:
+                return item
 
-    def _extra_event(self) -> Dict[str, str]:
+    def _extra_event(self) -> Optional[Dict[str, str]]:
         data = dict(map(lambda x: (x, ""), self._fields))
         times = 0
 
         while times < len(data):
-            line = next(self._iters).strip()
+            try:
+                line = next(self._iters).strip()
+            except StopIteration:
+                return None
             if line == "":
                 continue
 
@@ -645,7 +853,7 @@ class AsyncStream(Generic[T]):
         self,
         iters: AsyncIterator[str],
         fields: List[str],
-        handler: Callable[[Dict[str, str], httpx.Response], T],
+        handler: Callable[[Dict[str, str], httpx.Response], Optional[T]],
         raw_response: httpx.Response,
     ):
         self._iters = iters
@@ -682,7 +890,9 @@ class AsyncStream(Generic[T]):
 
             if times >= len(self._fields):
                 try:
-                    yield self._handler(data, self._raw_response)
+                    event = self._handler(data, self._raw_response)
+                    if event:
+                        yield event
                 except StopAsyncIteration:
                     return
                 data = self._make_data()

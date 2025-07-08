@@ -1,3 +1,5 @@
+from .api_apps import APIApp, AppType, DeleteAPIAppsResp, UpdateAPIAppsResp
+from .api_apps.events import CreateAPIAppsEventsResp, DeleteAPIAppsEventsResp
 from .apps import SimpleApp
 from .audio.live import LiveInfo, LiveType, StreamInfo
 from .audio.rooms import CreateRoomResp
@@ -93,6 +95,11 @@ from .config import (
     DEFAULT_TIMEOUT,
 )
 from .conversations import Conversation, Section
+from .conversations.message.feedback import (
+    CreateConversationMessageFeedbackResp,
+    DeleteConversationMessageFeedbackResp,
+    FeedbackType,
+)
 from .coze import AsyncCoze, Coze
 from .datasets import CreateDatasetResp, Dataset, DatasetStatus, DocumentProgress
 from .datasets.documents import (
@@ -107,6 +114,7 @@ from .datasets.documents import (
     DocumentUpdateType,
 )
 from .datasets.images import Photo
+from .enterprises.members import EnterpriseMember, EnterpriseMemberRole
 from .exception import CozeAPIError, CozeError, CozeInvalidEventError, CozePKCEAuthError, CozePKCEAuthErrorType
 from .files import File
 from .log import setup_logging
@@ -166,6 +174,7 @@ from .websockets.chat import (
     ChatUpdateEvent,
     ConversationAudioCompletedEvent,
     ConversationAudioDeltaEvent,
+    ConversationAudioSentenceStartEvent,
     ConversationAudioTranscriptCompletedEvent,
     ConversationAudioTranscriptUpdateEvent,
     ConversationChatCanceledEvent,
@@ -218,13 +227,21 @@ from .workspaces.members import CreateWorkspaceMemberResp, DeleteWorkspaceMember
 
 __all__ = [
     "VERSION",
+    # api_apps
+    "APIApp",
+    "AppType",
+    "UpdateAPIAppsResp",
+    "DeleteAPIAppsResp",
+    # api_apps.events
+    "CreateAPIAppsEventsResp",
+    "DeleteAPIAppsEventsResp",
+    # apps
+    "SimpleApp",
+    # audio
     # audio.live
     "LiveInfo",
     "StreamInfo",
     "LiveType",
-    # apps
-    "SimpleApp",
-    # audio
     # audio.rooms
     "CreateRoomResp",
     # audio.voices
@@ -314,6 +331,10 @@ __all__ = [
     # conversations
     "Conversation",
     "Section",
+    # conversations.message.feedback
+    "CreateConversationMessageFeedbackResp",
+    "DeleteConversationMessageFeedbackResp",
+    "FeedbackType",
     # files
     "File",
     # datasets
@@ -333,6 +354,9 @@ __all__ = [
     "DocumentSourceInfo",
     "DocumentUpdateRule",
     "DocumentBase",
+    # enterprises.members
+    "EnterpriseMember",
+    "EnterpriseMemberRole",
     # websockets.audio.speech
     "InputTextBufferAppendEvent",
     "InputTextBufferCompleteEvent",
@@ -372,6 +396,7 @@ __all__ = [
     "ConversationChatCreatedEvent",
     "ConversationChatInProgressEvent",
     "ConversationMessageDeltaEvent",
+    "ConversationAudioSentenceStartEvent",
     "ConversationMessageCompletedEvent",
     "ConversationAudioCompletedEvent",
     "ConversationAudioTranscriptCompletedEvent",

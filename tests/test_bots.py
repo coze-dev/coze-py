@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from cozepy import AsyncCoze, AsyncTokenAuth, Bot, Coze, SimpleBot, TokenAuth
+from cozepy import APIApp, AppType, AsyncCoze, AsyncTokenAuth, Bot, Coze, SimpleBot, TokenAuth
 from cozepy.util import random_hex
 from tests.test_util import logid_key
 
@@ -120,6 +120,74 @@ def mock_list_bot(respx_mock, total_count, page, use_api_version=1):
             )
         )
 
+    return logid
+
+
+def mock_create_api_app(respx_mock) -> APIApp:
+    app = APIApp(
+        id="app_id",
+        app_type=AppType.NORMAL,
+        verify_token="verify_token",
+        name="app_name",
+        connector_id=None,
+        callback_url=None,
+    )
+    app._raw_response = httpx.Response(
+        200,
+        json={"data": app.model_dump()},
+        headers={logid_key(): random_hex(10)},
+    )
+    respx_mock.post("/v1/api_apps").mock(app._raw_response)
+    return app
+
+
+def mock_update_api_app(respx_mock):
+    logid = random_hex(10)
+    raw_response = httpx.Response(200, json={"data": None}, headers={logid_key(): logid})
+    respx_mock.put("/v1/api_apps/app_id").mock(raw_response)
+    return logid
+
+
+def mock_delete_api_app(respx_mock):
+    logid = random_hex(10)
+    raw_response = httpx.Response(200, json={"data": None}, headers={logid_key(): logid})
+    respx_mock.delete("/v1/api_apps/app_id").mock(raw_response)
+    return logid
+
+
+def mock_list_api_app(respx_mock, total_count, page):
+    logid = random_hex(10)
+    # 正常页和兜底页都注册
+    respx_mock.get(
+        "https://api.coze.com/v1/api_apps",
+        params={
+            "page_size": 1,
+            "page_token": str(page),
+        },
+    ).mock(
+        httpx.Response(
+            200,
+            json={
+                "data": {
+                    "items": [
+                        APIApp(
+                            id=f"id_{page}",
+                            app_type=AppType.NORMAL,
+                            verify_token="verify_token",
+                            name="app_name",
+                            connector_id=None,
+                            callback_url=None,
+                        ).model_dump()
+                    ]
+                    if page <= total_count
+                    else [],
+                    "next_page_token": str(page + 1) if page < total_count else "",
+                    "has_more": True if page < total_count else False,
+                }
+            },
+            headers={logid_key(): logid},
+        )
+    )
     return logid
 
 
@@ -273,13 +341,108 @@ class TestAsyncBots:
                 assert bot.bot_id == f"id_{total_result}"
             assert total_result == total
 
-            # iter page
-            total_result = 0
-            async for page in resp.iter_pages():
-                total_result += 1
-                assert page
-                assert page.has_more == (total_result < total)
-                assert len(page.items) == size
-                bot = page.items[0]
-                assert bot.bot_id == f"id_{total_result}"
-            assert total_result == total
+        # iter page
+        total_result = 0
+        async for page in resp.iter_pages():
+            total_result += 1
+            assert page
+            assert page.has_more == (total_result < total)
+            assert len(page.items) == size
+            bot = page.items[0]
+            assert bot.bot_id == f"id_{total_result}"
+        assert total_result == total
+
+
+@pytest.mark.respx(base_url="https://api.coze.com")
+class TestSyncAPIApps:
+    def test_sync_api_apps_create(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+        mock_app = mock_create_api_app(respx_mock)
+        app = coze.api_apps.create(app_type=AppType.NORMAL, name="app_name")
+        assert app
+        assert app.response.logid == mock_app.response.logid
+        assert app.id == mock_app.id
+
+    def test_sync_api_apps_update(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+        mock_logid = mock_update_api_app(respx_mock)
+        res = coze.api_apps.update(app_id="app_id", name="new_name")
+        assert res
+        assert res.response.logid == mock_logid
+
+    def test_sync_api_apps_delete(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+        mock_logid = mock_delete_api_app(respx_mock)
+        res = coze.api_apps.delete(app_id="app_id")
+        assert res
+        assert res.response.logid == mock_logid
+
+    def test_sync_api_apps_list(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+        total = 3
+        size = 1
+        # 只 mock total 页
+        for idx in range(total):
+            mock_list_api_app(respx_mock, total_count=total, page=idx + 1)
+        resp = coze.api_apps.list(page_token="1", page_size=1)
+        assert resp
+        # 迭代所有 app
+        ids = [app.id for app in resp]
+        assert ids == [f"id_{i+1}" for i in range(total)]
+        # 迭代所有 page
+        total_result = 0
+        for page in resp.iter_pages():
+            total_result += 1
+            assert page
+            assert len(page.items) == size
+            app = page.items[0]
+            assert app.id == f"id_{total_result}"
+        assert total_result == total
+
+
+@pytest.mark.respx(base_url="https://api.coze.com")
+@pytest.mark.asyncio
+class TestAsyncAPIApps:
+    async def test_async_api_apps_create(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        mock_app = mock_create_api_app(respx_mock)
+        app = await coze.api_apps.create(app_type=AppType.NORMAL, name="app_name")
+        assert app
+        assert app.response.logid == mock_app.response.logid
+        assert app.id == mock_app.id
+
+    async def test_async_api_apps_update(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        mock_logid = mock_update_api_app(respx_mock)
+        res = await coze.api_apps.update(app_id="app_id", name="new_name")
+        assert res
+        assert res.response.logid == mock_logid
+
+    async def test_async_api_apps_delete(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        mock_logid = mock_delete_api_app(respx_mock)
+        res = await coze.api_apps.delete(app_id="app_id")
+        assert res
+        assert res.response.logid == mock_logid
+
+    async def test_async_api_apps_list(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        total = 3
+        size = 1
+        # 只 mock total 页
+        for idx in range(total):
+            mock_list_api_app(respx_mock, total_count=total, page=idx + 1)
+        resp = await coze.api_apps.list(page_token="1", page_size=1)
+        assert resp
+        ids = []
+        async for app in resp:
+            ids.append(app.id)
+        assert ids == [f"id_{i+1}" for i in range(total)]
+        total_result = 0
+        async for page in resp.iter_pages():
+            total_result += 1
+            assert page
+            assert len(page.items) == size
+            app = page.items[0]
+            assert app.id == f"id_{total_result}"
+        assert total_result == total

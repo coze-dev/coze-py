@@ -4,7 +4,7 @@ from typing import Callable, Dict, Optional, Union
 from pydantic import BaseModel, field_serializer
 
 from cozepy.request import Requester
-from cozepy.util import remove_url_trailing_slash
+from cozepy.util import dump_exclude_none, remove_url_trailing_slash
 from cozepy.websockets.ws import (
     AsyncWebsocketsBaseClient,
     AsyncWebsocketsBaseEventHandler,
@@ -53,14 +53,16 @@ class InputAudioBufferAppendEvent(WebsocketsEvent):
     data: Data
 
     def _dump_without_delta(self):
-        return {
-            "id": self.id,
-            "type": self.event_type.value,
-            "detail": self.detail,
-            "data": {
-                "delta_length": len(self.data.delta) if self.data and self.data.delta else 0,
-            },
-        }
+        return dump_exclude_none(
+            {
+                "id": self.id,
+                "type": self.event_type.value,
+                "detail": self.detail,
+                "data": {
+                    "delta": f"<length: {len(self.data.delta) if self.data and self.data.delta else 0}>",
+                },
+            }
+        )
 
 
 # req
