@@ -7,6 +7,7 @@ from cozepy.request import AsyncHTTPClient, Requester, SyncHTTPClient
 from cozepy.util import remove_url_trailing_slash
 
 if TYPE_CHECKING:
+    from .api_apps import APIAppsClient, AsyncAPIAppsClient
     from .apps import AppsClient, AsyncAppsClient
     from .audio import AsyncAudioClient, AudioClient
     from .bots import AsyncBotsClient, BotsClient
@@ -51,6 +52,7 @@ class Coze(object):
         self._variables: Optional[VariablesClient] = None
         self._apps: Optional[AppsClient] = None
         self._enterprises: Optional[EnterprisesClient] = None
+        self._api_apps: Optional[APIAppsClient] = None
 
     @property
     def bots(self) -> "BotsClient":
@@ -178,6 +180,14 @@ class Coze(object):
             self._enterprises = EnterprisesClient(self._base_url, self._requester)
         return self._enterprises
 
+    @property
+    def api_apps(self) -> "APIAppsClient":
+        if not self._api_apps:
+            from .api_apps import APIAppsClient
+
+            self._api_apps = APIAppsClient(self._base_url, self._requester)
+        return self._api_apps
+
 
 class AsyncCoze(object):
     def __init__(
@@ -214,6 +224,7 @@ class AsyncCoze(object):
         self._variables: Optional[AsyncVariablesClient] = None
         self._apps: Optional[AsyncAppsClient] = None
         self._enterprises: Optional[AsyncEnterprisesClient] = None
+        self._api_apps: Optional[AsyncAPIAppsClient] = None
 
     @property
     def bots(self) -> "AsyncBotsClient":
@@ -340,3 +351,11 @@ class AsyncCoze(object):
 
             self._enterprises = AsyncEnterprisesClient(self._base_url, self._requester)
         return self._enterprises
+
+    @property
+    def api_apps(self) -> "AsyncAPIAppsClient":
+        if not self._api_apps:
+            from .api_apps import AsyncAPIAppsClient
+
+            self._api_apps = AsyncAPIAppsClient(self._base_url, self._requester)
+        return self._api_apps
