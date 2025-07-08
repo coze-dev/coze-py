@@ -117,6 +117,7 @@ from .datasets.images import Photo
 from .enterprises.members import EnterpriseMember, EnterpriseMemberRole
 from .exception import CozeAPIError, CozeError, CozeInvalidEventError, CozePKCEAuthError, CozePKCEAuthErrorType
 from .files import File
+from .folders import FolderType, SimpleFolder
 from .log import setup_logging
 from .model import (
     AsyncLastIDPaged,
@@ -337,6 +338,9 @@ __all__ = [
     "FeedbackType",
     # files
     "File",
+    # folders
+    "FolderType",
+    "SimpleFolder",
     # datasets
     "Dataset",
     "DatasetStatus",

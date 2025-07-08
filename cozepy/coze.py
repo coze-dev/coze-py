@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from .datasets import AsyncDatasetsClient, DatasetsClient
     from .enterprises import AsyncEnterprisesClient, EnterprisesClient
     from .files import AsyncFilesClient, FilesClient
+    from .folders import AsyncFoldersClient, FoldersClient
     from .knowledge import AsyncKnowledgeClient, KnowledgeClient  # deprecated
     from .templates import AsyncTemplatesClient, TemplatesClient
     from .users import AsyncUsersClient, UsersClient
@@ -53,6 +54,7 @@ class Coze(object):
         self._apps: Optional[AppsClient] = None
         self._enterprises: Optional[EnterprisesClient] = None
         self._api_apps: Optional[APIAppsClient] = None
+        self._folders: Optional[FoldersClient] = None
 
     @property
     def bots(self) -> "BotsClient":
@@ -188,6 +190,14 @@ class Coze(object):
             self._api_apps = APIAppsClient(self._base_url, self._requester)
         return self._api_apps
 
+    @property
+    def folders(self) -> "FoldersClient":
+        if not self._folders:
+            from .folders import FoldersClient
+
+            self._folders = FoldersClient(self._base_url, self._requester)
+        return self._folders
+
 
 class AsyncCoze(object):
     def __init__(
@@ -225,6 +235,7 @@ class AsyncCoze(object):
         self._apps: Optional[AsyncAppsClient] = None
         self._enterprises: Optional[AsyncEnterprisesClient] = None
         self._api_apps: Optional[AsyncAPIAppsClient] = None
+        self._folders: Optional[AsyncFoldersClient] = None
 
     @property
     def bots(self) -> "AsyncBotsClient":
@@ -359,3 +370,11 @@ class AsyncCoze(object):
 
             self._api_apps = AsyncAPIAppsClient(self._base_url, self._requester)
         return self._api_apps
+
+    @property
+    def folders(self) -> "AsyncFoldersClient":
+        if not self._folders:
+            from .folders import AsyncFoldersClient
+
+            self._folders = AsyncFoldersClient(self._base_url, self._requester)
+        return self._folders
