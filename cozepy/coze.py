@@ -235,6 +235,7 @@ class AsyncCoze(object):
         self._apps: Optional[AsyncAppsClient] = None
         self._enterprises: Optional[AsyncEnterprisesClient] = None
         self._api_apps: Optional[AsyncAPIAppsClient] = None
+        self._folders: Optional[AsyncFoldersClient] = None
 
     @property
     def bots(self) -> "AsyncBotsClient":
