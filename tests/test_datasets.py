@@ -23,7 +23,7 @@ def mock_create_datasets(respx_mock):
 
 def mock_list_dataset(respx_mock, total_count, page):
     respx_mock.get(
-        "https://api.coze.com/v1/datasets",
+        "/v1/datasets",
         params={
             "page_num": page,
         },
