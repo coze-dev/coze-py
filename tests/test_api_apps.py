@@ -130,15 +130,15 @@ class TestSyncApiApps:
 
     def test_sync_api_apps_events(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
-        app_id = "app_id"
-        respx_mock.post(f"https://api.coze.com/v1/api_apps/{app_id}/events").mock(
+        api_app_id = "app_id"
+        respx_mock.post(f"https://api.coze.com/v1/api_apps/{api_app_id}/events").mock(
             httpx.Response(200, json={"msg": "success", "code": 0})
         )
-        respx_mock.delete(f"https://api.coze.com/v1/api_apps/{app_id}/events").mock(
+        respx_mock.delete(f"https://api.coze.com/v1/api_apps/{api_app_id}/events").mock(
             httpx.Response(200, json={"msg": "success", "code": 0})
         )
         respx_mock.get(
-            f"https://api.coze.com/v1/api_apps/{app_id}/events",
+            f"https://api.coze.com/v1/api_apps/{api_app_id}/events",
             params={"page_size": 20, "page_token": ""},
         ).mock(
             httpx.Response(
@@ -146,7 +146,7 @@ class TestSyncApiApps:
                 json={
                     "items": [
                         APIAppEvent(
-                            app_id=app_id,
+                            api_app_id=api_app_id,
                             name="name",
                             description="description",
                             event_type="event_type",
@@ -158,11 +158,11 @@ class TestSyncApiApps:
             )
         )
 
-        coze.api_apps.events.create(app_id=app_id, event_types=["event_type"])
-        coze.api_apps.events.delete(app_id=app_id, event_types=["event_type"])
-        events = coze.api_apps.events.list(app_id=app_id)
+        coze.api_apps.events.create(api_app_id=api_app_id, event_types=["event_type"])
+        coze.api_apps.events.delete(api_app_id=api_app_id, event_types=["event_type"])
+        events = coze.api_apps.events.list(api_app_id=api_app_id)
         assert len(events.items) == 1
-        assert events.items[0].app_id == app_id
+        assert events.items[0].api_app_id == api_app_id
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -210,15 +210,15 @@ class TestAsyncApiApps:
 
     async def test_async_api_apps_events(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
-        app_id = "app_id"
-        respx_mock.post(f"https://api.coze.com/v1/api_apps/{app_id}/events").mock(
+        api_app_id = "app_id"
+        respx_mock.post(f"https://api.coze.com/v1/api_apps/{api_app_id}/events").mock(
             httpx.Response(200, json={"msg": "success", "code": 0})
         )
-        respx_mock.delete(f"https://api.coze.com/v1/api_apps/{app_id}/events").mock(
+        respx_mock.delete(f"https://api.coze.com/v1/api_apps/{api_app_id}/events").mock(
             httpx.Response(200, json={"msg": "success", "code": 0})
         )
         respx_mock.get(
-            f"https://api.coze.com/v1/api_apps/{app_id}/events",
+            f"https://api.coze.com/v1/api_apps/{api_app_id}/events",
             params={"page_size": 20, "page_token": ""},
         ).mock(
             httpx.Response(
@@ -226,7 +226,7 @@ class TestAsyncApiApps:
                 json={
                     "items": [
                         APIAppEvent(
-                            app_id=app_id,
+                            api_app_id=api_app_id,
                             name="name",
                             description="description",
                             event_type="event_type",
@@ -238,8 +238,8 @@ class TestAsyncApiApps:
             )
         )
 
-        await coze.api_apps.events.create(app_id=app_id, event_types=["event_type"])
-        await coze.api_apps.events.delete(app_id=app_id, event_types=["event_type"])
-        events = await coze.api_apps.events.list(app_id=app_id)
+        await coze.api_apps.events.create(api_app_id=api_app_id, event_types=["event_type"])
+        await coze.api_apps.events.delete(api_app_id=api_app_id, event_types=["event_type"])
+        events = await coze.api_apps.events.list(api_app_id=api_app_id)
         assert len(events.items) == 1
-        assert events.items[0].app_id == app_id
+        assert events.items[0].api_app_id == api_app_id
