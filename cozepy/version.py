@@ -3,7 +3,7 @@ import platform
 import sys
 from functools import lru_cache
 
-VERSION = "0.17.0"
+VERSION = "0.18.0"
 
 
 def get_os_version() -> str:
