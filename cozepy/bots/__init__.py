@@ -25,7 +25,7 @@ class BotOnboardingInfo(CozeModel):
     prologue: str = ""
     # The list of recommended questions configured for the bot.
     # This field will not be returned when user suggested questions are not enabled.
-    suggested_questions: List[str] = []
+    suggested_questions: Optional[List[str]] = []
 
 
 class BotKnowledge(CozeModel):
