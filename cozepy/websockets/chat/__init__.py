@@ -198,15 +198,15 @@ class InputTextGenerateAudioEvent(WebsocketsEvent):
     你可以主动提交一段文字用来做语音合成，提交的消息不会触发智能体的回复，只会合成音频内容下发到客户端。
     提交事件的时候如果智能体正在输出语音会被中断输出。适合在和智能体聊天过程中客户端长时间没有响应，
     智能体可以主动说话暖场的场景。
-    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#input_text_generate_audio
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#620367d0
     """
 
-    class ContentMode(DynamicStrEnum):
+    class Mode(DynamicStrEnum):
         TEXT = "text"
 
     class Data(BaseModel):
         # 消息内容的类型，支持设置为：text：文本
-        mode: "InputTextGenerateAudioEvent.ContentMode"
+        mode: "InputTextGenerateAudioEvent.Mode"
         # 当 mode == text 时候必填。长度限制 (0, 1024) 字节
         text: Optional[str] = None
 

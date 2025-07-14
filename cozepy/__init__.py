@@ -193,6 +193,7 @@ from .websockets.chat import (
     ConversationMessageDeltaEvent,
     InputAudioBufferSpeechStartedEvent,
     InputAudioBufferSpeechStoppedEvent,
+    InputTextGenerateAudioEvent,
     WebsocketsChatClient,
     WebsocketsChatEventHandler,
 )
@@ -395,6 +396,7 @@ __all__ = [
     "ConversationClear",
     "ConversationChatSubmitToolOutputsEvent",
     "ConversationChatCancelEvent",
+    "InputTextGenerateAudioEvent",
     "ChatCreatedEvent",
     "ChatUpdatedEvent",
     "ConversationChatCreatedEvent",
