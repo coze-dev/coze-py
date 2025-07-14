@@ -96,6 +96,7 @@ class WebsocketsEventType(DynamicStrEnum):
     CONVERSATION_CLEAR = "conversation.clear"  # 清除上下文
     CONVERSATION_CHAT_SUBMIT_TOOL_OUTPUTS = "conversation.chat.submit_tool_outputs"  # 提交端插件执行结果
     CONVERSATION_CHAT_CANCEL = "conversation.chat.cancel"  # 打断智能体输出
+    INPUT_TEXT_GENERATE_AUDIO = "input_text.generate_audio"  # 提交文字用于语音合成
     # resp
     CHAT_CREATED = "chat.created"  # 对话连接成功
     CHAT_UPDATED = "chat.updated"  # 对话配置成功

@@ -191,6 +191,29 @@ class ConversationChatCancelEvent(WebsocketsEvent):
     event_type: WebsocketsEventType = WebsocketsEventType.CONVERSATION_CHAT_CANCEL
 
 
+# req
+class InputTextGenerateAudioEvent(WebsocketsEvent):
+    """提交文字用于语音合成
+
+    你可以主动提交一段文字用来做语音合成，提交的消息不会触发智能体的回复，只会合成音频内容下发到客户端。
+    提交事件的时候如果智能体正在输出语音会被中断输出。适合在和智能体聊天过程中客户端长时间没有响应，
+    智能体可以主动说话暖场的场景。
+    docs: https://www.coze.cn/open/docs/developer_guides/streaming_chat_event#input_text_generate_audio
+    """
+
+    class ContentMode(DynamicStrEnum):
+        TEXT = "text"
+
+    class Data(BaseModel):
+        # 消息内容的类型，支持设置为：text：文本
+        mode: "InputTextGenerateAudioEvent.ContentMode"
+        # 当 mode == text 时候必填。长度限制 (0, 1024) 字节
+        text: Optional[str] = None
+
+    event_type: WebsocketsEventType = WebsocketsEventType.INPUT_TEXT_GENERATE_AUDIO
+    data: Data
+
+
 # resp
 class ChatCreatedEvent(WebsocketsEvent):
     """对话连接成功
@@ -603,6 +626,10 @@ class WebsocketsChatClient(WebsocketsBaseClient):
     def conversation_message_create(self, data: ConversationMessageCreateEvent.Data) -> None:
         self._input_queue.put(ConversationMessageCreateEvent.model_validate({"data": data}))
 
+    # 提交文字用于语音合成
+    def input_text_generate_audio(self, data: InputTextGenerateAudioEvent.Data) -> None:
+        self._input_queue.put(InputTextGenerateAudioEvent.model_validate({"data": data}))
+
 
 class WebsocketsChatBuildClient(object):
     def __init__(self, base_url: str, requester: Requester):
@@ -800,6 +827,10 @@ class AsyncWebsocketsChatClient(AsyncWebsocketsBaseClient):
     # 打断智能体输出
     async def conversation_message_create(self, data: ConversationMessageCreateEvent.Data) -> None:
         await self._input_queue.put(ConversationMessageCreateEvent.model_validate({"data": data}))
+
+    # 提交文字用于语音合成
+    async def input_text_generate_audio(self, data: InputTextGenerateAudioEvent.Data) -> None:
+        await self._input_queue.put(InputTextGenerateAudioEvent.model_validate({"data": data}))
 
 
 class AsyncWebsocketsChatBuildClient(object):
