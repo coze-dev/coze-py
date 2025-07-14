@@ -45,6 +45,8 @@ class BotModelInfo(CozeModel):
 
     # The ID of the model.
     model_id: str
+    # The name of the model.
+    model_name: Optional[str] = None
     # The temperature of the model.
     temperature: Optional[float] = None
     # The context_round of the model.
