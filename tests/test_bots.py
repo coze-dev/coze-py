@@ -95,7 +95,7 @@ def mock_list_bot(respx_mock, total_count, page, use_api_version=1):
     logid = random_hex(10)
     if use_api_version == 1:
         respx_mock.get(
-            "https://api.coze.com/v1/space/published_bot_list",
+            "https://api.coze.com/v1/space/published_bots_list",
             params={
                 "page_index": page,
             },
