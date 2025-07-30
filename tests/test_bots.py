@@ -66,6 +66,16 @@ def mock_publish_bot(respx_mock) -> Bot:
     return bot
 
 
+def mock_unpublish_bot(respx_mock, bot_id: str = "bot_id") -> None:
+    respx_mock.post(f"/v1/bots/{bot_id}/unpublish").mock(
+        httpx.Response(
+            200,
+            json={},
+            headers={logid_key(): random_hex(10)},
+        )
+    )
+
+
 def mock_retrieve_bot(respx_mock, use_api_version=1) -> Bot:
     bot_id = random_hex(10)
     bot = mock_bot(bot_id)
@@ -85,7 +95,7 @@ def mock_list_bot(respx_mock, total_count, page, use_api_version=1):
     logid = random_hex(10)
     if use_api_version == 1:
         respx_mock.get(
-            "https://api.coze.com/v1/space/published_bots_list",
+            "https://api.coze.com/v1/space/published_bot_list",
             params={
                 "page_index": page,
             },
@@ -193,7 +203,7 @@ def mock_list_api_app(respx_mock, total_count, page):
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 class TestSyncBots:
-    def test_sync_bots_create(self, respx_mock):
+    def test_sync_bot_create(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         mock_bot = mock_create_bot(respx_mock)
@@ -203,7 +213,7 @@ class TestSyncBots:
         assert bot.response.logid == mock_bot.response.logid
         assert bot.bot_id == mock_bot.bot_id
 
-    def test_sync_bots_update(self, respx_mock):
+    def test_sync_bot_update(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         mock_logid = mock_update_bot(respx_mock)
@@ -213,7 +223,7 @@ class TestSyncBots:
         assert res.response.logid is not None
         assert res.response.logid == mock_logid
 
-    def test_sync_bots_publish(self, respx_mock):
+    def test_sync_bot_publish(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         mock_bot = mock_publish_bot(respx_mock)
@@ -224,7 +234,15 @@ class TestSyncBots:
         assert bot.response.logid == mock_bot.response.logid
         assert bot.bot_id == mock_bot.bot_id
 
-    def test_sync_bots_retrieve(self, respx_mock):
+    def test_sync_bot_unpublish(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        mock_unpublish_bot(respx_mock, bot_id="bot_id")
+
+        resp = coze.bots.unpublish(bot_id="bot_id", connector_id="1024")
+        assert resp
+
+    def test_sync_bot_retrieve(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         for use_api_version in [1, 2]:
@@ -236,7 +254,7 @@ class TestSyncBots:
             assert bot.response.logid == mock_bot.response.logid
             assert bot.bot_id == mock_bot.bot_id
 
-    def test_sync_bots_list_v1(self, respx_mock):
+    def test_sync_bot_list_v1(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         for use_api_version in [1, 2]:
@@ -274,7 +292,7 @@ class TestSyncBots:
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
 class TestAsyncBots:
-    async def test_async_bots_create(self, respx_mock):
+    async def test_async_bot_create(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_bot = mock_create_bot(respx_mock)
@@ -285,7 +303,7 @@ class TestAsyncBots:
         assert bot.response.logid == mock_bot.response.logid
         assert bot.bot_id == mock_bot.bot_id
 
-    async def test_async_bots_update(self, respx_mock):
+    async def test_async_bot_update(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_logid = mock_update_bot(respx_mock)
@@ -295,7 +313,7 @@ class TestAsyncBots:
         assert res.response.logid is not None
         assert res.response.logid == mock_logid
 
-    async def test_async_bots_publish(self, respx_mock):
+    async def test_async_bot_publish(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         mock_bot = mock_publish_bot(respx_mock)
@@ -306,7 +324,15 @@ class TestAsyncBots:
         assert bot.response.logid == mock_bot.response.logid
         assert bot.bot_id == mock_bot.bot_id
 
-    async def test_async_bots_retrieve(self, respx_mock):
+    async def test_async_bot_unpublish(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+
+        mock_unpublish_bot(respx_mock, bot_id="bot_id")
+
+        resp = await coze.bots.unpublish(bot_id="bot_id", connector_id="1024")
+        assert resp
+
+    async def test_async_bot_retrieve(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         for use_api_version in [1, 2]:
@@ -318,7 +344,7 @@ class TestAsyncBots:
             assert bot.response.logid == mock_bot.response.logid
             assert bot.bot_id == mock_bot.bot_id
 
-    async def test_async_bots_list(self, respx_mock):
+    async def test_async_bot_list(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         for use_api_version in [1, 2]:
