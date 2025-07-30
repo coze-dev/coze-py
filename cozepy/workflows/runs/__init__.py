@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, AsyncIterator, Dict, Optional
 
 import httpx
 
+from cozepy.chat import ChatUsage
 from cozepy.model import AsyncIteratorHTTPResponse, AsyncStream, CozeModel, IteratorHTTPResponse, Stream
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
@@ -22,6 +23,10 @@ class WorkflowRunResult(CozeModel):
     # asynchronously (is_async=true). You can use execute_id to call the Query Workflow
     # Asynchronous Execution Result API to obtain the final execution result of the workflow.
     execute_id: Optional[str] = ""
+
+    # 资源使用情况，包含本次 API 调用消耗的 Token 数量等信息。
+    # 此处大模型返回的消耗 Token 仅供参考，以火山引擎账单实际为准。
+    usage: Optional[ChatUsage] = None
 
 
 class WorkflowEventType(str, Enum):
@@ -67,6 +72,10 @@ class WorkflowEventMessage(CozeModel):
     # Additional fields.
     # 额外字段。
     ext: Optional[Dict[str, Any]] = None
+
+    # 资源使用情况，包含本次 API 调用消耗的 Token 数量等信息。
+    # 此处大模型返回的消耗 Token 仅供参考，以火山引擎账单实际为准。
+    usage: Optional[ChatUsage] = None
 
 
 class WorkflowEventInterruptData(CozeModel):
