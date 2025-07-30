@@ -270,6 +270,10 @@ class UpdateBotResp(CozeModel):
     pass
 
 
+class UnpublishBotResp(CozeModel):
+    pass
+
+
 class _PrivateListBotsDataV1(CozeModel, NumberPagedResponse[SimpleBot]):
     class SimpleBotV1(CozeModel):
         bot_id: str
@@ -428,6 +432,30 @@ class BotsClient(object):
         }
 
         return self._requester.request("post", url, False, Bot, headers=headers, body=body)
+
+    def unpublish(
+        self, *, bot_id: str, connector_id: str, unpublish_reason: Optional[str] = None, **kwargs
+    ) -> UnpublishBotResp:
+        """
+        下架智能体
+
+        智能体发布后，你可以调用本 API 从扣子官方渠道及自定义渠道下架智能体。
+
+        docs: https://www.coze.cn/open/docs/developer_guides/unpublish_agent
+
+        :param bot_id: 待下架的智能体的 ID。
+        :param connector_id: 渠道 ID，例如 "1024" 表示 API 渠道。
+        :param unpublish_reason: 下架渠道的原因说明，用于记录或说明为何执行下架操作。最大 1024 个字符。
+        :return: 智能体对象
+        """
+        url = f"{self._base_url}/v1/bots/{bot_id}/unpublish"
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {
+            "bot_id": bot_id,
+            "connector_id": connector_id,
+            "unpublish_reason": unpublish_reason,
+        }
+        return self._requester.request("post", url, False, UnpublishBotResp, headers=headers, body=body)
 
     def retrieve(self, *, bot_id: str, is_published: Optional[bool] = None, use_api_version: int = 1, **kwargs) -> Bot:
         """查看智能体配置
@@ -727,6 +755,30 @@ class AsyncBotsClient(object):
         }
 
         return await self._requester.arequest("post", url, False, Bot, headers=headers, body=body)
+
+    async def unpublish(
+        self, *, bot_id: str, connector_id: str, unpublish_reason: Optional[str] = None, **kwargs
+    ) -> UnpublishBotResp:
+        """
+        下架智能体
+
+        智能体发布后，你可以调用本 API 从扣子官方渠道及自定义渠道下架智能体。
+
+        docs: https://www.coze.cn/open/docs/developer_guides/unpublish_agent
+
+        :param bot_id: 待下架的智能体的 ID。
+        :param connector_id: 渠道 ID，例如 "1024" 表示 API 渠道。
+        :param unpublish_reason: 下架渠道的原因说明，用于记录或说明为何执行下架操作。最大 1024 个字符。
+        :return: 智能体对象
+        """
+        url = f"{self._base_url}/v1/bots/{bot_id}/unpublish"
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {
+            "bot_id": bot_id,
+            "connector_id": connector_id,
+            "unpublish_reason": unpublish_reason,
+        }
+        return await self._requester.arequest("post", url, False, UnpublishBotResp, headers=headers, body=body)
 
     async def retrieve(
         self, *, bot_id: str, is_published: Optional[bool] = None, use_api_version: int = 1, **kwargs
