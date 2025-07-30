@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Dict, Optional
 
 from pydantic import field_validator
 
+from cozepy.chat import ChatUsage
 from cozepy.model import CozeModel, ListResponse
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
@@ -99,6 +100,10 @@ class WorkflowRunHistory(CozeModel):
     debug_url: str
 
     node_execute_status: Optional[Dict[str, WorkflowRunHistoryNodeExecuteStatus]] = None
+
+    # 资源使用情况，包含本次 API 调用消耗的 Token 数量等信息。
+    # 此处大模型返回的消耗 Token 仅供参考，以火山引擎账单实际为准。
+    usage: Optional[ChatUsage] = None
 
     @field_validator("error_code", mode="before")
     @classmethod

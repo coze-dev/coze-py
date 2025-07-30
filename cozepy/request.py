@@ -581,6 +581,7 @@ class Requester(object):
                         "data": body.get(data_field),
                         "debug_url": debug_url or "",
                         "execute_id": body.get("execute_id") or None,
+                        "usage": body.get("usage") or None,
                     },
                 )
             return 0, "", debug_url, body[data_field]
