@@ -5,6 +5,8 @@ from cozepy.model import AsyncNumberPaged, CozeModel, DynamicStrEnum, HTTPReques
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
 
+from .versions import WorkflowUserInfo
+
 if TYPE_CHECKING:
     from .chat import AsyncWorkflowsChatClient, WorkflowsChatClient
     from .runs import AsyncWorkflowsRunsClient, WorkflowsRunsClient
@@ -16,45 +18,35 @@ class WorkflowMode(DynamicStrEnum):
     CHATFLOW = "chatflow"
 
 
-class WorkflowInfo(CozeModel):
+class WorkflowBasic(CozeModel):
     workflow_id: str
     workflow_name: str
     description: str
     icon_url: str
     app_id: str
 
+    # 创建时间，Unix时间戳
+    created_at: int
 
-class WorkflowDetailInfo(CozeModel):
+    # 更新时间，Unix时间戳
+    updated_at: int
+
+    # 创建者信息
+    creator: WorkflowUserInfo
+
+
+class WorkflowInfo(CozeModel):
     """
     工作流详细信息
 
     包含工作流的完整配置和元数据信息。
     """
 
-    # 工作流ID
-    workflow_id: str
-    # 工作流名称
-    workflow_name: str
-    # 工作流描述
-    description: str
-    # 工作流图标URL
-    icon_url: str
-    # 应用ID
-    app_id: str
-    # 工作流模式，可选值：workflow、chatflow
-    workflow_mode: str
-    # 创建时间，Unix时间戳
-    created_at: int
-    # 更新时间，Unix时间戳
-    updated_at: int
-    # 工作流版本号
-    version: str
-    # 发布状态，可选值：all、published_online、unpublished_draft
-    publish_status: str
+    workflow_detail: WorkflowBasic
 
 
-class _PrivateListWorkflowData(CozeModel, NumberPagedResponse[WorkflowInfo]):
-    items: List[WorkflowInfo]
+class _PrivateListWorkflowData(CozeModel, NumberPagedResponse[WorkflowBasic]):
+    items: List[WorkflowBasic]
     has_more: bool
 
     def get_total(self) -> Optional[int]:
@@ -63,7 +55,7 @@ class _PrivateListWorkflowData(CozeModel, NumberPagedResponse[WorkflowInfo]):
     def get_has_more(self) -> Optional[bool]:
         return self.has_more
 
-    def get_items(self) -> List[WorkflowInfo]:
+    def get_items(self) -> List[WorkflowBasic]:
         return self.items
 
 
@@ -104,7 +96,7 @@ class WorkflowsClient(object):
         *,
         workflow_id: str,
         **kwargs,
-    ) -> WorkflowDetailInfo:
+    ) -> WorkflowInfo:
         """
         获取工作流详细信息。
 
@@ -113,12 +105,11 @@ class WorkflowsClient(object):
         docs cn: https://www.coze.cn/docs/developer_guides/get_workflow_info
 
         :param workflow_id: 工作流ID
-        :param kwargs: 额外参数，支持 headers 等
         :return: 返回工作流的详细信息
         """
         url = f"{self._base_url}/v1/workflows/{workflow_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("get", url, False, WorkflowDetailInfo, headers=headers)
+        return self._requester.request("get", url, False, WorkflowInfo, headers=headers)
 
     def list(
         self,
@@ -129,7 +120,7 @@ class WorkflowsClient(object):
         publish_status: Optional[PublishStatus] = None,
         page_num: int = 1,
         page_size: int = 100,
-    ) -> NumberPaged[WorkflowInfo]:
+    ) -> NumberPaged[WorkflowBasic]:
         url = f"{self._base_url}/v1/workflows"
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
@@ -195,7 +186,7 @@ class AsyncWorkflowsClient(object):
         *,
         workflow_id: str,
         **kwargs,
-    ) -> WorkflowDetailInfo:
+    ) -> WorkflowInfo:
         """
         获取工作流详细信息。
 
@@ -204,12 +195,11 @@ class AsyncWorkflowsClient(object):
         docs cn: https://www.coze.cn/docs/developer_guides/get_workflow_info
 
         :param workflow_id: 工作流ID
-        :param kwargs: 额外参数，支持 headers 等
         :return: 返回工作流的详细信息
         """
         url = f"{self._base_url}/v1/workflows/{workflow_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("get", url, False, WorkflowDetailInfo, headers=headers)
+        return await self._requester.arequest("get", url, False, WorkflowInfo, headers=headers)
 
     async def list(
         self,
@@ -221,7 +211,7 @@ class AsyncWorkflowsClient(object):
         page_num: int = 1,
         page_size: int = 100,
         **kwargs,
-    ) -> AsyncNumberPaged[WorkflowInfo]:
+    ) -> AsyncNumberPaged[WorkflowBasic]:
         url = f"{self._base_url}/v1/workflows"
         headers: Optional[dict] = kwargs.get("headers")
 
