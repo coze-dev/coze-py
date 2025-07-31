@@ -200,6 +200,9 @@ class TestSyncWorkflowsRuns:
                     "description": "desc1",
                     "icon_url": "icon1",
                     "app_id": "app1",
+                    "created_at": "1699488000",
+                    "updated_at": "1699488000",
+                    "creator": {"id": "user1", "name": "User One"},
                 },
                 {
                     "workflow_id": "w2",
@@ -207,6 +210,9 @@ class TestSyncWorkflowsRuns:
                     "description": "desc2",
                     "icon_url": "icon2",
                     "app_id": "app2",
+                    "created_at": "1699574400",
+                    "updated_at": "1699574400",
+                    "creator": {"id": "user2", "name": "User Two"},
                 },
             ],
             "has_more": False,
@@ -217,6 +223,69 @@ class TestSyncWorkflowsRuns:
         assert len(items) == 2
         assert items[0].workflow_id == "w1"
         assert items[1].workflow_id == "w2"
+
+    def test_sync_workflows_list_versions(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+        workflow_id = "test_workflow_id"
+        url = f"https://api.coze.com/v1/workflows/{workflow_id}/versions"
+        mock_data = {
+            "items": [
+                {
+                    "version": "1.0.0",
+                    "description": "Initial version",
+                    "created_at": "1699488000",
+                    "updated_at": "1699488000",
+                    "workflow_id": workflow_id,
+                    "creator": {"id": "user1", "name": "User One"},
+                },
+                {
+                    "version": "1.0.1",
+                    "description": "Bug fixes",
+                    "created_at": "1699574400",
+                    "updated_at": "1699574400",
+                    "workflow_id": workflow_id,
+                    "creator": {"id": "user2", "name": "User Two"},
+                },
+            ],
+            "has_more": False,
+        }
+        respx_mock.get(url).mock(return_value=httpx.Response(200, json=mock_data))
+        paged = coze.workflows.versions.list(workflow_id=workflow_id)
+        items = list(paged)
+        assert len(items) == 2
+        assert items[0].version == "1.0.0"
+        assert items[0].creator.id == "user1"
+        assert items[1].version == "1.0.1"
+        assert items[1].creator.id == "user2"
+
+    @pytest.mark.respx(base_url="https://api.coze.com")
+    def test_sync_workflows_retrieve(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+        workflow_id = "test_workflow_id"
+        url = f"https://api.coze.com/v1/workflows/{workflow_id}"
+        mock_data = {
+            "workflow_detail": {
+                "workflow_id": workflow_id,
+                "workflow_name": "测试工作流",
+                "description": "这是一个测试工作流",
+                "icon_url": "https://example.com/icon.png",
+                "app_id": "test_app_id",
+                "created_at": "1699488000",
+                "updated_at": "1699574400",
+                "creator": {"id": "user123", "name": "测试用户"},
+            }
+        }
+        respx_mock.get(url).mock(return_value=httpx.Response(200, json=mock_data))
+        result = coze.workflows.retrieve(workflow_id=workflow_id)
+        assert result.workflow_detail.workflow_id == workflow_id
+        assert result.workflow_detail.workflow_name == "测试工作流"
+        assert result.workflow_detail.description == "这是一个测试工作流"
+        assert result.workflow_detail.icon_url == "https://example.com/icon.png"
+        assert result.workflow_detail.app_id == "test_app_id"
+        assert result.workflow_detail.created_at == "1699488000"
+        assert result.workflow_detail.updated_at == "1699574400"
+        assert result.workflow_detail.creator.id == "user123"
+        assert result.workflow_detail.creator.name == "测试用户"
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -327,6 +396,9 @@ class TestAsyncWorkflowsRuns:
                     "description": "desc1",
                     "icon_url": "icon1",
                     "app_id": "app1",
+                    "created_at": "1699488000",
+                    "updated_at": "1699488000",
+                    "creator": {"id": "user1", "name": "User One"},
                 },
                 {
                     "workflow_id": "w2",
@@ -334,6 +406,9 @@ class TestAsyncWorkflowsRuns:
                     "description": "desc2",
                     "icon_url": "icon2",
                     "app_id": "app2",
+                    "created_at": "1699574400",
+                    "updated_at": "1699574400",
+                    "creator": {"id": "user2", "name": "User Two"},
                 },
             ],
             "has_more": False,
@@ -344,3 +419,66 @@ class TestAsyncWorkflowsRuns:
         assert len(items) == 2
         assert items[0].workflow_id == "w1"
         assert items[1].workflow_id == "w2"
+
+    async def test_async_workflows_list_versions(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        workflow_id = "test_workflow_id"
+        url = f"https://api.coze.com/v1/workflows/{workflow_id}/versions"
+        mock_data = {
+            "items": [
+                {
+                    "version": "1.0.0",
+                    "description": "Initial version",
+                    "created_at": "1699488000",
+                    "updated_at": "1699488000",
+                    "workflow_id": workflow_id,
+                    "creator": {"id": "user1", "name": "User One"},
+                },
+                {
+                    "version": "1.0.1",
+                    "description": "Bug fixes",
+                    "created_at": "1699574400",
+                    "updated_at": "1699574400",
+                    "workflow_id": workflow_id,
+                    "creator": {"id": "user2", "name": "User Two"},
+                },
+            ],
+            "has_more": False,
+        }
+        respx_mock.get(url).mock(return_value=httpx.Response(200, json=mock_data))
+        paged = await coze.workflows.versions.list(workflow_id=workflow_id)
+        items = [item async for item in paged]
+        assert len(items) == 2
+        assert items[0].version == "1.0.0"
+        assert items[0].creator.id == "user1"
+        assert items[1].version == "1.0.1"
+        assert items[1].creator.id == "user2"
+
+    @pytest.mark.respx(base_url="https://api.coze.com")
+    async def test_async_workflows_retrieve(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        workflow_id = "test_workflow_id"
+        url = f"https://api.coze.com/v1/workflows/{workflow_id}"
+        mock_data = {
+            "workflow_detail": {
+                "workflow_id": workflow_id,
+                "workflow_name": "测试工作流",
+                "description": "这是一个测试工作流",
+                "icon_url": "https://example.com/icon.png",
+                "app_id": "test_app_id",
+                "created_at": "1699488000",
+                "updated_at": "1699574400",
+                "creator": {"id": "user123", "name": "测试用户"},
+            }
+        }
+        respx_mock.get(url).mock(return_value=httpx.Response(200, json=mock_data))
+        result = await coze.workflows.retrieve(workflow_id=workflow_id)
+        assert result.workflow_detail.workflow_id == workflow_id
+        assert result.workflow_detail.workflow_name == "测试工作流"
+        assert result.workflow_detail.description == "这是一个测试工作流"
+        assert result.workflow_detail.icon_url == "https://example.com/icon.png"
+        assert result.workflow_detail.app_id == "test_app_id"
+        assert result.workflow_detail.created_at == "1699488000"
+        assert result.workflow_detail.updated_at == "1699574400"
+        assert result.workflow_detail.creator.id == "user123"
+        assert result.workflow_detail.creator.name == "测试用户"

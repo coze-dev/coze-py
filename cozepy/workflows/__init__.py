@@ -8,6 +8,7 @@ from cozepy.util import remove_none_values, remove_url_trailing_slash
 if TYPE_CHECKING:
     from .chat import AsyncWorkflowsChatClient, WorkflowsChatClient
     from .runs import AsyncWorkflowsRunsClient, WorkflowsRunsClient
+    from .versions import AsyncWorkflowsVersionsClient, WorkflowsVersionsClient
 
 
 class WorkflowMode(DynamicStrEnum):
@@ -15,12 +16,53 @@ class WorkflowMode(DynamicStrEnum):
     CHATFLOW = "chatflow"
 
 
+class WorkflowCreatorInfo(CozeModel):
+    """
+    工作流创建者信息。
+
+    包含创建者的基本信息。
+    """
+
+    # 用户ID
+    id: str
+    # 用户名称
+    name: str
+
+
 class WorkflowInfo(CozeModel):
+    """
+    工作流基本信息。
+
+    包含工作流的基本属性和创建者信息，对应API响应中的OpenAPIWorkflowBasic结构。
+    """
+
+    # 工作流ID
     workflow_id: str
+    # 工作流名称
     workflow_name: str
+    # 工作流描述
     description: str
+    # 工作流图标URL
     icon_url: str
+    # 应用ID
     app_id: str
+    # 创建时间，Unix时间戳
+    created_at: str
+    # 更新时间，Unix时间戳
+    updated_at: str
+    # 创建者信息
+    creator: WorkflowCreatorInfo
+
+
+class WorkflowDetailInfo(CozeModel):
+    """
+    工作流详细信息。
+
+    包含工作流的完整信息，用于获取单个工作流的详情。
+    """
+
+    # 工作流详细信息
+    workflow_detail: WorkflowInfo
 
 
 class _PrivateListWorkflowData(CozeModel, NumberPagedResponse[WorkflowInfo]):
@@ -43,6 +85,7 @@ class WorkflowsClient(object):
         self._requester = requester
         self._runs: Optional[WorkflowsRunsClient] = None
         self._chat: Optional[WorkflowsChatClient] = None
+        self._versions: Optional[WorkflowsVersionsClient] = None
 
     @property
     def runs(self) -> "WorkflowsRunsClient":
@@ -59,6 +102,50 @@ class WorkflowsClient(object):
 
             self._chat = WorkflowsChatClient(self._base_url, self._requester)
         return self._chat
+
+    @property
+    def versions(self) -> "WorkflowsVersionsClient":
+        if not self._versions:
+            from .versions import WorkflowsVersionsClient
+
+            self._versions = WorkflowsVersionsClient(self._base_url, self._requester)
+        return self._versions
+
+    def retrieve(
+        self,
+        *,
+        workflow_id: str,
+        **kwargs,
+    ) -> WorkflowDetailInfo:
+        """
+        获取工作流信息。
+
+        通过此接口可以获取指定工作流的详细信息。
+
+        docs cn: https://www.coze.cn/docs/developer_guides/get_workflow_info
+
+        :param workflow_id: 工作流ID
+        :param kwargs: 额外参数，支持 headers 等
+        :return: 返回工作流的详细信息
+
+        示例:
+        >>> from cozepy import Coze
+        >>> coze = Coze(auth=auth)
+        >>> workflow_info = coze.workflows.retrieve(workflow_id="workflow_123")
+        >>> print(f"工作流名称: {workflow_info.workflow_detail.workflow_name}")
+        >>> print(f"工作流描述: {workflow_info.workflow_detail.description}")
+        >>> print(f"创建者: {workflow_info.workflow_detail.creator.name}")
+        """
+        url = f"{self._base_url}/v1/workflows/{workflow_id}"
+        headers: Optional[dict] = kwargs.get("headers")
+
+        return self._requester.make_request(
+            "GET",
+            url,
+            headers=headers,
+            cast=WorkflowDetailInfo,
+            stream=False,
+        )
 
     def list(
         self,
@@ -104,6 +191,7 @@ class AsyncWorkflowsClient(object):
         self._requester = requester
         self._runs: Optional[AsyncWorkflowsRunsClient] = None
         self._chat: Optional[AsyncWorkflowsChatClient] = None
+        self._versions: Optional[AsyncWorkflowsVersionsClient] = None
 
     @property
     def runs(self) -> "AsyncWorkflowsRunsClient":
@@ -120,6 +208,50 @@ class AsyncWorkflowsClient(object):
 
             self._chat = AsyncWorkflowsChatClient(self._base_url, self._requester)
         return self._chat
+
+    @property
+    def versions(self) -> "AsyncWorkflowsVersionsClient":
+        if not self._versions:
+            from .versions import AsyncWorkflowsVersionsClient
+
+            self._versions = AsyncWorkflowsVersionsClient(self._base_url, self._requester)
+        return self._versions
+
+    async def retrieve(
+        self,
+        *,
+        workflow_id: str,
+        **kwargs,
+    ) -> WorkflowDetailInfo:
+        """
+        获取工作流信息。
+
+        通过此接口可以获取指定工作流的详细信息。
+
+        docs cn: https://www.coze.cn/docs/developer_guides/get_workflow_info
+
+        :param workflow_id: 工作流ID
+        :param kwargs: 额外参数，支持 headers 等
+        :return: 返回工作流的详细信息
+
+        示例:
+        >>> from cozepy import Coze
+        >>> coze = Coze(auth=auth)
+        >>> workflow_info = await coze.workflows.retrieve(workflow_id="workflow_123")
+        >>> print(f"工作流名称: {workflow_info.workflow_detail.workflow_name}")
+        >>> print(f"工作流描述: {workflow_info.workflow_detail.description}")
+        >>> print(f"创建者: {workflow_info.workflow_detail.creator.name}")
+        """
+        url = f"{self._base_url}/v1/workflows/{workflow_id}"
+        headers: Optional[dict] = kwargs.get("headers")
+
+        return await self._requester.amake_request(
+            "GET",
+            url,
+            headers=headers,
+            cast=WorkflowDetailInfo,
+            stream=False,
+        )
 
     async def list(
         self,

@@ -1,13 +1,9 @@
-"""
-This example is about how to create workspace members.
-"""
+#!/usr/bin/env python3
 
-import logging
 import os
 from typing import Optional
 
-from cozepy import COZE_CN_BASE_URL, Coze, DeviceOAuthApp, TokenAuth, WorkspaceMember, WorkspaceRoleType
-from cozepy.log import setup_logging
+from cozepy import COZE_CN_BASE_URL, Coze, DeviceOAuthApp, TokenAuth
 
 
 def get_coze_api_base() -> str:
@@ -36,33 +32,17 @@ def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
 
 # Init the Coze client through the access_token.
 coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_base())
-# workspace id
-workspace_id = os.getenv("COZE_WORKSPACE_ID")
-# user id admin
-user_id_admin = os.getenv("COZE_USER_ID_ADMIN")
-# user id member
-user_id_member = os.getenv("COZE_USER_ID_MEMBER")
+# Create a workflow instance in Coze, copy the last number from the web link as the workflow's ID.
+workflow_id = os.getenv("COZE_WORKFLOW_ID") or "workflow id"
 
+# List workflow versions
+versions = coze.workflows.versions.list(workflow_id=workflow_id)
 
-def setup_examples_logger():
-    coze_log = os.getenv("COZE_LOG")
-    if coze_log:
-        setup_logging(logging.getLevelNamesMapping().get(coze_log.upper(), logging.INFO))
-
-
-setup_examples_logger()
-
-users = []
-if user_id_admin:
-    users.append(WorkspaceMember(user_id=user_id_admin, role_type=WorkspaceRoleType.ADMIN))
-if user_id_member:
-    users.append(WorkspaceMember(user_id=user_id_member, role_type=WorkspaceRoleType.MEMBER))
-
-
-create_workspaces_members_resp = coze.workspaces.members.create(
-    workspace_id=workspace_id,
-    users=users,
-)
-
-print("workspaces.members.create", create_workspaces_members_resp.model_dump_json(indent=2))
-print("logid", create_workspaces_members_resp.response.logid)
+# Print version information
+for version in versions:
+    print(f"Version: {version.version}")
+    print(f"Description: {version.description}")
+    print(f"Created at: {version.created_at}")
+    print(f"Updated at: {version.updated_at}")
+    print(f"Creator: {version.creator.name} ({version.creator.id})")
+    print("-" * 40)

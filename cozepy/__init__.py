@@ -224,6 +224,7 @@ from .workflows.runs.run_histories import (
     WorkflowRunMode,
 )
 from .workflows.runs.run_histories.execute_nodes import WorkflowNodeExecuteHistory
+from .workflows.versions import WorkflowUserInfo, WorkflowVersionInfo
 from .workspaces import Workspace, WorkspaceRoleType, WorkspaceType
 from .workspaces.members import CreateWorkspaceMemberResp, DeleteWorkspaceMemberResp, WorkspaceMember
 
@@ -431,6 +432,9 @@ __all__ = [
     # workflows
     "WorkflowInfo",
     "WorkflowMode",
+    # workflows.versions
+    "WorkflowUserInfo",
+    "WorkflowVersionInfo",
     # workflows.runs
     "WorkflowRunResult",
     "WorkflowEventType",
