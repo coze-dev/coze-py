@@ -77,6 +77,7 @@ def mock_create_workflows_runs_run_histories_retrieve(respx_mock):
         error_code=0,
         error_message="error_message",
         debug_url="debug_url",
+        is_output_trimmed=False,
     )
     workflow_run_result._raw_response = httpx.Response(
         200,
