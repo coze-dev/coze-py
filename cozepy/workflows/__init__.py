@@ -26,13 +26,13 @@ class WorkflowBasic(CozeModel):
     app_id: str
 
     # 创建时间，Unix时间戳
-    created_at: int
+    created_at: Optional[int] = None
 
     # 更新时间，Unix时间戳
-    updated_at: int
+    updated_at: Optional[int] = None
 
     # 创建者信息
-    creator: WorkflowUserInfo
+    creator: Optional[WorkflowUserInfo] = None
 
 
 class WorkflowInfo(CozeModel):
