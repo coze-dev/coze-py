@@ -1,94 +1,44 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
-获取工作流详细信息示例
-
-本示例演示如何使用Coze SDK获取指定工作流的详细信息。
-"""
 
 import os
+from typing import Optional
 
-from cozepy import Coze, TokenAuth
-
-# 初始化客户端
-# 请确保设置了 COZE_API_TOKEN 环境变量
-api_token = os.getenv("COZE_API_TOKEN")
-if not api_token:
-    raise ValueError("请设置 COZE_API_TOKEN 环境变量")
-
-# 创建认证对象
-auth = TokenAuth(token=api_token)
-
-# 创建Coze客户端
-# 国内环境使用 COZE_CN_BASE_URL
-# 国际环境使用 COZE_COM_BASE_URL
-coze = Coze(auth=auth, base_url="https://api.coze.cn")
+from cozepy import COZE_CN_BASE_URL, Coze, DeviceOAuthApp, TokenAuth
 
 
-# 示例：获取工作流详细信息
-def get_workflow_info_example():
-    """
-    获取工作流详细信息示例
-    """
-    # 请替换为实际的工作流ID
-    workflow_id = "your_workflow_id_here"
+def get_coze_api_base() -> str:
+    # The default access is api.coze.cn, but if you need to access api.coze.com,
+    # please use base_url to configure the api endpoint to access
+    coze_api_base = os.getenv("COZE_API_BASE")
+    if coze_api_base:
+        return coze_api_base
 
-    try:
-        # 获取工作流详细信息
-        workflow_info = coze.workflows.retrieve(workflow_id=workflow_id)
-
-        # 打印工作流信息
-        print("工作流详细信息:")
-        print(f"工作流ID: {workflow_info.workflow_id}")
-        print(f"工作流名称: {workflow_info.workflow_name}")
-        print(f"工作流描述: {workflow_info.description}")
-        print(f"工作流图标: {workflow_info.icon_url}")
-        print(f"应用ID: {workflow_info.app_id}")
-        print(f"工作流模式: {workflow_info.workflow_mode}")
-        print(f"创建时间: {workflow_info.created_at}")
-        print(f"更新时间: {workflow_info.updated_at}")
-        print(f"版本号: {workflow_info.version}")
-        print(f"发布状态: {workflow_info.publish_status}")
-
-    except Exception as e:
-        print(f"获取工作流信息失败: {e}")
+    return COZE_CN_BASE_URL  # default
 
 
-# 示例：异步获取工作流详细信息
-async def async_get_workflow_info_example():
-    """
-    异步获取工作流详细信息示例
-    """
-    # 请替换为实际的工作流ID
-    workflow_id = "your_workflow_id_here"
+def get_coze_api_token(workspace_id: Optional[str] = None) -> str:
+    # Get an access_token through personal access token or oauth.
+    coze_api_token = os.getenv("COZE_API_TOKEN")
+    if coze_api_token:
+        return coze_api_token
 
-    try:
-        # 获取工作流详细信息
-        workflow_info = await coze.workflows.retrieve(workflow_id=workflow_id)
+    coze_api_base = get_coze_api_base()
 
-        # 打印工作流信息
-        print("异步获取工作流详细信息:")
-        print(f"工作流ID: {workflow_info.workflow_id}")
-        print(f"工作流名称: {workflow_info.workflow_name}")
-        print(f"工作流描述: {workflow_info.description}")
-        print(f"工作流图标: {workflow_info.icon_url}")
-        print(f"应用ID: {workflow_info.app_id}")
-        print(f"工作流模式: {workflow_info.workflow_mode}")
-        print(f"创建时间: {workflow_info.created_at}")
-        print(f"更新时间: {workflow_info.updated_at}")
-        print(f"版本号: {workflow_info.version}")
-        print(f"发布状态: {workflow_info.publish_status}")
-
-    except Exception as e:
-        print(f"异步获取工作流信息失败: {e}")
+    device_oauth_app = DeviceOAuthApp(client_id="57294420732781205987760324720643.app.coze", base_url=coze_api_base)
+    device_code = device_oauth_app.get_device_code(workspace_id)
+    print(f"Please Open: {device_code.verification_url} to get the access token")
+    return device_oauth_app.get_access_token(device_code=device_code.device_code, poll=True).access_token
 
 
-if __name__ == "__main__":
-    # 运行同步示例
-    get_workflow_info_example()
+# Init the Coze client through the access_token.
+coze = Coze(auth=TokenAuth(token=get_coze_api_token()), base_url=get_coze_api_base())
+# Create a workflow instance in Coze, copy the last number from the web link as the workflow's ID.
+workflow_id = os.getenv("COZE_WORKFLOW_ID") or "workflow id"
 
-    # 运行异步示例
-    import asyncio
+# 获取工作流详细信息
+workflow_info = coze.workflows.retrieve(workflow_id=workflow_id)
 
-    asyncio.run(async_get_workflow_info_example())
+print("workflow info:", workflow_info)
+print("logid:", workflow_info.response.logid)
