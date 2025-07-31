@@ -105,6 +105,9 @@ class WorkflowRunHistory(CozeModel):
     # 此处大模型返回的消耗 Token 仅供参考，以火山引擎账单实际为准。
     usage: Optional[ChatUsage] = None
 
+    # 标识工作流的输出内容是否因过大而不完整。
+    is_output_trimmed: bool
+
     @field_validator("error_code", mode="before")
     @classmethod
     def error_code_empty_str_to_zero(cls, v):
