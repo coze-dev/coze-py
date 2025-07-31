@@ -218,6 +218,40 @@ class TestSyncWorkflowsRuns:
         assert items[0].workflow_id == "w1"
         assert items[1].workflow_id == "w2"
 
+    def test_sync_workflows_list_versions(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+        workflow_id = "test_workflow_id"
+        url = f"https://api.coze.com/v1/workflows/{workflow_id}/versions"
+        mock_data = {
+            "items": [
+                {
+                    "version": "1.0.0",
+                    "description": "Initial version",
+                    "created_at": "1699488000",
+                    "updated_at": "1699488000",
+                    "workflow_id": workflow_id,
+                    "creator": {"id": "user1", "name": "User One"},
+                },
+                {
+                    "version": "1.0.1",
+                    "description": "Bug fixes",
+                    "created_at": "1699574400",
+                    "updated_at": "1699574400",
+                    "workflow_id": workflow_id,
+                    "creator": {"id": "user2", "name": "User Two"},
+                },
+            ],
+            "has_more": False,
+        }
+        respx_mock.get(url).mock(return_value=httpx.Response(200, json=mock_data))
+        paged = coze.workflows.versions.list(workflow_id=workflow_id)
+        items = list(paged)
+        assert len(items) == 2
+        assert items[0].version == "1.0.0"
+        assert items[0].creator.id == "user1"
+        assert items[1].version == "1.0.1"
+        assert items[1].creator.id == "user2"
+
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
@@ -344,3 +378,37 @@ class TestAsyncWorkflowsRuns:
         assert len(items) == 2
         assert items[0].workflow_id == "w1"
         assert items[1].workflow_id == "w2"
+
+    async def test_async_workflows_list_versions(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        workflow_id = "test_workflow_id"
+        url = f"https://api.coze.com/v1/workflows/{workflow_id}/versions"
+        mock_data = {
+            "items": [
+                {
+                    "version": "1.0.0",
+                    "description": "Initial version",
+                    "created_at": "1699488000",
+                    "updated_at": "1699488000",
+                    "workflow_id": workflow_id,
+                    "creator": {"id": "user1", "name": "User One"},
+                },
+                {
+                    "version": "1.0.1",
+                    "description": "Bug fixes",
+                    "created_at": "1699574400",
+                    "updated_at": "1699574400",
+                    "workflow_id": workflow_id,
+                    "creator": {"id": "user2", "name": "User Two"},
+                },
+            ],
+            "has_more": False,
+        }
+        respx_mock.get(url).mock(return_value=httpx.Response(200, json=mock_data))
+        paged = await coze.workflows.versions.list(workflow_id=workflow_id)
+        items = [item async for item in paged]
+        assert len(items) == 2
+        assert items[0].version == "1.0.0"
+        assert items[0].creator.id == "user1"
+        assert items[1].version == "1.0.1"
+        assert items[1].creator.id == "user2"

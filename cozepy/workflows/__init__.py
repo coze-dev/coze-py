@@ -8,6 +8,7 @@ from cozepy.util import remove_none_values, remove_url_trailing_slash
 if TYPE_CHECKING:
     from .chat import AsyncWorkflowsChatClient, WorkflowsChatClient
     from .runs import AsyncWorkflowsRunsClient, WorkflowsRunsClient
+    from .versions import AsyncWorkflowsVersionsClient, WorkflowsVersionsClient
 
 
 class WorkflowMode(DynamicStrEnum):
@@ -43,6 +44,7 @@ class WorkflowsClient(object):
         self._requester = requester
         self._runs: Optional[WorkflowsRunsClient] = None
         self._chat: Optional[WorkflowsChatClient] = None
+        self._versions: Optional[WorkflowsVersionsClient] = None
 
     @property
     def runs(self) -> "WorkflowsRunsClient":
@@ -59,6 +61,14 @@ class WorkflowsClient(object):
 
             self._chat = WorkflowsChatClient(self._base_url, self._requester)
         return self._chat
+
+    @property
+    def versions(self) -> "WorkflowsVersionsClient":
+        if not self._versions:
+            from .versions import WorkflowsVersionsClient
+
+            self._versions = WorkflowsVersionsClient(self._base_url, self._requester)
+        return self._versions
 
     def list(
         self,
@@ -104,6 +114,7 @@ class AsyncWorkflowsClient(object):
         self._requester = requester
         self._runs: Optional[AsyncWorkflowsRunsClient] = None
         self._chat: Optional[AsyncWorkflowsChatClient] = None
+        self._versions: Optional[AsyncWorkflowsVersionsClient] = None
 
     @property
     def runs(self) -> "AsyncWorkflowsRunsClient":
@@ -120,6 +131,14 @@ class AsyncWorkflowsClient(object):
 
             self._chat = AsyncWorkflowsChatClient(self._base_url, self._requester)
         return self._chat
+
+    @property
+    def versions(self) -> "AsyncWorkflowsVersionsClient":
+        if not self._versions:
+            from .versions import AsyncWorkflowsVersionsClient
+
+            self._versions = AsyncWorkflowsVersionsClient(self._base_url, self._requester)
+        return self._versions
 
     async def list(
         self,
