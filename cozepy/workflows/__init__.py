@@ -24,6 +24,35 @@ class WorkflowInfo(CozeModel):
     app_id: str
 
 
+class WorkflowDetailInfo(CozeModel):
+    """
+    工作流详细信息
+
+    包含工作流的完整配置和元数据信息。
+    """
+
+    # 工作流ID
+    workflow_id: str
+    # 工作流名称
+    workflow_name: str
+    # 工作流描述
+    description: str
+    # 工作流图标URL
+    icon_url: str
+    # 应用ID
+    app_id: str
+    # 工作流模式，可选值：workflow、chatflow
+    workflow_mode: str
+    # 创建时间，Unix时间戳
+    created_at: int
+    # 更新时间，Unix时间戳
+    updated_at: int
+    # 工作流版本号
+    version: str
+    # 发布状态，可选值：all、published_online、unpublished_draft
+    publish_status: str
+
+
 class _PrivateListWorkflowData(CozeModel, NumberPagedResponse[WorkflowInfo]):
     items: List[WorkflowInfo]
     has_more: bool
@@ -69,6 +98,27 @@ class WorkflowsClient(object):
 
             self._versions = WorkflowsVersionsClient(self._base_url, self._requester)
         return self._versions
+
+    def retrieve(
+        self,
+        *,
+        workflow_id: str,
+        **kwargs,
+    ) -> WorkflowDetailInfo:
+        """
+        获取工作流详细信息。
+
+        通过此接口可以获取指定工作流的完整配置和元数据信息。
+
+        docs cn: https://www.coze.cn/docs/developer_guides/get_workflow_info
+
+        :param workflow_id: 工作流ID
+        :param kwargs: 额外参数，支持 headers 等
+        :return: 返回工作流的详细信息
+        """
+        url = f"{self._base_url}/v1/workflows/{workflow_id}"
+        headers: Optional[dict] = kwargs.get("headers")
+        return self._requester.request("get", url, False, WorkflowDetailInfo, headers=headers)
 
     def list(
         self,
@@ -139,6 +189,27 @@ class AsyncWorkflowsClient(object):
 
             self._versions = AsyncWorkflowsVersionsClient(self._base_url, self._requester)
         return self._versions
+
+    async def retrieve(
+        self,
+        *,
+        workflow_id: str,
+        **kwargs,
+    ) -> WorkflowDetailInfo:
+        """
+        获取工作流详细信息。
+
+        通过此接口可以获取指定工作流的完整配置和元数据信息。
+
+        docs cn: https://www.coze.cn/docs/developer_guides/get_workflow_info
+
+        :param workflow_id: 工作流ID
+        :param kwargs: 额外参数，支持 headers 等
+        :return: 返回工作流的详细信息
+        """
+        url = f"{self._base_url}/v1/workflows/{workflow_id}"
+        headers: Optional[dict] = kwargs.get("headers")
+        return await self._requester.arequest("get", url, False, WorkflowDetailInfo, headers=headers)
 
     async def list(
         self,

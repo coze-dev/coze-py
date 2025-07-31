@@ -252,6 +252,37 @@ class TestSyncWorkflowsRuns:
         assert items[1].version == "1.0.1"
         assert items[1].creator.id == "user2"
 
+    def test_sync_workflows_retrieve(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+        workflow_id = "test_workflow_id"
+        url = f"https://api.coze.com/v1/workflows/{workflow_id}"
+        mock_data = {
+            "workflow_id": workflow_id,
+            "workflow_name": "测试工作流",
+            "description": "这是一个测试工作流",
+            "icon_url": "https://example.com/icon.png",
+            "app_id": "test_app_id",
+            "workflow_mode": "workflow",
+            "created_at": 1699488000,
+            "updated_at": 1699574400,
+            "version": "1.0.0",
+            "publish_status": "published_online",
+        }
+        respx_mock.get(url).mock(return_value=httpx.Response(200, json={"data": mock_data}))
+
+        res = coze.workflows.retrieve(workflow_id=workflow_id)
+        assert res
+        assert res.workflow_id == workflow_id
+        assert res.workflow_name == "测试工作流"
+        assert res.description == "这是一个测试工作流"
+        assert res.icon_url == "https://example.com/icon.png"
+        assert res.app_id == "test_app_id"
+        assert res.workflow_mode == "workflow"
+        assert res.created_at == 1699488000
+        assert res.updated_at == 1699574400
+        assert res.version == "1.0.0"
+        assert res.publish_status == "published_online"
+
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
@@ -412,3 +443,72 @@ class TestAsyncWorkflowsRuns:
         assert items[0].creator.id == "user1"
         assert items[1].version == "1.0.1"
         assert items[1].creator.id == "user2"
+
+
+@pytest.mark.respx(base_url="https://api.coze.com")
+class TestSyncWorkflowsRetrieve:
+    def test_sync_workflows_retrieve(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+        workflow_id = "test_workflow_id"
+        url = f"https://api.coze.com/v1/workflows/{workflow_id}"
+        mock_data = {
+            "workflow_id": workflow_id,
+            "workflow_name": "测试工作流",
+            "description": "这是一个测试工作流",
+            "icon_url": "https://example.com/icon.png",
+            "app_id": "test_app_id",
+            "workflow_mode": "workflow",
+            "created_at": 1699488000,
+            "updated_at": 1699574400,
+            "version": "1.0.0",
+            "publish_status": "published_online",
+        }
+        respx_mock.get(url).mock(return_value=httpx.Response(200, json={"data": mock_data}))
+
+        res = coze.workflows.retrieve(workflow_id=workflow_id)
+        assert res
+        assert res.workflow_id == workflow_id
+        assert res.workflow_name == "测试工作流"
+        assert res.description == "这是一个测试工作流"
+        assert res.icon_url == "https://example.com/icon.png"
+        assert res.app_id == "test_app_id"
+        assert res.workflow_mode == "workflow"
+        assert res.created_at == 1699488000
+        assert res.updated_at == 1699574400
+        assert res.version == "1.0.0"
+        assert res.publish_status == "published_online"
+
+
+@pytest.mark.respx(base_url="https://api.coze.com")
+@pytest.mark.asyncio
+class TestAsyncWorkflowsRetrieve:
+    async def test_async_workflows_retrieve(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        workflow_id = "test_workflow_id"
+        url = f"https://api.coze.com/v1/workflows/{workflow_id}"
+        mock_data = {
+            "workflow_id": workflow_id,
+            "workflow_name": "异步测试工作流",
+            "description": "这是一个异步测试工作流",
+            "icon_url": "https://example.com/icon_async.png",
+            "app_id": "test_app_id_async",
+            "workflow_mode": "chatflow",
+            "created_at": 1699488000,
+            "updated_at": 1699574400,
+            "version": "1.0.1",
+            "publish_status": "unpublished_draft",
+        }
+        respx_mock.get(url).mock(return_value=httpx.Response(200, json={"data": mock_data}))
+
+        res = await coze.workflows.retrieve(workflow_id=workflow_id)
+        assert res
+        assert res.workflow_id == workflow_id
+        assert res.workflow_name == "异步测试工作流"
+        assert res.description == "这是一个异步测试工作流"
+        assert res.icon_url == "https://example.com/icon_async.png"
+        assert res.app_id == "test_app_id_async"
+        assert res.workflow_mode == "chatflow"
+        assert res.created_at == 1699488000
+        assert res.updated_at == 1699574400
+        assert res.version == "1.0.1"
+        assert res.publish_status == "unpublished_draft"
