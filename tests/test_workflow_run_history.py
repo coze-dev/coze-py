@@ -17,6 +17,7 @@ def test_empty_str_to_zero():
         "output": '{"Output":"null"}',
         "cost": "0.00000",
         "error_code": "",
+        "is_output_trimmed": False,
     }
     history = WorkflowRunHistory(**data)
     assert history.error_code == 0
