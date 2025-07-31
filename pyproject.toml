@@ -42,6 +42,8 @@ ignore = ["E501"]
 [tool.mypy]
 exclude = [
     "examples/",
+    "debug/",
+    "integrations/",
     "tests/"
 ]
 
