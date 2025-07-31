@@ -125,7 +125,7 @@ pip install cozepy
     </tr>
     <tr>
         <td>List Workflow Versions</td>
-        <td><a href="./examples/workflow_versions.py">examples/workflow_versions.py</a></td>
+        <td><a href="examples/workflow_version_list.py">examples/workflow_version_list.py</a></td>
     </tr>
     <tr>
         <td rowspan="2">Conversation</td>
