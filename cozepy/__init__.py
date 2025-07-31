@@ -207,7 +207,7 @@ from .websockets.ws import (
     WebsocketsEvent,
     WebsocketsEventType,
 )
-from .workflows import WorkflowInfo, WorkflowMode
+from .workflows import WorkflowBasic, WorkflowMode
 from .workflows.runs import (
     WorkflowEvent,
     WorkflowEventError,
@@ -430,7 +430,7 @@ __all__ = [
     "PCMConfig",
     "OutputAudio",
     # workflows
-    "WorkflowInfo",
+    "WorkflowBasic",
     "WorkflowMode",
     # workflows.versions
     "WorkflowUserInfo",

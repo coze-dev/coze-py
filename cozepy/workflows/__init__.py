@@ -5,6 +5,8 @@ from cozepy.model import AsyncNumberPaged, CozeModel, DynamicStrEnum, HTTPReques
 from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
 
+from .versions import WorkflowUserInfo
+
 if TYPE_CHECKING:
     from .chat import AsyncWorkflowsChatClient, WorkflowsChatClient
     from .runs import AsyncWorkflowsRunsClient, WorkflowsRunsClient
@@ -16,16 +18,35 @@ class WorkflowMode(DynamicStrEnum):
     CHATFLOW = "chatflow"
 
 
-class WorkflowInfo(CozeModel):
+class WorkflowBasic(CozeModel):
     workflow_id: str
     workflow_name: str
     description: str
     icon_url: str
     app_id: str
 
+    # 创建时间，Unix时间戳
+    created_at: Optional[int] = None
 
-class _PrivateListWorkflowData(CozeModel, NumberPagedResponse[WorkflowInfo]):
-    items: List[WorkflowInfo]
+    # 更新时间，Unix时间戳
+    updated_at: Optional[int] = None
+
+    # 创建者信息
+    creator: Optional[WorkflowUserInfo] = None
+
+
+class WorkflowInfo(CozeModel):
+    """
+    工作流详细信息
+
+    包含工作流的完整配置和元数据信息。
+    """
+
+    workflow_detail: WorkflowBasic
+
+
+class _PrivateListWorkflowData(CozeModel, NumberPagedResponse[WorkflowBasic]):
+    items: List[WorkflowBasic]
     has_more: bool
 
     def get_total(self) -> Optional[int]:
@@ -34,7 +55,7 @@ class _PrivateListWorkflowData(CozeModel, NumberPagedResponse[WorkflowInfo]):
     def get_has_more(self) -> Optional[bool]:
         return self.has_more
 
-    def get_items(self) -> List[WorkflowInfo]:
+    def get_items(self) -> List[WorkflowBasic]:
         return self.items
 
 
@@ -70,6 +91,26 @@ class WorkflowsClient(object):
             self._versions = WorkflowsVersionsClient(self._base_url, self._requester)
         return self._versions
 
+    def retrieve(
+        self,
+        *,
+        workflow_id: str,
+        **kwargs,
+    ) -> WorkflowInfo:
+        """
+        获取工作流详细信息。
+
+        通过此接口可以获取指定工作流的完整配置和元数据信息。
+
+        docs cn: https://www.coze.cn/docs/developer_guides/get_workflow_info
+
+        :param workflow_id: 工作流ID
+        :return: 返回工作流的详细信息
+        """
+        url = f"{self._base_url}/v1/workflows/{workflow_id}"
+        headers: Optional[dict] = kwargs.get("headers")
+        return self._requester.request("get", url, False, WorkflowInfo, headers=headers)
+
     def list(
         self,
         *,
@@ -79,7 +120,7 @@ class WorkflowsClient(object):
         publish_status: Optional[PublishStatus] = None,
         page_num: int = 1,
         page_size: int = 100,
-    ) -> NumberPaged[WorkflowInfo]:
+    ) -> NumberPaged[WorkflowBasic]:
         url = f"{self._base_url}/v1/workflows"
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
@@ -140,6 +181,26 @@ class AsyncWorkflowsClient(object):
             self._versions = AsyncWorkflowsVersionsClient(self._base_url, self._requester)
         return self._versions
 
+    async def retrieve(
+        self,
+        *,
+        workflow_id: str,
+        **kwargs,
+    ) -> WorkflowInfo:
+        """
+        获取工作流详细信息。
+
+        通过此接口可以获取指定工作流的完整配置和元数据信息。
+
+        docs cn: https://www.coze.cn/docs/developer_guides/get_workflow_info
+
+        :param workflow_id: 工作流ID
+        :return: 返回工作流的详细信息
+        """
+        url = f"{self._base_url}/v1/workflows/{workflow_id}"
+        headers: Optional[dict] = kwargs.get("headers")
+        return await self._requester.arequest("get", url, False, WorkflowInfo, headers=headers)
+
     async def list(
         self,
         *,
@@ -150,7 +211,7 @@ class AsyncWorkflowsClient(object):
         page_num: int = 1,
         page_size: int = 100,
         **kwargs,
-    ) -> AsyncNumberPaged[WorkflowInfo]:
+    ) -> AsyncNumberPaged[WorkflowBasic]:
         url = f"{self._base_url}/v1/workflows"
         headers: Optional[dict] = kwargs.get("headers")
 
