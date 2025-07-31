@@ -103,7 +103,7 @@ pip install cozepy
         <td><a href="./examples/chat_local_plugin.py">examples/chat_local_plugin.py</a></td>
     </tr>
     <tr>
-        <td rowspan="5">Workflow Run & Chat</td>
+        <td rowspan="6">Workflow Run & Chat</td>
         <td>Workflow Run with Stream</td>
         <td><a href="./examples/workflow_stream.py">examples/workflow_stream.py</a></td>
     </tr>
@@ -122,6 +122,10 @@ pip install cozepy
     <tr>
         <td>Workflow chat with Image and Stream</td>
         <td><a href="./examples/workflow_chat_multimode_stream.py">examples/workflow_chat_multimode_stream.py</a></td>
+    </tr>
+    <tr>
+        <td>List Workflow Versions</td>
+        <td><a href="examples/workflow_version_list.py">examples/workflow_version_list.py</a></td>
     </tr>
     <tr>
         <td rowspan="2">Conversation</td>
@@ -689,3 +693,4 @@ coze = Coze(auth=TokenAuth(token=os.getenv("COZE_API_TOKEN")),
             http_client=http_client
             )
 ```
+
