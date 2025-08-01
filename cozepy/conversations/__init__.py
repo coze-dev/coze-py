@@ -114,8 +114,29 @@ class ConversationsClient(object):
         return self._requester.request("get", url, False, Conversation, params=params)
 
     def clear(self, *, conversation_id: str) -> Section:
+        """
+        清空指定对话的内容。
+        清空后对话仍然存在，但其中的消息内容会被清除。
+
+        :param conversation_id: 对话ID
+        :return: Section对象
+        """
         url = f"{self._base_url}/v1/conversations/{conversation_id}/clear"
         return self._requester.request("post", url, False, Section)
+
+    def delete(self, *, conversation_id: str) -> bool:
+        """
+        删除指定的对话。
+        删除后对话及其中的所有消息都将被永久删除，无法恢复。
+
+        docs cn: https://www.coze.cn/docs/developer_guides/delete_conversation
+
+        :param conversation_id: 要删除的对话ID
+        :return: 删除成功返回True，失败则抛出异常
+        """
+        url = f"{self._base_url}/v1/conversations/{conversation_id}"
+        self._requester.request("delete", url, False, None)
+        return True
 
     @property
     def messages(self):
@@ -207,8 +228,29 @@ class AsyncConversationsClient(object):
         return await self._requester.arequest("get", url, False, Conversation, params=params)
 
     async def clear(self, *, conversation_id: str) -> Section:
+        """
+        清空指定对话的内容。
+        清空后对话仍然存在，但其中的消息内容会被清除。
+
+        :param conversation_id: 对话ID
+        :return: Section对象
+        """
         url = f"{self._base_url}/v1/conversations/{conversation_id}/clear"
         return await self._requester.arequest("post", url, False, Section)
+
+    async def delete(self, *, conversation_id: str) -> bool:
+        """
+        删除指定的对话。
+        删除后对话及其中的所有消息都将被永久删除，无法恢复。
+
+        docs cn: https://www.coze.cn/docs/developer_guides/delete_conversation
+
+        :param conversation_id: 要删除的对话ID
+        :return: 删除成功返回True，失败则抛出异常
+        """
+        url = f"{self._base_url}/v1/conversations/{conversation_id}"
+        await self._requester.arequest("delete", url, False, None)
+        return True
 
     @property
     def messages(self):
