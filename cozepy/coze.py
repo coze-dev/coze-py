@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from .audio import AsyncAudioClient, AudioClient
     from .bots import AsyncBotsClient, BotsClient
     from .chat import AsyncChatClient, ChatClient
+    from .connectors import AsyncConnectorsClient, ConnectorsClient
     from .conversations import AsyncConversationsClient, ConversationsClient
     from .datasets import AsyncDatasetsClient, DatasetsClient
     from .enterprises import AsyncEnterprisesClient, EnterprisesClient
@@ -42,6 +43,7 @@ class Coze(object):
         self._workspaces: Optional[WorkspacesClient] = None
         self._conversations: Optional[ConversationsClient] = None
         self._chat: Optional[ChatClient] = None
+        self._connectors: Optional[ConnectorsClient] = None
         self._files: Optional[FilesClient] = None
         self._workflows: Optional[WorkflowsClient] = None
         self._knowledge: Optional[KnowledgeClient] = None  # deprecated
@@ -191,6 +193,14 @@ class Coze(object):
         return self._api_apps
 
     @property
+    def connectors(self) -> "ConnectorsClient":
+        if not self._connectors:
+            from .connectors import ConnectorsClient
+
+            self._connectors = ConnectorsClient(self._base_url, self._requester)
+        return self._connectors
+
+    @property
     def folders(self) -> "FoldersClient":
         if not self._folders:
             from .folders import FoldersClient
@@ -221,6 +231,7 @@ class AsyncCoze(object):
         # service client
         self._bots: Optional[AsyncBotsClient] = None
         self._chat: Optional[AsyncChatClient] = None
+        self._connectors: Optional[AsyncConnectorsClient] = None
         self._conversations: Optional[AsyncConversationsClient] = None
         self._files: Optional[AsyncFilesClient] = None
         self._knowledge: Optional[AsyncKnowledgeClient] = None  # deprecated
@@ -370,6 +381,14 @@ class AsyncCoze(object):
 
             self._api_apps = AsyncAPIAppsClient(self._base_url, self._requester)
         return self._api_apps
+
+    @property
+    def connectors(self) -> "AsyncConnectorsClient":
+        if not self._connectors:
+            from .connectors import AsyncConnectorsClient
+
+            self._connectors = AsyncConnectorsClient(self._base_url, self._requester)
+        return self._connectors
 
     @property
     def folders(self) -> "AsyncFoldersClient":
