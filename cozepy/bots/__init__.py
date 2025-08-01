@@ -70,6 +70,24 @@ class BotModelInfo(CozeModel):
     parameters: Optional[Dict[str, str]] = None
 
 
+class PluginIDList(CozeModel):
+    class PluginIDInfo(CozeModel):
+        # 智能体绑定的插件 ID
+        plugin_id: str
+        # 智能体绑定的插件工具 ID
+        api_id: str
+
+    id_list: Optional[List[PluginIDInfo]] = None
+
+
+class WorkflowIDList(CozeModel):
+    class WorkflowIDInfo(CozeModel):
+        # 智能体绑定的工作流 ID
+        id: str
+
+    ids: Optional[List[WorkflowIDInfo]] = None
+
+
 class BotMode(IntEnum):
     SINGLE_AGENT = 0
     MULTI_AGENT = 1
@@ -339,10 +357,34 @@ class BotsClient(object):
         icon_file_id: Optional[str] = None,
         prompt_info: Optional[BotPromptInfo] = None,
         onboarding_info: Optional[BotOnboardingInfo] = None,
+        knowledge: Optional[BotKnowledge] = None,
         suggest_reply_info: Optional[BotSuggestReplyInfo] = None,
         model_info_config: Optional[BotModelInfo] = None,
+        plugin_id_list: Optional[PluginIDList] = None,
+        workflow_id_list: Optional[WorkflowIDList] = None,
         **kwargs,
     ) -> Bot:
+        """
+        创建智能体
+
+        通过指定空间、名称等参数创建一个新的智能体。
+
+        docs: https://www.coze.cn/open/docs/developer_guides/create_bot
+
+        :param space_id: 空间 ID。智能体将创建在此空间下。
+        :param name: 智能体名称。长度限制为 1-20 个字符。
+        :param description: 智能体描述。长度限制为 0-500 个字符，默认为空。
+        :param icon_file_id: 智能体头像的文件 ID。如需使用自定义头像，请先通过上传文件接口上传本地文件，
+        并从接口响应中获取文件 ID。如果未指定文件 ID，平台将分配默认头像。
+        :param prompt_info: 智能体的提示词配置信息。
+        :param onboarding_info: 智能体的开场白配置信息。
+        :param knowledge: 智能体的知识库配置信息。
+        :param suggest_reply_info: 智能体的建议回复配置信息。
+        :param model_info_config: 智能体的模型配置信息。
+        :param plugin_id_list: 智能体使用的插件 ID 列表。
+        :param workflow_id_list: 智能体使用的工作流 ID 列表。
+        :return: 创建成功的智能体对象
+        """
         url = f"{self._base_url}/v1/bot/create"
         body = dump_exclude_none(
             {
@@ -352,8 +394,11 @@ class BotsClient(object):
                 "icon_file_id": icon_file_id,
                 "prompt_info": prompt_info,
                 "onboarding_info": onboarding_info,
+                "knowledge": knowledge,
                 "suggest_reply_info": suggest_reply_info,
                 "model_info_config": model_info_config,
+                "plugin_id_list": plugin_id_list,
+                "workflow_id_list": workflow_id_list,
             }
         )
         headers: Optional[dict] = kwargs.get("headers")
@@ -663,10 +708,34 @@ class AsyncBotsClient(object):
         icon_file_id: Optional[str] = None,
         prompt_info: Optional[BotPromptInfo] = None,
         onboarding_info: Optional[BotOnboardingInfo] = None,
+        knowledge: Optional[BotKnowledge] = None,
         suggest_reply_info: Optional[BotSuggestReplyInfo] = None,
         model_info_config: Optional[BotModelInfo] = None,
+        plugin_id_list: Optional[List[str]] = None,
+        workflow_id_list: Optional[List[str]] = None,
         **kwargs,
     ) -> Bot:
+        """
+        创建智能体
+
+        通过指定空间、名称等参数创建一个新的智能体。
+
+        docs: https://www.coze.cn/open/docs/developer_guides/create_bot
+
+        :param space_id: 空间 ID。智能体将创建在此空间下。
+        :param name: 智能体名称。长度限制为 1-20 个字符。
+        :param description: 智能体描述。长度限制为 0-500 个字符，默认为空。
+        :param icon_file_id: 智能体头像的文件 ID。如需使用自定义头像，请先通过上传文件接口上传本地文件，
+        并从接口响应中获取文件 ID。如果未指定文件 ID，平台将分配默认头像。
+        :param prompt_info: 智能体的提示词配置信息。
+        :param onboarding_info: 智能体的开场白配置信息。
+        :param knowledge: 智能体的知识库配置信息。
+        :param suggest_reply_info: 智能体的建议回复配置信息。
+        :param model_info_config: 智能体的模型配置信息。
+        :param plugin_id_list: 智能体使用的插件 ID 列表。
+        :param workflow_id_list: 智能体使用的工作流 ID 列表。
+        :return: 创建成功的智能体对象
+        """
         url = f"{self._base_url}/v1/bot/create"
         body = dump_exclude_none(
             {
@@ -676,8 +745,11 @@ class AsyncBotsClient(object):
                 "icon_file_id": icon_file_id,
                 "prompt_info": prompt_info,
                 "onboarding_info": onboarding_info,
+                "knowledge": knowledge,
                 "suggest_reply_info": suggest_reply_info,
                 "model_info_config": model_info_config,
+                "plugin_id_list": plugin_id_list,
+                "workflow_id_list": workflow_id_list,
             }
         )
         headers: Optional[dict] = kwargs.get("headers")

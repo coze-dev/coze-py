@@ -46,6 +46,17 @@ def mock_create_bot(
     return bot
 
 
+def mock_create_bot_with_advanced_params(respx_mock) -> Bot:
+    bot = mock_bot("bot_id")
+    bot._raw_response = httpx.Response(
+        200,
+        json={"data": bot.model_dump()},
+        headers={logid_key(): random_hex(10)},
+    )
+    respx_mock.post("/v1/bot/create").mock(bot._raw_response)
+    return bot
+
+
 def mock_update_bot(
     respx_mock,
 ):
@@ -213,6 +224,39 @@ class TestSyncBots:
         assert bot.response.logid == mock_bot.response.logid
         assert bot.bot_id == mock_bot.bot_id
 
+    def test_sync_bot_create_with_advanced_params(self, respx_mock):
+        from cozepy import (
+            BotKnowledge,
+            BotModelInfo,
+            BotOnboardingInfo,
+            BotPromptInfo,
+            BotSuggestReplyInfo,
+            SuggestReplyMode,
+        )
+
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        mock_bot = mock_create_bot_with_advanced_params(respx_mock)
+
+        bot = coze.bots.create(
+            space_id="space id",
+            name="advanced bot",
+            description="advanced bot description",
+            prompt_info=BotPromptInfo(prompt="You are a helpful assistant."),
+            onboarding_info=BotOnboardingInfo(
+                prologue="Hello! How can I help you today?",
+                suggested_questions=["What can you do?", "How to use this bot?"],
+            ),
+            knowledge=BotKnowledge(dataset_ids=["dataset_123", "dataset_456"], auto_call=True, search_strategy=0),
+            suggest_reply_info=BotSuggestReplyInfo(reply_mode=SuggestReplyMode.ENABLE),
+            model_info_config=BotModelInfo(model_id="doubao-pro-128k", temperature=0.7),
+            plugin_id_list=["plugin_001", "plugin_002"],
+            workflow_id_list=["workflow_001", "workflow_002"],
+        )
+        assert bot
+        assert bot.response.logid == mock_bot.response.logid
+        assert bot.bot_id == mock_bot.bot_id
+
     def test_sync_bot_update(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
@@ -298,6 +342,42 @@ class TestAsyncBots:
         mock_bot = mock_create_bot(respx_mock)
 
         bot = await coze.bots.create(space_id="space id", name="name")
+        assert bot
+        assert bot.response.logid is not None
+        assert bot.response.logid == mock_bot.response.logid
+        assert bot.bot_id == mock_bot.bot_id
+
+    async def test_async_bot_create_with_advanced_params(self, respx_mock):
+        from cozepy import (
+            BotKnowledge,
+            BotModelInfo,
+            BotOnboardingInfo,
+            BotPromptInfo,
+            BotSuggestReplyInfo,
+            SuggestReplyMode,
+        )
+
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+
+        mock_bot = mock_create_bot_with_advanced_params(respx_mock)
+
+        bot = await coze.bots.create(
+            space_id="space id",
+            name="advanced bot",
+            description="advanced bot description",
+            prompt_info=BotPromptInfo(prompt="You are a helpful assistant."),
+            onboarding_info=BotOnboardingInfo(
+                prologue="Hello! How can I help you today?",
+                suggested_questions=["What can you do?", "How to use this bot?"],
+            ),
+            knowledge=BotKnowledge(dataset_ids=["dataset_123", "dataset_456"], auto_call=True, search_strategy=1),
+            suggest_reply_info=BotSuggestReplyInfo(
+                reply_mode=SuggestReplyMode.CUSTOMIZED, customized_prompt="Generate helpful follow-up questions"
+            ),
+            model_info_config=BotModelInfo(model_id="gpt-4", temperature=0.8, max_tokens=1500),
+            plugin_id_list=["plugin_001", "plugin_002", "plugin_003"],
+            workflow_id_list=["workflow_001", "workflow_002"],
+        )
         assert bot
         assert bot.response.logid is not None
         assert bot.response.logid == mock_bot.response.logid
