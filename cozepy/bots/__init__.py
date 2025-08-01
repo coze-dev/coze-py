@@ -386,7 +386,6 @@ class BotsClient(object):
         icon_file_id: Optional[str] = None,
         prompt_info: Optional[BotPromptInfo] = None,
         onboarding_info: Optional[BotOnboardingInfo] = None,
-        knowledge: Optional[BotKnowledge] = None,
         suggest_reply_info: Optional[BotSuggestReplyInfo] = None,
         model_info_config: Optional[BotModelInfo] = None,
         plugin_id_list: Optional[PluginIDList] = None,
@@ -407,7 +406,6 @@ class BotsClient(object):
         并从接口响应中获取文件 ID。如果未指定文件 ID，平台将分配默认头像。
         :param prompt_info: 智能体的提示词配置信息。
         :param onboarding_info: 智能体的开场白配置信息。
-        :param knowledge: 智能体的知识库配置信息。
         :param suggest_reply_info: 智能体的建议回复配置信息。
         :param model_info_config: 智能体的模型配置信息。
         :param plugin_id_list: 智能体使用的插件 ID 列表。
@@ -423,7 +421,6 @@ class BotsClient(object):
                 "icon_file_id": icon_file_id,
                 "prompt_info": prompt_info,
                 "onboarding_info": onboarding_info,
-                "knowledge": knowledge,
                 "suggest_reply_info": suggest_reply_info,
                 "model_info_config": model_info_config,
                 "plugin_id_list": plugin_id_list,
@@ -737,11 +734,10 @@ class AsyncBotsClient(object):
         icon_file_id: Optional[str] = None,
         prompt_info: Optional[BotPromptInfo] = None,
         onboarding_info: Optional[BotOnboardingInfo] = None,
-        knowledge: Optional[BotKnowledge] = None,
         suggest_reply_info: Optional[BotSuggestReplyInfo] = None,
         model_info_config: Optional[BotModelInfo] = None,
-        plugin_id_list: Optional[List[str]] = None,
-        workflow_id_list: Optional[List[str]] = None,
+        plugin_id_list: Optional[PluginIDList] = None,
+        workflow_id_list: Optional[WorkflowIDList] = None,
         **kwargs,
     ) -> Bot:
         """
@@ -758,7 +754,6 @@ class AsyncBotsClient(object):
         并从接口响应中获取文件 ID。如果未指定文件 ID，平台将分配默认头像。
         :param prompt_info: 智能体的提示词配置信息。
         :param onboarding_info: 智能体的开场白配置信息。
-        :param knowledge: 智能体的知识库配置信息。
         :param suggest_reply_info: 智能体的建议回复配置信息。
         :param model_info_config: 智能体的模型配置信息。
         :param plugin_id_list: 智能体使用的插件 ID 列表。
@@ -774,7 +769,6 @@ class AsyncBotsClient(object):
                 "icon_file_id": icon_file_id,
                 "prompt_info": prompt_info,
                 "onboarding_info": onboarding_info,
-                "knowledge": knowledge,
                 "suggest_reply_info": suggest_reply_info,
                 "model_info_config": model_info_config,
                 "plugin_id_list": plugin_id_list,
