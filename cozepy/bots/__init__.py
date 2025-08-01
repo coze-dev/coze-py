@@ -43,6 +43,17 @@ class BotModelInfo(CozeModel):
         TEXT = "text"
         MARKDOWN = "markdown"
 
+    class CacheType(DynamicStrEnum):
+        """
+        扣子的部分模型支持开启或关闭上下文缓存中的前缀缓存。开启前缀缓存后，可以将一些公共前缀内容进行缓存，
+        后续调用模型时无需重复发送，从而加快模型的响应速度并降低使用成本。默认为 closed。支持的取值如下：
+        """
+
+        # 关闭上下文缓存。
+        CLOSED = "closed"
+        # 前缀缓存模式。
+        PREFIX = "prefix"
+
     # The ID of the model.
     model_id: str
     # The name of the model.
@@ -50,6 +61,7 @@ class BotModelInfo(CozeModel):
     # The temperature of the model.
     temperature: Optional[float] = None
     # The context_round of the model.
+    # 携带上下文轮数。
     context_round: Optional[int] = None
     # The max_tokens of the model.
     max_tokens: Optional[int] = None
@@ -59,15 +71,23 @@ class BotModelInfo(CozeModel):
     top_k: Optional[int] = None
     # The top_p of the model.
     top_p: Optional[float] = None
+    # 扣子的部分模型支持开启或关闭上下文缓存中的前缀缓存。
+    cache_type: Optional[CacheType] = None
     # The presence_penalty of the model.
+    # 重复主题惩罚。
     presence_penalty: Optional[float] = None
     # The frequency_penalty of the model.
+    # 重复语句惩罚。
     frequency_penalty: Optional[float] = None
     # The parameters of the model.
     # claude: {"thinking_type": "disabled/enable", "thinking_budget_tokens": "2000"}
     # gemini: {"thinking_type": "disabled/enable"}
     # doubao: {"thinking_type": "auto/disabled/enable"}
     parameters: Optional[Dict[str, str]] = None
+    # 是否启用 SP 拼接防泄露指令，开启后，当用户尝试获取或复述系统内部的规则、提示词或其他敏感内容时，智能体将礼貌地拒绝用户的请求，确保机密信息不被泄露。
+    sp_anti_leak: Optional[bool] = None
+    # 是否在 SP 中包含当前时间信息。
+    sp_current_time: Optional[bool] = None
 
 
 class PluginIDList(CozeModel):
@@ -117,16 +137,25 @@ class BotPluginInfo(CozeModel):
 
 
 class SuggestReplyMode(DynamicStrEnum):
+    """
+    配置智能体回复后，是否提供用户问题建议。
+    """
+
     # The bot does not suggest replies.
+    # 在每次智能体回复后，不会提供任何用户问题建议。
     DISABLE = "disable"
     # The bot suggests replies.
+    # 在智能体回复后，提供最多 3 条用户问题建议。
     ENABLE = "enable"
     # The bot suggests replies based on the customized prompt.
+    # 开启用户问题建议，并根据用户自定义的 Prompt 提供用户问题建议。你需要在 customized_prompt 参数中设置关于用户问题建议的 Prompt。
     CUSTOMIZED = "customized"
 
 
 class BotSuggestReplyInfo(CozeModel):
+    # 配置智能体回复后，是否提供用户问题建议。
     reply_mode: SuggestReplyMode
+    # 关于用户问题建议的 Prompt。当 reply_mode 设置为 customized时，需要设置提示词内容。智能体会根据该提示词生成用户问题建议。
     customized_prompt: str = ""
 
 
