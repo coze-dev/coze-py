@@ -6,14 +6,13 @@
 
 ## Introduction
 
-The Coze API SDK for Python is a versatile tool for integrating Coze's open APIs into
-your projects.
+The Coze Python SDK is your comprehensive solution for seamlessly integrating Coze's powerful open APIs into Python applications.
 
-- Supports all Coze open APIs and authentication APIs
-- Supports both synchronous and asynchronous SDK calls
-- Optimized for streaming apis, returning Stream and AsyncStream objects
-- Optimized for list apis, returning Iterator Page objects
-- Features a simple and user-friendly API design for ease of use
+- Complete API coverage: All Coze open APIs and authentication methods supported
+- Dual interface: Both synchronous and asynchronous SDK calls available
+- Stream-optimized: Native Stream and AsyncStream objects for real-time data
+- Pagination made easy: Iterator-based Page objects for efficient list operations
+- Developer-first: Intuitive API design for rapid integration
 
 ## Requirements
 
@@ -197,15 +196,12 @@ pip install cozepy
 
 ### Initialize client
 
-Firstly, you need to access https://www.coze.cn/open/oauth/pats (for the coze.com environment,
-visit https://www.coze.com/open/oauth/pats).
+Start by obtaining your access token from the Coze platform:
 
-Click to add a new token. After setting the
-appropriate name, expiration time, and permissions, click OK to generate your personal
-access token.
+- For coze.cn: Visit [https://www.coze.cn/open/oauth/pats](https://www.coze.cn/open/oauth/pats)
+- For coze.com: Visit [https://www.coze.com/open/oauth/pats](https://www.coze.com/open/oauth/pats)
 
-Please store it in a secure environment to prevent this personal access
-token from being disclosed.
+Create a new personal access token by specifying a name, expiration period, and required permissions. Store this token securely—never expose it in code or version control.
 
 ```python
 import os
@@ -232,11 +228,9 @@ coze api access_token can also be generated via the OAuth App. For details, refe
 
 ### Bot Chat
 
-Create a bot instance in Coze, copy the last number from the web link as the bot's ID.
+Create your bot in Coze and extract the bot ID from the URL (the final numeric segment).
 
-Call the coze.chat.stream method to create a chat. The create method is a streaming
-chat and will return a Chat Iterator. Developers should iterate the iterator to get
-chat event and handle them.
+Use `coze.chat.stream` for real-time streaming conversations. This method returns a Chat Iterator that yields events as they occur—simply iterate through the stream to process each event.
 
 ```python
 import os
@@ -270,7 +264,7 @@ for event in coze.chat.stream(
 
 ### Workflow Chat
 
-Coze also enables users to directly invoke the workflow.
+Execute workflows directly through the SDK for powerful automation capabilities.
 
 ```python
 
@@ -309,7 +303,7 @@ for event in coze.workflows.chat.stream(
         print("token usage:", event.chat.usage.token_count)
 ```
 
-### Audio Chat with websocket
+### Real-time Audio Chat with WebSocket
 
 ```python
 import asyncio
@@ -400,10 +394,9 @@ async def main():
 asyncio.run(main())
 ```
 
-### LogID
+### Request Debugging with LogID
 
-The SDK support returning the logid of the request, which can be used to debug the request.
-You can get the logid from the response of the request and submit it to the coze support team for further assistance.
+Every SDK request includes a unique log ID for debugging purposes. Retrieve this ID from any response object to troubleshoot issues with Coze support.
 
 ```python
 import os
@@ -425,11 +418,8 @@ print(messages.response.logid) # support for list(simple list, not paged)
 ```
 
 
-### Async usage
-
-cozepy supports asynchronous calls through `httpx.AsyncClient`.
-
-Just replace the `Coze` client with the `AsyncCoze` client to use all the asynchronous calls of the Coze OpenAPI.
+### Async Usage
+Leverage full async/await support via `httpx.AsyncClient`. Simply swap `Coze` for `AsyncCoze` to enable non-blocking API calls across all Coze endpoints.
 
 ```python
 import os
@@ -462,9 +452,9 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
-### Streaming usage
+### Streaming Support
 
-Bot chat and workflow run support running in streaming mode.
+Both bot conversations and workflow executions offer real-time streaming capabilities for responsive user experiences.
 
 chat streaming example:
 
@@ -551,11 +541,9 @@ async def main():
 asyncio.run(main())
 ```
 
-### Paginator Iterator
+### Smart Pagination
 
-The result returned by all list interfaces (both synchronous and asynchronous) is a paginator, which supports iteration.
-
-Take the example of listing the bots in a space to explain the three ways to use the paginator iterator:
+All list endpoints return intelligent paginators that support multiple iteration patterns. Explore three flexible approaches using bot listing as an example:
 
 #### 1. Not using iterators
 
@@ -651,25 +639,22 @@ async def main():
 asyncio.run(main())
 ```
 
-### Config
+### Configuration Options
 
-#### Log Config
-
-coze support config logging level
+#### Logging Configuration
+Fine-tune SDK logging to match your debugging needs
 
 ```python
 import logging
 
 from cozepy import setup_logging
 
-# open debug logging, default is warning
+# Enable debug logging (default: warning)
 setup_logging(level=logging.DEBUG)
 ```
 
-#### Timeout Config
-
-Coze client is built on httpx, and supports passing a custom httpx.Client when initializing
-Coze, and setting a timeout on the httpx.Client
+#### Timeout Configuration
+Customize HTTP timeouts using the underlying httpx client for optimal performance in your environment.
 
 ```python
 import os
