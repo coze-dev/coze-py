@@ -43,6 +43,17 @@ class BotModelInfo(CozeModel):
         TEXT = "text"
         MARKDOWN = "markdown"
 
+    class CacheType(DynamicStrEnum):
+        """
+        扣子的部分模型支持开启或关闭上下文缓存中的前缀缓存。开启前缀缓存后，可以将一些公共前缀内容进行缓存，
+        后续调用模型时无需重复发送，从而加快模型的响应速度并降低使用成本。默认为 closed。支持的取值如下：
+        """
+
+        # 关闭上下文缓存。
+        CLOSED = "closed"
+        # 前缀缓存模式。
+        PREFIX = "prefix"
+
     # The ID of the model.
     model_id: str
     # The name of the model.
@@ -50,6 +61,7 @@ class BotModelInfo(CozeModel):
     # The temperature of the model.
     temperature: Optional[float] = None
     # The context_round of the model.
+    # 携带上下文轮数。
     context_round: Optional[int] = None
     # The max_tokens of the model.
     max_tokens: Optional[int] = None
@@ -59,15 +71,41 @@ class BotModelInfo(CozeModel):
     top_k: Optional[int] = None
     # The top_p of the model.
     top_p: Optional[float] = None
+    # 扣子的部分模型支持开启或关闭上下文缓存中的前缀缓存。
+    cache_type: Optional[CacheType] = None
     # The presence_penalty of the model.
+    # 重复主题惩罚。
     presence_penalty: Optional[float] = None
     # The frequency_penalty of the model.
+    # 重复语句惩罚。
     frequency_penalty: Optional[float] = None
     # The parameters of the model.
     # claude: {"thinking_type": "disabled/enable", "thinking_budget_tokens": "2000"}
     # gemini: {"thinking_type": "disabled/enable"}
     # doubao: {"thinking_type": "auto/disabled/enable"}
     parameters: Optional[Dict[str, str]] = None
+    # 是否启用 SP 拼接防泄露指令，开启后，当用户尝试获取或复述系统内部的规则、提示词或其他敏感内容时，智能体将礼貌地拒绝用户的请求，确保机密信息不被泄露。
+    sp_anti_leak: Optional[bool] = None
+    # 是否在 SP 中包含当前时间信息。
+    sp_current_time: Optional[bool] = None
+
+
+class PluginIDList(CozeModel):
+    class PluginIDInfo(CozeModel):
+        # 智能体绑定的插件 ID
+        plugin_id: str
+        # 智能体绑定的插件工具 ID
+        api_id: str
+
+    id_list: Optional[List[PluginIDInfo]] = None
+
+
+class WorkflowIDList(CozeModel):
+    class WorkflowIDInfo(CozeModel):
+        # 智能体绑定的工作流 ID
+        id: str
+
+    ids: Optional[List[WorkflowIDInfo]] = None
 
 
 class BotMode(IntEnum):
@@ -99,16 +137,25 @@ class BotPluginInfo(CozeModel):
 
 
 class SuggestReplyMode(DynamicStrEnum):
+    """
+    配置智能体回复后，是否提供用户问题建议。
+    """
+
     # The bot does not suggest replies.
+    # 在每次智能体回复后，不会提供任何用户问题建议。
     DISABLE = "disable"
     # The bot suggests replies.
+    # 在智能体回复后，提供最多 3 条用户问题建议。
     ENABLE = "enable"
     # The bot suggests replies based on the customized prompt.
+    # 开启用户问题建议，并根据用户自定义的 Prompt 提供用户问题建议。你需要在 customized_prompt 参数中设置关于用户问题建议的 Prompt。
     CUSTOMIZED = "customized"
 
 
 class BotSuggestReplyInfo(CozeModel):
+    # 配置智能体回复后，是否提供用户问题建议。
     reply_mode: SuggestReplyMode
+    # 关于用户问题建议的 Prompt。当 reply_mode 设置为 customized时，需要设置提示词内容。智能体会根据该提示词生成用户问题建议。
     customized_prompt: str = ""
 
 
@@ -341,8 +388,30 @@ class BotsClient(object):
         onboarding_info: Optional[BotOnboardingInfo] = None,
         suggest_reply_info: Optional[BotSuggestReplyInfo] = None,
         model_info_config: Optional[BotModelInfo] = None,
+        plugin_id_list: Optional[PluginIDList] = None,
+        workflow_id_list: Optional[WorkflowIDList] = None,
         **kwargs,
     ) -> Bot:
+        """
+        创建智能体
+
+        通过指定空间、名称等参数创建一个新的智能体。
+
+        docs: https://www.coze.cn/open/docs/developer_guides/create_bot
+
+        :param space_id: 空间 ID。智能体将创建在此空间下。
+        :param name: 智能体名称。长度限制为 1-20 个字符。
+        :param description: 智能体描述。长度限制为 0-500 个字符，默认为空。
+        :param icon_file_id: 智能体头像的文件 ID。如需使用自定义头像，请先通过上传文件接口上传本地文件，
+        并从接口响应中获取文件 ID。如果未指定文件 ID，平台将分配默认头像。
+        :param prompt_info: 智能体的提示词配置信息。
+        :param onboarding_info: 智能体的开场白配置信息。
+        :param suggest_reply_info: 智能体的建议回复配置信息。
+        :param model_info_config: 智能体的模型配置信息。
+        :param plugin_id_list: 智能体使用的插件 ID 列表。
+        :param workflow_id_list: 智能体使用的工作流 ID 列表。
+        :return: 创建成功的智能体对象
+        """
         url = f"{self._base_url}/v1/bot/create"
         body = dump_exclude_none(
             {
@@ -354,6 +423,8 @@ class BotsClient(object):
                 "onboarding_info": onboarding_info,
                 "suggest_reply_info": suggest_reply_info,
                 "model_info_config": model_info_config,
+                "plugin_id_list": plugin_id_list,
+                "workflow_id_list": workflow_id_list,
             }
         )
         headers: Optional[dict] = kwargs.get("headers")
@@ -665,8 +736,30 @@ class AsyncBotsClient(object):
         onboarding_info: Optional[BotOnboardingInfo] = None,
         suggest_reply_info: Optional[BotSuggestReplyInfo] = None,
         model_info_config: Optional[BotModelInfo] = None,
+        plugin_id_list: Optional[PluginIDList] = None,
+        workflow_id_list: Optional[WorkflowIDList] = None,
         **kwargs,
     ) -> Bot:
+        """
+        创建智能体
+
+        通过指定空间、名称等参数创建一个新的智能体。
+
+        docs: https://www.coze.cn/open/docs/developer_guides/create_bot
+
+        :param space_id: 空间 ID。智能体将创建在此空间下。
+        :param name: 智能体名称。长度限制为 1-20 个字符。
+        :param description: 智能体描述。长度限制为 0-500 个字符，默认为空。
+        :param icon_file_id: 智能体头像的文件 ID。如需使用自定义头像，请先通过上传文件接口上传本地文件，
+        并从接口响应中获取文件 ID。如果未指定文件 ID，平台将分配默认头像。
+        :param prompt_info: 智能体的提示词配置信息。
+        :param onboarding_info: 智能体的开场白配置信息。
+        :param suggest_reply_info: 智能体的建议回复配置信息。
+        :param model_info_config: 智能体的模型配置信息。
+        :param plugin_id_list: 智能体使用的插件 ID 列表。
+        :param workflow_id_list: 智能体使用的工作流 ID 列表。
+        :return: 创建成功的智能体对象
+        """
         url = f"{self._base_url}/v1/bot/create"
         body = dump_exclude_none(
             {
@@ -678,6 +771,8 @@ class AsyncBotsClient(object):
                 "onboarding_info": onboarding_info,
                 "suggest_reply_info": suggest_reply_info,
                 "model_info_config": model_info_config,
+                "plugin_id_list": plugin_id_list,
+                "workflow_id_list": workflow_id_list,
             }
         )
         headers: Optional[dict] = kwargs.get("headers")

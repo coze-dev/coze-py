@@ -58,6 +58,7 @@ from .bots import (
     BotWorkflowInfo,
     CanvasPosition,
     GradientPosition,
+    PluginIDList,
     PublishStatus,
     SimpleBot,
     SuggestReplyMode,
@@ -65,6 +66,7 @@ from .bots import (
     UserInputType,
     VariableChannel,
     VariableType,
+    WorkflowIDList,
 )
 from .chat import (
     Chat,
@@ -306,6 +308,8 @@ __all__ = [
     "PublishStatus",
     "SimpleBot",
     "SuggestReplyMode",
+    "PluginIDList",
+    "WorkflowIDList",
     "UpdateBotResp",
     "UserInputType",
     "VariableChannel",

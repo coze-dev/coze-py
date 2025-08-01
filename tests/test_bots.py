@@ -1,7 +1,24 @@
 import httpx
 import pytest
 
-from cozepy import APIApp, AppType, AsyncCoze, AsyncTokenAuth, Bot, Coze, SimpleBot, TokenAuth
+from cozepy import (
+    APIApp,
+    AppType,
+    AsyncCoze,
+    AsyncTokenAuth,
+    Bot,
+    BotKnowledge,
+    BotModelInfo,
+    BotOnboardingInfo,
+    BotPromptInfo,
+    BotSuggestReplyInfo,
+    Coze,
+    PluginIDList,
+    SimpleBot,
+    SuggestReplyMode,
+    TokenAuth,
+    WorkflowIDList,
+)
 from cozepy.util import random_hex
 from tests.test_util import logid_key
 
@@ -206,9 +223,46 @@ class TestSyncBots:
     def test_sync_bot_create(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
-        mock_bot = mock_create_bot(respx_mock)
+        bot = mock_create_bot(respx_mock)
 
         bot = coze.bots.create(space_id="space id", name="name")
+        assert bot
+        assert bot.response.logid == bot.response.logid
+        assert bot.bot_id == bot.bot_id
+
+    def test_sync_bot_create_with_advanced_params(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        mock_bot = mock_create_bot(respx_mock)
+
+        bot = coze.bots.create(
+            space_id="space id",
+            name="advanced bot",
+            description="advanced bot description",
+            prompt_info=BotPromptInfo(prompt="You are a helpful assistant."),
+            onboarding_info=BotOnboardingInfo(
+                prologue="Hello! How can I help you today?",
+                suggested_questions=["What can you do?", "How to use this bot?"],
+            ),
+            knowledge=BotKnowledge(dataset_ids=["dataset_123", "dataset_456"], auto_call=True, search_strategy=0),
+            suggest_reply_info=BotSuggestReplyInfo(reply_mode=SuggestReplyMode.ENABLE),
+            model_info_config=BotModelInfo(model_id="doubao-pro-128k", temperature=0.7),
+            plugin_id_list=PluginIDList(
+                id_list=[
+                    PluginIDList.PluginIDInfo(
+                        plugin_id="7379227817307013129",  # 链接读取
+                        api_id="7379227817307029513",  # LinkReaderPlugin
+                    )
+                ]
+            ),
+            workflow_id_list=WorkflowIDList(
+                ids=[
+                    WorkflowIDList.WorkflowIDInfo(
+                        id="7527235627947917375"  # with_chat_role
+                    )
+                ]
+            ),
+        )
         assert bot
         assert bot.response.logid == mock_bot.response.logid
         assert bot.bot_id == mock_bot.bot_id
@@ -298,6 +352,46 @@ class TestAsyncBots:
         mock_bot = mock_create_bot(respx_mock)
 
         bot = await coze.bots.create(space_id="space id", name="name")
+        assert bot
+        assert bot.response.logid is not None
+        assert bot.response.logid == mock_bot.response.logid
+        assert bot.bot_id == mock_bot.bot_id
+
+    async def test_async_bot_create_with_advanced_params(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+
+        mock_bot = mock_create_bot(respx_mock)
+
+        bot = await coze.bots.create(
+            space_id="space id",
+            name="advanced bot",
+            description="advanced bot description",
+            prompt_info=BotPromptInfo(prompt="You are a helpful assistant."),
+            onboarding_info=BotOnboardingInfo(
+                prologue="Hello! How can I help you today?",
+                suggested_questions=["What can you do?", "How to use this bot?"],
+            ),
+            knowledge=BotKnowledge(dataset_ids=["dataset_123", "dataset_456"], auto_call=True, search_strategy=1),
+            suggest_reply_info=BotSuggestReplyInfo(
+                reply_mode=SuggestReplyMode.CUSTOMIZED, customized_prompt="Generate helpful follow-up questions"
+            ),
+            model_info_config=BotModelInfo(model_id="gpt-4", temperature=0.8, max_tokens=1500),
+            plugin_id_list=PluginIDList(
+                id_list=[
+                    PluginIDList.PluginIDInfo(
+                        plugin_id="7379227817307013129",  # 链接读取
+                        api_id="7379227817307029513",  # LinkReaderPlugin
+                    )
+                ]
+            ),
+            workflow_id_list=WorkflowIDList(
+                ids=[
+                    WorkflowIDList.WorkflowIDInfo(
+                        id="7527235627947917375"  # with_chat_role
+                    )
+                ]
+            ),
+        )
         assert bot
         assert bot.response.logid is not None
         assert bot.response.logid == mock_bot.response.logid
@@ -414,7 +508,7 @@ class TestSyncAPIApps:
         assert resp
         # 迭代所有 app
         ids = [app.id for app in resp]
-        assert ids == [f"id_{i+1}" for i in range(total)]
+        assert ids == [f"id_{i + 1}" for i in range(total)]
         # 迭代所有 page
         total_result = 0
         for page in resp.iter_pages():
@@ -463,7 +557,7 @@ class TestAsyncAPIApps:
         ids = []
         async for app in resp:
             ids.append(app.id)
-        assert ids == [f"id_{i+1}" for i in range(total)]
+        assert ids == [f"id_{i + 1}" for i in range(total)]
         total_result = 0
         async for page in resp.iter_pages():
             total_result += 1
