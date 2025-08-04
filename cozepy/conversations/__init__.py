@@ -12,11 +12,22 @@ class Conversation(CozeModel):
     meta_data: Dict[str, str]
     # section_id is used to distinguish the context sections of the session history. The same section is one context.
     last_section_id: str
+    name: Optional[str] = None
+    updated_at: Optional[int] = None
+    creator_id: Optional[str] = None
+    connector_id: Optional[str] = None
 
 
 class Section(CozeModel):
     id: str
     conversation_id: str
+
+
+class DeleteConversationResp(CozeModel):
+    """
+    删除会话的响应结构体
+    不包含任何字段，仅用于表示操作成功
+    """
 
 
 class _PrivateListConversationResp(CozeModel):
@@ -115,28 +126,42 @@ class ConversationsClient(object):
 
     def clear(self, *, conversation_id: str) -> Section:
         """
-        清空指定对话的内容。
-        清空后对话仍然存在，但其中的消息内容会被清除。
+        清空会话内容。
+        清空指定会话的所有消息内容，但保留会话本身。
 
-        :param conversation_id: 对话ID
+        :param conversation_id: 会话ID
         :return: Section对象
         """
         url = f"{self._base_url}/v1/conversations/{conversation_id}/clear"
         return self._requester.request("post", url, False, Section)
 
-    def delete(self, *, conversation_id: str) -> bool:
+    def update(self, *, conversation_id: str, name: Optional[str] = None) -> Conversation:
         """
-        删除指定的对话。
-        删除后对话及其中的所有消息都将被永久删除，无法恢复。
+        更新会话信息。
+        更新指定会话的名称，便于识别与管理。
 
-        docs cn: https://www.coze.cn/docs/developer_guides/delete_conversation
+        docs: https://www.coze.cn/docs/developer_guides/edit_conversation
 
-        :param conversation_id: 要删除的对话ID
-        :return: 删除成功返回True，失败则抛出异常
+        :param conversation_id: 会话ID
+        :param name: 新的会话名称，最多100个字符
+        :return: 更新后的Conversation对象
         """
         url = f"{self._base_url}/v1/conversations/{conversation_id}"
-        self._requester.request("delete", url, False, None)
-        return True
+        body = {"name": name}
+        return self._requester.request("put", url, False, Conversation, body=body)
+
+    def delete(self, *, conversation_id: str) -> DeleteConversationResp:
+        """
+        删除指定的会话。
+        删除后会话及其中的所有消息都将被永久删除，无法恢复。
+
+        docs: https://www.coze.cn/docs/developer_guides/delete_conversation
+
+        :param conversation_id: 要删除的会话ID
+        :return: DeleteConversationResp对象表示删除成功
+        """
+        url = f"{self._base_url}/v1/conversations/{conversation_id}"
+        return self._requester.request("delete", url, False, DeleteConversationResp)
 
     @property
     def messages(self):
@@ -229,28 +254,42 @@ class AsyncConversationsClient(object):
 
     async def clear(self, *, conversation_id: str) -> Section:
         """
-        清空指定对话的内容。
-        清空后对话仍然存在，但其中的消息内容会被清除。
+        清空会话内容。
+        清空指定会话的所有消息内容，但保留会话本身。
 
-        :param conversation_id: 对话ID
+        :param conversation_id: 会话ID
         :return: Section对象
         """
         url = f"{self._base_url}/v1/conversations/{conversation_id}/clear"
         return await self._requester.arequest("post", url, False, Section)
 
-    async def delete(self, *, conversation_id: str) -> bool:
+    async def update(self, *, conversation_id: str, name: Optional[str] = None) -> Conversation:
         """
-        删除指定的对话。
-        删除后对话及其中的所有消息都将被永久删除，无法恢复。
+        更新会话信息。
+        更新指定会话的名称，便于识别与管理。
 
-        docs cn: https://www.coze.cn/docs/developer_guides/delete_conversation
+        docs: https://www.coze.cn/docs/developer_guides/edit_conversation
 
-        :param conversation_id: 要删除的对话ID
-        :return: 删除成功返回True，失败则抛出异常
+        :param conversation_id: 会话ID
+        :param name: 新的会话名称，最多100个字符
+        :return: 更新后的Conversation对象
         """
         url = f"{self._base_url}/v1/conversations/{conversation_id}"
-        await self._requester.arequest("delete", url, False, None)
-        return True
+        body = {"name": name}
+        return await self._requester.arequest("put", url, False, Conversation, body=body)
+
+    async def delete(self, *, conversation_id: str) -> DeleteConversationResp:
+        """
+        删除指定的会话。
+        删除后会话及其中的所有消息都将被永久删除，无法恢复。
+
+        docs: https://www.coze.cn/docs/developer_guides/delete_conversation
+
+        :param conversation_id: 要删除的会话ID
+        :return: DeleteConversationResp对象表示删除成功
+        """
+        url = f"{self._base_url}/v1/conversations/{conversation_id}"
+        return await self._requester.arequest("delete", url, False, DeleteConversationResp)
 
     @property
     def messages(self):

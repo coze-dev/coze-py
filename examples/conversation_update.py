@@ -1,8 +1,7 @@
 """
-删除会话示例
+示例：更新会话名称
 
-本示例演示如何使用Coze SDK删除指定的会话。
-删除会话后，会话及其中的所有消息都将被永久删除，无法恢复。
+本示例演示如何使用Coze SDK更新指定会话的名称。
 """
 
 import logging
@@ -47,7 +46,14 @@ is_debug = os.getenv("DEBUG")
 if is_debug:
     setup_logging(logging.DEBUG)
 
-# 删除会话
-resp = coze.conversations.delete(conversation_id=conversation_id)
-print(f"成功删除会话: {conversation_id}")
-print(f"响应日志ID: {resp.response.logid}")
+# 示例：更新会话名称
+# 假设我们有一个会话ID
+new_name = "新的会话名称"
+
+# 更新会话名称
+updated_conversation = coze.conversations.update(conversation_id=conversation_id, name=new_name)
+
+print("会话更新成功：")
+print(f"会话ID: {updated_conversation.id}")
+print(f"新名称: {updated_conversation.name}")
+print(f"更新时间: {updated_conversation.updated_at}")
