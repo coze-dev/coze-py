@@ -92,6 +92,19 @@ def mock_update_conversation(respx_mock) -> Conversation:
     return conversation
 
 
+def mock_delete_conversation(respx_mock, conversation_id: str):
+    from cozepy.conversations import DeleteConversationResp
+
+    resp = DeleteConversationResp()
+    resp._raw_response = httpx.Response(
+        200,
+        json={"data": {}},
+        headers={logid_key(): random_hex(10)},
+    )
+    respx_mock.delete(f"/v1/conversations/{conversation_id}").mock(resp._raw_response)
+    return resp
+
+
 @pytest.mark.respx(base_url="https://api.coze.com")
 class TestSyncConversation:
     def test_sync_conversations_create(self, respx_mock):
@@ -171,6 +184,16 @@ class TestSyncConversation:
         assert res.id == mock_conversation.id
         assert res.name == mock_conversation.name
         assert res.updated_at == mock_conversation.updated_at
+
+    def test_sync_conversations_delete(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        conversation_id = random_hex(10)
+        mock_resp = mock_delete_conversation(respx_mock, conversation_id)
+
+        res = coze.conversations.delete(conversation_id=conversation_id)
+        assert res
+        assert res.response.logid == mock_resp.response.logid
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -253,3 +276,13 @@ class TestAsyncConversation:
         assert res.id == mock_conversation.id
         assert res.name == mock_conversation.name
         assert res.updated_at == mock_conversation.updated_at
+
+    async def test_async_conversations_delete(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+
+        conversation_id = random_hex(10)
+        mock_resp = mock_delete_conversation(respx_mock, conversation_id)
+
+        res = await coze.conversations.delete(conversation_id=conversation_id)
+        assert res
+        assert res.response.logid == mock_resp.response.logid

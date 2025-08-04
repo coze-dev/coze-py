@@ -23,6 +23,13 @@ class Section(CozeModel):
     conversation_id: str
 
 
+class DeleteConversationResp(CozeModel):
+    """
+    删除会话的响应结构体
+    不包含任何字段，仅用于表示操作成功
+    """
+
+
 class _PrivateListConversationResp(CozeModel):
     has_more: bool
     conversations: List[Conversation]
@@ -143,6 +150,19 @@ class ConversationsClient(object):
         body = {"name": name}
         return self._requester.request("put", url, False, Conversation, body=body)
 
+    def delete(self, *, conversation_id: str) -> DeleteConversationResp:
+        """
+        删除指定的会话。
+        删除后会话及其中的所有消息都将被永久删除，无法恢复。
+
+        docs: https://www.coze.cn/docs/developer_guides/delete_conversation
+
+        :param conversation_id: 要删除的会话ID
+        :return: DeleteConversationResp对象表示删除成功
+        """
+        url = f"{self._base_url}/v1/conversations/{conversation_id}"
+        return self._requester.request("delete", url, False, DeleteConversationResp)
+
     @property
     def messages(self):
         if not self._messages:
@@ -257,6 +277,19 @@ class AsyncConversationsClient(object):
         url = f"{self._base_url}/v1/conversations/{conversation_id}"
         body = {"name": name}
         return await self._requester.arequest("put", url, False, Conversation, body=body)
+
+    async def delete(self, *, conversation_id: str) -> DeleteConversationResp:
+        """
+        删除指定的会话。
+        删除后会话及其中的所有消息都将被永久删除，无法恢复。
+
+        docs: https://www.coze.cn/docs/developer_guides/delete_conversation
+
+        :param conversation_id: 要删除的会话ID
+        :return: DeleteConversationResp对象表示删除成功
+        """
+        url = f"{self._base_url}/v1/conversations/{conversation_id}"
+        return await self._requester.arequest("delete", url, False, DeleteConversationResp)
 
     @property
     def messages(self):
