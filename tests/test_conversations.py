@@ -79,6 +79,19 @@ def mock_clear_conversation(respx_mock) -> Section:
     return section
 
 
+def mock_update_conversation(respx_mock) -> Conversation:
+    conversation = make_conversation()
+    conversation.name = "updated_conversation_name"
+    conversation.updated_at = int(time.time())
+    conversation._raw_response = httpx.Response(
+        200,
+        json={"data": conversation.model_dump()},
+        headers={logid_key(): random_hex(10)},
+    )
+    respx_mock.put(f"/v1/conversations/{conversation.id}").mock(conversation._raw_response)
+    return conversation
+
+
 @pytest.mark.respx(base_url="https://api.coze.com")
 class TestSyncConversation:
     def test_sync_conversations_create(self, respx_mock):
@@ -146,6 +159,18 @@ class TestSyncConversation:
         assert res.response.logid == mock_section.response.logid
         assert res.id == mock_section.id
         assert res.conversation_id == mock_section.conversation_id
+
+    def test_sync_conversations_update(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        mock_conversation = mock_update_conversation(respx_mock)
+
+        res = coze.conversations.update(conversation_id=mock_conversation.id, name="updated_conversation_name")
+        assert res
+        assert res.response.logid == mock_conversation.response.logid
+        assert res.id == mock_conversation.id
+        assert res.name == mock_conversation.name
+        assert res.updated_at == mock_conversation.updated_at
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -216,3 +241,15 @@ class TestAsyncConversation:
         assert res.response.logid == mock_section.response.logid
         assert res.id == mock_section.id
         assert res.conversation_id == mock_section.conversation_id
+
+    async def test_async_conversations_update(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+
+        mock_conversation = mock_update_conversation(respx_mock)
+
+        res = await coze.conversations.update(conversation_id=mock_conversation.id, name="updated_conversation_name")
+        assert res
+        assert res.response.logid == mock_conversation.response.logid
+        assert res.id == mock_conversation.id
+        assert res.name == mock_conversation.name
+        assert res.updated_at == mock_conversation.updated_at
