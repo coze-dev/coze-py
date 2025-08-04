@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 from cozepy.chat import Message
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged
 from cozepy.request import Requester
-from cozepy.util import remove_url_trailing_slash
+from cozepy.util import dump_exclude_none, remove_url_trailing_slash
 
 
 class Conversation(CozeModel):
@@ -55,28 +55,34 @@ class ConversationsClient(object):
         *,
         messages: Optional[List[Message]] = None,
         bot_id: Optional[str] = None,
+        name: Optional[str] = None,
+        connector_id: Optional[str] = None,
         meta_data: Optional[Dict[str, str]] = None,
     ) -> Conversation:
         """
-        Create a conversation.
-        Conversation is an interaction between a bot and a user, including one or more messages.
+        创建会话。
+        会话是Bot与用户之间的交互，包含一条或多条消息。
 
         docs en: https://www.coze.com/docs/developer_guides/create_conversation
         docs zh: https://www.coze.cn/docs/developer_guides/create_conversation
 
-        :param messages: Messages in the conversation. For more information, see EnterMessage object.
-        :param bot_id: Bind and isolate conversation on different bots.
-        :param meta_data: Additional information when creating a message, and this additional information will also be
-        returned when retrieving messages.
-        :return: Conversation object
+        :param messages: 会话中的消息列表。详细信息参见EnterMessage对象。
+        :param bot_id: 绑定并隔离不同Bot的会话。
+        :param name: 会话名称，最多100个字符。如果不传，则默认取首条消息内容作为名称。
+        :param connector_id: 渠道ID，默认值为1024（API）。
+        :param meta_data: 创建消息时的附加信息，这些信息在获取消息时也会返回。
+        :return: Conversation对象
         """
         url = f"{self._base_url}/v1/conversation/create"
-        body: Dict[str, Any] = {
-            "messages": [i.model_dump() for i in messages] if messages and len(messages) > 0 else [],
-            "meta_data": meta_data,
-        }
-        if bot_id:
-            body["bot_id"] = bot_id
+        body: Dict[str, Any] = dump_exclude_none(
+            {
+                "messages": messages,
+                "meta_data": meta_data,
+                "bot_id": bot_id,
+                "name": name,
+                "connector_id": connector_id,
+            }
+        )
         return self._requester.request("post", url, False, Conversation, body=body)
 
     def list(
@@ -183,28 +189,34 @@ class AsyncConversationsClient(object):
         *,
         messages: Optional[List[Message]] = None,
         bot_id: Optional[str] = None,
+        name: Optional[str] = None,
+        connector_id: Optional[str] = None,
         meta_data: Optional[Dict[str, str]] = None,
     ) -> Conversation:
         """
-        Create a conversation.
-        Conversation is an interaction between a bot and a user, including one or more messages.
+        创建会话。
+        会话是Bot与用户之间的交互，包含一条或多条消息。
 
         docs en: https://www.coze.com/docs/developer_guides/create_conversation
         docs zh: https://www.coze.cn/docs/developer_guides/create_conversation
 
-        :param messages: Messages in the conversation. For more information, see EnterMessage object.
-        :param bot_id: Bind and isolate conversation on different bots.
-        :param meta_data: Additional information when creating a message, and this additional information will also be
-        returned when retrieving messages.
-        :return: Conversation object
+        :param messages: 会话中的消息列表。详细信息参见EnterMessage对象。
+        :param bot_id: 绑定并隔离不同Bot的会话。
+        :param name: 会话名称，最多100个字符。如果不传，则默认取首条消息内容作为名称。
+        :param connector_id: 渠道ID，默认值为1024（API）。
+        :param meta_data: 创建消息时的附加信息，这些信息在获取消息时也会返回。
+        :return: Conversation对象
         """
         url = f"{self._base_url}/v1/conversation/create"
-        body: Dict[str, Any] = {
-            "messages": [i.model_dump() for i in messages] if messages and len(messages) > 0 else [],
-            "meta_data": meta_data,
-        }
-        if bot_id:
-            body["bot_id"] = bot_id
+        body: Dict[str, Any] = dump_exclude_none(
+            {
+                "messages": messages,
+                "meta_data": meta_data,
+                "bot_id": bot_id,
+                "name": name,
+                "connector_id": connector_id,
+            }
+        )
         return await self._requester.arequest("post", url, False, Conversation, body=body)
 
     async def list(
