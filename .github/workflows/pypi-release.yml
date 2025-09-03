@@ -1,4 +1,6 @@
 name: Publish to PyPI
+permissions:
+  contents: read
 on:
   push:
     tags: ["v*.*.*"]
