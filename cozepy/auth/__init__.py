@@ -1,4 +1,5 @@
 import abc
+import os
 import time
 from typing import List, Optional, Union
 from urllib.parse import quote_plus, urlparse
@@ -113,12 +114,16 @@ class OAuthApp(object):
     def _gen_jwt(self, public_key_id: str, private_key: str, ttl: int, session_name: Optional[str] = None):
         now = int(time.time())
         header = {"alg": "RS256", "typ": "JWT", "kid": public_key_id}
+
+        # Generate JTI with timestamp and entropy to avoid collision even with fixed random seed
+        jti = f"{now}:{random_hex(8)}:{os.urandom(8).hex()}"
+
         payload = {
             "iss": self._client_id,
             "aud": self._api_endpoint,
             "iat": now,
             "exp": now + ttl,
-            "jti": random_hex(16),
+            "jti": jti,
         }
         if session_name:
             payload["session_name"] = session_name
