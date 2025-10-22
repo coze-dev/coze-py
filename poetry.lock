@@ -39,11 +39,11 @@ description = "High level compatibility layer for multiple asynchronous event lo
 optional = false
 python-versions = ">=3.7"
 groups = ["main", "dev"]
+markers = "python_full_version == \"3.7.0\""
 files = [
     {file = "anyio-3.7.1-py3-none-any.whl", hash = "sha256:91dee416e570e92c64041bd18b900d1d6fa78dff7048769ce5ac5ddad004fbb5"},
     {file = "anyio-3.7.1.tar.gz", hash = "sha256:44a3c9aba0f5defa43261a8b3efb97891f2bd7d804e0e1f56419befa1adfc780"},
 ]
-markers = {main = "python_full_version == \"3.7.0\"", dev = "python_version == \"3.7\""}
 
 [package.dependencies]
 exceptiongroup = {version = "*", markers = "python_version < \"3.11\""}
@@ -159,11 +159,11 @@ description = "Python package for providing Mozilla's CA Bundle."
 optional = false
 python-versions = ">=3.7"
 groups = ["main", "dev"]
+markers = "python_version >= \"3.8\" or python_full_version == \"3.7.0\""
 files = [
     {file = "certifi-2025.6.15-py3-none-any.whl", hash = "sha256:2e0c7ce7cb5d8f8634ca55d2ba7e6ec2689a2fd6537d8dec1296a477a4910057"},
     {file = "certifi-2025.6.15.tar.gz", hash = "sha256:d747aa5a8b9bbbb1bb8c22bb13e22bd1f18e9796defa16bab421f7f7a317323b"},
 ]
-markers = {main = "python_version >= \"3.8\" or python_full_version == \"3.7.0\""}
 
 [[package]]
 name = "cffi"
@@ -828,11 +828,11 @@ description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
 optional = false
 python-versions = ">=3.7"
 groups = ["main", "dev"]
+markers = "python_full_version == \"3.7.0\""
 files = [
     {file = "h11-0.14.0-py3-none-any.whl", hash = "sha256:e3fe4ac4b851c468cc8363d500db52c2ead036020723024a109d37346efaa761"},
     {file = "h11-0.14.0.tar.gz", hash = "sha256:8f19fbbe99e72420ff35c00b27a34cb9937e902a8b810e2c88300c6f0a3b699d"},
 ]
-markers = {main = "python_full_version == \"3.7.0\"", dev = "python_version == \"3.7\""}
 
 [package.dependencies]
 typing-extensions = {version = "*", markers = "python_version < \"3.8\""}
@@ -857,11 +857,11 @@ description = "A minimal low-level HTTP client."
 optional = false
 python-versions = ">=3.7"
 groups = ["main", "dev"]
+markers = "python_full_version == \"3.7.0\""
 files = [
     {file = "httpcore-0.17.3-py3-none-any.whl", hash = "sha256:c2789b767ddddfa2a5782e3199b2b7f6894540b17b16ec26b2c4d8e103510b87"},
     {file = "httpcore-0.17.3.tar.gz", hash = "sha256:a6f30213335e34c1ade7be6ec7c47f19f50c56db36abef1a9dfa3815b1cb3888"},
 ]
-markers = {main = "python_full_version == \"3.7.0\"", dev = "python_version == \"3.7\""}
 
 [package.dependencies]
 anyio = ">=3.0,<5.0"
@@ -903,11 +903,11 @@ description = "The next generation HTTP client."
 optional = false
 python-versions = ">=3.7"
 groups = ["main", "dev"]
+markers = "python_full_version == \"3.7.0\""
 files = [
     {file = "httpx-0.24.1-py3-none-any.whl", hash = "sha256:06781eb9ac53cde990577af654bd990a4949de37a28bdb4a230d434f3a30b9bd"},
     {file = "httpx-0.24.1.tar.gz", hash = "sha256:5853a43053df830c20f8110c5e69fe44d035d850b2dfe795e196f00fdb774bdd"},
 ]
-markers = {main = "python_full_version == \"3.7.0\"", dev = "python_version == \"3.7\""}
 
 [package.dependencies]
 certifi = "*"
@@ -1002,11 +1002,11 @@ description = "Internationalized Domain Names in Applications (IDNA)"
 optional = false
 python-versions = ">=3.6"
 groups = ["main", "dev"]
+markers = "python_version >= \"3.8\" or python_full_version == \"3.7.0\""
 files = [
     {file = "idna-3.10-py3-none-any.whl", hash = "sha256:946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3"},
     {file = "idna-3.10.tar.gz", hash = "sha256:12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9"},
 ]
-markers = {main = "python_version >= \"3.8\" or python_full_version == \"3.7.0\""}
 
 [package.extras]
 all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2)"]
@@ -2067,6 +2067,7 @@ description = "A utility for mocking out the Python HTTPX and HTTP Core librarie
 optional = false
 python-versions = ">=3.7"
 groups = ["dev"]
+markers = "python_full_version == \"3.7.0\""
 files = [
     {file = "respx-0.21.1-py2.py3-none-any.whl", hash = "sha256:05f45de23f0c785862a2c92a3e173916e8ca88e4caad715dd5f68584d6053c20"},
     {file = "respx-0.21.1.tar.gz", hash = "sha256:0bd7fe21bfaa52106caa1223ce61224cf30786985f17c63c5d71eff0307ee8af"},
@@ -2074,6 +2075,22 @@ files = [
 
 [package.dependencies]
 httpx = ">=0.21.0"
+
+[[package]]
+name = "respx"
+version = "0.22.0"
+description = "A utility for mocking out the Python HTTPX and HTTP Core libraries."
+optional = false
+python-versions = ">=3.8"
+groups = ["dev"]
+markers = "python_version >= \"3.8\""
+files = [
+    {file = "respx-0.22.0-py2.py3-none-any.whl", hash = "sha256:631128d4c9aba15e56903fb5f66fb1eff412ce28dd387ca3a81339e52dbd3ad0"},
+    {file = "respx-0.22.0.tar.gz", hash = "sha256:3c8924caa2a50bd71aefc07aa812f2466ff489f1848c96e954a5362d17095d91"},
+]
+
+[package.dependencies]
+httpx = ">=0.25.0"
 
 [[package]]
 name = "ruff"
@@ -2110,11 +2127,11 @@ description = "Sniff out which async library your code is running under"
 optional = false
 python-versions = ">=3.7"
 groups = ["main", "dev"]
+markers = "python_version >= \"3.8\" or python_full_version == \"3.7.0\""
 files = [
     {file = "sniffio-1.3.1-py3-none-any.whl", hash = "sha256:2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2"},
     {file = "sniffio-1.3.1.tar.gz", hash = "sha256:f4324edc670a0f49750a81b895f35c3adb843cca46f0530f79fc1babb23789dc"},
 ]
-markers = {main = "python_version >= \"3.8\" or python_full_version == \"3.7.0\""}
 
 [[package]]
 name = "tomli"
@@ -2602,4 +2619,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.7"
-content-hash = "b05cf2c2c3a24a65dccea8bc469549d1082d0e673e0521a9a0bdc3c5e0970a92"
+content-hash = "e01d5b87cc2a67da33a1721095445be342bc61c862464ddf533d46033952d849"

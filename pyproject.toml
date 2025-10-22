@@ -28,7 +28,10 @@ pytest-cov = "^4.0.0"
 pytest-asyncio = "^0.21.0"
 ruff = "^0.6.0"
 pre-commit = "^2.9.0"
-respx = "^0.21.1"
+respx = [
+    {version =  "^0.21.1", python = "<=3.7" },
+    {version =  "^0.22.0", python = "^3.8" },
+]
 mypy = "^1.0.0"
 
 [tool.ruff]
