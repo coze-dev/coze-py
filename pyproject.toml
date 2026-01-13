@@ -17,7 +17,8 @@ httpx = [
 typing-extensions = "^4.3.0"
 distro = "^1.9.0"
 websockets = [
-    { version = "^14.1.0", python = ">=3.9" },
+    { version = "^16.0.0", python = ">=3.10" },
+    { version = "^15.0.1", python = ">=3.9,<3.10" },
     { version = "^13.1.0", python = ">=3.8,<3.9" },
     { version = "^11.0.3", python = ">=3.7,<3.8" },
 ]
