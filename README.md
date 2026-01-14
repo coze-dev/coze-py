@@ -168,7 +168,7 @@ pip install cozepy
     <tr>
         <td rowspan="1">Workspace</td>
         <td>List Workspaces</td>
-        <td><a href="./examples/workspace.py">examples/workspace.py</a></td>
+        <td><a href="./examples/workspaces_list.py">examples/workspaces_list.py</a></td>
     </tr>
     <tr>
         <td rowspan="2">Variable</td>
