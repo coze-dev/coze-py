@@ -90,7 +90,7 @@ class TestSyncWorkspaces:
                             "total_count": total,
                             "workspaces": [
                                 Workspace(
-                                    id=f"id_{idx+1}",
+                                    id=f"id_{idx + 1}",
                                     name="name",
                                     icon_url="icon_url",
                                     role_type=WorkspaceRoleType.ADMIN,
@@ -173,7 +173,7 @@ class TestAsyncWorkspaces:
                             "total_count": total,
                             "workspaces": [
                                 Workspace(
-                                    id=f"id_{idx+1}",
+                                    id=f"id_{idx + 1}",
                                     name="name",
                                     icon_url="icon_url",
                                     role_type=WorkspaceRoleType.ADMIN,

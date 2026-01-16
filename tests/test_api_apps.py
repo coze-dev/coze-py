@@ -118,7 +118,7 @@ class TestSyncApiApps:
         ids = []
         for app in resp:
             ids.append(app.id)
-        assert ids == [f"id_{i+1}" for i in range(total)]
+        assert ids == [f"id_{i + 1}" for i in range(total)]
         total_result = 0
         for page in resp.iter_pages():
             total_result += 1
@@ -198,7 +198,7 @@ class TestAsyncApiApps:
         ids = []
         async for app in resp:
             ids.append(app.id)
-        assert ids == [f"id_{i+1}" for i in range(total)]
+        assert ids == [f"id_{i + 1}" for i in range(total)]
         total_result = 0
         async for page in resp.iter_pages():
             total_result += 1
