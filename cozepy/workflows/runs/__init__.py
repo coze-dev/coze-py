@@ -9,7 +9,7 @@ from cozepy.request import Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
 
 if TYPE_CHECKING:
-    from .run_histories import WorkflowsRunsRunHistoriesClient, AsyncWorkflowsRunsRunHistoriesClient
+    from .run_histories import AsyncWorkflowsRunsRunHistoriesClient, WorkflowsRunsRunHistoriesClient
 
 
 class WorkflowRunResult(CozeModel):
