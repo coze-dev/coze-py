@@ -76,6 +76,7 @@ class APIAppsClient(object):
         :return: The api app object.
         """
         url = f"{self._base_url}/v1/api_apps"
+        headers: Optional[dict] = kwargs.get("headers")
         body = dump_exclude_none(
             {
                 "app_type": app_type,
@@ -83,9 +84,7 @@ class APIAppsClient(object):
                 "connector_id": connector_id,
             }
         )
-        headers: Optional[dict] = kwargs.get("headers")
-
-        return self._requester.request("post", url, False, cast=APIApp, body=body, headers=headers)
+        return self._requester.request("post", url, False, cast=APIApp, headers=headers, body=body)
 
     def update(
         self,
@@ -103,27 +102,25 @@ class APIAppsClient(object):
         :param callback_url: The callback url of the api app.
         """
         url = f"{self._base_url}/v1/api_apps/{app_id}"
+        headers: Optional[dict] = kwargs.get("headers")
         body = dump_exclude_none(
             {
                 "name": name,
                 "callback_url": callback_url,
             }
         )
-        headers: Optional[dict] = kwargs.get("headers")
-
         return self._requester.request(
             "put",
             url,
             False,
             cast=UpdateAPIAppsResp,
-            body=body,
             headers=headers,
+            body=body,
         )
 
     def delete(self, *, app_id: str, **kwargs) -> DeleteAPIAppsResp:
         url = f"{self._base_url}/v1/api_apps/{app_id}"
         headers: Optional[dict] = kwargs.get("headers")
-
         return self._requester.request("delete", url, False, cast=DeleteAPIAppsResp, headers=headers)
 
     def list(
@@ -186,6 +183,7 @@ class AsyncAPIAppsClient(object):
         :return: The api app object.
         """
         url = f"{self._base_url}/v1/api_apps"
+        headers: Optional[dict] = kwargs.get("headers")
         body = dump_exclude_none(
             {
                 "app_type": app_type,
@@ -193,9 +191,7 @@ class AsyncAPIAppsClient(object):
                 "connector_id": connector_id,
             }
         )
-        headers: Optional[dict] = kwargs.get("headers")
-
-        return await self._requester.arequest("post", url, False, cast=APIApp, body=body, headers=headers)
+        return await self._requester.arequest("post", url, False, cast=APIApp, headers=headers, body=body)
 
     async def update(
         self,
@@ -213,27 +209,25 @@ class AsyncAPIAppsClient(object):
         :param callback_url: The callback url of the api app.
         """
         url = f"{self._base_url}/v1/api_apps/{app_id}"
+        headers: Optional[dict] = kwargs.get("headers")
         body = dump_exclude_none(
             {
                 "name": name,
                 "callback_url": callback_url,
             }
         )
-        headers: Optional[dict] = kwargs.get("headers")
-
         return await self._requester.arequest(
             "put",
             url,
             False,
             cast=UpdateAPIAppsResp,
-            body=body,
             headers=headers,
+            body=body,
         )
 
     async def delete(self, *, app_id: str, **kwargs) -> DeleteAPIAppsResp:
         url = f"{self._base_url}/v1/api_apps/{app_id}"
         headers: Optional[dict] = kwargs.get("headers")
-
         return await self._requester.arequest("delete", url, False, cast=DeleteAPIAppsResp, headers=headers)
 
     async def list(

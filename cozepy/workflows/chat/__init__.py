@@ -67,6 +67,7 @@ class WorkflowsChatClient(object):
         **kwargs,
     ) -> Stream[ChatEvent]:
         url = f"{self._base_url}/v1/workflows/chat"
+        headers: Optional[dict] = kwargs.get("headers")
         body = remove_none_values(
             {
                 "workflow_id": workflow_id,
@@ -78,7 +79,6 @@ class WorkflowsChatClient(object):
                 "ext": ext,
             }
         )
-        headers: Optional[dict] = kwargs.get("headers")
         response: IteratorHTTPResponse[str] = self._requester.request(
             "post",
             url,
@@ -153,6 +153,7 @@ class AsyncWorkflowsChatClient(object):
         **kwargs,
     ) -> AsyncIterator[ChatEvent]:
         url = f"{self._base_url}/v1/workflows/chat"
+        headers: Optional[dict] = kwargs.get("headers")
         body = remove_none_values(
             {
                 "workflow_id": workflow_id,
@@ -164,7 +165,6 @@ class AsyncWorkflowsChatClient(object):
                 "ext": ext,
             }
         )
-        headers: Optional[dict] = kwargs.get("headers")
         resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
             "post",
             url,
