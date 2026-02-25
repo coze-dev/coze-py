@@ -93,7 +93,7 @@ class DatasetsClient(object):
 
     @property
     def documents(self) -> "DatasetsDocumentsClient":
-        if self._documents is None:
+        if not self._documents:
             from .documents import DatasetsDocumentsClient
 
             self._documents = DatasetsDocumentsClient(base_url=self._base_url, requester=self._requester)
@@ -101,7 +101,7 @@ class DatasetsClient(object):
 
     @property
     def images(self) -> "DatasetsImagesClient":
-        if self._images is None:
+        if not self._images:
             from .images import DatasetsImagesClient
 
             self._images = DatasetsImagesClient(base_url=self._base_url, requester=self._requester)
@@ -297,7 +297,7 @@ class AsyncDatasetsClient(object):
 
     @property
     def documents(self) -> "AsyncDatasetsDocumentsClient":
-        if self._documents is None:
+        if not self._documents:
             from .documents import AsyncDatasetsDocumentsClient
 
             self._documents = AsyncDatasetsDocumentsClient(base_url=self._base_url, requester=self._requester)
@@ -305,7 +305,7 @@ class AsyncDatasetsClient(object):
 
     @property
     def images(self) -> "AsyncDatasetsImagesClient":
-        if self._images is None:
+        if not self._images:
             from .images import AsyncDatasetsImagesClient
 
             self._images = AsyncDatasetsImagesClient(base_url=self._base_url, requester=self._requester)

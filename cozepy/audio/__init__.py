@@ -25,7 +25,7 @@ class AudioClient(object):
 
     @property
     def rooms(self) -> "RoomsClient":
-        if self._rooms is None:
+        if not self._rooms:
             from .rooms import RoomsClient
 
             self._rooms = RoomsClient(base_url=self._base_url, requester=self._requester)
@@ -33,7 +33,7 @@ class AudioClient(object):
 
     @property
     def speech(self) -> "SpeechClient":
-        if self._speech is None:
+        if not self._speech:
             from .speech import SpeechClient
 
             self._speech = SpeechClient(base_url=self._base_url, requester=self._requester)
@@ -41,7 +41,7 @@ class AudioClient(object):
 
     @property
     def transcriptions(self) -> "TranscriptionsClient":
-        if self._transcriptions is None:
+        if not self._transcriptions:
             from .transcriptions import TranscriptionsClient
 
             self._transcriptions = TranscriptionsClient(base_url=self._base_url, requester=self._requester)
@@ -49,7 +49,7 @@ class AudioClient(object):
 
     @property
     def voices(self) -> "VoicesClient":
-        if self._voices is None:
+        if not self._voices:
             from .voices import VoicesClient
 
             self._voices = VoicesClient(base_url=self._base_url, requester=self._requester)
@@ -57,7 +57,7 @@ class AudioClient(object):
 
     @property
     def voiceprint_groups(self) -> "VoiceprintGroupsClient":
-        if self._voiceprint_groups is None:
+        if not self._voiceprint_groups:
             from .voiceprint_groups import VoiceprintGroupsClient
 
             self._voiceprint_groups = VoiceprintGroupsClient(base_url=self._base_url, requester=self._requester)
@@ -65,7 +65,7 @@ class AudioClient(object):
 
     @property
     def live(self) -> "LiveClient":
-        if self._live is None:
+        if not self._live:
             from .live import LiveClient
 
             self._live = LiveClient(base_url=self._base_url, requester=self._requester)
@@ -85,7 +85,7 @@ class AsyncAudioClient(object):
 
     @property
     def rooms(self) -> "AsyncRoomsClient":
-        if self._rooms is None:
+        if not self._rooms:
             from .rooms import AsyncRoomsClient
 
             self._rooms = AsyncRoomsClient(base_url=self._base_url, requester=self._requester)
@@ -93,7 +93,7 @@ class AsyncAudioClient(object):
 
     @property
     def speech(self) -> "AsyncSpeechClient":
-        if self._speech is None:
+        if not self._speech:
             from .speech import AsyncSpeechClient
 
             self._speech = AsyncSpeechClient(base_url=self._base_url, requester=self._requester)
@@ -101,7 +101,7 @@ class AsyncAudioClient(object):
 
     @property
     def transcriptions(self) -> "AsyncTranscriptionsClient":
-        if self._transcriptions is None:
+        if not self._transcriptions:
             from .transcriptions import AsyncTranscriptionsClient
 
             self._transcriptions = AsyncTranscriptionsClient(base_url=self._base_url, requester=self._requester)
@@ -109,7 +109,7 @@ class AsyncAudioClient(object):
 
     @property
     def voices(self) -> "AsyncVoicesClient":
-        if self._voices is None:
+        if not self._voices:
             from .voices import AsyncVoicesClient
 
             self._voices = AsyncVoicesClient(base_url=self._base_url, requester=self._requester)
@@ -117,7 +117,7 @@ class AsyncAudioClient(object):
 
     @property
     def voiceprint_groups(self) -> "AsyncVoiceprintGroupsClient":
-        if self._voiceprint_groups is None:
+        if not self._voiceprint_groups:
             from .voiceprint_groups import AsyncVoiceprintGroupsClient
 
             self._voiceprint_groups = AsyncVoiceprintGroupsClient(base_url=self._base_url, requester=self._requester)
@@ -125,7 +125,7 @@ class AsyncAudioClient(object):
 
     @property
     def live(self) -> "AsyncLiveClient":
-        if self._live is None:
+        if not self._live:
             from .live import AsyncLiveClient
 
             self._live = AsyncLiveClient(base_url=self._base_url, requester=self._requester)

@@ -66,7 +66,7 @@ class VoiceprintGroupsClient(object):
 
     @property
     def features(self) -> "VoiceprintGroupsFeaturesClient":
-        if self._features is None:
+        if not self._features:
             from .features import VoiceprintGroupsFeaturesClient
 
             self._features = VoiceprintGroupsFeaturesClient(base_url=self._base_url, requester=self._requester)
@@ -201,7 +201,7 @@ class AsyncVoiceprintGroupsClient(object):
 
     @property
     def features(self) -> "AsyncVoiceprintGroupsFeaturesClient":
-        if self._features is None:
+        if not self._features:
             from .features import AsyncVoiceprintGroupsFeaturesClient
 
             self._features = AsyncVoiceprintGroupsFeaturesClient(base_url=self._base_url, requester=self._requester)

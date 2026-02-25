@@ -425,10 +425,8 @@ class ChatClient(object):
         self._messages: Optional[ChatMessagesClient] = None
 
     @property
-    def messages(
-        self,
-    ) -> "ChatMessagesClient":
-        if self._messages is None:
+    def messages(self) -> "ChatMessagesClient":
+        if not self._messages:
             from .message import ChatMessagesClient
 
             self._messages = ChatMessagesClient(base_url=self._base_url, requester=self._requester)
@@ -787,10 +785,8 @@ class AsyncChatClient(object):
         self._messages: Optional[AsyncChatMessagesClient] = None
 
     @property
-    def messages(
-        self,
-    ) -> "AsyncChatMessagesClient":
-        if self._messages is None:
+    def messages(self) -> "AsyncChatMessagesClient":
+        if not self._messages:
             from .message import AsyncChatMessagesClient
 
             self._messages = AsyncChatMessagesClient(base_url=self._base_url, requester=self._requester)

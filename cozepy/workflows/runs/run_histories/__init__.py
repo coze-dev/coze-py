@@ -109,7 +109,7 @@ class WorkflowsRunsRunHistoriesClient(object):
 
     @property
     def execute_nodes(self) -> "WorkflowsRunsRunHistoriesExecuteNodesClient":
-        if self._execute_nodes is None:
+        if not self._execute_nodes:
             from .execute_nodes import WorkflowsRunsRunHistoriesExecuteNodesClient
 
             self._execute_nodes = WorkflowsRunsRunHistoriesExecuteNodesClient(
@@ -143,7 +143,7 @@ class AsyncWorkflowsRunsRunHistoriesClient(object):
 
     @property
     def execute_nodes(self) -> "AsyncWorkflowsRunsRunHistoriesExecuteNodesClient":
-        if self._execute_nodes is None:
+        if not self._execute_nodes:
             from .execute_nodes import AsyncWorkflowsRunsRunHistoriesExecuteNodesClient
 
             self._execute_nodes = AsyncWorkflowsRunsRunHistoriesExecuteNodesClient(
