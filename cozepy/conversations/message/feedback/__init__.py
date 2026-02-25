@@ -47,7 +47,6 @@ class ConversationsMessagesFeedbackClient(object):
                 "comment": comment,
             }
         )
-
         return self._requester.request(
             "post", url, False, body=body, cast=CreateConversationMessageFeedbackResp, headers=headers
         )
@@ -92,7 +91,6 @@ class AsyncMessagesFeedbackClient(object):
                 "comment": comment,
             }
         )
-
         return await self._requester.arequest(
             "post", url, False, body=body, cast=CreateConversationMessageFeedbackResp, headers=headers
         )
