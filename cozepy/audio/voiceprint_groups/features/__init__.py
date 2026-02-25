@@ -120,7 +120,6 @@ class VoiceprintGroupsFeaturesClient(object):
     ) -> DeleteVoicePrintGroupFeatureResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features/{feature_id}"
         headers: Optional[dict] = kwargs.get("headers")
-
         return self._requester.request("delete", url, False, cast=DeleteVoicePrintGroupFeatureResp, headers=headers)
 
     def list(
@@ -223,7 +222,6 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
     ) -> DeleteVoicePrintGroupFeatureResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features/{feature_id}"
         headers: Optional[dict] = kwargs.get("headers")
-
         return await self._requester.arequest(
             "delete", url, False, cast=DeleteVoicePrintGroupFeatureResp, headers=headers
         )

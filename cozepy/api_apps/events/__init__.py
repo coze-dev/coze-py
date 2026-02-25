@@ -52,25 +52,23 @@ class APIAppsEventsClient(object):
         **kwargs,
     ) -> CreateAPIAppsEventsResp:
         url = f"{self._base_url}/v1/api_apps/{api_app_id}/events"
+        headers: Optional[dict] = kwargs.get("headers")
         body = dump_exclude_none(
             {
                 "event_types": event_types,
             }
         )
-        headers: Optional[dict] = kwargs.get("headers")
-
-        return self._requester.request("post", url, False, cast=CreateAPIAppsEventsResp, body=body, headers=headers)
+        return self._requester.request("post", url, False, cast=CreateAPIAppsEventsResp, headers=headers, body=body)
 
     def delete(self, *, api_app_id: str, event_types: List[str], **kwargs) -> DeleteAPIAppsEventsResp:
         url = f"{self._base_url}/v1/api_apps/{api_app_id}/events"
+        headers: Optional[dict] = kwargs.get("headers")
         body = dump_exclude_none(
             {
                 "event_types": event_types,
             }
         )
-        headers: Optional[dict] = kwargs.get("headers")
-
-        return self._requester.request("delete", url, False, cast=DeleteAPIAppsEventsResp, body=body, headers=headers)
+        return self._requester.request("delete", url, False, cast=DeleteAPIAppsEventsResp, headers=headers, body=body)
 
     def list(self, *, api_app_id: str, page_token: str = "", page_size: int = 20, **kwargs) -> TokenPaged[APIAppEvent]:
         url = f"{self._base_url}/v1/api_apps/{api_app_id}/events"
@@ -112,28 +110,26 @@ class AsyncAPIAppsEventsClient(object):
         **kwargs,
     ) -> CreateAPIAppsEventsResp:
         url = f"{self._base_url}/v1/api_apps/{api_app_id}/events"
+        headers: Optional[dict] = kwargs.get("headers")
         body = dump_exclude_none(
             {
                 "event_types": event_types,
             }
         )
-        headers: Optional[dict] = kwargs.get("headers")
-
         return await self._requester.arequest(
-            "post", url, False, cast=CreateAPIAppsEventsResp, body=body, headers=headers
+            "post", url, False, cast=CreateAPIAppsEventsResp, headers=headers, body=body
         )
 
     async def delete(self, *, api_app_id: str, event_types: List[str], **kwargs) -> DeleteAPIAppsEventsResp:
         url = f"{self._base_url}/v1/api_apps/{api_app_id}/events"
+        headers: Optional[dict] = kwargs.get("headers")
         body = dump_exclude_none(
             {
                 "event_types": event_types,
             }
         )
-        headers: Optional[dict] = kwargs.get("headers")
-
         return await self._requester.arequest(
-            "delete", url, False, cast=DeleteAPIAppsEventsResp, body=body, headers=headers
+            "delete", url, False, cast=DeleteAPIAppsEventsResp, headers=headers, body=body
         )
 
     async def list(

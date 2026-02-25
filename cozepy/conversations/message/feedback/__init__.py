@@ -61,7 +61,6 @@ class ConversationsMessagesFeedbackClient(object):
     ) -> DeleteConversationMessageFeedbackResp:
         url = f"{self._base_url}/v1/conversations/{conversation_id}/messages/{message_id}/feedback"
         headers: Optional[dict] = kwargs.get("headers")
-
         return self._requester.request(
             "delete", url, False, cast=DeleteConversationMessageFeedbackResp, headers=headers
         )
@@ -105,7 +104,6 @@ class AsyncMessagesFeedbackClient(object):
     ) -> DeleteConversationMessageFeedbackResp:
         url = f"{self._base_url}/v1/conversations/{conversation_id}/messages/{message_id}/feedback"
         headers: Optional[dict] = kwargs.get("headers")
-
         return await self._requester.arequest(
             "delete", url, False, cast=DeleteConversationMessageFeedbackResp, headers=headers
         )
