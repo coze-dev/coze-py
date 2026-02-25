@@ -147,55 +147,6 @@ class DatasetsClient(object):
             body=body,
         )
 
-    def list(
-        self,
-        *,
-        space_id: str,
-        name: Optional[str] = None,
-        format_type: Optional[DocumentFormatType] = None,
-        page_num: int = 1,
-        page_size: int = 10,
-        **kwargs,
-    ) -> NumberPaged[Dataset]:
-        """
-        List Datasets
-
-        docs en: https://www.coze.com/docs/developer_guides/list_dataset
-        docs zh: https://www.coze.cn/docs/developer_guides/list_dataset
-
-        :param space_id: The ID of the space that the dataset belongs to
-        :param name: The name of the dataset, supports fuzzy search
-        :param format_type: The format type of the dataset, 0: text, 1: table, 2: image
-        :param page_num: The page number. The minimum value is 1, and the default is 1.
-        :param page_size: The page size. The value range is 1~300, and the default is 10.
-        """
-
-        url = f"{self._base_url}/v1/datasets"
-        headers: Optional[dict] = kwargs.get("headers")
-
-        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
-            return self._requester.make_request(
-                "GET",
-                url,
-                headers=headers,
-                params={
-                    "space_id": space_id,
-                    "name": name,
-                    "format_type": format_type,
-                    "page_size": i_page_size,
-                    "page_num": i_page_num,
-                },
-                cast=_PrivateListDatasetsData,
-                stream=False,
-            )
-
-        return NumberPaged(
-            page_num=page_num,
-            page_size=page_size,
-            requestor=self._requester,
-            request_maker=request_maker,
-        )
-
     def update(
         self,
         *,
@@ -257,6 +208,55 @@ class DatasetsClient(object):
             False,
             cast=DeleteDatasetRes,
             headers=headers,
+        )
+
+    def list(
+        self,
+        *,
+        space_id: str,
+        name: Optional[str] = None,
+        format_type: Optional[DocumentFormatType] = None,
+        page_num: int = 1,
+        page_size: int = 10,
+        **kwargs,
+    ) -> NumberPaged[Dataset]:
+        """
+        List Datasets
+
+        docs en: https://www.coze.com/docs/developer_guides/list_dataset
+        docs zh: https://www.coze.cn/docs/developer_guides/list_dataset
+
+        :param space_id: The ID of the space that the dataset belongs to
+        :param name: The name of the dataset, supports fuzzy search
+        :param format_type: The format type of the dataset, 0: text, 1: table, 2: image
+        :param page_num: The page number. The minimum value is 1, and the default is 1.
+        :param page_size: The page size. The value range is 1~300, and the default is 10.
+        """
+
+        url = f"{self._base_url}/v1/datasets"
+        headers: Optional[dict] = kwargs.get("headers")
+
+        def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return self._requester.make_request(
+                "GET",
+                url,
+                headers=headers,
+                params={
+                    "space_id": space_id,
+                    "name": name,
+                    "format_type": format_type,
+                    "page_size": i_page_size,
+                    "page_num": i_page_num,
+                },
+                cast=_PrivateListDatasetsData,
+                stream=False,
+            )
+
+        return NumberPaged(
+            page_num=page_num,
+            page_size=page_size,
+            requestor=self._requester,
+            request_maker=request_maker,
         )
 
     def process(self, *, dataset_id: str, document_ids: List[str], **kwargs) -> ListResponse[DocumentProgress]:
@@ -348,55 +348,6 @@ class AsyncDatasetsClient(object):
             body=body,
         )
 
-    async def list(
-        self,
-        *,
-        space_id: str,
-        name: Optional[str] = None,
-        format_type: Optional[DocumentFormatType] = None,
-        page_num: int = 1,
-        page_size: int = 10,
-        **kwargs,
-    ) -> AsyncNumberPaged[Dataset]:
-        """
-        List Datasets
-
-        docs en: https://www.coze.com/docs/developer_guides/list_dataset
-        docs zh: https://www.coze.cn/docs/developer_guides/list_dataset
-
-        :param space_id: The ID of the space that the dataset belongs to
-        :param name: The name of the dataset, supports fuzzy search
-        :param format_type: The format type of the dataset, 0: text, 1: table, 2: image
-        :param page_num: The page number. The minimum value is 1, and the default is 1.
-        :param page_size: The page size. The value range is 1~300, and the default is 10.
-        """
-
-        url = f"{self._base_url}/v1/datasets"
-        headers: Optional[dict] = kwargs.get("headers")
-
-        async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
-            return await self._requester.amake_request(
-                "GET",
-                url,
-                headers=headers,
-                params={
-                    "space_id": space_id,
-                    "name": name,
-                    "format_type": format_type,
-                    "page_size": i_page_size,
-                    "page_num": i_page_num,
-                },
-                cast=_PrivateListDatasetsData,
-                stream=False,
-            )
-
-        return await AsyncNumberPaged.build(
-            page_num=page_num,
-            page_size=page_size,
-            requestor=self._requester,
-            request_maker=request_maker,
-        )
-
     async def update(
         self,
         *,
@@ -458,6 +409,55 @@ class AsyncDatasetsClient(object):
             False,
             cast=DeleteDatasetRes,
             headers=headers,
+        )
+
+    async def list(
+        self,
+        *,
+        space_id: str,
+        name: Optional[str] = None,
+        format_type: Optional[DocumentFormatType] = None,
+        page_num: int = 1,
+        page_size: int = 10,
+        **kwargs,
+    ) -> AsyncNumberPaged[Dataset]:
+        """
+        List Datasets
+
+        docs en: https://www.coze.com/docs/developer_guides/list_dataset
+        docs zh: https://www.coze.cn/docs/developer_guides/list_dataset
+
+        :param space_id: The ID of the space that the dataset belongs to
+        :param name: The name of the dataset, supports fuzzy search
+        :param format_type: The format type of the dataset, 0: text, 1: table, 2: image
+        :param page_num: The page number. The minimum value is 1, and the default is 1.
+        :param page_size: The page size. The value range is 1~300, and the default is 10.
+        """
+
+        url = f"{self._base_url}/v1/datasets"
+        headers: Optional[dict] = kwargs.get("headers")
+
+        async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
+            return await self._requester.amake_request(
+                "GET",
+                url,
+                headers=headers,
+                params={
+                    "space_id": space_id,
+                    "name": name,
+                    "format_type": format_type,
+                    "page_size": i_page_size,
+                    "page_num": i_page_num,
+                },
+                cast=_PrivateListDatasetsData,
+                stream=False,
+            )
+
+        return await AsyncNumberPaged.build(
+            page_num=page_num,
+            page_size=page_size,
+            requestor=self._requester,
+            request_maker=request_maker,
         )
 
     async def process(self, *, dataset_id: str, document_ids: List[str], **kwargs) -> ListResponse[DocumentProgress]:

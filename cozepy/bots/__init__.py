@@ -429,6 +429,21 @@ class BotsClient(object):
         )
         return self._requester.request("post", url, False, cast=Bot, headers=headers, body=body)
 
+    def retrieve(self, *, bot_id: str, is_published: Optional[bool] = None, use_api_version: int = 1, **kwargs) -> Bot:
+        """查看智能体配置
+
+        查看指定智能体的配置信息，你可以查看该智能体已发布版本的配置，或当前草稿版本的配置。
+
+        docs: https://www.coze.cn/open/docs/developer_guides/get_metadata_draft_published
+
+        :param bot_id: 要查看的智能体 ID。
+        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 true。
+        """
+        if use_api_version == 2:
+            return self._retrieve_v2(bot_id=bot_id, is_published=is_published, **kwargs)
+        else:
+            return self._retrieve_v1(bot_id=bot_id, **kwargs)
+
     def update(
         self,
         *,
@@ -489,96 +504,6 @@ class BotsClient(object):
             body=body,
         )
 
-    def publish(self, *, bot_id: str, connector_ids: Optional[List[str]] = None, **kwargs) -> Bot:
-        url = f"{self._base_url}/v1/bot/publish"
-        headers: Optional[dict] = kwargs.get("headers")
-        if not connector_ids:
-            connector_ids = ["1024"]
-        body = {
-            "bot_id": bot_id,
-            "connector_ids": connector_ids,
-        }
-
-        return self._requester.request("post", url, False, cast=Bot, headers=headers, body=body)
-
-    def unpublish(
-        self,
-        *,
-        bot_id: str,
-        connector_id: str,
-        unpublish_reason: Optional[str] = None,
-        **kwargs,
-    ) -> UnpublishBotResp:
-        """
-        下架智能体
-
-        智能体发布后，你可以调用本 API 从扣子官方渠道及自定义渠道下架智能体。
-
-        docs: https://www.coze.cn/open/docs/developer_guides/unpublish_agent
-
-        :param bot_id: 待下架的智能体的 ID。
-        :param connector_id: 渠道 ID，例如 "1024" 表示 API 渠道。
-        :param unpublish_reason: 下架渠道的原因说明，用于记录或说明为何执行下架操作。最大 1024 个字符。
-        :return: 智能体对象
-        """
-        url = f"{self._base_url}/v1/bots/{bot_id}/unpublish"
-        headers: Optional[dict] = kwargs.get("headers")
-        body = {
-            "bot_id": bot_id,
-            "connector_id": connector_id,
-            "unpublish_reason": unpublish_reason,
-        }
-        return self._requester.request("post", url, False, cast=UnpublishBotResp, headers=headers, body=body)
-
-    def retrieve(self, *, bot_id: str, is_published: Optional[bool] = None, use_api_version: int = 1, **kwargs) -> Bot:
-        """查看智能体配置
-
-        查看指定智能体的配置信息，你可以查看该智能体已发布版本的配置，或当前草稿版本的配置。
-
-        docs: https://www.coze.cn/open/docs/developer_guides/get_metadata_draft_published
-
-        :param bot_id: 要查看的智能体 ID。
-        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 true。
-        """
-        if use_api_version == 2:
-            return self._retrieve_v2(bot_id=bot_id, is_published=is_published, **kwargs)
-        else:
-            return self._retrieve_v1(bot_id=bot_id, **kwargs)
-
-    def _retrieve_v1(self, *, bot_id: str, **kwargs) -> Bot:
-        """
-        Get the configuration information of the bot, which must have been published
-        to the Bot as API channel.
-        获取指定 Bot 的配置信息，此 Bot 必须已发布到 Bot as API 渠道中。
-
-        docs en: https://www.coze.com/docs/developer_guides/get_metadata
-        docs zh: https://www.coze.cn/docs/developer_guides/get_metadata
-
-        :param bot_id: The ID of the bot that the API interacts with.
-        要查看的 Bot ID。
-        :return: bot object
-        Bot 的配置信息
-        """
-        url = f"{self._base_url}/v1/bot/get_online_info"
-        params = {"bot_id": bot_id}
-        headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("get", url, False, cast=Bot, params=params, headers=headers)
-
-    def _retrieve_v2(self, *, bot_id: str, is_published: Optional[bool] = None, **kwargs) -> Bot:
-        """查看智能体配置
-
-        查看指定智能体的配置信息，你可以查看该智能体已发布版本的配置，或当前草稿版本的配置。
-
-        docs: https://www.coze.cn/open/docs/developer_guides/get_metadata_draft_published
-
-        :param bot_id: 要查看的智能体 ID。
-        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 true。
-        """
-        url = f"{self._base_url}/v1/bots/{bot_id}"
-        params = remove_none_values({"is_published": is_published})
-        headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("get", url, False, cast=Bot, params=params, headers=headers)
-
     def list(
         self,
         *,
@@ -620,6 +545,81 @@ class BotsClient(object):
                 page_num=page_num,
                 page_size=page_size,
             )
+
+    def publish(self, *, bot_id: str, connector_ids: Optional[List[str]] = None, **kwargs) -> Bot:
+        url = f"{self._base_url}/v1/bot/publish"
+        headers: Optional[dict] = kwargs.get("headers")
+        if not connector_ids:
+            connector_ids = ["1024"]
+        body = {
+            "bot_id": bot_id,
+            "connector_ids": connector_ids,
+        }
+
+        return self._requester.request("post", url, False, cast=Bot, headers=headers, body=body)
+
+    def unpublish(
+        self,
+        *,
+        bot_id: str,
+        connector_id: str,
+        unpublish_reason: Optional[str] = None,
+        **kwargs,
+    ) -> UnpublishBotResp:
+        """
+        下架智能体
+
+        智能体发布后，你可以调用本 API 从扣子官方渠道及自定义渠道下架智能体。
+
+        docs: https://www.coze.cn/open/docs/developer_guides/unpublish_agent
+
+        :param bot_id: 待下架的智能体的 ID。
+        :param connector_id: 渠道 ID，例如 "1024" 表示 API 渠道。
+        :param unpublish_reason: 下架渠道的原因说明，用于记录或说明为何执行下架操作。最大 1024 个字符。
+        :return: 智能体对象
+        """
+        url = f"{self._base_url}/v1/bots/{bot_id}/unpublish"
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {
+            "bot_id": bot_id,
+            "connector_id": connector_id,
+            "unpublish_reason": unpublish_reason,
+        }
+        return self._requester.request("post", url, False, cast=UnpublishBotResp, headers=headers, body=body)
+
+    def _retrieve_v1(self, *, bot_id: str, **kwargs) -> Bot:
+        """
+        Get the configuration information of the bot, which must have been published
+        to the Bot as API channel.
+        获取指定 Bot 的配置信息，此 Bot 必须已发布到 Bot as API 渠道中。
+
+        docs en: https://www.coze.com/docs/developer_guides/get_metadata
+        docs zh: https://www.coze.cn/docs/developer_guides/get_metadata
+
+        :param bot_id: The ID of the bot that the API interacts with.
+        要查看的 Bot ID。
+        :return: bot object
+        Bot 的配置信息
+        """
+        url = f"{self._base_url}/v1/bot/get_online_info"
+        params = {"bot_id": bot_id}
+        headers: Optional[dict] = kwargs.get("headers")
+        return self._requester.request("get", url, False, cast=Bot, params=params, headers=headers)
+
+    def _retrieve_v2(self, *, bot_id: str, is_published: Optional[bool] = None, **kwargs) -> Bot:
+        """查看智能体配置
+
+        查看指定智能体的配置信息，你可以查看该智能体已发布版本的配置，或当前草稿版本的配置。
+
+        docs: https://www.coze.cn/open/docs/developer_guides/get_metadata_draft_published
+
+        :param bot_id: 要查看的智能体 ID。
+        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 true。
+        """
+        url = f"{self._base_url}/v1/bots/{bot_id}"
+        params = remove_none_values({"is_published": is_published})
+        headers: Optional[dict] = kwargs.get("headers")
+        return self._requester.request("get", url, False, cast=Bot, params=params, headers=headers)
 
     def _list_v1(
         self,
@@ -787,6 +787,23 @@ class AsyncBotsClient(object):
         )
         return await self._requester.arequest("post", url, False, cast=Bot, headers=headers, body=body)
 
+    async def retrieve(
+        self, *, bot_id: str, is_published: Optional[bool] = None, use_api_version: int = 1, **kwargs
+    ) -> Bot:
+        """查看智能体配置
+
+        查看指定智能体的配置信息，你可以查看该智能体已发布版本的配置，或当前草稿版本的配置。
+
+        docs: https://www.coze.cn/open/docs/developer_guides/get_metadata_draft_published
+
+        :param bot_id: 要查看的智能体 ID。
+        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 true。
+        """
+        if use_api_version == 2:
+            return await self._retrieve_v2(bot_id=bot_id, is_published=is_published, **kwargs)
+        else:
+            return await self._retrieve_v1(bot_id=bot_id, **kwargs)
+
     async def update(
         self,
         *,
@@ -840,6 +857,45 @@ class AsyncBotsClient(object):
         )
         return await self._requester.arequest("post", url, False, cast=UpdateBotResp, headers=headers, body=body)
 
+    async def list(
+        self,
+        *,
+        space_id: str,
+        publish_status: Optional[PublishStatus] = None,
+        connector_id: Optional[str] = None,
+        page_num: int = 1,
+        page_size: int = 20,
+        use_api_version: int = 1,
+        **kwargs,
+    ) -> AsyncNumberPaged[SimpleBot]:
+        """
+        查看指定空间的智能体列表
+
+        docs en: https://www.coze.com/docs/developer_guides/published_bots_list
+        docs zh: https://www.coze.cn/open/docs/developer_guides/bots_list_draft_published
+
+        :param space_id: The ID of the space.
+        Bot 所在的空间的 Space ID。Space ID 是空间的唯一标识。
+        :param page_num: Pagination size. The default is 20, meaning that 20 data entries are returned per page.
+        分页大小。默认为 20，即每页返回 20 条数据。
+        :param page_size: Page number for paginated queries. The default is 1,
+        meaning that the data return starts from the first page.
+        分页查询时的页码。默认为 1，即从第一页数据开始返回。
+        :return: Specify the list of Bots published to the Bot as an API channel in space.
+        指定空间发布到 Bot as API 渠道的 Bot 列表。
+        """
+        if use_api_version == 2:
+            return await self._list_v2(
+                workspace_id=space_id,
+                publish_status=publish_status,
+                connector_id=connector_id,
+                page_num=page_num,
+                page_size=page_size,
+                **kwargs,
+            )
+        else:
+            return await self._list_v1(space_id=space_id, page_num=page_num, page_size=page_size, **kwargs)
+
     async def publish(
         self,
         *,
@@ -887,23 +943,6 @@ class AsyncBotsClient(object):
         }
         return await self._requester.arequest("post", url, False, cast=UnpublishBotResp, headers=headers, body=body)
 
-    async def retrieve(
-        self, *, bot_id: str, is_published: Optional[bool] = None, use_api_version: int = 1, **kwargs
-    ) -> Bot:
-        """查看智能体配置
-
-        查看指定智能体的配置信息，你可以查看该智能体已发布版本的配置，或当前草稿版本的配置。
-
-        docs: https://www.coze.cn/open/docs/developer_guides/get_metadata_draft_published
-
-        :param bot_id: 要查看的智能体 ID。
-        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 true。
-        """
-        if use_api_version == 2:
-            return await self._retrieve_v2(bot_id=bot_id, is_published=is_published, **kwargs)
-        else:
-            return await self._retrieve_v1(bot_id=bot_id, **kwargs)
-
     async def _retrieve_v1(self, *, bot_id: str, **kwargs) -> Bot:
         """
         Get the configuration information of the bot, which must have been published
@@ -937,45 +976,6 @@ class AsyncBotsClient(object):
         params = remove_none_values({"is_published": is_published})
         headers: Optional[dict] = kwargs.get("headers")
         return await self._requester.arequest("get", url, False, cast=Bot, params=params, headers=headers)
-
-    async def list(
-        self,
-        *,
-        space_id: str,
-        publish_status: Optional[PublishStatus] = None,
-        connector_id: Optional[str] = None,
-        page_num: int = 1,
-        page_size: int = 20,
-        use_api_version: int = 1,
-        **kwargs,
-    ) -> AsyncNumberPaged[SimpleBot]:
-        """
-        查看指定空间的智能体列表
-
-        docs en: https://www.coze.com/docs/developer_guides/published_bots_list
-        docs zh: https://www.coze.cn/open/docs/developer_guides/bots_list_draft_published
-
-        :param space_id: The ID of the space.
-        Bot 所在的空间的 Space ID。Space ID 是空间的唯一标识。
-        :param page_num: Pagination size. The default is 20, meaning that 20 data entries are returned per page.
-        分页大小。默认为 20，即每页返回 20 条数据。
-        :param page_size: Page number for paginated queries. The default is 1,
-        meaning that the data return starts from the first page.
-        分页查询时的页码。默认为 1，即从第一页数据开始返回。
-        :return: Specify the list of Bots published to the Bot as an API channel in space.
-        指定空间发布到 Bot as API 渠道的 Bot 列表。
-        """
-        if use_api_version == 2:
-            return await self._list_v2(
-                workspace_id=space_id,
-                publish_status=publish_status,
-                connector_id=connector_id,
-                page_num=page_num,
-                page_size=page_size,
-                **kwargs,
-            )
-        else:
-            return await self._list_v1(space_id=space_id, page_num=page_num, page_size=page_size, **kwargs)
 
     async def _list_v1(
         self,
