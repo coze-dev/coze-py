@@ -120,7 +120,6 @@ class WorkflowsRunsRunHistoriesClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
-
         self._execute_nodes: Optional[WorkflowsRunsRunHistoriesExecuteNodesClient] = None
 
     @property
@@ -155,7 +154,6 @@ class AsyncWorkflowsRunsRunHistoriesClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
-
         self._execute_nodes: Optional[AsyncWorkflowsRunsRunHistoriesExecuteNodesClient] = None
 
     @property

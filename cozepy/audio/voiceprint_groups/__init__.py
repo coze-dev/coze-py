@@ -62,7 +62,6 @@ class VoiceprintGroupsClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
-
         self._features: Optional[VoiceprintGroupsFeaturesClient] = None
 
     @property
@@ -196,7 +195,6 @@ class AsyncVoiceprintGroupsClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
-
         self._features: Optional[AsyncVoiceprintGroupsFeaturesClient] = None
 
     @property
