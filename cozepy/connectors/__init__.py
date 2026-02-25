@@ -4,7 +4,7 @@ from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
 if TYPE_CHECKING:
-    from .bots import AsyncConnectorsBotsClient, ConnectorsBotsClient
+    from cozepy.connectors.bots import AsyncConnectorsBotsClient, ConnectorsBotsClient
 
 
 class ConnectorsClient(object):

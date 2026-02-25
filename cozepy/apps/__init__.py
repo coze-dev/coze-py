@@ -6,7 +6,7 @@ from cozepy.request import HTTPRequest, Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
 
 if TYPE_CHECKING:
-    from .collaborators import AppsCollaboratorsClient, AsyncAppsCollaboratorsClient
+    from cozepy.apps.collaborators import AppsCollaboratorsClient, AsyncAppsCollaboratorsClient
 
 
 class SimpleApp(CozeModel):
