@@ -14,16 +14,13 @@ if TYPE_CHECKING:
 
 class WorkflowRunResult(CozeModel):
     debug_url: str
-
     # Workflow execution result, usually a JSON serialized string. In some scenarios, a
     # string with a non-JSON structure may be returned.
     data: Optional[str] = ""
-
     # Execution ID of asynchronous execution. Only returned when the workflow is executed
     # asynchronously (is_async=true). You can use execute_id to call the Query Workflow
     # Asynchronous Execution Result API to obtain the final execution result of the workflow.
     execute_id: Optional[str] = ""
-
     # 资源使用情况，包含本次 API 调用消耗的 Token 数量等信息。
     # 此处大模型返回的消耗 Token 仅供参考，以火山引擎账单实际为准。
     usage: Optional[ChatUsage] = None
@@ -56,23 +53,18 @@ class WorkflowEventMessage(CozeModel):
     # The content of the streamed output message.
     # 流式输出的消息内容。
     content: str
-
     # The name of the node that outputs the message, such as the message node or end node.
     # 输出消息的节点名称，例如消息节点、结束节点。
     node_title: str
-
     # The message ID of this message within the node, starting at 0, for example, the 5th message of the message node.
     # 此消息在节点中的消息 ID，从 0 开始计数，例如消息节点的第 5 条消息。
     node_seq_id: str
-
     # Whether the current message is the last data packet for this node.
     # 当前消息是否为此节点的最后一个数据包。
     node_is_finish: bool
-
     # Additional fields.
     # 额外字段。
     ext: Optional[Dict[str, Any]] = None
-
     # 资源使用情况，包含本次 API 调用消耗的 Token 数量等信息。
     # 此处大模型返回的消耗 Token 仅供参考，以火山引擎账单实际为准。
     usage: Optional[ChatUsage] = None
@@ -82,7 +74,6 @@ class WorkflowEventInterruptData(CozeModel):
     # The workflow interruption event ID, which should be passed back when resuming the workflow.
     # 工作流中断事件 ID，恢复运行时应回传此字段。
     event_id: str
-
     # The type of workflow interruption, which should be passed back when resuming the workflow.
     # 工作流中断类型，恢复运行时应回传此字段。
     type: int
@@ -92,7 +83,6 @@ class WorkflowEventInterrupt(CozeModel):
     # The content of interruption event.
     # 中断控制内容。
     interrupt_data: WorkflowEventInterruptData
-
     # The name of the node that outputs the message, such as "Question".
     # 输出消息的节点名称，例如“问答”。
     node_title: str
@@ -103,7 +93,6 @@ class WorkflowEventError(CozeModel):
     # determine the detailed reason for the error through the error_message field.
     # 调用状态码。0 表示调用成功。其他值表示调用失败。你可以通过 error_message 字段判断详细的错误原因。
     error_code: int
-
     # Status message. You can get detailed error information when the API call fails.
     # 状态信息。API 调用失败时可通过此字段查看详细错误信息。
     error_message: str
@@ -112,7 +101,6 @@ class WorkflowEventError(CozeModel):
 class WorkflowEvent(CozeModel):
     # The event ID of this message in the interface response. It starts from 0.
     id: int
-
     # The current streaming data packet event.
     event: WorkflowEventType
     message: Optional[WorkflowEventMessage] = None

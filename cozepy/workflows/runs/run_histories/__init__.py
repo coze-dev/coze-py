@@ -50,60 +50,46 @@ class WorkflowRunHistoryNodeExecuteStatus(CozeModel):
 class WorkflowRunHistory(CozeModel):
     # The ID of execute.
     execute_id: str
-
     # Execute status:
     #   success: Execution succeeded.
     #   running: Execution in progress.
     #   fail: Execution failed.
     execute_status: WorkflowExecuteStatus
-
     # The Bot ID specified when executing the workflow. Returns 0 if no Bot ID was specified.
     bot_id: str
-
     # The release connector ID of the agent. By default, only the Agent as API connector is
     # displayed, and the connector ID is 1024.
     connector_id: str
-
     # User ID, the user_id specified by the ext field when executing the workflow. If not
     # specified, the token applicant's button ID is returned.
     connector_uid: str
-
     # How the workflow runs:
     #   0: Synchronous operation.
     #   1: Streaming operation.
     #   2: Asynchronous operation.
     run_mode: WorkflowRunMode
-
     # The Log ID of the asynchronously running workflow. If the workflow is executed abnormally,
     # you can contact the service team to troubleshoot the problem through the Log ID.
     logid: str
-
     # The start time of the workflow, in Unix time timestamp format, in seconds.
     create_time: int
-
     # The workflow resume running time, in Unix time timestamp format, in seconds.
     update_time: int
-
     # The output of the workflow is usually a JSON serialized string, but it may also be a
     # non-JSON structured string.
     output: str
-
     # Status code. 0 represents a successful API call. Other values indicate that the call has failed. You can
     # determine the detailed reason for the error through the error_message field.
     error_code: int
-
     # Status message. You can get detailed error information when the API call fails.
     error_message: Optional[str] = ""
-
     # Workflow trial run debugging page. Visit this page to view the running results, input
     # and output information of each workflow node.
     debug_url: str
     node_execute_status: Optional[Dict[str, WorkflowRunHistoryNodeExecuteStatus]] = None
-
     # 资源使用情况，包含本次 API 调用消耗的 Token 数量等信息。
     # 此处大模型返回的消耗 Token 仅供参考，以火山引擎账单实际为准。
     usage: Optional[ChatUsage] = None
-
     # 标识工作流的输出内容是否因过大而不完整。
     is_output_trimmed: bool
 
