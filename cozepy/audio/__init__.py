@@ -4,24 +4,32 @@ from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
 if TYPE_CHECKING:
-    from .live import AsyncLiveClient, LiveClient
-    from .rooms import AsyncRoomsClient, RoomsClient
-    from .speech import AsyncSpeechClient, SpeechClient
-    from .transcriptions import AsyncTranscriptionsClient, TranscriptionsClient
-    from .voiceprint_groups import AsyncVoiceprintGroupsClient, VoiceprintGroupsClient
-    from .voices import AsyncVoicesClient, VoicesClient
+    from cozepy.audio.live import AsyncLiveClient, LiveClient
+    from cozepy.audio.rooms import AsyncRoomsClient, RoomsClient
+    from cozepy.audio.speech import AsyncSpeechClient, SpeechClient
+    from cozepy.audio.transcriptions import AsyncTranscriptionsClient, TranscriptionsClient
+    from cozepy.audio.voiceprint_groups import AsyncVoiceprintGroupsClient, VoiceprintGroupsClient
+    from cozepy.audio.voices import AsyncVoicesClient, VoicesClient
 
 
 class AudioClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
+        self._live: Optional[LiveClient] = None
         self._rooms: Optional[RoomsClient] = None
         self._speech: Optional[SpeechClient] = None
         self._transcriptions: Optional[TranscriptionsClient] = None
-        self._voices: Optional[VoicesClient] = None
         self._voiceprint_groups: Optional[VoiceprintGroupsClient] = None
-        self._live: Optional[LiveClient] = None
+        self._voices: Optional[VoicesClient] = None
+
+    @property
+    def live(self) -> "LiveClient":
+        if not self._live:
+            from .live import LiveClient
+
+            self._live = LiveClient(base_url=self._base_url, requester=self._requester)
+        return self._live
 
     @property
     def rooms(self) -> "RoomsClient":
@@ -48,14 +56,6 @@ class AudioClient(object):
         return self._transcriptions
 
     @property
-    def voices(self) -> "VoicesClient":
-        if not self._voices:
-            from .voices import VoicesClient
-
-            self._voices = VoicesClient(base_url=self._base_url, requester=self._requester)
-        return self._voices
-
-    @property
     def voiceprint_groups(self) -> "VoiceprintGroupsClient":
         if not self._voiceprint_groups:
             from .voiceprint_groups import VoiceprintGroupsClient
@@ -64,24 +64,32 @@ class AudioClient(object):
         return self._voiceprint_groups
 
     @property
-    def live(self) -> "LiveClient":
-        if not self._live:
-            from .live import LiveClient
+    def voices(self) -> "VoicesClient":
+        if not self._voices:
+            from .voices import VoicesClient
 
-            self._live = LiveClient(base_url=self._base_url, requester=self._requester)
-        return self._live
+            self._voices = VoicesClient(base_url=self._base_url, requester=self._requester)
+        return self._voices
 
 
 class AsyncAudioClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
+        self._live: Optional[AsyncLiveClient] = None
         self._rooms: Optional[AsyncRoomsClient] = None
         self._speech: Optional[AsyncSpeechClient] = None
         self._transcriptions: Optional[AsyncTranscriptionsClient] = None
-        self._voices: Optional[AsyncVoicesClient] = None
         self._voiceprint_groups: Optional[AsyncVoiceprintGroupsClient] = None
-        self._live: Optional[AsyncLiveClient] = None
+        self._voices: Optional[AsyncVoicesClient] = None
+
+    @property
+    def live(self) -> "AsyncLiveClient":
+        if not self._live:
+            from .live import AsyncLiveClient
+
+            self._live = AsyncLiveClient(base_url=self._base_url, requester=self._requester)
+        return self._live
 
     @property
     def rooms(self) -> "AsyncRoomsClient":
@@ -108,14 +116,6 @@ class AsyncAudioClient(object):
         return self._transcriptions
 
     @property
-    def voices(self) -> "AsyncVoicesClient":
-        if not self._voices:
-            from .voices import AsyncVoicesClient
-
-            self._voices = AsyncVoicesClient(base_url=self._base_url, requester=self._requester)
-        return self._voices
-
-    @property
     def voiceprint_groups(self) -> "AsyncVoiceprintGroupsClient":
         if not self._voiceprint_groups:
             from .voiceprint_groups import AsyncVoiceprintGroupsClient
@@ -124,9 +124,9 @@ class AsyncAudioClient(object):
         return self._voiceprint_groups
 
     @property
-    def live(self) -> "AsyncLiveClient":
-        if not self._live:
-            from .live import AsyncLiveClient
+    def voices(self) -> "AsyncVoicesClient":
+        if not self._voices:
+            from .voices import AsyncVoicesClient
 
-            self._live = AsyncLiveClient(base_url=self._base_url, requester=self._requester)
-        return self._live
+            self._voices = AsyncVoicesClient(base_url=self._base_url, requester=self._requester)
+        return self._voices

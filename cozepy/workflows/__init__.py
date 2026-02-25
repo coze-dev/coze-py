@@ -8,10 +8,10 @@ from cozepy.util import remove_none_values, remove_url_trailing_slash
 from .versions import WorkflowUserInfo
 
 if TYPE_CHECKING:
-    from .chat import AsyncWorkflowsChatClient, WorkflowsChatClient
-    from .collaborators import AsyncWorkflowsCollaboratorsClient, WorkflowsCollaboratorsClient
-    from .runs import AsyncWorkflowsRunsClient, WorkflowsRunsClient
-    from .versions import AsyncWorkflowsVersionsClient, WorkflowsVersionsClient
+    from cozepy.workflows.chat import AsyncWorkflowsChatClient, WorkflowsChatClient
+    from cozepy.workflows.collaborators import AsyncWorkflowsCollaboratorsClient, WorkflowsCollaboratorsClient
+    from cozepy.workflows.runs import AsyncWorkflowsRunsClient, WorkflowsRunsClient
+    from cozepy.workflows.versions import AsyncWorkflowsVersionsClient, WorkflowsVersionsClient
 
 
 class WorkflowMode(DynamicStrEnum):

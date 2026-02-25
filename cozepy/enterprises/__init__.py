@@ -4,7 +4,7 @@ from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
 if TYPE_CHECKING:
-    from .members import AsyncEnterprisesMembersClient, EnterprisesMembersClient
+    from cozepy.enterprises.members import AsyncEnterprisesMembersClient, EnterprisesMembersClient
 
 
 class EnterprisesClient(object):

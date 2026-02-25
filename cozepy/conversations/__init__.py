@@ -6,7 +6,7 @@ from cozepy.request import Requester
 from cozepy.util import dump_exclude_none, remove_url_trailing_slash
 
 if TYPE_CHECKING:
-    from .message import AsyncMessagesClient, MessagesClient
+    from cozepy.conversations.message import AsyncMessagesClient, MessagesClient
 
 
 class Conversation(CozeModel):
