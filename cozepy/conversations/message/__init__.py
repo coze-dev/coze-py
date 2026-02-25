@@ -162,7 +162,6 @@ class MessagesClient(object):
         self,
         *,
         conversation_id: str,
-        order: str = "desc",
         chat_id: Optional[str] = None,
         before_id: Optional[str] = None,
         after_id: Optional[str] = None,
@@ -175,7 +174,6 @@ class MessagesClient(object):
         docs zh: https://www.coze.cn/docs/developer_guides/list_message
 
         :param conversation_id: The ID of the conversation.
-        :param order: The sorting method for the message list.
         :param chat_id: The ID of the Chat.
         :param before_id: Get messages before the specified position.
         :param after_id: Get messages after the specified position.
@@ -192,7 +190,6 @@ class MessagesClient(object):
                 "POST",
                 url,
                 json={
-                    "order": order,
                     "chat_id": chat_id,
                     "before_id": i_before_id if i_before_id else None,
                     "after_id": i_after_id if i_after_id else None,
@@ -355,7 +352,6 @@ class AsyncMessagesClient(object):
         self,
         *,
         conversation_id: str,
-        order: str = "desc",
         chat_id: Optional[str] = None,
         before_id: Optional[str] = None,
         after_id: Optional[str] = None,
@@ -368,7 +364,6 @@ class AsyncMessagesClient(object):
         docs zh: https://www.coze.cn/docs/developer_guides/list_message
 
         :param conversation_id: The ID of the conversation.
-        :param order: The sorting method for the message list.
         :param chat_id: The ID of the Chat.
         :param before_id: Get messages before the specified position.
         :param after_id: Get messages after the specified position.
@@ -385,7 +380,6 @@ class AsyncMessagesClient(object):
                 "POST",
                 url,
                 json={
-                    "order": order,
                     "chat_id": chat_id,
                     "before_id": i_before_id if i_before_id else None,
                     "after_id": i_after_id if i_after_id else None,
