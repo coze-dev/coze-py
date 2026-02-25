@@ -54,10 +54,10 @@ class ConversationsClient(object):
         self,
         *,
         messages: Optional[List[Message]] = None,
+        meta_data: Optional[Dict[str, str]] = None,
         bot_id: Optional[str] = None,
         name: Optional[str] = None,
         connector_id: Optional[str] = None,
-        meta_data: Optional[Dict[str, str]] = None,
         **kwargs,
     ) -> Conversation:
         """
@@ -197,10 +197,10 @@ class AsyncConversationsClient(object):
         self,
         *,
         messages: Optional[List[Message]] = None,
+        meta_data: Optional[Dict[str, str]] = None,
         bot_id: Optional[str] = None,
         name: Optional[str] = None,
         connector_id: Optional[str] = None,
-        meta_data: Optional[Dict[str, str]] = None,
         **kwargs,
     ) -> Conversation:
         """

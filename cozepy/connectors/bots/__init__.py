@@ -36,8 +36,8 @@ class ConnectorsBotsClient(object):
     def update(
         self,
         *,
-        bot_id: str,
         connector_id: str,
+        bot_id: str,
         audit_status: Optional[AuditStatus] = None,
         reason: Optional[str] = None,
         **kwargs,
@@ -79,8 +79,8 @@ class AsyncConnectorsBotsClient(object):
     async def update(
         self,
         *,
-        bot_id: str,
         connector_id: str,
+        bot_id: str,
         audit_status: Optional[AuditStatus] = None,
         reason: Optional[str] = None,
         **kwargs,

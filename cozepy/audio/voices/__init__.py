@@ -79,7 +79,6 @@ class VoicesClient(object):
         self,
         *,
         voice_name: str,
-        file: FileTypes,
         audio_format: AudioFormat,
         language: Optional[str] = None,
         voice_id: Optional[str] = None,
@@ -87,6 +86,7 @@ class VoicesClient(object):
         text: Optional[str] = None,
         space_id: Optional[str] = None,
         description: Optional[str] = None,
+        file: FileTypes,
         **kwargs,
     ) -> Voice:
         """
@@ -186,7 +186,6 @@ class AsyncVoicesClient(object):
         self,
         *,
         voice_name: str,
-        file: FileTypes,
         audio_format: AudioFormat,
         language: Optional[str] = None,
         voice_id: Optional[str] = None,
@@ -194,6 +193,7 @@ class AsyncVoicesClient(object):
         text: Optional[str] = None,
         space_id: Optional[str] = None,
         description: Optional[str] = None,
+        file: FileTypes,
         **kwargs,
     ) -> Voice:
         """

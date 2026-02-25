@@ -171,10 +171,10 @@ class VoiceprintGroupsClient(object):
         self,
         *,
         group_id: str,
-        file: FileTypes,
         top_k: Optional[int] = None,
         sample_rate: Optional[int] = None,
         channel: Optional[int] = None,
+        file: FileTypes,
         **kwargs,
     ) -> SpeakerIdentifyResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/speaker_identify"
@@ -310,10 +310,10 @@ class AsyncVoiceprintGroupsClient(object):
         self,
         *,
         group_id: str,
-        file: FileTypes,
         top_k: Optional[int] = None,
         sample_rate: Optional[int] = None,
         channel: Optional[int] = None,
+        file: FileTypes,
         **kwargs,
     ) -> SpeakerIdentifyResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/speaker_identify"
