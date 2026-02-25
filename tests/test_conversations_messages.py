@@ -54,7 +54,6 @@ def mock_list_conversations_messages(respx_mock, total_count, page):
             "conversation_id": "",
         },
         json={
-            "order": "desc",
             "chat_id": None,
             "before_id": None,
             "after_id": None if page == 1 else f"id_{page - 1}",
