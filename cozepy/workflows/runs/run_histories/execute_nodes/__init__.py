@@ -18,7 +18,12 @@ class WorkflowsRunsRunHistoriesExecuteNodesClient(object):
         self._requester = requester
 
     def retrieve(
-        self, *, workflow_id: str, execute_id: str, node_execute_uuid: str, **kwargs
+        self,
+        *,
+        workflow_id: str,
+        execute_id: str,
+        node_execute_uuid: str,
+        **kwargs,
     ) -> WorkflowNodeExecuteHistory:
         """查询工作流节点的运行结果
 
@@ -39,7 +44,12 @@ class AsyncWorkflowsRunsRunHistoriesExecuteNodesClient(object):
         self._requester = requester
 
     async def retrieve(
-        self, *, workflow_id: str, execute_id: str, node_execute_uuid: str, **kwargs
+        self,
+        *,
+        workflow_id: str,
+        execute_id: str,
+        node_execute_uuid: str,
+        **kwargs,
     ) -> WorkflowNodeExecuteHistory:
         """查询工作流节点的运行结果
 

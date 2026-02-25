@@ -44,13 +44,7 @@ class APIAppsEventsClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    def create(
-        self,
-        *,
-        api_app_id: str,
-        event_types: List[str],
-        **kwargs,
-    ) -> CreateAPIAppsEventsResp:
+    def create(self, *, api_app_id: str, event_types: List[str], **kwargs) -> CreateAPIAppsEventsResp:
         url = f"{self._base_url}/v1/api_apps/{api_app_id}/events"
         headers: Optional[dict] = kwargs.get("headers")
         body = dump_exclude_none(
@@ -70,7 +64,14 @@ class APIAppsEventsClient(object):
         )
         return self._requester.request("delete", url, False, cast=DeleteAPIAppsEventsResp, headers=headers, body=body)
 
-    def list(self, *, api_app_id: str, page_token: str = "", page_size: int = 20, **kwargs) -> TokenPaged[APIAppEvent]:
+    def list(
+        self,
+        *,
+        api_app_id: str,
+        page_token: str = "",
+        page_size: int = 20,
+        **kwargs,
+    ) -> TokenPaged[APIAppEvent]:
         url = f"{self._base_url}/v1/api_apps/{api_app_id}/events"
         headers: Optional[dict] = kwargs.get("headers")
 
@@ -102,13 +103,7 @@ class AsyncAPIAppsEventsClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    async def create(
-        self,
-        *,
-        api_app_id: str,
-        event_types: List[str],
-        **kwargs,
-    ) -> CreateAPIAppsEventsResp:
+    async def create(self, *, api_app_id: str, event_types: List[str], **kwargs) -> CreateAPIAppsEventsResp:
         url = f"{self._base_url}/v1/api_apps/{api_app_id}/events"
         headers: Optional[dict] = kwargs.get("headers")
         body = dump_exclude_none(
@@ -133,7 +128,12 @@ class AsyncAPIAppsEventsClient(object):
         )
 
     async def list(
-        self, *, api_app_id: str, page_token: str = "", page_size: int = 20, **kwargs
+        self,
+        *,
+        api_app_id: str,
+        page_token: str = "",
+        page_size: int = 20,
+        **kwargs,
     ) -> AsyncTokenPaged[APIAppEvent]:
         url = f"{self._base_url}/v1/api_apps/{api_app_id}/events"
         headers: Optional[dict] = kwargs.get("headers")

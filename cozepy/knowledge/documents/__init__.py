@@ -118,11 +118,7 @@ class DocumentsClient(object):
             body=body,
         )
 
-    def delete(
-        self,
-        *,
-        document_ids: List[str],
-    ) -> None:
+    def delete(self, *, document_ids: List[str]) -> None:
         warnings.warn(
             "The 'coze.knowledge.documents.delete' method is deprecated and will be removed in a future version. "
             "Please use 'coze.datasets.documents.delete' instead.",
@@ -296,11 +292,7 @@ class AsyncDocumentsClient(object):
             body=body,
         )
 
-    async def delete(
-        self,
-        *,
-        document_ids: List[str],
-    ) -> None:
+    async def delete(self, *, document_ids: List[str]) -> None:
         warnings.warn(
             "The 'coze.knowledge.documents.delete' method is deprecated and will be removed in a future version. "
             "Please use 'coze.datasets.documents.delete' instead.",

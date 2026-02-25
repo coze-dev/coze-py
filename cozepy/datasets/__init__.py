@@ -250,12 +250,7 @@ class DatasetsClient(object):
             cast=DeleteDatasetRes,
         )
 
-    def process(
-        self,
-        *,
-        dataset_id: str,
-        document_ids: List[str],
-    ) -> ListResponse[DocumentProgress]:
+    def process(self, *, dataset_id: str, document_ids: List[str]) -> ListResponse[DocumentProgress]:
         """
         Check the upload progress
         Call this API to get the upload progress of knowledge base files.
@@ -445,12 +440,7 @@ class AsyncDatasetsClient(object):
             cast=DeleteDatasetRes,
         )
 
-    async def process(
-        self,
-        *,
-        dataset_id: str,
-        document_ids: List[str],
-    ) -> ListResponse[DocumentProgress]:
+    async def process(self, *, dataset_id: str, document_ids: List[str]) -> ListResponse[DocumentProgress]:
         """
         Check the upload progress
         Call this API to get the upload progress of knowledge base files.

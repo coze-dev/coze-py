@@ -124,7 +124,12 @@ class APIAppsClient(object):
         return self._requester.request("delete", url, False, cast=DeleteAPIAppsResp, headers=headers)
 
     def list(
-        self, *, app_type: Optional[AppType] = None, page_token: str = "", page_size: int = 20, **kwargs
+        self,
+        *,
+        app_type: Optional[AppType] = None,
+        page_token: str = "",
+        page_size: int = 20,
+        **kwargs,
     ) -> TokenPaged[APIApp]:
         url = f"{self._base_url}/v1/api_apps"
         headers: Optional[dict] = kwargs.get("headers")
@@ -231,7 +236,12 @@ class AsyncAPIAppsClient(object):
         return await self._requester.arequest("delete", url, False, cast=DeleteAPIAppsResp, headers=headers)
 
     async def list(
-        self, *, app_type: Optional[AppType] = None, page_token: str = "", page_size: int = 20, **kwargs
+        self,
+        *,
+        app_type: Optional[AppType] = None,
+        page_token: str = "",
+        page_size: int = 20,
+        **kwargs,
     ) -> AsyncTokenPaged[APIApp]:
         url = f"{self._base_url}/v1/api_apps"
         headers: Optional[dict] = kwargs.get("headers")

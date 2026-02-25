@@ -358,11 +358,7 @@ class DatasetsDocumentsClient(object):
             body=body,
         )
 
-    def delete(
-        self,
-        *,
-        document_ids: List[str],
-    ) -> DeleteDocumentRes:
+    def delete(self, *, document_ids: List[str]) -> DeleteDocumentRes:
         """
         Delete text, images, sheets, and other files in the knowledge base, supporting batch deletion.
 
@@ -505,11 +501,7 @@ class AsyncDatasetsDocumentsClient(object):
             body=body,
         )
 
-    async def delete(
-        self,
-        *,
-        document_ids: List[str],
-    ) -> DeleteDocumentRes:
+    async def delete(self, *, document_ids: List[str]) -> DeleteDocumentRes:
         """
         Delete text, images, sheets, and other files in the knowledge base, supporting batch deletion.
 
