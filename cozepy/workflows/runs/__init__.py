@@ -151,48 +151,13 @@ class WorkflowsRunsClient(object):
         self._requester = requester
         self._run_histories: Optional[WorkflowsRunsRunHistoriesClient] = None
 
-    def create(
-        self,
-        *,
-        workflow_id: str,
-        parameters: Optional[Dict[str, Any]] = None,
-        bot_id: Optional[str] = None,
-        app_id: Optional[str] = None,
-        is_async: bool = False,
-        ext: Optional[Dict[str, Any]] = None,
-        **kwargs,
-    ) -> WorkflowRunResult:
-        """
-        Run the published workflow.
-        This API is in non-streaming response mode. For nodes that support streaming output,
-        you should run the API Run workflow (streaming response) to obtain streaming responses.
+    @property
+    def run_histories(self) -> "WorkflowsRunsRunHistoriesClient":
+        if not self._run_histories:
+            from .run_histories import WorkflowsRunsRunHistoriesClient
 
-        docs en: https://www.coze.com/docs/developer_guides/workflow_run
-        docs cn: https://www.coze.cn/docs/developer_guides/workflow_run
-
-        :param workflow_id: The ID of the workflow, which should have been published.
-        :param parameters: Input parameters and their values for the starting node of the workflow. You can view the
-        list of parameters on the arrangement page of the specified workflow.
-        :param bot_id: The associated Bot ID required for some workflow executions,
-        such as workflows with database nodes, variable nodes, etc.
-        :param app_id: The app_id is required for some workflow executions,
-        :param is_async: Whether to run asynchronously.
-        :param ext: Used to specify some additional fields in the format of Map[String][String].
-        :return: The result of the workflow execution
-        """
-        url = f"{self._base_url}/v1/workflow/run"
-        headers: Optional[dict] = kwargs.get("headers")
-        body = {
-            "workflow_id": workflow_id,
-            "parameters": parameters,
-            "bot_id": bot_id,
-            "app_id": app_id,
-            "is_async": is_async,
-            "ext": ext,
-        }
-        return self._requester.request(
-            "post", url, False, cast=WorkflowRunResult, headers=headers, body=remove_none_values(body)
-        )
+            self._run_histories = WorkflowsRunsRunHistoriesClient(self._base_url, self._requester)
+        return self._run_histories
 
     def stream(
         self,
@@ -238,58 +203,7 @@ class WorkflowsRunsClient(object):
         )
         return Stream(resp._raw_response, resp.data, fields=["id", "event", "data"], handler=_workflow_stream_handler)
 
-    def resume(
-        self,
-        *,
-        workflow_id: str,
-        event_id: str,
-        resume_data: str,
-        interrupt_type: int,
-        **kwargs,
-    ) -> Stream[WorkflowEvent]:
-        """
-        docs zh: https://www.coze.cn/docs/developer_guides/workflow_resume
-
-        :param workflow_id: The ID of the workflow, which should have been published.
-        :param event_id:
-        :param resume_data:
-        :param interrupt_type:
-        :return: The result of the workflow execution
-        """
-        url = f"{self._base_url}/v1/workflow/stream_resume"
-        headers: Optional[dict] = kwargs.get("headers")
-        body = {
-            "workflow_id": workflow_id,
-            "event_id": event_id,
-            "resume_data": resume_data,
-            "interrupt_type": interrupt_type,
-        }
-        resp: IteratorHTTPResponse[str] = self._requester.request(
-            "post",
-            url,
-            True,
-            cast=None,
-            headers=headers,
-            body=body,
-        )
-        return Stream(resp._raw_response, resp.data, fields=["id", "event", "data"], handler=_workflow_stream_handler)
-
-    @property
-    def run_histories(self) -> "WorkflowsRunsRunHistoriesClient":
-        if not self._run_histories:
-            from .run_histories import WorkflowsRunsRunHistoriesClient
-
-            self._run_histories = WorkflowsRunsRunHistoriesClient(self._base_url, self._requester)
-        return self._run_histories
-
-
-class AsyncWorkflowsRunsClient(object):
-    def __init__(self, base_url: str, requester: Requester):
-        self._base_url = remove_url_trailing_slash(base_url)
-        self._requester = requester
-        self._run_histories: Optional[AsyncWorkflowsRunsRunHistoriesClient] = None
-
-    async def create(
+    def create(
         self,
         *,
         workflow_id: str,
@@ -328,9 +242,60 @@ class AsyncWorkflowsRunsClient(object):
             "is_async": is_async,
             "ext": ext,
         }
-        return await self._requester.arequest(
+        return self._requester.request(
             "post", url, False, cast=WorkflowRunResult, headers=headers, body=remove_none_values(body)
         )
+
+    def resume(
+        self,
+        *,
+        workflow_id: str,
+        event_id: str,
+        resume_data: str,
+        interrupt_type: int,
+        **kwargs,
+    ) -> Stream[WorkflowEvent]:
+        """
+        docs zh: https://www.coze.cn/docs/developer_guides/workflow_resume
+
+        :param workflow_id: The ID of the workflow, which should have been published.
+        :param event_id:
+        :param resume_data:
+        :param interrupt_type:
+        :return: The result of the workflow execution
+        """
+        url = f"{self._base_url}/v1/workflow/stream_resume"
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {
+            "workflow_id": workflow_id,
+            "event_id": event_id,
+            "resume_data": resume_data,
+            "interrupt_type": interrupt_type,
+        }
+        resp: IteratorHTTPResponse[str] = self._requester.request(
+            "post",
+            url,
+            True,
+            cast=None,
+            headers=headers,
+            body=body,
+        )
+        return Stream(resp._raw_response, resp.data, fields=["id", "event", "data"], handler=_workflow_stream_handler)
+
+
+class AsyncWorkflowsRunsClient(object):
+    def __init__(self, base_url: str, requester: Requester):
+        self._base_url = remove_url_trailing_slash(base_url)
+        self._requester = requester
+        self._run_histories: Optional[AsyncWorkflowsRunsRunHistoriesClient] = None
+
+    @property
+    def run_histories(self) -> "AsyncWorkflowsRunsRunHistoriesClient":
+        if not self._run_histories:
+            from .run_histories import AsyncWorkflowsRunsRunHistoriesClient
+
+            self._run_histories = AsyncWorkflowsRunsRunHistoriesClient(self._base_url, self._requester)
+        return self._run_histories
 
     async def stream(
         self,
@@ -382,6 +347,49 @@ class AsyncWorkflowsRunsClient(object):
         ):
             yield item
 
+    async def create(
+        self,
+        *,
+        workflow_id: str,
+        parameters: Optional[Dict[str, Any]] = None,
+        bot_id: Optional[str] = None,
+        app_id: Optional[str] = None,
+        is_async: bool = False,
+        ext: Optional[Dict[str, Any]] = None,
+        **kwargs,
+    ) -> WorkflowRunResult:
+        """
+        Run the published workflow.
+        This API is in non-streaming response mode. For nodes that support streaming output,
+        you should run the API Run workflow (streaming response) to obtain streaming responses.
+
+        docs en: https://www.coze.com/docs/developer_guides/workflow_run
+        docs cn: https://www.coze.cn/docs/developer_guides/workflow_run
+
+        :param workflow_id: The ID of the workflow, which should have been published.
+        :param parameters: Input parameters and their values for the starting node of the workflow. You can view the
+        list of parameters on the arrangement page of the specified workflow.
+        :param bot_id: The associated Bot ID required for some workflow executions,
+        such as workflows with database nodes, variable nodes, etc.
+        :param app_id: The app_id is required for some workflow executions,
+        :param is_async: Whether to run asynchronously.
+        :param ext: Used to specify some additional fields in the format of Map[String][String].
+        :return: The result of the workflow execution
+        """
+        url = f"{self._base_url}/v1/workflow/run"
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {
+            "workflow_id": workflow_id,
+            "parameters": parameters,
+            "bot_id": bot_id,
+            "app_id": app_id,
+            "is_async": is_async,
+            "ext": ext,
+        }
+        return await self._requester.arequest(
+            "post", url, False, cast=WorkflowRunResult, headers=headers, body=remove_none_values(body)
+        )
+
     async def resume(
         self,
         *,
@@ -423,11 +431,3 @@ class AsyncWorkflowsRunsClient(object):
             raw_response=resp._raw_response,
         ):
             yield item
-
-    @property
-    def run_histories(self) -> "AsyncWorkflowsRunsRunHistoriesClient":
-        if not self._run_histories:
-            from .run_histories import AsyncWorkflowsRunsRunHistoriesClient
-
-            self._run_histories = AsyncWorkflowsRunsRunHistoriesClient(self._base_url, self._requester)
-        return self._run_histories

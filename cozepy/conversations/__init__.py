@@ -50,6 +50,14 @@ class ConversationsClient(object):
         self._requester = requester
         self._messages = None
 
+    @property
+    def messages(self):
+        if not self._messages:
+            from .message import MessagesClient
+
+            self._messages = MessagesClient(self._base_url, self._requester)
+        return self._messages
+
     def create(
         self,
         *,
@@ -87,6 +95,53 @@ class ConversationsClient(object):
         )
         return self._requester.request("post", url, False, cast=Conversation, headers=headers, body=body)
 
+    def retrieve(self, *, conversation_id: str, **kwargs) -> Conversation:
+        """
+        Get the information of specific conversation.
+
+        docs en: https://www.coze.com/docs/developer_guides/retrieve_conversation
+        docs cn: https://www.coze.cn/docs/developer_guides/retrieve_conversation
+
+        :param conversation_id: The ID of the conversation.
+        :return: Conversation object
+        """
+        url = f"{self._base_url}/v1/conversation/retrieve"
+        params = {
+            "conversation_id": conversation_id,
+        }
+        headers: Optional[dict] = kwargs.get("headers")
+        return self._requester.request("get", url, False, cast=Conversation, params=params, headers=headers)
+
+    def update(self, *, conversation_id: str, name: Optional[str] = None, **kwargs) -> Conversation:
+        """
+        更新会话信息。
+        更新指定会话的名称，便于识别与管理。
+
+        docs: https://www.coze.cn/docs/developer_guides/edit_conversation
+
+        :param conversation_id: 会话ID
+        :param name: 新的会话名称，最多100个字符
+        :return: 更新后的Conversation对象
+        """
+        url = f"{self._base_url}/v1/conversations/{conversation_id}"
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {"name": name}
+        return self._requester.request("put", url, False, cast=Conversation, headers=headers, body=body)
+
+    def delete(self, *, conversation_id: str, **kwargs) -> DeleteConversationResp:
+        """
+        删除指定的会话。
+        删除后会话及其中的所有消息都将被永久删除，无法恢复。
+
+        docs: https://www.coze.cn/docs/developer_guides/delete_conversation
+
+        :param conversation_id: 要删除的会话ID
+        :return: DeleteConversationResp对象表示删除成功
+        """
+        url = f"{self._base_url}/v1/conversations/{conversation_id}"
+        headers: Optional[dict] = kwargs.get("headers")
+        return self._requester.request("delete", url, False, cast=DeleteConversationResp, headers=headers)
+
     def list(
         self,
         *,
@@ -119,23 +174,6 @@ class ConversationsClient(object):
             request_maker=request_maker,
         )
 
-    def retrieve(self, *, conversation_id: str, **kwargs) -> Conversation:
-        """
-        Get the information of specific conversation.
-
-        docs en: https://www.coze.com/docs/developer_guides/retrieve_conversation
-        docs cn: https://www.coze.cn/docs/developer_guides/retrieve_conversation
-
-        :param conversation_id: The ID of the conversation.
-        :return: Conversation object
-        """
-        url = f"{self._base_url}/v1/conversation/retrieve"
-        params = {
-            "conversation_id": conversation_id,
-        }
-        headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("get", url, False, cast=Conversation, params=params, headers=headers)
-
     def clear(self, *, conversation_id: str, **kwargs) -> Section:
         """
         清空会话内容。
@@ -148,50 +186,20 @@ class ConversationsClient(object):
         headers: Optional[dict] = kwargs.get("headers")
         return self._requester.request("post", url, False, cast=Section, headers=headers)
 
-    def update(self, *, conversation_id: str, name: Optional[str] = None, **kwargs) -> Conversation:
-        """
-        更新会话信息。
-        更新指定会话的名称，便于识别与管理。
-
-        docs: https://www.coze.cn/docs/developer_guides/edit_conversation
-
-        :param conversation_id: 会话ID
-        :param name: 新的会话名称，最多100个字符
-        :return: 更新后的Conversation对象
-        """
-        url = f"{self._base_url}/v1/conversations/{conversation_id}"
-        headers: Optional[dict] = kwargs.get("headers")
-        body = {"name": name}
-        return self._requester.request("put", url, False, cast=Conversation, headers=headers, body=body)
-
-    def delete(self, *, conversation_id: str, **kwargs) -> DeleteConversationResp:
-        """
-        删除指定的会话。
-        删除后会话及其中的所有消息都将被永久删除，无法恢复。
-
-        docs: https://www.coze.cn/docs/developer_guides/delete_conversation
-
-        :param conversation_id: 要删除的会话ID
-        :return: DeleteConversationResp对象表示删除成功
-        """
-        url = f"{self._base_url}/v1/conversations/{conversation_id}"
-        headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("delete", url, False, cast=DeleteConversationResp, headers=headers)
-
-    @property
-    def messages(self):
-        if not self._messages:
-            from .message import MessagesClient
-
-            self._messages = MessagesClient(self._base_url, self._requester)
-        return self._messages
-
 
 class AsyncConversationsClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
         self._messages = None
+
+    @property
+    def messages(self):
+        if not self._messages:
+            from .message import AsyncMessagesClient
+
+            self._messages = AsyncMessagesClient(self._base_url, self._requester)
+        return self._messages
 
     async def create(
         self,
@@ -230,6 +238,53 @@ class AsyncConversationsClient(object):
         )
         return await self._requester.arequest("post", url, False, cast=Conversation, headers=headers, body=body)
 
+    async def retrieve(self, *, conversation_id: str, **kwargs) -> Conversation:
+        """
+        Get the information of specific conversation.
+
+        docs en: https://www.coze.com/docs/developer_guides/retrieve_conversation
+        docs cn: https://www.coze.cn/docs/developer_guides/retrieve_conversation
+
+        :param conversation_id: The ID of the conversation.
+        :return: Conversation object
+        """
+        url = f"{self._base_url}/v1/conversation/retrieve"
+        params = {
+            "conversation_id": conversation_id,
+        }
+        headers: Optional[dict] = kwargs.get("headers")
+        return await self._requester.arequest("get", url, False, cast=Conversation, params=params, headers=headers)
+
+    async def update(self, *, conversation_id: str, name: Optional[str] = None, **kwargs) -> Conversation:
+        """
+        更新会话信息。
+        更新指定会话的名称，便于识别与管理。
+
+        docs: https://www.coze.cn/docs/developer_guides/edit_conversation
+
+        :param conversation_id: 会话ID
+        :param name: 新的会话名称，最多100个字符
+        :return: 更新后的Conversation对象
+        """
+        url = f"{self._base_url}/v1/conversations/{conversation_id}"
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {"name": name}
+        return await self._requester.arequest("put", url, False, cast=Conversation, headers=headers, body=body)
+
+    async def delete(self, *, conversation_id: str, **kwargs) -> DeleteConversationResp:
+        """
+        删除指定的会话。
+        删除后会话及其中的所有消息都将被永久删除，无法恢复。
+
+        docs: https://www.coze.cn/docs/developer_guides/delete_conversation
+
+        :param conversation_id: 要删除的会话ID
+        :return: DeleteConversationResp对象表示删除成功
+        """
+        url = f"{self._base_url}/v1/conversations/{conversation_id}"
+        headers: Optional[dict] = kwargs.get("headers")
+        return await self._requester.arequest("delete", url, False, cast=DeleteConversationResp, headers=headers)
+
     async def list(
         self,
         *,
@@ -262,23 +317,6 @@ class AsyncConversationsClient(object):
             request_maker=request_maker,
         )
 
-    async def retrieve(self, *, conversation_id: str, **kwargs) -> Conversation:
-        """
-        Get the information of specific conversation.
-
-        docs en: https://www.coze.com/docs/developer_guides/retrieve_conversation
-        docs cn: https://www.coze.cn/docs/developer_guides/retrieve_conversation
-
-        :param conversation_id: The ID of the conversation.
-        :return: Conversation object
-        """
-        url = f"{self._base_url}/v1/conversation/retrieve"
-        params = {
-            "conversation_id": conversation_id,
-        }
-        headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("get", url, False, cast=Conversation, params=params, headers=headers)
-
     async def clear(self, *, conversation_id: str, **kwargs) -> Section:
         """
         清空会话内容。
@@ -290,41 +328,3 @@ class AsyncConversationsClient(object):
         url = f"{self._base_url}/v1/conversations/{conversation_id}/clear"
         headers: Optional[dict] = kwargs.get("headers")
         return await self._requester.arequest("post", url, False, cast=Section, headers=headers)
-
-    async def update(self, *, conversation_id: str, name: Optional[str] = None, **kwargs) -> Conversation:
-        """
-        更新会话信息。
-        更新指定会话的名称，便于识别与管理。
-
-        docs: https://www.coze.cn/docs/developer_guides/edit_conversation
-
-        :param conversation_id: 会话ID
-        :param name: 新的会话名称，最多100个字符
-        :return: 更新后的Conversation对象
-        """
-        url = f"{self._base_url}/v1/conversations/{conversation_id}"
-        headers: Optional[dict] = kwargs.get("headers")
-        body = {"name": name}
-        return await self._requester.arequest("put", url, False, cast=Conversation, headers=headers, body=body)
-
-    async def delete(self, *, conversation_id: str, **kwargs) -> DeleteConversationResp:
-        """
-        删除指定的会话。
-        删除后会话及其中的所有消息都将被永久删除，无法恢复。
-
-        docs: https://www.coze.cn/docs/developer_guides/delete_conversation
-
-        :param conversation_id: 要删除的会话ID
-        :return: DeleteConversationResp对象表示删除成功
-        """
-        url = f"{self._base_url}/v1/conversations/{conversation_id}"
-        headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("delete", url, False, cast=DeleteConversationResp, headers=headers)
-
-    @property
-    def messages(self):
-        if not self._messages:
-            from .message import AsyncMessagesClient
-
-            self._messages = AsyncMessagesClient(self._base_url, self._requester)
-        return self._messages

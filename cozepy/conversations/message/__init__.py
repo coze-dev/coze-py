@@ -39,14 +39,6 @@ class MessagesClient(object):
 
         self._feedback: Optional["ConversationsMessagesFeedbackClient"] = None
 
-    @property
-    def feedback(self) -> "ConversationsMessagesFeedbackClient":
-        if not self._feedback:
-            from .feedback import ConversationsMessagesFeedbackClient
-
-            self._feedback = ConversationsMessagesFeedbackClient(self._base_url, self._requester)
-        return self._feedback
-
     def create(
         self,
         *,
@@ -85,58 +77,6 @@ class MessagesClient(object):
         }
 
         return self._requester.request("post", url, False, cast=Message, params=params, headers=headers, body=body)
-
-    def list(
-        self,
-        *,
-        conversation_id: str,
-        order: str = "desc",
-        chat_id: Optional[str] = None,
-        before_id: Optional[str] = None,
-        after_id: Optional[str] = None,
-        limit: int = 50,
-    ) -> LastIDPaged[Message]:
-        """
-        Get the message list of a specified conversation.
-
-        docs en: https://www.coze.com/docs/developer_guides/list_message
-        docs zh: https://www.coze.cn/docs/developer_guides/list_message
-
-        :param conversation_id: The ID of the conversation.
-        :param order: The sorting method for the message list.
-        :param chat_id: The ID of the Chat.
-        :param before_id: Get messages before the specified position.
-        :param after_id: Get messages after the specified position.
-        :param limit: The amount of data returned per query. Default is 50, with a range of 1 to 50.
-        :return: The message list of the specified conversation.
-        """
-        url = f"{self._base_url}/v1/conversation/message/list"
-        params = {
-            "conversation_id": conversation_id,
-        }
-
-        def request_maker(i_before_id: str, i_after_id: str) -> HTTPRequest:
-            return self._requester.make_request(
-                "POST",
-                url,
-                json={
-                    "order": order,
-                    "chat_id": chat_id,
-                    "before_id": i_before_id if i_before_id else None,
-                    "after_id": i_after_id if i_after_id else None,
-                    "limit": limit,
-                },
-                params=params,
-                cast=_PrivateListMessageResp,
-                stream=False,
-            )
-
-        return LastIDPaged(
-            before_id=before_id or "",
-            after_id=after_id or "",
-            requestor=self._requester,
-            request_maker=request_maker,
-        )
 
     def retrieve(
         self,
@@ -230,6 +170,66 @@ class MessagesClient(object):
 
         return self._requester.request("post", url, False, cast=Message, params=params, headers=headers)
 
+    def list(
+        self,
+        *,
+        conversation_id: str,
+        order: str = "desc",
+        chat_id: Optional[str] = None,
+        before_id: Optional[str] = None,
+        after_id: Optional[str] = None,
+        limit: int = 50,
+    ) -> LastIDPaged[Message]:
+        """
+        Get the message list of a specified conversation.
+
+        docs en: https://www.coze.com/docs/developer_guides/list_message
+        docs zh: https://www.coze.cn/docs/developer_guides/list_message
+
+        :param conversation_id: The ID of the conversation.
+        :param order: The sorting method for the message list.
+        :param chat_id: The ID of the Chat.
+        :param before_id: Get messages before the specified position.
+        :param after_id: Get messages after the specified position.
+        :param limit: The amount of data returned per query. Default is 50, with a range of 1 to 50.
+        :return: The message list of the specified conversation.
+        """
+        url = f"{self._base_url}/v1/conversation/message/list"
+        params = {
+            "conversation_id": conversation_id,
+        }
+
+        def request_maker(i_before_id: str, i_after_id: str) -> HTTPRequest:
+            return self._requester.make_request(
+                "POST",
+                url,
+                json={
+                    "order": order,
+                    "chat_id": chat_id,
+                    "before_id": i_before_id if i_before_id else None,
+                    "after_id": i_after_id if i_after_id else None,
+                    "limit": limit,
+                },
+                params=params,
+                cast=_PrivateListMessageResp,
+                stream=False,
+            )
+
+        return LastIDPaged(
+            before_id=before_id or "",
+            after_id=after_id or "",
+            requestor=self._requester,
+            request_maker=request_maker,
+        )
+
+    @property
+    def feedback(self) -> "ConversationsMessagesFeedbackClient":
+        if not self._feedback:
+            from .feedback import ConversationsMessagesFeedbackClient
+
+            self._feedback = ConversationsMessagesFeedbackClient(self._base_url, self._requester)
+        return self._feedback
+
 
 class AsyncMessagesClient(object):
     """
@@ -241,14 +241,6 @@ class AsyncMessagesClient(object):
         self._requester = requester
 
         self._feedback: Optional["AsyncMessagesFeedbackClient"] = None
-
-    @property
-    def feedback(self) -> "AsyncMessagesFeedbackClient":
-        if not self._feedback:
-            from .feedback import AsyncMessagesFeedbackClient
-
-            self._feedback = AsyncMessagesFeedbackClient(self._base_url, self._requester)
-        return self._feedback
 
     async def create(
         self,
@@ -289,58 +281,6 @@ class AsyncMessagesClient(object):
 
         return await self._requester.arequest(
             "post", url, False, cast=Message, params=params, headers=headers, body=body
-        )
-
-    async def list(
-        self,
-        *,
-        conversation_id: str,
-        order: str = "desc",
-        chat_id: Optional[str] = None,
-        before_id: Optional[str] = None,
-        after_id: Optional[str] = None,
-        limit: int = 50,
-    ) -> AsyncLastIDPaged[Message]:
-        """
-        Get the message list of a specified conversation.
-
-        docs en: https://www.coze.com/docs/developer_guides/list_message
-        docs zh: https://www.coze.cn/docs/developer_guides/list_message
-
-        :param conversation_id: The ID of the conversation.
-        :param order: The sorting method for the message list.
-        :param chat_id: The ID of the Chat.
-        :param before_id: Get messages before the specified position.
-        :param after_id: Get messages after the specified position.
-        :param limit: The amount of data returned per query. Default is 50, with a range of 1 to 50.
-        :return: The message list of the specified conversation.
-        """
-        url = f"{self._base_url}/v1/conversation/message/list"
-        params = {
-            "conversation_id": conversation_id,
-        }
-
-        async def request_maker(i_before_id: str, i_after_id: str) -> HTTPRequest:
-            return await self._requester.amake_request(
-                "POST",
-                url,
-                json={
-                    "order": order,
-                    "chat_id": chat_id,
-                    "before_id": i_before_id if i_before_id else None,
-                    "after_id": i_after_id if i_after_id else None,
-                    "limit": limit,
-                },
-                params=params,
-                cast=_PrivateListMessageResp,
-                stream=False,
-            )
-
-        return await AsyncLastIDPaged.build(
-            before_id=before_id or "",
-            after_id=after_id or "",
-            requestor=self._requester,
-            request_maker=request_maker,
         )
 
     async def retrieve(
@@ -434,3 +374,63 @@ class AsyncMessagesClient(object):
         headers: Optional[dict] = kwargs.get("headers")
 
         return await self._requester.arequest("post", url, False, cast=Message, params=params, headers=headers)
+
+    async def list(
+        self,
+        *,
+        conversation_id: str,
+        order: str = "desc",
+        chat_id: Optional[str] = None,
+        before_id: Optional[str] = None,
+        after_id: Optional[str] = None,
+        limit: int = 50,
+    ) -> AsyncLastIDPaged[Message]:
+        """
+        Get the message list of a specified conversation.
+
+        docs en: https://www.coze.com/docs/developer_guides/list_message
+        docs zh: https://www.coze.cn/docs/developer_guides/list_message
+
+        :param conversation_id: The ID of the conversation.
+        :param order: The sorting method for the message list.
+        :param chat_id: The ID of the Chat.
+        :param before_id: Get messages before the specified position.
+        :param after_id: Get messages after the specified position.
+        :param limit: The amount of data returned per query. Default is 50, with a range of 1 to 50.
+        :return: The message list of the specified conversation.
+        """
+        url = f"{self._base_url}/v1/conversation/message/list"
+        params = {
+            "conversation_id": conversation_id,
+        }
+
+        async def request_maker(i_before_id: str, i_after_id: str) -> HTTPRequest:
+            return await self._requester.amake_request(
+                "POST",
+                url,
+                json={
+                    "order": order,
+                    "chat_id": chat_id,
+                    "before_id": i_before_id if i_before_id else None,
+                    "after_id": i_after_id if i_after_id else None,
+                    "limit": limit,
+                },
+                params=params,
+                cast=_PrivateListMessageResp,
+                stream=False,
+            )
+
+        return await AsyncLastIDPaged.build(
+            before_id=before_id or "",
+            after_id=after_id or "",
+            requestor=self._requester,
+            request_maker=request_maker,
+        )
+
+    @property
+    def feedback(self) -> "AsyncMessagesFeedbackClient":
+        if not self._feedback:
+            from .feedback import AsyncMessagesFeedbackClient
+
+            self._feedback = AsyncMessagesFeedbackClient(self._base_url, self._requester)
+        return self._feedback

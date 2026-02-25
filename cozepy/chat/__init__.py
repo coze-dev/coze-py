@@ -430,48 +430,15 @@ class ChatClient(object):
         self._requester = requester
         self._messages: Optional[ChatMessagesClient] = None
 
-    def create(
+    @property
+    def messages(
         self,
-        *,
-        conversation_id: Optional[str] = None,
-        bot_id: str,
-        user_id: str,
-        additional_messages: Optional[List[Message]] = None,
-        custom_variables: Optional[Dict[str, str]] = None,
-        auto_save_history: bool = True,
-        meta_data: Optional[Dict[str, str]] = None,
-        parameters: Optional[Dict[str, Any]] = None,
-        **kwargs,
-    ) -> Chat:
-        """
-        Call the Chat API with non-streaming to send messages to a published Coze bot.
+    ) -> "ChatMessagesClient":
+        if self._messages is None:
+            from .message import ChatMessagesClient
 
-        docs en: https://www.coze.com/docs/developer_guides/chat_v3
-        docs zh: https://www.coze.cn/docs/developer_guides/chat_v3
-
-        :param bot_id: The ID of the bot that the API interacts with.
-        :param user_id: The user who calls the API to chat with the bot.
-        This parameter is defined, generated, and maintained by the user within their business system.
-        :param conversation_id: Indicate which conversation the chat is taking place in.
-        :param additional_messages: Additional information for the conversation. You can pass the user's query for this
-        conversation through this field. The array length is limited to 100, meaning up to 100 messages can be input.
-        :param custom_variables: The customized variable in a key-value pair.
-        :param auto_save_history: Whether to automatically save the history of conversation records.
-        :param meta_data: Additional information, typically used to encapsulate some business-related fields.
-        :param parameters: Additional parameters for the chat API. pass through to the workflow.
-        :return: chat object
-        """
-        return self._create(
-            bot_id=bot_id,
-            user_id=user_id,
-            stream=False,
-            additional_messages=additional_messages,
-            custom_variables=custom_variables,
-            auto_save_history=auto_save_history,
-            meta_data=meta_data,
-            conversation_id=conversation_id,
-            parameters=parameters,
-        )
+            self._messages = ChatMessagesClient(self._base_url, self._requester)
+        return self._messages
 
     def stream(
         self,
@@ -519,22 +486,21 @@ class ChatClient(object):
             **kwargs,
         )
 
-    def create_and_poll(
+    def create(
         self,
         *,
+        conversation_id: Optional[str] = None,
         bot_id: str,
         user_id: str,
-        conversation_id: Optional[str] = None,
         additional_messages: Optional[List[Message]] = None,
         custom_variables: Optional[Dict[str, str]] = None,
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
-        poll_timeout: Optional[int] = None,
         parameters: Optional[Dict[str, Any]] = None,
-    ) -> ChatPoll:
+        **kwargs,
+    ) -> Chat:
         """
-        Call the Chat API with non-streaming to send messages to a published Coze bot and
-        fetch chat status & message.
+        Call the Chat API with non-streaming to send messages to a published Coze bot.
 
         docs en: https://www.coze.com/docs/developer_guides/chat_v3
         docs zh: https://www.coze.cn/docs/developer_guides/chat_v3
@@ -548,41 +514,66 @@ class ChatClient(object):
         :param custom_variables: The customized variable in a key-value pair.
         :param auto_save_history: Whether to automatically save the history of conversation records.
         :param meta_data: Additional information, typically used to encapsulate some business-related fields.
-        :param poll_timeout: poll timeout in seconds
         :param parameters: Additional parameters for the chat API. pass through to the workflow.
         :return: chat object
         """
-        chat = self.create(
+        return self._create(
             bot_id=bot_id,
             user_id=user_id,
-            conversation_id=conversation_id,
+            stream=False,
             additional_messages=additional_messages,
             custom_variables=custom_variables,
             auto_save_history=auto_save_history,
             meta_data=meta_data,
+            conversation_id=conversation_id,
             parameters=parameters,
         )
 
-        start = int(time.time())
-        interval = 1
-        while chat.status == ChatStatus.IN_PROGRESS:
-            if poll_timeout is not None and int(time.time()) - start > poll_timeout:
-                try:
-                    # too long, cancel chat
-                    self.cancel(conversation_id=chat.conversation_id, chat_id=chat.id)
-                    return ChatPoll(chat=chat)
-                except CozeAPIError as e:
-                    if e.code == 4104:
-                        # The current conversation can't be canceled, re-retrieve the chat and continue polling.
-                        chat = self.retrieve(conversation_id=chat.conversation_id, chat_id=chat.id)
-                        continue
-                    raise e
+    def retrieve(
+        self,
+        *,
+        conversation_id: str,
+        chat_id: str,
+        **kwargs,
+    ) -> Chat:
+        """
+        Get the detailed information of the chat.
 
-            time.sleep(interval)
-            chat = self.retrieve(conversation_id=chat.conversation_id, chat_id=chat.id)
+        docs en: https://www.coze.com/docs/developer_guides/retrieve_chat
+        docs zh: https://www.coze.cn/docs/developer_guides/retrieve_chat
 
-        messages = self.messages.list(conversation_id=chat.conversation_id, chat_id=chat.id)
-        return ChatPoll(chat=chat, messages=messages)
+        :param conversation_id: The ID of the conversation.
+        :param chat_id: The ID of the chat.
+        :return: chat object
+        """
+        url = f"{self._base_url}/v3/chat/retrieve"
+        params = {
+            "conversation_id": conversation_id,
+            "chat_id": chat_id,
+        }
+        headers: Optional[dict] = kwargs.get("headers")
+        return self._requester.request("post", url, False, cast=Chat, params=params, headers=headers)
+
+    def cancel(self, *, conversation_id: str, chat_id: str, **kwargs) -> Chat:
+        """
+        Call this API to cancel an ongoing chat.
+
+        docs en: https://www.coze.com/docs/developer_guides/chat_cancel
+        docs zh: https://www.coze.cn/docs/developer_guides/chat_cancel
+
+        :param conversation_id: The Conversation ID can be viewed in the 'conversation_id' field of the Response when
+        initiating a conversation through the Chat API.
+        :param chat_id: The Chat ID can be viewed in the 'id' field of the Response when initiating a chat through the
+        Chat API. If it is a streaming response, check the 'id' field in the chat event of the Response.
+        :return:
+        """
+        url = f"{self._base_url}/v3/chat/cancel"
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {
+            "conversation_id": conversation_id,
+            "chat_id": chat_id,
+        }
+        return self._requester.request("post", url, False, cast=Chat, headers=headers, body=body)
 
     @overload
     def _create(
@@ -679,30 +670,70 @@ class ChatClient(object):
             handler=_chat_stream_handler,
         )
 
-    def retrieve(
+    def create_and_poll(
         self,
         *,
-        conversation_id: str,
-        chat_id: str,
-        **kwargs,
-    ) -> Chat:
+        bot_id: str,
+        user_id: str,
+        conversation_id: Optional[str] = None,
+        additional_messages: Optional[List[Message]] = None,
+        custom_variables: Optional[Dict[str, str]] = None,
+        auto_save_history: bool = True,
+        meta_data: Optional[Dict[str, str]] = None,
+        poll_timeout: Optional[int] = None,
+        parameters: Optional[Dict[str, Any]] = None,
+    ) -> ChatPoll:
         """
-        Get the detailed information of the chat.
+        Call the Chat API with non-streaming to send messages to a published Coze bot and
+        fetch chat status & message.
 
-        docs en: https://www.coze.com/docs/developer_guides/retrieve_chat
-        docs zh: https://www.coze.cn/docs/developer_guides/retrieve_chat
+        docs en: https://www.coze.com/docs/developer_guides/chat_v3
+        docs zh: https://www.coze.cn/docs/developer_guides/chat_v3
 
-        :param conversation_id: The ID of the conversation.
-        :param chat_id: The ID of the chat.
+        :param bot_id: The ID of the bot that the API interacts with.
+        :param user_id: The user who calls the API to chat with the bot.
+        This parameter is defined, generated, and maintained by the user within their business system.
+        :param conversation_id: Indicate which conversation the chat is taking place in.
+        :param additional_messages: Additional information for the conversation. You can pass the user's query for this
+        conversation through this field. The array length is limited to 100, meaning up to 100 messages can be input.
+        :param custom_variables: The customized variable in a key-value pair.
+        :param auto_save_history: Whether to automatically save the history of conversation records.
+        :param meta_data: Additional information, typically used to encapsulate some business-related fields.
+        :param poll_timeout: poll timeout in seconds
+        :param parameters: Additional parameters for the chat API. pass through to the workflow.
         :return: chat object
         """
-        url = f"{self._base_url}/v3/chat/retrieve"
-        params = {
-            "conversation_id": conversation_id,
-            "chat_id": chat_id,
-        }
-        headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("post", url, False, cast=Chat, params=params, headers=headers)
+        chat = self.create(
+            bot_id=bot_id,
+            user_id=user_id,
+            conversation_id=conversation_id,
+            additional_messages=additional_messages,
+            custom_variables=custom_variables,
+            auto_save_history=auto_save_history,
+            meta_data=meta_data,
+            parameters=parameters,
+        )
+
+        start = int(time.time())
+        interval = 1
+        while chat.status == ChatStatus.IN_PROGRESS:
+            if poll_timeout is not None and int(time.time()) - start > poll_timeout:
+                try:
+                    # too long, cancel chat
+                    self.cancel(conversation_id=chat.conversation_id, chat_id=chat.id)
+                    return ChatPoll(chat=chat)
+                except CozeAPIError as e:
+                    if e.code == 4104:
+                        # The current conversation can't be canceled, re-retrieve the chat and continue polling.
+                        chat = self.retrieve(conversation_id=chat.conversation_id, chat_id=chat.id)
+                        continue
+                    raise e
+
+            time.sleep(interval)
+            chat = self.retrieve(conversation_id=chat.conversation_id, chat_id=chat.id)
+
+        messages = self.messages.list(conversation_id=chat.conversation_id, chat_id=chat.id)
+        return ChatPoll(chat=chat, messages=messages)
 
     def submit_tool_outputs(
         self, *, conversation_id: str, chat_id: str, tool_outputs: List[ToolOutput], stream: bool
@@ -753,37 +784,6 @@ class ChatClient(object):
         )
         return Stream(resp._raw_response, resp.data, fields=["event", "data"], handler=_chat_stream_handler)
 
-    def cancel(self, *, conversation_id: str, chat_id: str, **kwargs) -> Chat:
-        """
-        Call this API to cancel an ongoing chat.
-
-        docs en: https://www.coze.com/docs/developer_guides/chat_cancel
-        docs zh: https://www.coze.cn/docs/developer_guides/chat_cancel
-
-        :param conversation_id: The Conversation ID can be viewed in the 'conversation_id' field of the Response when
-        initiating a conversation through the Chat API.
-        :param chat_id: The Chat ID can be viewed in the 'id' field of the Response when initiating a chat through the
-        Chat API. If it is a streaming response, check the 'id' field in the chat event of the Response.
-        :return:
-        """
-        url = f"{self._base_url}/v3/chat/cancel"
-        headers: Optional[dict] = kwargs.get("headers")
-        body = {
-            "conversation_id": conversation_id,
-            "chat_id": chat_id,
-        }
-        return self._requester.request("post", url, False, cast=Chat, headers=headers, body=body)
-
-    @property
-    def messages(
-        self,
-    ) -> "ChatMessagesClient":
-        if self._messages is None:
-            from .message import ChatMessagesClient
-
-            self._messages = ChatMessagesClient(self._base_url, self._requester)
-        return self._messages
-
 
 class AsyncChatClient(object):
     def __init__(self, base_url: str, requester: Requester):
@@ -791,48 +791,15 @@ class AsyncChatClient(object):
         self._requester = requester
         self._messages: Optional[AsyncChatMessagesClient] = None
 
-    async def create(
+    @property
+    def messages(
         self,
-        *,
-        conversation_id: Optional[str] = None,
-        bot_id: str,
-        user_id: str,
-        additional_messages: Optional[List[Message]] = None,
-        custom_variables: Optional[Dict[str, str]] = None,
-        auto_save_history: bool = True,
-        meta_data: Optional[Dict[str, str]] = None,
-        parameters: Optional[Dict[str, Any]] = None,
-        **kwargs,
-    ) -> Chat:
-        """
-        Call the Chat API with non-streaming to send messages to a published Coze bot.
+    ) -> "AsyncChatMessagesClient":
+        if self._messages is None:
+            from .message import AsyncChatMessagesClient
 
-        docs en: https://www.coze.com/docs/developer_guides/chat_v3
-        docs zh: https://www.coze.cn/docs/developer_guides/chat_v3
-
-        :param bot_id: The ID of the bot that the API interacts with.
-        :param user_id: The user who calls the API to chat with the bot.
-        This parameter is defined, generated, and maintained by the user within their business system.
-        :param conversation_id: Indicate which conversation the chat is taking place in.
-        :param additional_messages: Additional information for the conversation. You can pass the user's query for this
-        conversation through this field. The array length is limited to 100, meaning up to 100 messages can be input.
-        :param custom_variables: The customized variable in a key-value pair.
-        :param auto_save_history: Whether to automatically save the history of conversation records.
-        :param meta_data: Additional information, typically used to encapsulate some business-related fields.
-        :param parameters: Additional parameters for the chat API. pass through to the workflow.
-        :return: chat object
-        """
-        return await self._create(
-            bot_id=bot_id,
-            user_id=user_id,
-            additional_messages=additional_messages,
-            stream=False,
-            custom_variables=custom_variables,
-            auto_save_history=auto_save_history,
-            meta_data=meta_data,
-            conversation_id=conversation_id,
-            parameters=parameters,
-        )
+            self._messages = AsyncChatMessagesClient(self._base_url, self._requester)
+        return self._messages
 
     async def stream(
         self,
@@ -880,6 +847,95 @@ class AsyncChatClient(object):
             **kwargs,
         ):
             yield item
+
+    async def create(
+        self,
+        *,
+        conversation_id: Optional[str] = None,
+        bot_id: str,
+        user_id: str,
+        additional_messages: Optional[List[Message]] = None,
+        custom_variables: Optional[Dict[str, str]] = None,
+        auto_save_history: bool = True,
+        meta_data: Optional[Dict[str, str]] = None,
+        parameters: Optional[Dict[str, Any]] = None,
+        **kwargs,
+    ) -> Chat:
+        """
+        Call the Chat API with non-streaming to send messages to a published Coze bot.
+
+        docs en: https://www.coze.com/docs/developer_guides/chat_v3
+        docs zh: https://www.coze.cn/docs/developer_guides/chat_v3
+
+        :param bot_id: The ID of the bot that the API interacts with.
+        :param user_id: The user who calls the API to chat with the bot.
+        This parameter is defined, generated, and maintained by the user within their business system.
+        :param conversation_id: Indicate which conversation the chat is taking place in.
+        :param additional_messages: Additional information for the conversation. You can pass the user's query for this
+        conversation through this field. The array length is limited to 100, meaning up to 100 messages can be input.
+        :param custom_variables: The customized variable in a key-value pair.
+        :param auto_save_history: Whether to automatically save the history of conversation records.
+        :param meta_data: Additional information, typically used to encapsulate some business-related fields.
+        :param parameters: Additional parameters for the chat API. pass through to the workflow.
+        :return: chat object
+        """
+        return await self._create(
+            bot_id=bot_id,
+            user_id=user_id,
+            additional_messages=additional_messages,
+            stream=False,
+            custom_variables=custom_variables,
+            auto_save_history=auto_save_history,
+            meta_data=meta_data,
+            conversation_id=conversation_id,
+            parameters=parameters,
+        )
+
+    async def retrieve(
+        self,
+        *,
+        conversation_id: str,
+        chat_id: str,
+        **kwargs,
+    ) -> Chat:
+        """
+        Get the detailed information of the chat.
+
+        docs en: https://www.coze.com/docs/developer_guides/retrieve_chat
+        docs zh: https://www.coze.cn/docs/developer_guides/retrieve_chat
+
+        :param conversation_id: The ID of the conversation.
+        :param chat_id: The ID of the chat.
+        :return: chat object
+        """
+        url = f"{self._base_url}/v3/chat/retrieve"
+        params = {
+            "conversation_id": conversation_id,
+            "chat_id": chat_id,
+        }
+        headers: Optional[dict] = kwargs.get("headers")
+        return await self._requester.arequest("post", url, False, cast=Chat, params=params, headers=headers)
+
+    async def cancel(self, *, conversation_id: str, chat_id: str, **kwargs) -> Chat:
+        """
+        Call this API to cancel an ongoing chat.
+
+        docs en: https://www.coze.com/docs/developer_guides/chat_cancel
+        docs zh: https://www.coze.cn/docs/developer_guides/chat_cancel
+
+        :param conversation_id: The Conversation ID can be viewed in the 'conversation_id' field of the Response when
+        initiating a conversation through the Chat API.
+        :param chat_id: The Chat ID can be viewed in the 'id' field of the Response when initiating a chat through the
+        Chat API. If it is a streaming response, check the 'id' field in the chat event of the Response.
+        :return:
+        """
+        url = f"{self._base_url}/v3/chat/cancel"
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {
+            "conversation_id": conversation_id,
+            "chat_id": chat_id,
+        }
+        return await self._requester.arequest("post", url, False, cast=Chat, headers=headers, body=body)
 
     @overload
     async def _create(
@@ -975,30 +1031,38 @@ class AsyncChatClient(object):
             resp.data, fields=["event", "data"], handler=_chat_stream_handler, raw_response=resp._raw_response
         )
 
-    async def retrieve(
-        self,
-        *,
-        conversation_id: str,
-        chat_id: str,
-        **kwargs,
-    ) -> Chat:
-        """
-        Get the detailed information of the chat.
+    @overload
+    async def _submit_tool_outputs(
+        self, *, conversation_id: str, chat_id: str, stream: Literal[True], tool_outputs: List[ToolOutput]
+    ) -> AsyncStream[ChatEvent]: ...
 
-        docs en: https://www.coze.com/docs/developer_guides/retrieve_chat
-        docs zh: https://www.coze.cn/docs/developer_guides/retrieve_chat
+    @overload
+    async def _submit_tool_outputs(
+        self, *, conversation_id: str, chat_id: str, stream: Literal[False], tool_outputs: List[ToolOutput]
+    ) -> Chat: ...
 
-        :param conversation_id: The ID of the conversation.
-        :param chat_id: The ID of the chat.
-        :return: chat object
-        """
-        url = f"{self._base_url}/v3/chat/retrieve"
+    async def _submit_tool_outputs(
+        self, *, conversation_id: str, chat_id: str, stream: Literal[True, False], tool_outputs: List[ToolOutput]
+    ) -> Union[Chat, AsyncStream[ChatEvent]]:
+        url = f"{self._base_url}/v3/chat/submit_tool_outputs"
         params = {
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("post", url, False, cast=Chat, params=params, headers=headers)
+        body = {
+            "tool_outputs": [i.model_dump() for i in tool_outputs],
+            "stream": stream,
+        }
+
+        if not stream:
+            return await self._requester.arequest("post", url, False, Chat, params=params, body=body)
+
+        resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
+            "post", url, True, None, params=params, body=body
+        )
+        return AsyncStream(
+            resp.data, fields=["event", "data"], handler=_chat_stream_handler, raw_response=resp._raw_response
+        )
 
     async def submit_tool_outputs(self, *, conversation_id: str, chat_id: str, tool_outputs: List[ToolOutput]) -> Chat:
         """
@@ -1048,67 +1112,3 @@ class AsyncChatClient(object):
             conversation_id=conversation_id, chat_id=chat_id, stream=True, tool_outputs=tool_outputs
         ):
             yield item
-
-    @overload
-    async def _submit_tool_outputs(
-        self, *, conversation_id: str, chat_id: str, stream: Literal[True], tool_outputs: List[ToolOutput]
-    ) -> AsyncStream[ChatEvent]: ...
-
-    @overload
-    async def _submit_tool_outputs(
-        self, *, conversation_id: str, chat_id: str, stream: Literal[False], tool_outputs: List[ToolOutput]
-    ) -> Chat: ...
-
-    async def _submit_tool_outputs(
-        self, *, conversation_id: str, chat_id: str, stream: Literal[True, False], tool_outputs: List[ToolOutput]
-    ) -> Union[Chat, AsyncStream[ChatEvent]]:
-        url = f"{self._base_url}/v3/chat/submit_tool_outputs"
-        params = {
-            "conversation_id": conversation_id,
-            "chat_id": chat_id,
-        }
-        body = {
-            "tool_outputs": [i.model_dump() for i in tool_outputs],
-            "stream": stream,
-        }
-
-        if not stream:
-            return await self._requester.arequest("post", url, False, Chat, params=params, body=body)
-
-        resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
-            "post", url, True, None, params=params, body=body
-        )
-        return AsyncStream(
-            resp.data, fields=["event", "data"], handler=_chat_stream_handler, raw_response=resp._raw_response
-        )
-
-    async def cancel(self, *, conversation_id: str, chat_id: str, **kwargs) -> Chat:
-        """
-        Call this API to cancel an ongoing chat.
-
-        docs en: https://www.coze.com/docs/developer_guides/chat_cancel
-        docs zh: https://www.coze.cn/docs/developer_guides/chat_cancel
-
-        :param conversation_id: The Conversation ID can be viewed in the 'conversation_id' field of the Response when
-        initiating a conversation through the Chat API.
-        :param chat_id: The Chat ID can be viewed in the 'id' field of the Response when initiating a chat through the
-        Chat API. If it is a streaming response, check the 'id' field in the chat event of the Response.
-        :return:
-        """
-        url = f"{self._base_url}/v3/chat/cancel"
-        headers: Optional[dict] = kwargs.get("headers")
-        body = {
-            "conversation_id": conversation_id,
-            "chat_id": chat_id,
-        }
-        return await self._requester.arequest("post", url, False, cast=Chat, headers=headers, body=body)
-
-    @property
-    def messages(
-        self,
-    ) -> "AsyncChatMessagesClient":
-        if self._messages is None:
-            from .message import AsyncChatMessagesClient
-
-            self._messages = AsyncChatMessagesClient(self._base_url, self._requester)
-        return self._messages
