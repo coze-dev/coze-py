@@ -142,7 +142,7 @@ class DatasetsClient(object):
             "post",
             url,
             False,
-            CreateDatasetResp,
+            cast=CreateDatasetResp,
             headers=headers,
             body=body,
         )
@@ -343,7 +343,7 @@ class AsyncDatasetsClient(object):
             "post",
             url,
             False,
-            CreateDatasetResp,
+            cast=CreateDatasetResp,
             headers=headers,
             body=body,
         )

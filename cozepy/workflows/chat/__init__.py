@@ -83,7 +83,7 @@ class WorkflowsChatClient(object):
             "post",
             url,
             True,
-            None,
+            cast=None,
             headers=headers,
             body=body,
         )
@@ -169,7 +169,7 @@ class AsyncWorkflowsChatClient(object):
             "post",
             url,
             True,
-            None,
+            cast=None,
             headers=headers,
             body=body,
         )

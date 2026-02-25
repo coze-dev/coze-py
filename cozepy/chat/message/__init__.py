@@ -35,7 +35,7 @@ class ChatMessagesClient(object):
             "chat_id": chat_id,
         }
         headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("get", url, False, ListResponse[Message], params=params, headers=headers)
+        return self._requester.request("get", url, False, cast=ListResponse[Message], params=params, headers=headers)
 
 
 class AsyncChatMessagesClient(object):
@@ -67,4 +67,6 @@ class AsyncChatMessagesClient(object):
             "chat_id": chat_id,
         }
         headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("get", url, False, ListResponse[Message], params=params, headers=headers)
+        return await self._requester.arequest(
+            "get", url, False, cast=ListResponse[Message], params=params, headers=headers
+        )

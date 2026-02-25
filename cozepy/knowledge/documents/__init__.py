@@ -75,7 +75,7 @@ class DocumentsClient(object):
             "chunk_strategy": chunk_strategy.model_dump() if chunk_strategy else None,
         }
         return self._requester.request(
-            "post", url, False, [Document], headers=headers, body=body, data_field="document_infos"
+            "post", url, False, cast=[Document], headers=headers, body=body, data_field="document_infos"
         )
 
     def update(
@@ -115,7 +115,7 @@ class DocumentsClient(object):
             "post",
             url,
             False,
-            None,
+            cast=None,
             headers=headers,
             body=body,
         )
@@ -146,7 +146,7 @@ class DocumentsClient(object):
             "post",
             url,
             False,
-            None,
+            cast=None,
             headers=headers,
             body=body,
         )
@@ -252,7 +252,7 @@ class AsyncDocumentsClient(object):
             "chunk_strategy": chunk_strategy.model_dump() if chunk_strategy else None,
         }
         return await self._requester.arequest(
-            "post", url, False, [Document], headers=headers, body=body, data_field="document_infos"
+            "post", url, False, cast=[Document], headers=headers, body=body, data_field="document_infos"
         )
 
     async def update(

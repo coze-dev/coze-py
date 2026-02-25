@@ -195,7 +195,7 @@ class WorkflowsRunsClient(object):
             "ext": ext,
         }
         return self._requester.request(
-            "post", url, False, WorkflowRunResult, headers=headers, body=remove_none_values(body)
+            "post", url, False, cast=WorkflowRunResult, headers=headers, body=remove_none_values(body)
         )
 
     def stream(
@@ -236,7 +236,7 @@ class WorkflowsRunsClient(object):
             "post",
             url,
             True,
-            None,
+            cast=None,
             headers=headers,
             body=remove_none_values(body),
         )
@@ -272,7 +272,7 @@ class WorkflowsRunsClient(object):
             "post",
             url,
             True,
-            None,
+            cast=None,
             headers=headers,
             body=body,
         )
@@ -333,7 +333,7 @@ class AsyncWorkflowsRunsClient(object):
             "ext": ext,
         }
         return await self._requester.arequest(
-            "post", url, False, WorkflowRunResult, headers=headers, body=remove_none_values(body)
+            "post", url, False, cast=WorkflowRunResult, headers=headers, body=remove_none_values(body)
         )
 
     async def stream(
@@ -374,7 +374,7 @@ class AsyncWorkflowsRunsClient(object):
             "post",
             url,
             True,
-            None,
+            cast=None,
             headers=headers,
             body=remove_none_values(body),
         )
@@ -416,7 +416,7 @@ class AsyncWorkflowsRunsClient(object):
             "post",
             url,
             True,
-            None,
+            cast=None,
             headers=headers,
             body=body,
         )
