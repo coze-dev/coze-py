@@ -1,10 +1,15 @@
 from typing import TYPE_CHECKING, Optional
 
+from cozepy.model import CozeModel
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
 if TYPE_CHECKING:
     from cozepy.connectors.bots import AsyncConnectorsBotsClient, ConnectorsBotsClient
+
+
+class InstallConnectorResp(CozeModel):
+    pass
 
 
 class ConnectorsClient(object):
@@ -30,6 +35,15 @@ class ConnectorsClient(object):
             self._bots = ConnectorsBotsClient(base_url=self._base_url, requester=self._requester)
         return self._bots
 
+    def install(self, *, connector_id: str, workspace_id: str, **kwargs) -> InstallConnectorResp:
+        """添加发布渠道"""
+        url = f"{self._base_url}/v1/connectors/{connector_id}/install"
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {
+            "workspace_id": workspace_id,
+        }
+        return self._requester.request("post", url, False, cast=InstallConnectorResp, headers=headers, body=body)
+
 
 class AsyncConnectorsClient(object):
     """
@@ -53,3 +67,12 @@ class AsyncConnectorsClient(object):
 
             self._bots = AsyncConnectorsBotsClient(base_url=self._base_url, requester=self._requester)
         return self._bots
+
+    async def install(self, *, connector_id: str, workspace_id: str, **kwargs) -> InstallConnectorResp:
+        """添加发布渠道"""
+        url = f"{self._base_url}/v1/connectors/{connector_id}/install"
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {
+            "workspace_id": workspace_id,
+        }
+        return await self._requester.arequest("post", url, False, cast=InstallConnectorResp, headers=headers, body=body)
