@@ -17,9 +17,9 @@ class AudioClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
         self._rooms: Optional[RoomsClient] = None
-        self._voices: Optional[VoicesClient] = None
         self._speech: Optional[SpeechClient] = None
         self._transcriptions: Optional[TranscriptionsClient] = None
+        self._voices: Optional[VoicesClient] = None
         self._voiceprint_groups: Optional[VoiceprintGroupsClient] = None
         self._live: Optional[LiveClient] = None
 
@@ -77,9 +77,9 @@ class AsyncAudioClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
         self._rooms: Optional[AsyncRoomsClient] = None
-        self._voices: Optional[AsyncVoicesClient] = None
         self._speech: Optional[AsyncSpeechClient] = None
         self._transcriptions: Optional[AsyncTranscriptionsClient] = None
+        self._voices: Optional[AsyncVoicesClient] = None
         self._voiceprint_groups: Optional[AsyncVoiceprintGroupsClient] = None
         self._live: Optional[AsyncLiveClient] = None
 
@@ -100,20 +100,20 @@ class AsyncAudioClient(object):
         return self._speech
 
     @property
-    def voices(self) -> "AsyncVoicesClient":
-        if self._voices is None:
-            from .voices import AsyncVoicesClient
-
-            self._voices = AsyncVoicesClient(base_url=self._base_url, requester=self._requester)
-        return self._voices
-
-    @property
     def transcriptions(self) -> "AsyncTranscriptionsClient":
         if self._transcriptions is None:
             from .transcriptions import AsyncTranscriptionsClient
 
             self._transcriptions = AsyncTranscriptionsClient(base_url=self._base_url, requester=self._requester)
         return self._transcriptions
+
+    @property
+    def voices(self) -> "AsyncVoicesClient":
+        if self._voices is None:
+            from .voices import AsyncVoicesClient
+
+            self._voices = AsyncVoicesClient(base_url=self._base_url, requester=self._requester)
+        return self._voices
 
     @property
     def voiceprint_groups(self) -> "AsyncVoiceprintGroupsClient":
