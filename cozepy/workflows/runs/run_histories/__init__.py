@@ -98,7 +98,6 @@ class WorkflowRunHistory(CozeModel):
     # Workflow trial run debugging page. Visit this page to view the running results, input
     # and output information of each workflow node.
     debug_url: str
-
     node_execute_status: Optional[Dict[str, WorkflowRunHistoryNodeExecuteStatus]] = None
 
     # 资源使用情况，包含本次 API 调用消耗的 Token 数量等信息。
