@@ -91,7 +91,7 @@ class ConversationsClient(object):
         bot_id: str,
         page_num: int = 1,
         page_size: int = 50,
-    ):
+    ) -> NumberPaged[Conversation]:
         url = f"{self._base_url}/v1/conversations"
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
@@ -225,7 +225,7 @@ class AsyncConversationsClient(object):
         bot_id: str,
         page_num: int = 1,
         page_size: int = 50,
-    ):
+    ) -> AsyncNumberPaged[Conversation]:
         url = f"{self._base_url}/v1/conversations"
 
         async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
