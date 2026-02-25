@@ -41,14 +41,15 @@ class SpeechClient(object):
         **kwargs,
     ) -> FileHTTPResponse:
         """
-        Generate speech audio from input text with specified voice
+        语音合成
 
-        :param input: The text to generate audio for. Maximum length is 1024 characters.
-        :param voice_id: The voice ID to generate audio with, obtained via .audio.voices.list
-        :param response_format: Audio encoding format, wav / pcm / ogg_opus / mp3, defaults to mp3
-        :param speed: Speech speed, [0.2,3], defaults to 1, typically one decimal place is sufficient
-        :param sample_rate: Audio sample rate, defaults to 24000, available values: [8000, 16000, 22050, 24000, 32000, 44100, 48000]
-        :return: The synthesized audio file content
+        将指定文本合成为音频文件。 接口描述 此 API 用于将指定文本内容合成为自然流畅的音频，同步返回合成的音频文件，适用于有声书合成、智能客服语音、音视频配音等场景。合成音频文件之前，可以先调用 查看音色列表 API，查看所有可用音色。 调用语音合成 API 会产生 语音合成费用 ，具体费用详情请参考 音视频费用 。
+
+        :param input: 必选，合成语音的文本，长度限制 1024 字节（UTF-8编码）。
+        :param voice_id: 必选，音色id
+        :param response_format: 音频编码格式，wav / pcm / ogg_opus / mp3，默认为 mp3
+        :param speed: 语速，[0.2,3]，默认为1，通常保留一位小数即可
+        :param sample_rate: 采样率，可选值 [8000,16000,22050,24000,32000,44100,48000]，默认 24000
         """
         url = f"{self._base_url}/v1/audio/speech"
         headers: Optional[dict] = kwargs.get("headers")
@@ -82,14 +83,15 @@ class AsyncSpeechClient(object):
         **kwargs,
     ) -> FileHTTPResponse:
         """
-        Generate speech audio from input text with specified voice
+        语音合成
 
-        :param input: The text to generate audio for. Maximum length is 1024 characters.
-        :param voice_id: The voice ID to generate audio with, obtained via .audio.voices.list
-        :param response_format: Audio encoding format, wav / pcm / ogg_opus / mp3, defaults to mp3
-        :param speed: Speech speed, [0.2,3], defaults to 1, typically one decimal place is sufficient
-        :param sample_rate: Audio sample rate, defaults to 24000, available values: [8000, 16000, 22050, 24000, 32000, 44100, 48000]
-        :return: The synthesized audio file content
+        调用语音合成 API 会产生 语音合成费用 ，具体费用详情请参考 音视频费用 。 将指定文本合成为音频文件。 接口描述 此 API 用于将指定文本内容合成为自然流畅的音频，同步返回合成的音频文件，适用于有声书合成、智能客服语音、音视频配音等场景。合成音频文件之前，可以先调用 查看音色列表 API，查看所有可用音色。
+
+        :param input: 必选，合成语音的文本，长度限制 1024 字节（UTF-8编码）。
+        :param voice_id: 必选，音色id
+        :param response_format: 音频编码格式，wav / pcm / ogg_opus / mp3，默认为 mp3
+        :param speed: 语速，[0.2,3]，默认为1，通常保留一位小数即可
+        :param sample_rate: 采样率，可选值 [8000,16000,22050,24000,32000,44100,48000]，默认 24000
         """
         url = f"{self._base_url}/v1/audio/speech"
         headers: Optional[dict] = kwargs.get("headers")

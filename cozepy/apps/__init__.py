@@ -16,8 +16,10 @@ class SimpleApp(CozeModel):
     icon_url: str
     is_published: bool
     owner_user_id: str
+    # 草稿返回update_time
     updated_at: int
     folder_id: Optional[str] = None
+    # 发布态返回publish_time
     published_at: Optional[int] = None
 
 

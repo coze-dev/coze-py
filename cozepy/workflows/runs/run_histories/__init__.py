@@ -48,49 +48,37 @@ class WorkflowRunHistoryNodeExecuteStatus(CozeModel):
 
 
 class WorkflowRunHistory(CozeModel):
-    # The ID of execute.
+    # 执行 ID。
     execute_id: str
-    # Execute status:
-    #   success: Execution succeeded.
-    #   running: Execution in progress.
-    #   fail: Execution failed.
+    # 执行状态。Success：执行成功。Running：执行中。Fail：执行失败。
     execute_status: WorkflowExecuteStatus
-    # The Bot ID specified when executing the workflow. Returns 0 if no Bot ID was specified.
+    # 执行工作流时指定的 Bot ID。返回 0 表示未指定智能体 ID。
     bot_id: str
-    # The release connector ID of the agent. By default, only the Agent as API connector is
-    # displayed, and the connector ID is 1024.
+    # 智能体的发布渠道 ID，默认仅显示 Agent as API 渠道，渠道 ID 为 1024。
     connector_id: str
-    # User ID, the user_id specified by the ext field when executing the workflow. If not
-    # specified, the token applicant's button ID is returned.
+    # 用户 ID，执行工作流时通过 ext 字段指定的 user_id。如果未指定，则返回 Token 申请人的扣子 ID。
     connector_uid: str
-    # How the workflow runs:
-    #   0: Synchronous operation.
-    #   1: Streaming operation.
-    #   2: Asynchronous operation.
+    # 工作流的运行方式：0：同步运行。1：流式运行。2：异步运行。
     run_mode: WorkflowRunMode
-    # The Log ID of the asynchronously running workflow. If the workflow is executed abnormally,
-    # you can contact the service team to troubleshoot the problem through the Log ID.
+    # 工作流异步运行的 Log ID。如果工作流执行异常，可以联系服务团队通过 Log ID 排查问题。
     logid: str
-    # The start time of the workflow, in Unix time timestamp format, in seconds.
+    # 工作流运行开始时间，Unixtime 时间戳格式，单位为秒。
     create_time: int
-    # The workflow resume running time, in Unix time timestamp format, in seconds.
+    # 工作流的恢复运行时间，Unixtime 时间戳格式，单位为秒。
     update_time: int
-    # The output of the workflow is usually a JSON serialized string, but it may also be a
-    # non-JSON structured string.
+    # 工作流的输出，通常为 JSON 序列化字符串，也有可能是非 JSON 结构的字符串。
     output: str
-    # Status code. 0 represents a successful API call. Other values indicate that the call has failed. You can
-    # determine the detailed reason for the error through the error_message field.
+    # 执行失败调用状态码。0 表示调用成功。其他值表示调用失败。你可以通过 error_message 字段判断详细的错误原因。
     error_code: int
-    # Status message. You can get detailed error information when the API call fails.
+    # 状态信息。为 API 调用失败时可通过此字段查看详细错误信息。
     error_message: Optional[str] = ""
-    # Workflow trial run debugging page. Visit this page to view the running results, input
-    # and output information of each workflow node.
+    # 工作流试运行调试页面。访问此页面可查看每个工作流节点的运行结果、输入输出等信息。
     debug_url: str
     node_execute_status: Optional[Dict[str, WorkflowRunHistoryNodeExecuteStatus]] = None
     # 资源使用情况，包含本次 API 调用消耗的 Token 数量等信息。
     # 此处大模型返回的消耗 Token 仅供参考，以火山引擎账单实际为准。
     usage: Optional[ChatUsage] = None
-    # 标识工作流的输出内容是否因过大而不完整。
+    # 工作流的输出是否因为过大被清理。true：已清理。false：未清理。
     is_output_trimmed: bool
 
     @field_validator("error_code", mode="before")
@@ -119,13 +107,12 @@ class WorkflowsRunsRunHistoriesClient(object):
 
     def retrieve(self, *, execute_id: str, workflow_id: str, **kwargs) -> WorkflowRunHistory:
         """
-        After the workflow runs async, retrieve the execution results.
+        查询工作流异步执行结果
 
-        docs cn: https://www.coze.cn/docs/developer_guides/workflow_history
+        工作流异步运行后，查看执行结果。 接口说明 调用 执行工作流 或 恢复运行工作流 API 时，如果选择异步运行工作流，响应信息中会返回 execute_id，开发者可以通过本 API 查询指定事件的执行结果。 限制说明 本 API 的流控限制请参见 API 介绍 。 工作流的 输出节点 的输出数据最多保存 24 小时， 结束节点 为 7 天。 输出节点的输出内容超过 1MB 时，无法保证返回内容的完整性。
 
-        :param workflow_id: The ID of the workflow.
-        :param execute_id: The ID of the workflow async execute.
-        :return: The result of the workflow execution
+        :param execute_id: 工作流执行 ID。调用接口[执行工作流](https://www.coze.cn/docs/developer_guides/workflow_run)，如果选择异步执行工作流，响应信息中会返回 execute_id。
+        :param workflow_id: 待执行的 Workflow ID，此工作流应已发布。 进入 Workflow 编排页面，在页面 URL 中，workflow 参数后的数字就是 Workflow ID。例如 https://www.coze.com/work_flow?space_id=42463***&workflow_id=73505836754923***，Workflow ID 为 73505836754923***。
         """
         url = f"{self._base_url}/v1/workflows/{workflow_id}/run_histories/{execute_id}"
         headers: Optional[dict] = kwargs.get("headers")
@@ -153,13 +140,12 @@ class AsyncWorkflowsRunsRunHistoriesClient(object):
 
     async def retrieve(self, *, execute_id: str, workflow_id: str, **kwargs) -> WorkflowRunHistory:
         """
-        After the workflow runs async, retrieve the execution results.
+        查询工作流异步执行结果
 
-        docs cn: https://www.coze.cn/docs/developer_guides/workflow_history
+        工作流异步运行后，查看执行结果。 接口说明 调用 执行工作流 或 恢复运行工作流 API 时，如果选择异步运行工作流，响应信息中会返回 execute_id，开发者可以通过本 API 查询指定事件的执行结果。 限制说明 本 API 的流控限制请参见 API 介绍 。 工作流的 输出节点 的输出数据最多保存 24 小时， 结束节点 为 7 天。 输出节点的输出内容超过 1MB 时，无法保证返回内容的完整性。
 
-        :param workflow_id: The ID of the workflow.
-        :param execute_id: The ID of the workflow async execute.
-        :return: The result of the workflow execution
+        :param execute_id: 工作流执行 ID。调用接口[执行工作流](https://www.coze.cn/docs/developer_guides/workflow_run)，如果选择异步执行工作流，响应信息中会返回 execute_id。
+        :param workflow_id: 待执行的 Workflow ID，此工作流应已发布。 进入 Workflow 编排页面，在页面 URL 中，workflow 参数后的数字就是 Workflow ID。例如 https://www.coze.com/work_flow?space_id=42463***&workflow_id=73505836754923***，Workflow ID 为 73505836754923***。
         """
         url = f"{self._base_url}/v1/workflows/{workflow_id}/run_histories/{execute_id}"
         headers: Optional[dict] = kwargs.get("headers")

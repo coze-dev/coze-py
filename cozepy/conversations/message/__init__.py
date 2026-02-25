@@ -50,19 +50,16 @@ class MessagesClient(object):
         **kwargs,
     ) -> Message:
         """
-        Create a message and add it to the specified conversation.
+        创建消息
 
-        docs en: https://www.coze.com/docs/developer_guides/create_message
-        docs cn: https://www.coze.cn/docs/developer_guides/create_message
+        创建一条消息，并将其添加到指定的会话中。
+        会话、对话和消息的概念说明，可参考[基础概念](https://www.coze.cn/docs/developer_guides/coze_api_overview#4a288f73)。
+        消息在服务端的保存时长为 180 天，到期后自动删除。你也可以调用[删除消息](https://www.coze.cn/docs/developer_guides/delete_message)接口，手动从会话中删除消息。
+        你可以通过[查看消息列表](https://www.coze.cn/open/docs/developer_guides/list_message)查询指定会话（conversation）中的所有消息。
 
-        :param conversation_id: The ID of the conversation.
-        :param role: The entity that sent this message.
-        :param content: The content of the message, supporting pure text, multimodal (mixed input of text, images,
-        files), cards, and various types of content.
-        :param content_type: The type of message content.
-        :param meta_data: Additional information when creating a message, and this additional information will also be
-        returned when retrieving messages.
-        :return:
+        :param conversation_id: Conversation ID，即会话的唯一标识。你可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 conversation_id 字段。
+        :param role: 已TODO 字段打平
+        :param content: 内容
         """
         url = f"{self._base_url}/v1/conversation/message/create"
         params = {
@@ -86,14 +83,12 @@ class MessagesClient(object):
         **kwargs,
     ) -> Message:
         """
-        Get the detailed information of specified message.
+        查看消息详情
 
-        docs en: https://www.coze.com/docs/developer_guides/retrieve_message
-        docs zh: https://www.coze.cn/docs/developer_guides/retrieve_message
+        查看指定消息的详细信息。
 
-        :param conversation_id: The ID of the conversation.
-        :param message_id: The ID of the message.
-        :return: The detailed information of specified message.
+        :param conversation_id: Conversation ID，即会话的唯一标识。你可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 conversation_id 字段的值。
+        :param message_id: Message ID，即消息的唯一标识。
         """
         url = f"{self._base_url}/v1/conversation/message/retrieve"
         params = {
@@ -115,18 +110,13 @@ class MessagesClient(object):
         **kwargs,
     ) -> Message:
         """
-        Modify a message, supporting the modification of message content, additional content, and message type.
+        修改消息
 
-        docs en: https://www.coze.com/docs/developer_guides/modify_message
-        docs cn: https://www.coze.cn/docs/developer_guides/modify_message
+        修改一条消息，支持修改消息内容、附加内容和消息类型。
 
-        :param conversation_id: The ID of the conversation.
-        :param message_id: The ID of the message.
-        :param content: The content of the message, supporting pure text, multimodal (mixed input of text, images,
-        files), cards, and various types of content.
-        :param content_type: The type of message content.
-        :param meta_data:
-        :return: The detailed information of specified message.
+        :param conversation_id: Conversation ID，即会话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 conversation_id 字段。
+        :param message_id: Message ID，即消息的唯一标识。
+        :param content: 内容
         """
         url = f"{self._base_url}/v1/conversation/message/modify"
         params = {
@@ -152,14 +142,12 @@ class MessagesClient(object):
         **kwargs,
     ) -> Message:
         """
-        Call the API to delete a message within a specified conversation.
+        删除消息
 
-        docs en: https://www.coze.com/docs/developer_guides/delete_message
-        docs zh: https://www.coze.cn/docs/developer_guides/delete_message
+        调用接口在指定会话中删除消息。 暂不支持批量操作，需要逐条删除。 删除指定 message id 对应的消息。如果消息 type=answer，会同步删除与之相关的 verbose、function_call 等中间态消息，但不支持仅删除某一条中间态消息。 删除消息后，无法通过 查看消息列表 或 查看对话消息详情 接口查看已删除的这些消息。
 
-        :param conversation_id:
-        :param message_id:
-        :return:
+        :param conversation_id: 待删除的消息所属的会话 ID。
+        :param message_id: 待删除的消息 ID，你可以选择删除会话中的 question 消息和 answer 消息。 * 待删除消息必须属于 conversation_id 指定的会话。 * 仅支持删除 type=answer 或 question 的消息，不支持单独删除 function_call 等中间态消息。当删除 type=answer 的消息时，系统会同步删除与之关联的 function_call 等中间态消息。
         """
         url = f"{self._base_url}/v1/conversation/message/delete"
         params = {
@@ -253,19 +241,16 @@ class AsyncMessagesClient(object):
         **kwargs,
     ) -> Message:
         """
-        Create a message and add it to the specified conversation.
+        创建消息
 
-        docs en: https://www.coze.com/docs/developer_guides/create_message
-        docs cn: https://www.coze.cn/docs/developer_guides/create_message
+        创建一条消息，并将其添加到指定的会话中。
+        会话、对话和消息的概念说明，可参考[基础概念](https://www.coze.cn/docs/developer_guides/coze_api_overview#4a288f73)。
+        消息在服务端的保存时长为 180 天，到期后自动删除。你也可以调用[删除消息](https://www.coze.cn/docs/developer_guides/delete_message)接口，手动从会话中删除消息。
+        你可以通过[查看消息列表](https://www.coze.cn/open/docs/developer_guides/list_message)查询指定会话（conversation）中的所有消息。
 
-        :param conversation_id: The ID of the conversation.
-        :param role: The entity that sent this message.
-        :param content: The content of the message, supporting pure text, multimodal (mixed input of text, images,
-        files), cards, and various types of content.
-        :param content_type: The type of message content.
-        :param meta_data: Additional information when creating a message, and this additional information will also be
-        returned when retrieving messages.
-        :return:
+        :param conversation_id: Conversation ID，即会话的唯一标识。你可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 conversation_id 字段。
+        :param role: 已TODO 字段打平
+        :param content: 内容
         """
         url = f"{self._base_url}/v1/conversation/message/create"
         params = {
@@ -291,14 +276,12 @@ class AsyncMessagesClient(object):
         **kwargs,
     ) -> Message:
         """
-        Get the detailed information of specified message.
+        查看消息详情
 
-        docs en: https://www.coze.com/docs/developer_guides/retrieve_message
-        docs zh: https://www.coze.cn/docs/developer_guides/retrieve_message
+        查看指定消息的详细信息。
 
-        :param conversation_id: The ID of the conversation.
-        :param message_id: The ID of the message.
-        :return: The detailed information of specified message.
+        :param conversation_id: Conversation ID，即会话的唯一标识。你可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 conversation_id 字段的值。
+        :param message_id: Message ID，即消息的唯一标识。
         """
         url = f"{self._base_url}/v1/conversation/message/retrieve"
         params = {
@@ -320,18 +303,13 @@ class AsyncMessagesClient(object):
         **kwargs,
     ) -> Message:
         """
-        Modify a message, supporting the modification of message content, additional content, and message type.
+        修改消息
 
-        docs en: https://www.coze.com/docs/developer_guides/modify_message
-        docs cn: https://www.coze.cn/docs/developer_guides/modify_message
+        修改一条消息，支持修改消息内容、附加内容和消息类型。
 
-        :param conversation_id: The ID of the conversation.
-        :param message_id: The ID of the message.
-        :param content: The content of the message, supporting pure text, multimodal (mixed input of text, images,
-        files), cards, and various types of content.
-        :param content_type: The type of message content.
-        :param meta_data:
-        :return: The detailed information of specified message.
+        :param conversation_id: Conversation ID，即会话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 conversation_id 字段。
+        :param message_id: Message ID，即消息的唯一标识。
+        :param content: 内容
         """
         url = f"{self._base_url}/v1/conversation/message/modify"
         params = {
@@ -357,14 +335,12 @@ class AsyncMessagesClient(object):
         **kwargs,
     ) -> Message:
         """
-        Call the API to delete a message within a specified conversation.
+        删除消息
 
-        docs en: https://www.coze.com/docs/developer_guides/delete_message
-        docs zh: https://www.coze.cn/docs/developer_guides/delete_message
+        调用接口在指定会话中删除消息。 暂不支持批量操作，需要逐条删除。 删除指定 message id 对应的消息。如果消息 type=answer，会同步删除与之相关的 verbose、function_call 等中间态消息，但不支持仅删除某一条中间态消息。 删除消息后，无法通过 查看消息列表 或 查看对话消息详情 接口查看已删除的这些消息。
 
-        :param conversation_id:
-        :param message_id:
-        :return:
+        :param conversation_id: 待删除的消息所属的会话 ID。
+        :param message_id: 待删除的消息 ID，你可以选择删除会话中的 question 消息和 answer 消息。 * 待删除消息必须属于 conversation_id 指定的会话。 * 仅支持删除 type=answer 或 question 的消息，不支持单独删除 function_call 等中间态消息。当删除 type=answer 的消息时，系统会同步删除与之关联的 function_call 等中间态消息。
         """
         url = f"{self._base_url}/v1/conversation/message/delete"
         params = {
