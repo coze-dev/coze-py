@@ -178,8 +178,11 @@ from .config import (
 )
 from .connectors import (
     AsyncConnectorsClient,
+    BindConnectorUserConfigResp,
     ConnectorsClient,
     InstallConnectorResp,
+    UserConfig,
+    UserConfigEnum,
 )
 from .connectors.bots import (
     AsyncConnectorsBotsClient,
@@ -561,6 +564,7 @@ __all__ = [
     "AuditStatus",
     "Auth",
     "BackgroundImageInfo",
+    "BindConnectorUserConfigResp",
     "Bot",
     "BotBackgroundImageInfo",
     "BotKnowledge",
@@ -781,6 +785,8 @@ __all__ = [
     "UpdateVoicePrintGroupFeatureResp",
     "UpdateVoicePrintGroupResp",
     "User",
+    "UserConfig",
+    "UserConfigEnum",
     "UserInfo",
     "UserInputType",
     "UsersClient",
