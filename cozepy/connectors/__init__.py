@@ -1,5 +1,10 @@
+from typing import TYPE_CHECKING, Optional
+
 from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
+
+if TYPE_CHECKING:
+    from .bots import AsyncConnectorsBotsClient, ConnectorsBotsClient
 
 
 class ConnectorsClient(object):
@@ -12,10 +17,10 @@ class ConnectorsClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
-        self._bots = None
+        self._bots: Optional[ConnectorsBotsClient] = None
 
     @property
-    def bots(self):
+    def bots(self) -> "ConnectorsBotsClient":
         """
         渠道Bot客户端
         """
@@ -36,10 +41,10 @@ class AsyncConnectorsClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
-        self._bots = None
+        self._bots: Optional[AsyncConnectorsBotsClient] = None
 
     @property
-    def bots(self):
+    def bots(self) -> "AsyncConnectorsBotsClient":
         """
         异步渠道Bot客户端
         """
