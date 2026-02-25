@@ -61,10 +61,10 @@ class VoiceprintGroupsFeaturesClient(object):
         *,
         group_id: str,
         name: str,
-        file: FileTypes,
         desc: Optional[str] = None,
         sample_rate: Optional[int] = None,
         channel: Optional[int] = None,
+        file: FileTypes,
         **kwargs,
     ) -> CreateVoicePrintGroupFeatureResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features"
@@ -90,9 +90,9 @@ class VoiceprintGroupsFeaturesClient(object):
         feature_id: str,
         name: Optional[str] = None,
         desc: Optional[str] = None,
-        file: Optional[FileTypes] = None,
         sample_rate: Optional[int] = None,
         channel: Optional[int] = None,
+        file: Optional[FileTypes] = None,
         **kwargs,
     ) -> UpdateVoicePrintGroupFeatureResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features/{feature_id}"
@@ -166,10 +166,10 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
         *,
         group_id: str,
         name: str,
-        file: FileTypes,
         desc: Optional[str] = None,
         sample_rate: Optional[int] = None,
         channel: Optional[int] = None,
+        file: FileTypes,
         **kwargs,
     ) -> CreateVoicePrintGroupFeatureResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features"
@@ -195,9 +195,9 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
         feature_id: str,
         name: Optional[str] = None,
         desc: Optional[str] = None,
-        file: Optional[FileTypes] = None,
         sample_rate: Optional[int] = None,
         channel: Optional[int] = None,
+        file: Optional[FileTypes] = None,
         **kwargs,
     ) -> UpdateVoicePrintGroupFeatureResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features/{feature_id}"

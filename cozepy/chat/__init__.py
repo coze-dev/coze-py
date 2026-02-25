@@ -437,9 +437,9 @@ class ChatClient(object):
     def create(
         self,
         *,
+        conversation_id: Optional[str] = None,
         bot_id: str,
         user_id: str,
-        conversation_id: Optional[str] = None,
         additional_messages: Optional[List[Message]] = None,
         custom_variables: Optional[Dict[str, str]] = None,
         auto_save_history: bool = True,
@@ -480,15 +480,15 @@ class ChatClient(object):
     def stream(
         self,
         *,
+        conversation_id: Optional[str] = None,
         bot_id: str,
         user_id: str,
         additional_messages: Optional[List[Message]] = None,
         custom_variables: Optional[Dict[str, str]] = None,
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
-        conversation_id: Optional[str] = None,
-        parameters: Optional[Dict[str, Any]] = None,
         enable_card: Optional[bool] = None,
+        parameters: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> Stream[ChatEvent]:
         """
@@ -798,9 +798,9 @@ class AsyncChatClient(object):
     async def create(
         self,
         *,
+        conversation_id: Optional[str] = None,
         bot_id: str,
         user_id: str,
-        conversation_id: Optional[str] = None,
         additional_messages: Optional[List[Message]] = None,
         custom_variables: Optional[Dict[str, str]] = None,
         auto_save_history: bool = True,
@@ -841,15 +841,15 @@ class AsyncChatClient(object):
     async def stream(
         self,
         *,
+        conversation_id: Optional[str] = None,
         bot_id: str,
         user_id: str,
         additional_messages: Optional[List[Message]] = None,
         custom_variables: Optional[Dict[str, str]] = None,
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
-        conversation_id: Optional[str] = None,
-        parameters: Optional[Dict[str, Any]] = None,
         enable_card: Optional[bool] = None,
+        parameters: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> AsyncIterator[ChatEvent]:
         """

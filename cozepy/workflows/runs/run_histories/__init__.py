@@ -132,7 +132,7 @@ class WorkflowsRunsRunHistoriesClient(object):
             )
         return self._execute_nodes
 
-    def retrieve(self, *, workflow_id: str, execute_id: str, **kwargs) -> WorkflowRunHistory:
+    def retrieve(self, *, execute_id: str, workflow_id: str, **kwargs) -> WorkflowRunHistory:
         """
         After the workflow runs async, retrieve the execution results.
 
@@ -166,7 +166,7 @@ class AsyncWorkflowsRunsRunHistoriesClient(object):
             )
         return self._execute_nodes
 
-    async def retrieve(self, *, workflow_id: str, execute_id: str, **kwargs) -> WorkflowRunHistory:
+    async def retrieve(self, *, execute_id: str, workflow_id: str, **kwargs) -> WorkflowRunHistory:
         """
         After the workflow runs async, retrieve the execution results.
 
