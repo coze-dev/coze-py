@@ -9,6 +9,7 @@ from .versions import WorkflowUserInfo
 
 if TYPE_CHECKING:
     from .chat import AsyncWorkflowsChatClient, WorkflowsChatClient
+    from .collaborators import AsyncWorkflowsCollaboratorsClient, WorkflowsCollaboratorsClient
     from .runs import AsyncWorkflowsRunsClient, WorkflowsRunsClient
     from .versions import AsyncWorkflowsVersionsClient, WorkflowsVersionsClient
 
@@ -62,6 +63,7 @@ class WorkflowsClient(object):
         self._requester = requester
         self._runs: Optional[WorkflowsRunsClient] = None
         self._chat: Optional[WorkflowsChatClient] = None
+        self._collaborators: Optional[WorkflowsCollaboratorsClient] = None
         self._versions: Optional[WorkflowsVersionsClient] = None
 
     @property
@@ -79,6 +81,14 @@ class WorkflowsClient(object):
 
             self._chat = WorkflowsChatClient(self._base_url, self._requester)
         return self._chat
+
+    @property
+    def collaborators(self) -> "WorkflowsCollaboratorsClient":
+        if not self._collaborators:
+            from .collaborators import WorkflowsCollaboratorsClient
+
+            self._collaborators = WorkflowsCollaboratorsClient(self._base_url, self._requester)
+        return self._collaborators
 
     @property
     def versions(self) -> "WorkflowsVersionsClient":
@@ -152,6 +162,7 @@ class AsyncWorkflowsClient(object):
         self._requester = requester
         self._runs: Optional[AsyncWorkflowsRunsClient] = None
         self._chat: Optional[AsyncWorkflowsChatClient] = None
+        self._collaborators: Optional[AsyncWorkflowsCollaboratorsClient] = None
         self._versions: Optional[AsyncWorkflowsVersionsClient] = None
 
     @property
@@ -169,6 +180,14 @@ class AsyncWorkflowsClient(object):
 
             self._chat = AsyncWorkflowsChatClient(self._base_url, self._requester)
         return self._chat
+
+    @property
+    def collaborators(self) -> "AsyncWorkflowsCollaboratorsClient":
+        if not self._collaborators:
+            from .collaborators import AsyncWorkflowsCollaboratorsClient
+
+            self._collaborators = AsyncWorkflowsCollaboratorsClient(self._base_url, self._requester)
+        return self._collaborators
 
     @property
     def versions(self) -> "AsyncWorkflowsVersionsClient":
