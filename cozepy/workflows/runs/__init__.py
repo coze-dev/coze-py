@@ -144,7 +144,7 @@ class WorkflowsRunsClient(object):
         if not self._run_histories:
             from .run_histories import WorkflowsRunsRunHistoriesClient
 
-            self._run_histories = WorkflowsRunsRunHistoriesClient(self._base_url, self._requester)
+            self._run_histories = WorkflowsRunsRunHistoriesClient(base_url=self._base_url, requester=self._requester)
         return self._run_histories
 
     def stream(
@@ -282,7 +282,9 @@ class AsyncWorkflowsRunsClient(object):
         if not self._run_histories:
             from .run_histories import AsyncWorkflowsRunsRunHistoriesClient
 
-            self._run_histories = AsyncWorkflowsRunsRunHistoriesClient(self._base_url, self._requester)
+            self._run_histories = AsyncWorkflowsRunsRunHistoriesClient(
+                base_url=self._base_url, requester=self._requester
+            )
         return self._run_histories
 
     async def stream(

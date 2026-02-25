@@ -55,7 +55,7 @@ class ConversationsClient(object):
         if not self._messages:
             from .message import MessagesClient
 
-            self._messages = MessagesClient(self._base_url, self._requester)
+            self._messages = MessagesClient(base_url=self._base_url, requester=self._requester)
         return self._messages
 
     def create(
@@ -198,7 +198,7 @@ class AsyncConversationsClient(object):
         if not self._messages:
             from .message import AsyncMessagesClient
 
-            self._messages = AsyncMessagesClient(self._base_url, self._requester)
+            self._messages = AsyncMessagesClient(base_url=self._base_url, requester=self._requester)
         return self._messages
 
     async def create(

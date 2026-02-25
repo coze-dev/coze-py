@@ -57,7 +57,7 @@ class APIAppsClient(object):
         if not self._events:
             from .events import APIAppsEventsClient
 
-            self._events = APIAppsEventsClient(self._base_url, self._requester)
+            self._events = APIAppsEventsClient(base_url=self._base_url, requester=self._requester)
         return self._events
 
     def create(
@@ -169,7 +169,7 @@ class AsyncAPIAppsClient(object):
         if not self._events:
             from .events import AsyncAPIAppsEventsClient
 
-            self._events = AsyncAPIAppsEventsClient(self._base_url, self._requester)
+            self._events = AsyncAPIAppsEventsClient(base_url=self._base_url, requester=self._requester)
         return self._events
 
     async def create(
