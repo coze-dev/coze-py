@@ -57,8 +57,8 @@ class AppsClient(object):
         workspace_id: str,
         publish_status: Optional[PublishStatus] = None,
         connector_id: Optional[str] = None,
-        page_num: int = 1,
         page_size: int = 20,
+        page_num: int = 1,
         **kwargs,
     ) -> NumberPaged[SimpleApp]:
         """
@@ -121,8 +121,8 @@ class AsyncAppsClient(object):
         workspace_id: str,
         publish_status: Optional[PublishStatus] = None,
         connector_id: Optional[str] = None,
-        page_num: int = 1,
         page_size: int = 20,
+        page_num: int = 1,
         **kwargs,
     ) -> AsyncNumberPaged[SimpleApp]:
         """

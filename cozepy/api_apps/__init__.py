@@ -128,8 +128,8 @@ class APIAppsClient(object):
     def list(
         self,
         *,
-        app_type: Optional[AppType] = None,
         page_token: str = "",
+        app_type: Optional[AppType] = None,
         page_size: int = 20,
         **kwargs,
     ) -> TokenPaged[APIApp]:
@@ -242,8 +242,8 @@ class AsyncAPIAppsClient(object):
     async def list(
         self,
         *,
-        app_type: Optional[AppType] = None,
         page_token: str = "",
+        app_type: Optional[AppType] = None,
         page_size: int = 20,
         **kwargs,
     ) -> AsyncTokenPaged[APIApp]:

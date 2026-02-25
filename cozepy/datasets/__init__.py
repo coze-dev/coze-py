@@ -232,8 +232,8 @@ class DatasetsClient(object):
         space_id: str,
         name: Optional[str] = None,
         format_type: Optional[DocumentFormatType] = None,
-        page_num: int = 1,
         page_size: int = 10,
+        page_num: int = 1,
         **kwargs,
     ) -> NumberPaged[Dataset]:
         """
@@ -427,8 +427,8 @@ class AsyncDatasetsClient(object):
         space_id: str,
         name: Optional[str] = None,
         format_type: Optional[DocumentFormatType] = None,
-        page_num: int = 1,
         page_size: int = 10,
+        page_num: int = 1,
         **kwargs,
     ) -> AsyncNumberPaged[Dataset]:
         """
