@@ -18,6 +18,18 @@ class VoiceModelType(DynamicStrEnum):
     SMALL = "small"  # 小模型音色
 
 
+class VoiceEmotionInfoInterval(CozeModel):
+    default: Optional[float] = None
+    max: Optional[float] = None
+    min: Optional[float] = None
+
+
+class VoiceEmotionInfo(CozeModel):
+    display_name: Optional[str] = None
+    emotion: Optional[str] = None
+    emotion_scale_interval: Optional[VoiceEmotionInfoInterval] = None
+
+
 class Voice(CozeModel):
     # The id of voice
     voice_id: str
@@ -43,6 +55,7 @@ class Voice(CozeModel):
     model_type: VoiceModelType
     # Voice state
     state: VoiceState
+    support_emotions: Optional[List[VoiceEmotionInfo]] = None
 
 
 class _PrivateListVoiceData(CozeModel, NumberPagedResponse[Voice]):
