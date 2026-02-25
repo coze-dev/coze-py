@@ -1,89 +1,59 @@
 from .api_apps import (
     APIApp,
-    APIAppsClient,
     AppType,
-    AsyncAPIAppsClient,
     DeleteAPIAppsResp,
     UpdateAPIAppsResp,
 )
 from .api_apps.events import (
     APIAppEvent,
-    APIAppsEventsClient,
-    AsyncAPIAppsEventsClient,
     CreateAPIAppsEventsResp,
     DeleteAPIAppsEventsResp,
     UpdateAPIAppsEventsResp,
 )
-from .apps import (
-    AppsClient,
-    AsyncAppsClient,
-    SimpleApp,
-)
+from .apps import SimpleApp
 from .apps.collaborators import (
     AddAppCollaboratorResp,
     AppCollaborator,
-    AppsCollaboratorsClient,
-    AsyncAppsCollaboratorsClient,
     RemoveAppCollaboratorResp,
 )
-from .audio import (
-    AsyncAudioClient,
-    AudioClient,
-)
 from .audio.live import (
-    AsyncLiveClient,
-    LiveClient,
     LiveInfo,
     LiveType,
     StreamInfo,
 )
 from .audio.rooms import (
-    AsyncRoomsClient,
     CreateRoomResp,
     RoomAudioConfig,
     RoomConfig,
     RoomMode,
-    RoomsClient,
     RoomVideoConfig,
     TranslateConfig,
 )
 from .audio.speech import (
-    AsyncSpeechClient,
     AudioFormat,
     LanguageCode,
-    SpeechClient,
 )
-from .audio.transcriptions import (
-    AsyncTranscriptionsClient,
-    CreateTranscriptionsResp,
-    TranscriptionsClient,
-)
+from .audio.transcriptions import CreateTranscriptionsResp
 from .audio.voiceprint_groups import (
-    AsyncVoiceprintGroupsClient,
     CreateVoicePrintGroupResp,
     DeleteVoicePrintGroupResp,
     FeatureScore,
     SpeakerIdentifyResp,
     UpdateVoicePrintGroupResp,
     VoicePrintGroup,
-    VoiceprintGroupsClient,
 )
 from .audio.voiceprint_groups.features import (
-    AsyncVoiceprintGroupsFeaturesClient,
     CreateVoicePrintGroupFeatureResp,
     DeleteVoicePrintGroupFeatureResp,
     UpdateVoicePrintGroupFeatureResp,
     UserInfo,
     VoicePrintGroupFeature,
-    VoiceprintGroupsFeaturesClient,
 )
 from .audio.voices import (
-    AsyncVoicesClient,
     Voice,
     VoiceEmotionInfo,
     VoiceEmotionInfoInterval,
     VoiceModelType,
-    VoicesClient,
     VoiceState,
 )
 from .auth import (
@@ -112,7 +82,6 @@ from .auth import (
     load_oauth_app_from_config,
 )
 from .bots import (
-    AsyncBotsClient,
     BackgroundImageInfo,
     Bot,
     BotBackgroundImageInfo,
@@ -123,7 +92,6 @@ from .bots import (
     BotPluginAPIInfo,
     BotPluginInfo,
     BotPromptInfo,
-    BotsClient,
     BotSuggestReplyInfo,
     BotVariable,
     BotVoiceInfo,
@@ -142,9 +110,7 @@ from .bots import (
     WorkflowIDList,
 )
 from .chat import (
-    AsyncChatClient,
     Chat,
-    ChatClient,
     ChatError,
     ChatEvent,
     ChatEventType,
@@ -166,41 +132,23 @@ from .chat import (
     MessageType,
     ToolOutput,
 )
-from .chat.message import (
-    AsyncChatMessagesClient,
-    ChatMessagesClient,
-)
 from .config import (
     COZE_CN_BASE_URL,
     COZE_COM_BASE_URL,
     DEFAULT_CONNECTION_LIMITS,
     DEFAULT_TIMEOUT,
 )
-from .connectors import (
-    AsyncConnectorsClient,
-    ConnectorsClient,
-    InstallConnectorResp,
-)
+from .connectors import InstallConnectorResp
 from .connectors.bots import (
-    AsyncConnectorsBotsClient,
     AuditStatus,
-    ConnectorsBotsClient,
     UpdateConnectorBotResp,
 )
 from .conversations import (
-    AsyncConversationsClient,
     Conversation,
-    ConversationsClient,
     DeleteConversationResp,
     Section,
 )
-from .conversations.message import (
-    AsyncMessagesClient,
-    MessagesClient,
-)
 from .conversations.message.feedback import (
-    AsyncMessagesFeedbackClient,
-    ConversationsMessagesFeedbackClient,
     CreateConversationMessageFeedbackResp,
     DeleteConversationMessageFeedbackResp,
     FeedbackType,
@@ -210,18 +158,14 @@ from .coze import (
     Coze,
 )
 from .datasets import (
-    AsyncDatasetsClient,
     CreateDatasetResp,
     Dataset,
-    DatasetsClient,
     DatasetStatus,
     DeleteDatasetRes,
     DocumentProgress,
     UpdateDatasetRes,
 )
 from .datasets.documents import (
-    AsyncDatasetsDocumentsClient,
-    DatasetsDocumentsClient,
     DeleteDocumentRes,
     Document,
     DocumentBase,
@@ -235,23 +179,15 @@ from .datasets.documents import (
     UpdateDocumentRes,
 )
 from .datasets.images import (
-    AsyncDatasetsImagesClient,
-    DatasetsImagesClient,
     Photo,
     PhotoStatus,
     UpdateImageRes,
 )
-from .enterprises import (
-    AsyncEnterprisesClient,
-    EnterprisesClient,
-)
 from .enterprises.members import (
-    AsyncEnterprisesMembersClient,
     CreateEnterpriseMemberResp,
     DeleteEnterpriseMemberResp,
     EnterpriseMember,
     EnterpriseMemberRole,
-    EnterprisesMembersClient,
     UpdateEnterpriseMemberResp,
 )
 from .exception import (
@@ -261,24 +197,10 @@ from .exception import (
     CozePKCEAuthError,
     CozePKCEAuthErrorType,
 )
-from .files import (
-    AsyncFilesClient,
-    File,
-    FilesClient,
-)
+from .files import File
 from .folders import (
-    AsyncFoldersClient,
-    FoldersClient,
     FolderType,
     SimpleFolder,
-)
-from .knowledge import (
-    AsyncKnowledgeClient,
-    KnowledgeClient,
-)
-from .knowledge.documents import (
-    AsyncDocumentsClient,
-    DocumentsClient,
 )
 from .log import setup_logging
 from .model import (
@@ -304,40 +226,18 @@ from .model import (
     TokenPaged,
     TokenPagedResponse,
 )
-from .request import (
-    AsyncHTTPClient,
-    Requester,
-    SyncHTTPClient,
-)
+from .request import Requester
 from .templates import (
-    AsyncTemplatesClient,
     TemplateDuplicateResp,
     TemplateEntityType,
-    TemplatesClient,
 )
-from .users import (
-    AsyncUsersClient,
-    User,
-    UsersClient,
-)
+from .users import User
 from .variables import (
-    AsyncVariablesClient,
     UpdateVariableResp,
-    VariablesClient,
     VariableValue,
 )
 from .version import VERSION
-from .websockets import (
-    AsyncWebsocketsClient,
-    WebsocketsClient,
-)
-from .websockets.audio import (
-    AsyncWebsocketsAudioClient,
-    WebsocketsAudioClient,
-)
 from .websockets.audio.speech import (
-    AsyncWebsocketsAudioSpeechBuildClient,
-    AsyncWebsocketsAudioSpeechClient,
     AsyncWebsocketsAudioSpeechEventHandler,
     InputTextBufferAppendEvent,
     InputTextBufferCompletedEvent,
@@ -347,13 +247,9 @@ from .websockets.audio.speech import (
     SpeechCreatedEvent,
     SpeechUpdatedEvent,
     SpeechUpdateEvent,
-    WebsocketsAudioSpeechBuildClient,
-    WebsocketsAudioSpeechClient,
     WebsocketsAudioSpeechEventHandler,
 )
 from .websockets.audio.transcriptions import (
-    AsyncWebsocketsAudioTranscriptionsBuildClient,
-    AsyncWebsocketsAudioTranscriptionsClient,
     AsyncWebsocketsAudioTranscriptionsEventHandler,
     InputAudioBufferAppendEvent,
     InputAudioBufferClearedEvent,
@@ -365,13 +261,9 @@ from .websockets.audio.transcriptions import (
     TranscriptionsMessageUpdateEvent,
     TranscriptionsUpdatedEvent,
     TranscriptionsUpdateEvent,
-    WebsocketsAudioTranscriptionsBuildClient,
-    WebsocketsAudioTranscriptionsClient,
     WebsocketsAudioTranscriptionsEventHandler,
 )
 from .websockets.chat import (
-    AsyncWebsocketsChatBuildClient,
-    AsyncWebsocketsChatClient,
     AsyncWebsocketsChatEventHandler,
     ChatCreatedEvent,
     ChatUpdatedEvent,
@@ -397,19 +289,15 @@ from .websockets.chat import (
     InputAudioBufferSpeechStartedEvent,
     InputAudioBufferSpeechStoppedEvent,
     InputTextGenerateAudioEvent,
-    WebsocketsChatBuildClient,
-    WebsocketsChatClient,
     WebsocketsChatEventHandler,
 )
 from .websockets.ws import (
-    AsyncWebsocketsBaseClient,
     AsyncWebsocketsBaseEventHandler,
     InputAudio,
     LimitConfig,
     OpusConfig,
     OutputAudio,
     PCMConfig,
-    WebsocketsBaseClient,
     WebsocketsBaseEventHandler,
     WebsocketsErrorEvent,
     WebsocketsEvent,
@@ -417,23 +305,12 @@ from .websockets.ws import (
     WebsocketsEventType,
 )
 from .workflows import (
-    AsyncWorkflowsClient,
     WorkflowBasic,
     WorkflowInfo,
     WorkflowMode,
-    WorkflowsClient,
 )
-from .workflows.chat import (
-    AsyncWorkflowsChatClient,
-    WorkflowsChatClient,
-)
-from .workflows.collaborators import (
-    AsyncWorkflowsCollaboratorsClient,
-    RemoveWorkflowCollaboratorResp,
-    WorkflowsCollaboratorsClient,
-)
+from .workflows.collaborators import RemoveWorkflowCollaboratorResp
 from .workflows.runs import (
-    AsyncWorkflowsRunsClient,
     WorkflowEvent,
     WorkflowEventError,
     WorkflowEventInterrupt,
@@ -441,122 +318,53 @@ from .workflows.runs import (
     WorkflowEventMessage,
     WorkflowEventType,
     WorkflowRunResult,
-    WorkflowsRunsClient,
 )
 from .workflows.runs.run_histories import (
-    AsyncWorkflowsRunsRunHistoriesClient,
     WorkflowExecuteStatus,
     WorkflowRunHistory,
     WorkflowRunHistoryNodeExecuteStatus,
     WorkflowRunMode,
-    WorkflowsRunsRunHistoriesClient,
 )
-from .workflows.runs.run_histories.execute_nodes import (
-    AsyncWorkflowsRunsRunHistoriesExecuteNodesClient,
-    WorkflowNodeExecuteHistory,
-    WorkflowsRunsRunHistoriesExecuteNodesClient,
-)
+from .workflows.runs.run_histories.execute_nodes import WorkflowNodeExecuteHistory
 from .workflows.versions import (
-    AsyncWorkflowsVersionsClient,
-    WorkflowsVersionsClient,
     WorkflowUserInfo,
     WorkflowVersionInfo,
 )
 from .workspaces import (
-    AsyncWorkspacesClient,
     Workspace,
     WorkspaceRoleType,
-    WorkspacesClient,
     WorkspaceType,
 )
 from .workspaces.members import (
-    AsyncWorkspacesMembersClient,
     CreateWorkspaceMemberResp,
     DeleteWorkspaceMemberResp,
     WorkspaceMember,
-    WorkspacesMembersClient,
 )
 
 __all__ = [
     "APIApp",
     "APIAppEvent",
-    "APIAppsClient",
-    "APIAppsEventsClient",
     "AddAppCollaboratorResp",
     "AppCollaborator",
     "AppType",
-    "AppsClient",
-    "AppsCollaboratorsClient",
-    "AsyncAPIAppsClient",
-    "AsyncAPIAppsEventsClient",
-    "AsyncAppsClient",
-    "AsyncAppsCollaboratorsClient",
-    "AsyncAudioClient",
     "AsyncAuth",
-    "AsyncBotsClient",
-    "AsyncChatClient",
-    "AsyncChatMessagesClient",
-    "AsyncConnectorsBotsClient",
-    "AsyncConnectorsClient",
-    "AsyncConversationsClient",
     "AsyncCoze",
-    "AsyncDatasetsClient",
-    "AsyncDatasetsDocumentsClient",
-    "AsyncDatasetsImagesClient",
     "AsyncDeviceOAuthApp",
-    "AsyncDocumentsClient",
-    "AsyncEnterprisesClient",
-    "AsyncEnterprisesMembersClient",
-    "AsyncFilesClient",
-    "AsyncFoldersClient",
-    "AsyncHTTPClient",
     "AsyncIteratorHTTPResponse",
     "AsyncJWTAuth",
     "AsyncJWTOAuthApp",
-    "AsyncKnowledgeClient",
     "AsyncLastIDPaged",
-    "AsyncLiveClient",
-    "AsyncMessagesClient",
-    "AsyncMessagesFeedbackClient",
     "AsyncNumberPaged",
     "AsyncPKCEOAuthApp",
     "AsyncPagedBase",
-    "AsyncRoomsClient",
-    "AsyncSpeechClient",
     "AsyncStream",
-    "AsyncTemplatesClient",
     "AsyncTokenAuth",
     "AsyncTokenPaged",
-    "AsyncTranscriptionsClient",
-    "AsyncUsersClient",
-    "AsyncVariablesClient",
-    "AsyncVoiceprintGroupsClient",
-    "AsyncVoiceprintGroupsFeaturesClient",
-    "AsyncVoicesClient",
     "AsyncWebOAuthApp",
-    "AsyncWebsocketsAudioClient",
-    "AsyncWebsocketsAudioSpeechBuildClient",
-    "AsyncWebsocketsAudioSpeechClient",
     "AsyncWebsocketsAudioSpeechEventHandler",
-    "AsyncWebsocketsAudioTranscriptionsBuildClient",
-    "AsyncWebsocketsAudioTranscriptionsClient",
     "AsyncWebsocketsAudioTranscriptionsEventHandler",
-    "AsyncWebsocketsBaseClient",
     "AsyncWebsocketsBaseEventHandler",
-    "AsyncWebsocketsChatBuildClient",
-    "AsyncWebsocketsChatClient",
     "AsyncWebsocketsChatEventHandler",
-    "AsyncWebsocketsClient",
-    "AsyncWorkflowsChatClient",
-    "AsyncWorkflowsClient",
-    "AsyncWorkflowsCollaboratorsClient",
-    "AsyncWorkflowsRunsClient",
-    "AsyncWorkflowsRunsRunHistoriesClient",
-    "AsyncWorkflowsRunsRunHistoriesExecuteNodesClient",
-    "AsyncWorkflowsVersionsClient",
-    "AsyncWorkspacesClient",
-    "AsyncWorkspacesMembersClient",
-    "AudioClient",
     "AudioFormat",
     "AuditStatus",
     "Auth",
@@ -574,17 +382,14 @@ __all__ = [
     "BotVariable",
     "BotVoiceInfo",
     "BotWorkflowInfo",
-    "BotsClient",
     "COZE_CN_BASE_URL",
     "COZE_COM_BASE_URL",
     "CanvasPosition",
     "Chat",
-    "ChatClient",
     "ChatCreatedEvent",
     "ChatError",
     "ChatEvent",
     "ChatEventType",
-    "ChatMessagesClient",
     "ChatPoll",
     "ChatRequiredAction",
     "ChatRequiredActionType",
@@ -596,8 +401,6 @@ __all__ = [
     "ChatUpdateEvent",
     "ChatUpdatedEvent",
     "ChatUsage",
-    "ConnectorsBotsClient",
-    "ConnectorsClient",
     "Conversation",
     "ConversationAudioCompletedEvent",
     "ConversationAudioDeltaEvent",
@@ -617,8 +420,6 @@ __all__ = [
     "ConversationMessageCompletedEvent",
     "ConversationMessageCreateEvent",
     "ConversationMessageDeltaEvent",
-    "ConversationsClient",
-    "ConversationsMessagesFeedbackClient",
     "Coze",
     "CozeAPIError",
     "CozeError",
@@ -639,9 +440,6 @@ __all__ = [
     "DEFAULT_TIMEOUT",
     "Dataset",
     "DatasetStatus",
-    "DatasetsClient",
-    "DatasetsDocumentsClient",
-    "DatasetsImagesClient",
     "DeleteAPIAppsEventsResp",
     "DeleteAPIAppsResp",
     "DeleteConversationMessageFeedbackResp",
@@ -664,19 +462,14 @@ __all__ = [
     "DocumentStatus",
     "DocumentUpdateRule",
     "DocumentUpdateType",
-    "DocumentsClient",
     "DynamicStrEnum",
     "EnterpriseMember",
     "EnterpriseMemberRole",
-    "EnterprisesClient",
-    "EnterprisesMembersClient",
     "FeatureScore",
     "FeedbackType",
     "File",
     "FileHTTPResponse",
-    "FilesClient",
     "FolderType",
-    "FoldersClient",
     "GradientPosition",
     "HTTPRequest",
     "HTTPResponse",
@@ -697,13 +490,11 @@ __all__ = [
     "IteratorHTTPResponse",
     "JWTAuth",
     "JWTOAuthApp",
-    "KnowledgeClient",
     "LanguageCode",
     "LastIDPaged",
     "LastIDPagedResponse",
     "LimitConfig",
     "ListResponse",
-    "LiveClient",
     "LiveInfo",
     "LiveType",
     "Message",
@@ -712,7 +503,6 @@ __all__ = [
     "MessageObjectStringType",
     "MessageRole",
     "MessageType",
-    "MessagesClient",
     "NumberPaged",
     "NumberPagedResponse",
     "OAuthApp",
@@ -733,7 +523,6 @@ __all__ = [
     "RoomConfig",
     "RoomMode",
     "RoomVideoConfig",
-    "RoomsClient",
     "Scope",
     "ScopeAccountPermission",
     "ScopeAttributeConstraint",
@@ -745,7 +534,6 @@ __all__ = [
     "SpeakerIdentifyResp",
     "SpeechAudioCompletedEvent",
     "SpeechAudioUpdateEvent",
-    "SpeechClient",
     "SpeechCreatedEvent",
     "SpeechUpdateEvent",
     "SpeechUpdatedEvent",
@@ -753,15 +541,12 @@ __all__ = [
     "StreamInfo",
     "SuggestReplyMode",
     "SyncAuth",
-    "SyncHTTPClient",
     "TemplateDuplicateResp",
     "TemplateEntityType",
-    "TemplatesClient",
     "TokenAuth",
     "TokenPaged",
     "TokenPagedResponse",
     "ToolOutput",
-    "TranscriptionsClient",
     "TranscriptionsCreatedEvent",
     "TranscriptionsMessageCompletedEvent",
     "TranscriptionsMessageUpdateEvent",
@@ -783,12 +568,10 @@ __all__ = [
     "User",
     "UserInfo",
     "UserInputType",
-    "UsersClient",
     "VERSION",
     "VariableChannel",
     "VariableType",
     "VariableValue",
-    "VariablesClient",
     "Voice",
     "VoiceEmotionInfo",
     "VoiceEmotionInfoInterval",
@@ -796,23 +579,11 @@ __all__ = [
     "VoicePrintGroup",
     "VoicePrintGroupFeature",
     "VoiceState",
-    "VoiceprintGroupsClient",
-    "VoiceprintGroupsFeaturesClient",
-    "VoicesClient",
     "WebOAuthApp",
-    "WebsocketsAudioClient",
-    "WebsocketsAudioSpeechBuildClient",
-    "WebsocketsAudioSpeechClient",
     "WebsocketsAudioSpeechEventHandler",
-    "WebsocketsAudioTranscriptionsBuildClient",
-    "WebsocketsAudioTranscriptionsClient",
     "WebsocketsAudioTranscriptionsEventHandler",
-    "WebsocketsBaseClient",
     "WebsocketsBaseEventHandler",
-    "WebsocketsChatBuildClient",
-    "WebsocketsChatClient",
     "WebsocketsChatEventHandler",
-    "WebsocketsClient",
     "WebsocketsErrorEvent",
     "WebsocketsEvent",
     "WebsocketsEventFactory",
@@ -835,19 +606,10 @@ __all__ = [
     "WorkflowRunResult",
     "WorkflowUserInfo",
     "WorkflowVersionInfo",
-    "WorkflowsChatClient",
-    "WorkflowsClient",
-    "WorkflowsCollaboratorsClient",
-    "WorkflowsRunsClient",
-    "WorkflowsRunsRunHistoriesClient",
-    "WorkflowsRunsRunHistoriesExecuteNodesClient",
-    "WorkflowsVersionsClient",
     "Workspace",
     "WorkspaceMember",
     "WorkspaceRoleType",
     "WorkspaceType",
-    "WorkspacesClient",
-    "WorkspacesMembersClient",
     "load_oauth_app_from_config",
     "setup_logging",
 ]
