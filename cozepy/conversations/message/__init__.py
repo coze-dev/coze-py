@@ -55,6 +55,7 @@ class MessagesClient(object):
         content: str,
         content_type: MessageContentType,
         meta_data: Optional[Dict[str, str]] = None,
+        **kwargs,
     ) -> Message:
         """
         Create a message and add it to the specified conversation.
@@ -75,6 +76,7 @@ class MessagesClient(object):
         params = {
             "conversation_id": conversation_id,
         }
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "role": role,
             "content": content,
@@ -82,7 +84,7 @@ class MessagesClient(object):
             "meta_data": meta_data,
         }
 
-        return self._requester.request("post", url, False, Message, params=params, body=body)
+        return self._requester.request("post", url, False, Message, params=params, headers=headers, body=body)
 
     def list(
         self,
@@ -141,6 +143,7 @@ class MessagesClient(object):
         *,
         conversation_id: str,
         message_id: str,
+        **kwargs,
     ) -> Message:
         """
         Get the detailed information of specified message.
@@ -157,8 +160,9 @@ class MessagesClient(object):
             "conversation_id": conversation_id,
             "message_id": message_id,
         }
+        headers: Optional[dict] = kwargs.get("headers")
 
-        return self._requester.request("get", url, False, Message, params=params)
+        return self._requester.request("get", url, False, Message, params=params, headers=headers)
 
     def update(
         self,
@@ -168,6 +172,7 @@ class MessagesClient(object):
         content: Optional[str] = None,
         content_type: Optional[MessageContentType] = None,
         meta_data: Optional[Dict[str, str]] = None,
+        **kwargs,
     ) -> Message:
         """
         Modify a message, supporting the modification of message content, additional content, and message type.
@@ -188,19 +193,23 @@ class MessagesClient(object):
             "conversation_id": conversation_id,
             "message_id": message_id,
         }
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "content": content,
             "content_type": content_type,
             "meta_data": meta_data,
         }
 
-        return self._requester.request("post", url, False, Message, params=params, body=body, data_field="message")
+        return self._requester.request(
+            "post", url, False, Message, params=params, headers=headers, body=body, data_field="message"
+        )
 
     def delete(
         self,
         *,
         conversation_id: str,
         message_id: str,
+        **kwargs,
     ) -> Message:
         """
         Call the API to delete a message within a specified conversation.
@@ -217,8 +226,9 @@ class MessagesClient(object):
             "conversation_id": conversation_id,
             "message_id": message_id,
         }
+        headers: Optional[dict] = kwargs.get("headers")
 
-        return self._requester.request("post", url, False, Message, params=params)
+        return self._requester.request("post", url, False, Message, params=params, headers=headers)
 
 
 class AsyncMessagesClient(object):
@@ -248,6 +258,7 @@ class AsyncMessagesClient(object):
         content: str,
         content_type: MessageContentType,
         meta_data: Optional[Dict[str, str]] = None,
+        **kwargs,
     ) -> Message:
         """
         Create a message and add it to the specified conversation.
@@ -268,6 +279,7 @@ class AsyncMessagesClient(object):
         params = {
             "conversation_id": conversation_id,
         }
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "role": role,
             "content": content,
@@ -275,7 +287,7 @@ class AsyncMessagesClient(object):
             "meta_data": meta_data,
         }
 
-        return await self._requester.arequest("post", url, False, Message, params=params, body=body)
+        return await self._requester.arequest("post", url, False, Message, params=params, headers=headers, body=body)
 
     async def list(
         self,
@@ -334,6 +346,7 @@ class AsyncMessagesClient(object):
         *,
         conversation_id: str,
         message_id: str,
+        **kwargs,
     ) -> Message:
         """
         Get the detailed information of specified message.
@@ -350,8 +363,9 @@ class AsyncMessagesClient(object):
             "conversation_id": conversation_id,
             "message_id": message_id,
         }
+        headers: Optional[dict] = kwargs.get("headers")
 
-        return await self._requester.arequest("get", url, False, Message, params=params)
+        return await self._requester.arequest("get", url, False, Message, params=params, headers=headers)
 
     async def update(
         self,
@@ -361,6 +375,7 @@ class AsyncMessagesClient(object):
         content: Optional[str] = None,
         content_type: Optional[MessageContentType] = None,
         meta_data: Optional[Dict[str, str]] = None,
+        **kwargs,
     ) -> Message:
         """
         Modify a message, supporting the modification of message content, additional content, and message type.
@@ -381,6 +396,7 @@ class AsyncMessagesClient(object):
             "conversation_id": conversation_id,
             "message_id": message_id,
         }
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "content": content,
             "content_type": content_type,
@@ -388,7 +404,7 @@ class AsyncMessagesClient(object):
         }
 
         return await self._requester.arequest(
-            "post", url, False, Message, params=params, body=body, data_field="message"
+            "post", url, False, Message, params=params, headers=headers, body=body, data_field="message"
         )
 
     async def delete(
@@ -396,6 +412,7 @@ class AsyncMessagesClient(object):
         *,
         conversation_id: str,
         message_id: str,
+        **kwargs,
     ) -> Message:
         """
         Call the API to delete a message within a specified conversation.
@@ -412,5 +429,6 @@ class AsyncMessagesClient(object):
             "conversation_id": conversation_id,
             "message_id": message_id,
         }
+        headers: Optional[dict] = kwargs.get("headers")
 
-        return await self._requester.arequest("post", url, False, Message, params=params)
+        return await self._requester.arequest("post", url, False, Message, params=params, headers=headers)

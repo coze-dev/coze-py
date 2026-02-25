@@ -115,6 +115,7 @@ class DatasetsClient(object):
         format_type: DocumentFormatType,
         description: Optional[str] = None,
         icon_file_id: Optional[str] = None,
+        **kwargs,
     ) -> CreateDatasetResp:
         """
         Create Dataset
@@ -129,6 +130,7 @@ class DatasetsClient(object):
         :param icon_file_id: The ID of the icon file, uploaded by `coze.files.upload`
         """
         url = f"{self._base_url}/v1/datasets"
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "name": name,
             "space_id": space_id,
@@ -141,6 +143,7 @@ class DatasetsClient(object):
             url,
             False,
             CreateDatasetResp,
+            headers=headers,
             body=body,
         )
 
@@ -200,6 +203,7 @@ class DatasetsClient(object):
         name: str,
         description: Optional[str] = None,
         icon_file_id: Optional[str] = None,
+        **kwargs,
     ) -> UpdateDatasetRes:
         """
         Update Dataset
@@ -214,6 +218,7 @@ class DatasetsClient(object):
         :param icon_file_id: The ID of the icon file, uploaded by `coze.files.upload`
         """
         url = f"{self._base_url}/v1/datasets/{dataset_id}"
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "name": name,
             "description": description,
@@ -224,6 +229,7 @@ class DatasetsClient(object):
             url,
             False,
             cast=UpdateDatasetRes,
+            headers=headers,
             body=body,
         )
 
@@ -231,6 +237,7 @@ class DatasetsClient(object):
         self,
         *,
         dataset_id: str,
+        **kwargs,
     ) -> DeleteDatasetRes:
         """
         Delete Dataset
@@ -243,14 +250,16 @@ class DatasetsClient(object):
         :param dataset_id: The ID of the dataset
         """
         url = f"{self._base_url}/v1/datasets/{dataset_id}"
+        headers: Optional[dict] = kwargs.get("headers")
         return self._requester.request(
             "delete",
             url,
             False,
             cast=DeleteDatasetRes,
+            headers=headers,
         )
 
-    def process(self, *, dataset_id: str, document_ids: List[str]) -> ListResponse[DocumentProgress]:
+    def process(self, *, dataset_id: str, document_ids: List[str], **kwargs) -> ListResponse[DocumentProgress]:
         """
         Check the upload progress
         Call this API to get the upload progress of knowledge base files.
@@ -264,6 +273,7 @@ class DatasetsClient(object):
         :param document_ids: The IDs of the documents
         """
         url = f"{self._base_url}/v1/datasets/{dataset_id}/process"
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "document_ids": document_ids,
         }
@@ -272,6 +282,7 @@ class DatasetsClient(object):
             url,
             False,
             cast=ListResponse[DocumentProgress],
+            headers=headers,
             body=body,
             data_field="data.data",
         )
@@ -308,6 +319,7 @@ class AsyncDatasetsClient(object):
         format_type: DocumentFormatType,
         description: Optional[str] = None,
         icon_file_id: Optional[str] = None,
+        **kwargs,
     ) -> CreateDatasetResp:
         """
         Create Dataset
@@ -319,6 +331,7 @@ class AsyncDatasetsClient(object):
         :param icon_file_id: The ID of the icon file, uploaded by `coze.files.upload`
         """
         url = f"{self._base_url}/v1/datasets"
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "name": name,
             "space_id": space_id,
@@ -331,6 +344,7 @@ class AsyncDatasetsClient(object):
             url,
             False,
             CreateDatasetResp,
+            headers=headers,
             body=body,
         )
 
@@ -390,6 +404,7 @@ class AsyncDatasetsClient(object):
         name: str,
         description: Optional[str] = None,
         icon_file_id: Optional[str] = None,
+        **kwargs,
     ) -> UpdateDatasetRes:
         """
         Update Dataset
@@ -404,6 +419,7 @@ class AsyncDatasetsClient(object):
         :param icon_file_id: The ID of the icon file, uploaded by `coze.files.upload`
         """
         url = f"{self._base_url}/v1/datasets/{dataset_id}"
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "name": name,
             "description": description,
@@ -414,6 +430,7 @@ class AsyncDatasetsClient(object):
             url,
             False,
             cast=UpdateDatasetRes,
+            headers=headers,
             body=body,
         )
 
@@ -421,6 +438,7 @@ class AsyncDatasetsClient(object):
         self,
         *,
         dataset_id: str,
+        **kwargs,
     ) -> DeleteDatasetRes:
         """
         Delete Dataset
@@ -433,14 +451,16 @@ class AsyncDatasetsClient(object):
         :param dataset_id: The ID of the dataset
         """
         url = f"{self._base_url}/v1/datasets/{dataset_id}"
+        headers: Optional[dict] = kwargs.get("headers")
         return await self._requester.arequest(
             "delete",
             url,
             False,
             cast=DeleteDatasetRes,
+            headers=headers,
         )
 
-    async def process(self, *, dataset_id: str, document_ids: List[str]) -> ListResponse[DocumentProgress]:
+    async def process(self, *, dataset_id: str, document_ids: List[str], **kwargs) -> ListResponse[DocumentProgress]:
         """
         Check the upload progress
         Call this API to get the upload progress of knowledge base files.
@@ -454,6 +474,7 @@ class AsyncDatasetsClient(object):
         :param document_ids: The IDs of the documents
         """
         url = f"{self._base_url}/v1/datasets/{dataset_id}/process"
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "document_ids": document_ids,
         }
@@ -462,6 +483,7 @@ class AsyncDatasetsClient(object):
             url,
             False,
             cast=ListResponse[DocumentProgress],
+            headers=headers,
             body=body,
             data_field="data.data",
         )

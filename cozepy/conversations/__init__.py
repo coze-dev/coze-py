@@ -58,6 +58,7 @@ class ConversationsClient(object):
         name: Optional[str] = None,
         connector_id: Optional[str] = None,
         meta_data: Optional[Dict[str, str]] = None,
+        **kwargs,
     ) -> Conversation:
         """
         创建会话。
@@ -74,6 +75,7 @@ class ConversationsClient(object):
         :return: Conversation对象
         """
         url = f"{self._base_url}/v1/conversation/create"
+        headers: Optional[dict] = kwargs.get("headers")
         body: Dict[str, Any] = dump_exclude_none(
             {
                 "messages": messages,
@@ -83,7 +85,7 @@ class ConversationsClient(object):
                 "connector_id": connector_id,
             }
         )
-        return self._requester.request("post", url, False, Conversation, body=body)
+        return self._requester.request("post", url, False, Conversation, headers=headers, body=body)
 
     def list(
         self,
@@ -91,13 +93,16 @@ class ConversationsClient(object):
         bot_id: str,
         page_num: int = 1,
         page_size: int = 50,
+        **kwargs,
     ) -> NumberPaged[Conversation]:
         url = f"{self._base_url}/v1/conversations"
+        headers: Optional[dict] = kwargs.get("headers")
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
                 "GET",
                 url,
+                headers=headers,
                 params={
                     "bot_id": bot_id,
                     "page_num": i_page_num,
@@ -114,7 +119,7 @@ class ConversationsClient(object):
             request_maker=request_maker,
         )
 
-    def retrieve(self, *, conversation_id: str) -> Conversation:
+    def retrieve(self, *, conversation_id: str, **kwargs) -> Conversation:
         """
         Get the information of specific conversation.
 
@@ -128,9 +133,10 @@ class ConversationsClient(object):
         params = {
             "conversation_id": conversation_id,
         }
-        return self._requester.request("get", url, False, Conversation, params=params)
+        headers: Optional[dict] = kwargs.get("headers")
+        return self._requester.request("get", url, False, Conversation, params=params, headers=headers)
 
-    def clear(self, *, conversation_id: str) -> Section:
+    def clear(self, *, conversation_id: str, **kwargs) -> Section:
         """
         清空会话内容。
         清空指定会话的所有消息内容，但保留会话本身。
@@ -139,9 +145,10 @@ class ConversationsClient(object):
         :return: Section对象
         """
         url = f"{self._base_url}/v1/conversations/{conversation_id}/clear"
-        return self._requester.request("post", url, False, Section)
+        headers: Optional[dict] = kwargs.get("headers")
+        return self._requester.request("post", url, False, Section, headers=headers)
 
-    def update(self, *, conversation_id: str, name: Optional[str] = None) -> Conversation:
+    def update(self, *, conversation_id: str, name: Optional[str] = None, **kwargs) -> Conversation:
         """
         更新会话信息。
         更新指定会话的名称，便于识别与管理。
@@ -153,10 +160,11 @@ class ConversationsClient(object):
         :return: 更新后的Conversation对象
         """
         url = f"{self._base_url}/v1/conversations/{conversation_id}"
+        headers: Optional[dict] = kwargs.get("headers")
         body = {"name": name}
-        return self._requester.request("put", url, False, Conversation, body=body)
+        return self._requester.request("put", url, False, Conversation, headers=headers, body=body)
 
-    def delete(self, *, conversation_id: str) -> DeleteConversationResp:
+    def delete(self, *, conversation_id: str, **kwargs) -> DeleteConversationResp:
         """
         删除指定的会话。
         删除后会话及其中的所有消息都将被永久删除，无法恢复。
@@ -167,7 +175,8 @@ class ConversationsClient(object):
         :return: DeleteConversationResp对象表示删除成功
         """
         url = f"{self._base_url}/v1/conversations/{conversation_id}"
-        return self._requester.request("delete", url, False, DeleteConversationResp)
+        headers: Optional[dict] = kwargs.get("headers")
+        return self._requester.request("delete", url, False, DeleteConversationResp, headers=headers)
 
     @property
     def messages(self):
@@ -192,6 +201,7 @@ class AsyncConversationsClient(object):
         name: Optional[str] = None,
         connector_id: Optional[str] = None,
         meta_data: Optional[Dict[str, str]] = None,
+        **kwargs,
     ) -> Conversation:
         """
         创建会话。
@@ -208,6 +218,7 @@ class AsyncConversationsClient(object):
         :return: Conversation对象
         """
         url = f"{self._base_url}/v1/conversation/create"
+        headers: Optional[dict] = kwargs.get("headers")
         body: Dict[str, Any] = dump_exclude_none(
             {
                 "messages": messages,
@@ -217,7 +228,7 @@ class AsyncConversationsClient(object):
                 "connector_id": connector_id,
             }
         )
-        return await self._requester.arequest("post", url, False, Conversation, body=body)
+        return await self._requester.arequest("post", url, False, Conversation, headers=headers, body=body)
 
     async def list(
         self,
@@ -225,13 +236,16 @@ class AsyncConversationsClient(object):
         bot_id: str,
         page_num: int = 1,
         page_size: int = 50,
+        **kwargs,
     ) -> AsyncNumberPaged[Conversation]:
         url = f"{self._base_url}/v1/conversations"
+        headers: Optional[dict] = kwargs.get("headers")
 
         async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return await self._requester.amake_request(
                 "GET",
                 url,
+                headers=headers,
                 params={
                     "bot_id": bot_id,
                     "page_num": i_page_num,
@@ -248,7 +262,7 @@ class AsyncConversationsClient(object):
             request_maker=request_maker,
         )
 
-    async def retrieve(self, *, conversation_id: str) -> Conversation:
+    async def retrieve(self, *, conversation_id: str, **kwargs) -> Conversation:
         """
         Get the information of specific conversation.
 
@@ -262,9 +276,10 @@ class AsyncConversationsClient(object):
         params = {
             "conversation_id": conversation_id,
         }
-        return await self._requester.arequest("get", url, False, Conversation, params=params)
+        headers: Optional[dict] = kwargs.get("headers")
+        return await self._requester.arequest("get", url, False, Conversation, params=params, headers=headers)
 
-    async def clear(self, *, conversation_id: str) -> Section:
+    async def clear(self, *, conversation_id: str, **kwargs) -> Section:
         """
         清空会话内容。
         清空指定会话的所有消息内容，但保留会话本身。
@@ -273,9 +288,10 @@ class AsyncConversationsClient(object):
         :return: Section对象
         """
         url = f"{self._base_url}/v1/conversations/{conversation_id}/clear"
-        return await self._requester.arequest("post", url, False, Section)
+        headers: Optional[dict] = kwargs.get("headers")
+        return await self._requester.arequest("post", url, False, Section, headers=headers)
 
-    async def update(self, *, conversation_id: str, name: Optional[str] = None) -> Conversation:
+    async def update(self, *, conversation_id: str, name: Optional[str] = None, **kwargs) -> Conversation:
         """
         更新会话信息。
         更新指定会话的名称，便于识别与管理。
@@ -287,10 +303,11 @@ class AsyncConversationsClient(object):
         :return: 更新后的Conversation对象
         """
         url = f"{self._base_url}/v1/conversations/{conversation_id}"
+        headers: Optional[dict] = kwargs.get("headers")
         body = {"name": name}
-        return await self._requester.arequest("put", url, False, Conversation, body=body)
+        return await self._requester.arequest("put", url, False, Conversation, headers=headers, body=body)
 
-    async def delete(self, *, conversation_id: str) -> DeleteConversationResp:
+    async def delete(self, *, conversation_id: str, **kwargs) -> DeleteConversationResp:
         """
         删除指定的会话。
         删除后会话及其中的所有消息都将被永久删除，无法恢复。
@@ -301,7 +318,8 @@ class AsyncConversationsClient(object):
         :return: DeleteConversationResp对象表示删除成功
         """
         url = f"{self._base_url}/v1/conversations/{conversation_id}"
-        return await self._requester.arequest("delete", url, False, DeleteConversationResp)
+        headers: Optional[dict] = kwargs.get("headers")
+        return await self._requester.arequest("delete", url, False, DeleteConversationResp, headers=headers)
 
     @property
     def messages(self):

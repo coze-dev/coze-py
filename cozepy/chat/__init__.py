@@ -445,6 +445,7 @@ class ChatClient(object):
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
         parameters: Optional[Dict[str, Any]] = None,
+        **kwargs,
     ) -> Chat:
         """
         Call the Chat API with non-streaming to send messages to a published Coze bot.
@@ -687,6 +688,7 @@ class ChatClient(object):
         *,
         conversation_id: str,
         chat_id: str,
+        **kwargs,
     ) -> Chat:
         """
         Get the detailed information of the chat.
@@ -703,7 +705,8 @@ class ChatClient(object):
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return self._requester.request("post", url, False, Chat, params=params)
+        headers: Optional[dict] = kwargs.get("headers")
+        return self._requester.request("post", url, False, Chat, params=params, headers=headers)
 
     def submit_tool_outputs(
         self, *, conversation_id: str, chat_id: str, tool_outputs: List[ToolOutput], stream: bool
@@ -754,7 +757,7 @@ class ChatClient(object):
         )
         return Stream(resp._raw_response, resp.data, fields=["event", "data"], handler=_chat_stream_handler)
 
-    def cancel(self, *, conversation_id: str, chat_id: str) -> Chat:
+    def cancel(self, *, conversation_id: str, chat_id: str, **kwargs) -> Chat:
         """
         Call this API to cancel an ongoing chat.
 
@@ -768,11 +771,12 @@ class ChatClient(object):
         :return:
         """
         url = f"{self._base_url}/v3/chat/cancel"
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return self._requester.request("post", url, False, Chat, body=body)
+        return self._requester.request("post", url, False, Chat, headers=headers, body=body)
 
     @property
     def messages(
@@ -802,6 +806,7 @@ class AsyncChatClient(object):
         auto_save_history: bool = True,
         meta_data: Optional[Dict[str, str]] = None,
         parameters: Optional[Dict[str, Any]] = None,
+        **kwargs,
     ) -> Chat:
         """
         Call the Chat API with non-streaming to send messages to a published Coze bot.
@@ -979,6 +984,7 @@ class AsyncChatClient(object):
         *,
         conversation_id: str,
         chat_id: str,
+        **kwargs,
     ) -> Chat:
         """
         Get the detailed information of the chat.
@@ -995,7 +1001,8 @@ class AsyncChatClient(object):
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return await self._requester.arequest("post", url, False, Chat, params=params)
+        headers: Optional[dict] = kwargs.get("headers")
+        return await self._requester.arequest("post", url, False, Chat, params=params, headers=headers)
 
     async def submit_tool_outputs(self, *, conversation_id: str, chat_id: str, tool_outputs: List[ToolOutput]) -> Chat:
         """
@@ -1079,7 +1086,7 @@ class AsyncChatClient(object):
             resp.data, fields=["event", "data"], handler=_chat_stream_handler, raw_response=resp._raw_response
         )
 
-    async def cancel(self, *, conversation_id: str, chat_id: str) -> Chat:
+    async def cancel(self, *, conversation_id: str, chat_id: str, **kwargs) -> Chat:
         """
         Call this API to cancel an ongoing chat.
 
@@ -1093,11 +1100,12 @@ class AsyncChatClient(object):
         :return:
         """
         url = f"{self._base_url}/v3/chat/cancel"
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return await self._requester.arequest("post", url, False, Chat, body=body)
+        return await self._requester.arequest("post", url, False, Chat, headers=headers, body=body)
 
     @property
     def messages(

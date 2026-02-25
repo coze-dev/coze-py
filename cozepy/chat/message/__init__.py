@@ -1,3 +1,5 @@
+from typing import Optional
+
 from cozepy.chat import Message
 from cozepy.model import ListResponse
 from cozepy.request import Requester
@@ -14,6 +16,7 @@ class ChatMessagesClient(object):
         *,
         conversation_id: str,
         chat_id: str,
+        **kwargs,
     ) -> ListResponse[Message]:
         """
         The information of messages in the specified conversation besides the Query, including model replies,
@@ -31,7 +34,8 @@ class ChatMessagesClient(object):
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return self._requester.request("get", url, False, ListResponse[Message], params=params)
+        headers: Optional[dict] = kwargs.get("headers")
+        return self._requester.request("get", url, False, ListResponse[Message], params=params, headers=headers)
 
 
 class AsyncChatMessagesClient(object):
@@ -44,6 +48,7 @@ class AsyncChatMessagesClient(object):
         *,
         conversation_id: str,
         chat_id: str,
+        **kwargs,
     ) -> ListResponse[Message]:
         """
         The information of messages in the specified conversation besides the Query, including model replies,
@@ -61,4 +66,5 @@ class AsyncChatMessagesClient(object):
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return await self._requester.arequest("get", url, False, ListResponse[Message], params=params)
+        headers: Optional[dict] = kwargs.get("headers")
+        return await self._requester.arequest("get", url, False, ListResponse[Message], params=params, headers=headers)

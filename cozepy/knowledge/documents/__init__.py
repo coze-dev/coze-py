@@ -43,6 +43,7 @@ class DocumentsClient(object):
         dataset_id: str,
         document_bases: List[DocumentBase],
         chunk_strategy: Optional[DocumentChunkStrategy] = None,
+        **kwargs,
     ) -> List[Document]:
         warnings.warn(
             "The 'coze.knowledge.documents.create' method is deprecated and will be removed in a future version. "
@@ -83,6 +84,7 @@ class DocumentsClient(object):
         document_id: str,
         document_name: Optional[str] = None,
         update_rule: Optional[DocumentUpdateRule] = None,
+        **kwargs,
     ) -> None:
         warnings.warn(
             "The 'coze.knowledge.documents.update' method is deprecated and will be removed in a future version. "
@@ -118,7 +120,7 @@ class DocumentsClient(object):
             body=body,
         )
 
-    def delete(self, *, document_ids: List[str]) -> None:
+    def delete(self, *, document_ids: List[str], **kwargs) -> None:
         warnings.warn(
             "The 'coze.knowledge.documents.delete' method is deprecated and will be removed in a future version. "
             "Please use 'coze.datasets.documents.delete' instead.",
@@ -155,6 +157,7 @@ class DocumentsClient(object):
         dataset_id: str,
         page_num: int = 1,
         page_size: int = 10,
+        **kwargs,
     ) -> NumberPaged[Document]:
         warnings.warn(
             "The 'coze.knowledge.documents.list' method is deprecated and will be removed in a future version. "
@@ -217,6 +220,7 @@ class AsyncDocumentsClient(object):
         dataset_id: str,
         document_bases: List[DocumentBase],
         chunk_strategy: Optional[DocumentChunkStrategy] = None,
+        **kwargs,
     ) -> List[Document]:
         warnings.warn(
             "The 'coze.knowledge.documents.create' method is deprecated and will be removed in a future version. "
@@ -257,6 +261,7 @@ class AsyncDocumentsClient(object):
         document_id: str,
         document_name: Optional[str] = None,
         update_rule: Optional[DocumentUpdateRule] = None,
+        **kwargs,
     ) -> None:
         warnings.warn(
             "The 'coze.knowledge.documents.update' method is deprecated and will be removed in a future version. "
@@ -292,7 +297,7 @@ class AsyncDocumentsClient(object):
             body=body,
         )
 
-    async def delete(self, *, document_ids: List[str]) -> None:
+    async def delete(self, *, document_ids: List[str], **kwargs) -> None:
         warnings.warn(
             "The 'coze.knowledge.documents.delete' method is deprecated and will be removed in a future version. "
             "Please use 'coze.datasets.documents.delete' instead.",
@@ -329,6 +334,7 @@ class AsyncDocumentsClient(object):
         dataset_id: str,
         page_num: int = 1,
         page_size: int = 10,
+        **kwargs,
     ) -> AsyncNumberPaged[Document]:
         warnings.warn(
             "The 'coze.knowledge.documents.list' method is deprecated and will be removed in a future version. "

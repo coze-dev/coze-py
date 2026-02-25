@@ -127,6 +127,7 @@ class VoiceprintGroupsClient(object):
         user_id: Optional[str] = None,
         page_num: int = 1,
         page_size: int = 10,
+        **kwargs,
     ) -> NumberPaged[VoicePrintGroup]:
         """
         Get available voices, including system voices + user cloned voices
@@ -139,11 +140,13 @@ class VoiceprintGroupsClient(object):
         :return: list of Voice
         """
         url = f"{self._base_url}/v1/audio/voiceprint_groups"
+        headers: Optional[dict] = kwargs.get("headers")
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
                 "GET",
                 url,
+                headers=headers,
                 params=remove_none_values(
                     {
                         "name": name,
@@ -263,6 +266,7 @@ class AsyncVoiceprintGroupsClient(object):
         user_id: Optional[str] = None,
         page_num: int = 1,
         page_size: int = 100,
+        **kwargs,
     ) -> AsyncNumberPaged[VoicePrintGroup]:
         """
         Get available voices, including system voices + user cloned voices
@@ -275,11 +279,13 @@ class AsyncVoiceprintGroupsClient(object):
         :return: list of Voice
         """
         url = f"{self._base_url}/v1/audio/voiceprint_groups"
+        headers: Optional[dict] = kwargs.get("headers")
 
         async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return await self._requester.amake_request(
                 "GET",
                 url,
+                headers=headers,
                 params=remove_none_values(
                     {
                         "name": name,

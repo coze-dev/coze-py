@@ -164,6 +164,7 @@ class WorkflowsRunsClient(object):
         app_id: Optional[str] = None,
         is_async: bool = False,
         ext: Optional[Dict[str, Any]] = None,
+        **kwargs,
     ) -> WorkflowRunResult:
         """
         Run the published workflow.
@@ -184,6 +185,7 @@ class WorkflowsRunsClient(object):
         :return: The result of the workflow execution
         """
         url = f"{self._base_url}/v1/workflow/run"
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "workflow_id": workflow_id,
             "parameters": parameters,
@@ -192,7 +194,9 @@ class WorkflowsRunsClient(object):
             "is_async": is_async,
             "ext": ext,
         }
-        return self._requester.request("post", url, False, WorkflowRunResult, body=remove_none_values(body))
+        return self._requester.request(
+            "post", url, False, WorkflowRunResult, headers=headers, body=remove_none_values(body)
+        )
 
     def stream(
         self,
@@ -202,6 +206,7 @@ class WorkflowsRunsClient(object):
         bot_id: Optional[str] = None,
         app_id: Optional[str] = None,
         ext: Optional[Dict[str, Any]] = None,
+        **kwargs,
     ) -> Stream[WorkflowEvent]:
         """
         Execute the published workflow with a streaming response method.
@@ -219,6 +224,7 @@ class WorkflowsRunsClient(object):
         :return: The result of the workflow execution
         """
         url = f"{self._base_url}/v1/workflow/stream_run"
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "workflow_id": workflow_id,
             "parameters": parameters,
@@ -231,6 +237,7 @@ class WorkflowsRunsClient(object):
             url,
             True,
             None,
+            headers=headers,
             body=remove_none_values(body),
         )
         return Stream(resp._raw_response, resp.data, fields=["id", "event", "data"], handler=_workflow_stream_handler)
@@ -242,6 +249,7 @@ class WorkflowsRunsClient(object):
         event_id: str,
         resume_data: str,
         interrupt_type: int,
+        **kwargs,
     ) -> Stream[WorkflowEvent]:
         """
         docs zh: https://www.coze.cn/docs/developer_guides/workflow_resume
@@ -253,6 +261,7 @@ class WorkflowsRunsClient(object):
         :return: The result of the workflow execution
         """
         url = f"{self._base_url}/v1/workflow/stream_resume"
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "workflow_id": workflow_id,
             "event_id": event_id,
@@ -264,6 +273,7 @@ class WorkflowsRunsClient(object):
             url,
             True,
             None,
+            headers=headers,
             body=body,
         )
         return Stream(resp._raw_response, resp.data, fields=["id", "event", "data"], handler=_workflow_stream_handler)
@@ -292,6 +302,7 @@ class AsyncWorkflowsRunsClient(object):
         app_id: Optional[str] = None,
         is_async: bool = False,
         ext: Optional[Dict[str, Any]] = None,
+        **kwargs,
     ) -> WorkflowRunResult:
         """
         Run the published workflow.
@@ -312,6 +323,7 @@ class AsyncWorkflowsRunsClient(object):
         :return: The result of the workflow execution
         """
         url = f"{self._base_url}/v1/workflow/run"
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "workflow_id": workflow_id,
             "parameters": parameters,
@@ -320,7 +332,9 @@ class AsyncWorkflowsRunsClient(object):
             "is_async": is_async,
             "ext": ext,
         }
-        return await self._requester.arequest("post", url, False, WorkflowRunResult, body=remove_none_values(body))
+        return await self._requester.arequest(
+            "post", url, False, WorkflowRunResult, headers=headers, body=remove_none_values(body)
+        )
 
     async def stream(
         self,
@@ -330,6 +344,7 @@ class AsyncWorkflowsRunsClient(object):
         bot_id: Optional[str] = None,
         app_id: Optional[str] = None,
         ext: Optional[Dict[str, Any]] = None,
+        **kwargs,
     ) -> AsyncIterator[WorkflowEvent]:
         """
         Execute the published workflow with a streaming response method.
@@ -347,6 +362,7 @@ class AsyncWorkflowsRunsClient(object):
         :return: The result of the workflow execution
         """
         url = f"{self._base_url}/v1/workflow/stream_run"
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "workflow_id": workflow_id,
             "parameters": parameters,
@@ -359,6 +375,7 @@ class AsyncWorkflowsRunsClient(object):
             url,
             True,
             None,
+            headers=headers,
             body=remove_none_values(body),
         )
         async for item in AsyncStream(
@@ -376,6 +393,7 @@ class AsyncWorkflowsRunsClient(object):
         event_id: str,
         resume_data: str,
         interrupt_type: int,
+        **kwargs,
     ) -> AsyncIterator[WorkflowEvent]:
         """
         docs zh: https://www.coze.cn/docs/developer_guides/workflow_resume
@@ -387,6 +405,7 @@ class AsyncWorkflowsRunsClient(object):
         :return: The result of the workflow execution
         """
         url = f"{self._base_url}/v1/workflow/stream_resume"
+        headers: Optional[dict] = kwargs.get("headers")
         body = {
             "workflow_id": workflow_id,
             "event_id": event_id,
@@ -398,6 +417,7 @@ class AsyncWorkflowsRunsClient(object):
             url,
             True,
             None,
+            headers=headers,
             body=body,
         )
         async for item in AsyncStream(
