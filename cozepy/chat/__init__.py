@@ -247,7 +247,6 @@ class ChatToolCallType(DynamicStrEnum):
 class ChatToolCallFunction(CozeModel):
     # The name of the method.
     name: str
-
     # The parameters of the method.
     arguments: str
 
@@ -255,10 +254,8 @@ class ChatToolCallFunction(CozeModel):
 class ChatToolCall(CozeModel):
     # The ID for reporting the running results.
     id: str
-
     # The type of tool, with the enum value of function.
     type: ChatToolCallType
-
     # The definition of the execution method function.
     function: Optional[ChatToolCallFunction] = None
 
@@ -273,7 +270,6 @@ class ChatRequiredAction(CozeModel):
 
     # The type of additional operation, with the enum value of submit_tool_outputs.
     type: ChatRequiredActionType
-
     # Details of the results that need to be submitted, uploaded through the submission API, and
     # the chat can continue afterward.
     submit_tool_outputs: Optional[ChatSubmitToolOutputs] = None
@@ -283,10 +279,8 @@ class ChatUsage(CozeModel):
     # The total number of Tokens consumed in this chat, including the consumption for both the input
     # and output parts.
     token_count: int = 0
-
     # The total number of Tokens consumed for the output part.
     output_count: int = 0
-
     # The total number of Tokens consumed for the input part.
     input_count: int = 0
 

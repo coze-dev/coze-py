@@ -19,15 +19,12 @@ class File(CozeModel):
     # 已上传的文件 ID。
     # The ID of the uploaded file.
     id: str
-
     # The total byte size of the file.
     # 文件的总字节数。
     bytes: Optional[int] = None
-
     # The upload time of the file, in the format of a 10-digit Unix timestamp in seconds (s).
     # 文件的上传时间，格式为 10 位的 Unixtime 时间戳，单位为秒（s）。
     created_at: Optional[int] = None
-
     # The name of the file.
     # 文件名称。
     file_name: Optional[str] = None

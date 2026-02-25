@@ -9,7 +9,6 @@ from cozepy.util import dump_exclude_none, remove_none_values, remove_url_traili
 class WorkflowUserInfo(CozeModel):
     # 用户ID
     id: str
-
     # 用户名称
     name: str
 
@@ -17,19 +16,14 @@ class WorkflowUserInfo(CozeModel):
 class WorkflowVersionInfo(CozeModel):
     # 版本号
     version: str
-
     # 版本描述
     description: str
-
     # 创建时间，Unix时间戳
     created_at: str
-
     # 更新时间，Unix时间戳
     updated_at: str
-
     # 工作流ID
     workflow_id: str
-
     # 创建者信息
     creator: WorkflowUserInfo
 

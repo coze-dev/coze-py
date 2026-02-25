@@ -24,13 +24,10 @@ class WorkflowBasic(CozeModel):
     description: str
     icon_url: str
     app_id: str
-
     # 创建时间，Unix时间戳
     created_at: Optional[int] = None
-
     # 更新时间，Unix时间戳
     updated_at: Optional[int] = None
-
     # 创建者信息
     creator: Optional[WorkflowUserInfo] = None
 

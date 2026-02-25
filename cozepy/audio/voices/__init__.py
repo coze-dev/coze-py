@@ -21,37 +21,26 @@ class VoiceModelType(DynamicStrEnum):
 class Voice(CozeModel):
     # The id of voice
     voice_id: str
-
     # The name of voice
     name: str
-
     # If is system voice
     is_system_voice: bool
-
     # Language code
     language_code: str
-
     # Language name
     language_name: str
-
     # Preview text for the voice
     preview_text: str
-
     # Preview audio URL for the voice
     preview_audio: str
-
     # Number of remaining training times available for current voice
     available_training_times: int
-
     # Voice creation timestamp
     create_time: int
-
     # Voice last update timestamp
     update_time: int
-
     # Voice model type
     model_type: VoiceModelType
-
     # Voice state
     state: VoiceState
 

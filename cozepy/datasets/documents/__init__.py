@@ -15,18 +15,15 @@ class DocumentChunkStrategy(CozeModel):
     # 0：自动分段与清洗。采用扣子预置规则进行数据分段与处理。
     # 1：自定义。此时需要通过 separator、max_tokens、remove_extra_spaces 和 remove_urls_emails 分段规则细节。
     chunk_type: Optional[int] = None
-
     # Image knowledge base annotation method:
     # 0: (Default) System automatically annotates description information
     # 1: Manual annotation
     caption_type: Optional[int] = None
-
     # Maximum segment length, with a range of 100 to 2000.
     # Required when chunk_type=1.
     # 最大分段长度，取值范围为 100~2000。
     # 在 chunk_type=1 时必选。
     max_tokens: Optional[int] = None
-
     # Whether to automatically filter continuous spaces, line breaks, and tabs. Values include:
     # true: Automatically filter
     # false: (Default) Do not automatically filter<br>Effective when chunk_type=1.
@@ -35,7 +32,6 @@ class DocumentChunkStrategy(CozeModel):
     # false：（默认）不自动过滤
     # 在 chunk_type=1 时生效。
     remove_extra_spaces: Optional[bool] = None
-
     # Whether to automatically filter all URLs and email addresses. Values include:
     # true: Automatically filter
     # false: (Default) Do not automatically filter
@@ -45,7 +41,6 @@ class DocumentChunkStrategy(CozeModel):
     # false：（默认）不自动过滤
     # 在 chunk_type=1 时生效。
     remove_urls_emails: Optional[bool] = None
-
     # Segmentation identifier.
     # Required when chunk_type=1.
     # 分段标识符。
@@ -123,13 +118,10 @@ class DocumentUpdateType(IntEnum):
 class Document(CozeModel):
     # File ID.
     document_id: str
-
     # Total number of characters in the document content.
     char_count: int
-
     # Segmentation rules.
     chunk_strategy: Optional[DocumentChunkStrategy] = None
-
     # 文件的格式类型。取值包括：
     # 0：文档类型，例如 txt 、pdf 、在线网页等格式均属于文档类型。
     # 1：表格类型，例如 xls 表格等格式属于表格类型。
@@ -139,23 +131,18 @@ class Document(CozeModel):
     # 1: Spreadsheet type, such as xls spreadsheets, etc.
     # 2: Photo type, such as png images, etc.
     format_type: DocumentFormatType
-
     # The number of times the file has been hit in conversations.
     # 被对话命中的次数。
     hit_count: int
-
     # The name of the file.
     # 文件的名称。
     name: str
-
     # The size of the file in bytes.
     # 文件的大小，单位为字节。
     size: int
-
     # The number of slices the file has been divided into.
     # 文件的分段数量。
     slice_count: int
-
     # The method of uploading the file. Values include:
     # 0: Upload local files.
     # 1: Upload online web pages.
@@ -163,7 +150,6 @@ class Document(CozeModel):
     # 0：上传本地文件。
     # 1：上传在线网页。
     source_type: DocumentSourceType
-
     # The processing status of the file. Values include:
     # 0: Processing
     # 1: Completed
@@ -173,16 +159,13 @@ class Document(CozeModel):
     # 1：处理完毕
     # 9：处理失败，建议重新上传
     status: DocumentStatus
-
     # The format of the local file, i.e., the file extension, such as "txt". Supported formats include PDF, TXT, DOC,
     # DOCX.
     # 本地文件格式，即文件后缀，例如 txt。格式支持 pdf、txt、doc、docx 类型。
     type: str
-
     # The frequency of automatic updates for online web pages, in hours.
     # 在线网页自动更新的频率。单位为小时。
     update_interval: int
-
     # Whether the online web page is automatically updated. Values include:
     # 0: Do not automatically update
     # 1: Automatically update
@@ -190,10 +173,8 @@ class Document(CozeModel):
     # 0：不自动更新
     # 1：自动更新
     update_type: DocumentUpdateType
-
     # The upload time of the file, in the format of a 10-digit Unix timestamp.
     create_time: int
-
     # The last modified time of the file, in the format of a 10-digit Unix timestamp.
     update_time: int
 
@@ -202,17 +183,14 @@ class DocumentSourceInfo(CozeModel):
     # 本地文件的 Base64 编码。
     # 上传本地文件时必选
     file_base64: Optional[str] = None
-
     # 本地文件格式，即文件后缀，例如 txt。格式支持 pdf、txt、doc、docx 类型。
     # 上传的文件类型应与知识库类型匹配，例如 txt 文件只能上传到文档类型的知识库中。
     # 上传本地文件时必选
     file_type: Optional[str] = None
-
     # 网页的 URL 地址。
     # 上传在线网页时必选
     web_url: Optional[str] = None
     source_file_id: Optional[str] = None  # uploaded by `coze.files.upload`
-
     # 文件的上传方式。支持设置为 1，表示上传在线网页。
     # 上传在线网页时必选
     document_source: Optional[DocumentSourceType] = None
@@ -235,7 +213,6 @@ class DocumentUpdateRule(CozeModel):
     # 0：不自动更新
     # 1：自动更新
     update_type: DocumentUpdateType
-
     # 在线网页自动更新的频率。单位为小时，最小值为 24。
     update_interval: int
 
@@ -251,10 +228,8 @@ class DocumentUpdateRule(CozeModel):
 class DocumentBase(CozeModel):
     # 文件名称。
     name: str
-
     # 文件的元数据信息。详细信息可参考 DocumentSourceInfo object。
     source_info: DocumentSourceInfo
-
     # 在线网页的更新策略。默认不自动更新。
     update_rule: Optional[DocumentUpdateRule] = None
 
