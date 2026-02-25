@@ -1,9 +1,12 @@
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from cozepy.chat import Message
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
 from cozepy.util import dump_exclude_none, remove_url_trailing_slash
+
+if TYPE_CHECKING:
+    from .message import AsyncMessagesClient, MessagesClient
 
 
 class Conversation(CozeModel):
@@ -48,10 +51,10 @@ class ConversationsClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
-        self._messages = None
+        self._messages: Optional[MessagesClient] = None
 
     @property
-    def messages(self):
+    def messages(self) -> "MessagesClient":
         if not self._messages:
             from .message import MessagesClient
 
@@ -191,10 +194,10 @@ class AsyncConversationsClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
-        self._messages = None
+        self._messages: Optional[AsyncMessagesClient] = None
 
     @property
-    def messages(self):
+    def messages(self) -> "AsyncMessagesClient":
         if not self._messages:
             from .message import AsyncMessagesClient
 
