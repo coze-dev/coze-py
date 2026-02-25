@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional
 
 from cozepy.chat import Message
-from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged
+from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
 from cozepy.util import dump_exclude_none, remove_url_trailing_slash
 
@@ -30,7 +30,7 @@ class DeleteConversationResp(CozeModel):
     """
 
 
-class _PrivateListConversationResp(CozeModel):
+class _PrivateListConversationResp(CozeModel, NumberPagedResponse[Conversation]):
     has_more: bool
     conversations: List[Conversation]
 
