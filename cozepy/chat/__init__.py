@@ -467,16 +467,16 @@ class ChatClient(object):
         :return: iterator of ChatEvent
         """
         return self._create(
+            conversation_id=conversation_id,
             bot_id=bot_id,
             user_id=user_id,
-            stream=True,
             additional_messages=additional_messages,
             custom_variables=custom_variables,
             auto_save_history=auto_save_history,
             meta_data=meta_data,
-            conversation_id=conversation_id,
-            parameters=parameters,
             enable_card=enable_card,
+            parameters=parameters,
+            stream=True,
             **kwargs,
         )
 
@@ -512,15 +512,16 @@ class ChatClient(object):
         :return: chat object
         """
         return self._create(
+            conversation_id=conversation_id,
             bot_id=bot_id,
             user_id=user_id,
-            stream=False,
             additional_messages=additional_messages,
             custom_variables=custom_variables,
             auto_save_history=auto_save_history,
             meta_data=meta_data,
-            conversation_id=conversation_id,
             parameters=parameters,
+            stream=False,
+            **kwargs,
         )
 
     def retrieve(
@@ -828,16 +829,16 @@ class AsyncChatClient(object):
         :return: iterator of ChatEvent
         """
         async for item in await self._create(
+            conversation_id=conversation_id,
             bot_id=bot_id,
             user_id=user_id,
             additional_messages=additional_messages,
-            stream=True,
             custom_variables=custom_variables,
             auto_save_history=auto_save_history,
             meta_data=meta_data,
-            conversation_id=conversation_id,
-            parameters=parameters,
             enable_card=enable_card,
+            parameters=parameters,
+            stream=True,
             **kwargs,
         ):
             yield item
@@ -874,15 +875,16 @@ class AsyncChatClient(object):
         :return: chat object
         """
         return await self._create(
+            conversation_id=conversation_id,
             bot_id=bot_id,
             user_id=user_id,
             additional_messages=additional_messages,
-            stream=False,
             custom_variables=custom_variables,
             auto_save_history=auto_save_history,
             meta_data=meta_data,
-            conversation_id=conversation_id,
             parameters=parameters,
+            stream=False,
+            **kwargs,
         )
 
     async def retrieve(
