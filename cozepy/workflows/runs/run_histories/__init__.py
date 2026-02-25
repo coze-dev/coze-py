@@ -10,8 +10,8 @@ from cozepy.util import remove_url_trailing_slash
 
 if TYPE_CHECKING:
     from .execute_nodes import (
-        AsyncWorkflowsRunsRunHistoriesExecuteNodesClient,
         WorkflowsRunsRunHistoriesExecuteNodesClient,
+        AsyncWorkflowsRunsRunHistoriesExecuteNodesClient,
     )
 
 

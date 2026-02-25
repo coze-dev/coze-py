@@ -7,8 +7,8 @@ from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
 if TYPE_CHECKING:
-    from .documents import AsyncDatasetsDocumentsClient, DatasetsDocumentsClient
-    from .images import AsyncDatasetsImagesClient, DatasetsImagesClient
+    from .documents import DatasetsDocumentsClient, AsyncDatasetsDocumentsClient
+    from .images import DatasetsImagesClient, AsyncDatasetsImagesClient
 
 
 class CreateDatasetResp(CozeModel):

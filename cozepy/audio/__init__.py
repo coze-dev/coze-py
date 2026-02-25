@@ -4,12 +4,12 @@ from cozepy.request import Requester
 from cozepy.util import remove_url_trailing_slash
 
 if TYPE_CHECKING:
-    from .live import AsyncLiveClient, LiveClient
-    from .rooms import AsyncRoomsClient, RoomsClient
-    from .speech import AsyncSpeechClient, SpeechClient
-    from .transcriptions import AsyncTranscriptionsClient, TranscriptionsClient
-    from .voiceprint_groups import AsyncVoiceprintGroupsClient, VoiceprintGroupsClient
-    from .voices import AsyncVoicesClient, VoicesClient
+    from .live import LiveClient, AsyncLiveClient
+    from .rooms import RoomsClient, AsyncRoomsClient
+    from .speech import SpeechClient, AsyncSpeechClient
+    from .transcriptions import TranscriptionsClient, AsyncTranscriptionsClient
+    from .voiceprint_groups import VoiceprintGroupsClient, AsyncVoiceprintGroupsClient
+    from .voices import VoicesClient, AsyncVoicesClient
 
 
 class AudioClient(object):
