@@ -91,8 +91,8 @@ class WorkflowsVersionsClient(object):
             return self._requester.make_request(
                 "GET",
                 url,
-                params=params,
                 headers=headers,
+                params=params,
                 cast=_PrivateListWorkflowVersionData,
                 stream=False,
             )
@@ -147,8 +147,8 @@ class AsyncWorkflowsVersionsClient(object):
             return await self._requester.amake_request(
                 "GET",
                 url,
-                params=params,
                 headers=headers,
+                params=params,
                 cast=_PrivateListWorkflowVersionData,
                 stream=False,
             )

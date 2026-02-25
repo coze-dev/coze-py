@@ -689,6 +689,7 @@ class BotsClient(object):
             return self._requester.make_request(
                 "GET",
                 url,
+                headers=headers,
                 params=remove_none_values(
                     {
                         "workspace_id": workspace_id,
@@ -698,7 +699,6 @@ class BotsClient(object):
                         "connector_id": connector_id,
                     }
                 ),
-                headers=headers,
                 cast=_PrivateListBotsDataV2,
                 stream=False,
             )
@@ -1033,6 +1033,7 @@ class AsyncBotsClient(object):
             return await self._requester.amake_request(
                 "GET",
                 url,
+                headers=headers,
                 params=remove_none_values(
                     {
                         "workspace_id": workspace_id,
@@ -1042,7 +1043,6 @@ class AsyncBotsClient(object):
                         "connector_id": connector_id,
                     }
                 ),
-                headers=headers,
                 cast=_PrivateListBotsDataV2,
                 stream=False,
             )

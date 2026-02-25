@@ -155,6 +155,7 @@ class VoicesClient(object):
             return self._requester.make_request(
                 "GET",
                 url,
+                headers=headers,
                 params=remove_none_values(
                     {
                         "filter_system_voice": filter_system_voice,
@@ -164,7 +165,6 @@ class VoicesClient(object):
                         "page_size": i_page_size,
                     }
                 ),
-                headers=headers,
                 cast=_PrivateListVoiceData,
                 stream=False,
             )
@@ -262,6 +262,7 @@ class AsyncVoicesClient(object):
             return await self._requester.amake_request(
                 "GET",
                 url,
+                headers=headers,
                 params=remove_none_values(
                     {
                         "filter_system_voice": filter_system_voice,
@@ -271,7 +272,6 @@ class AsyncVoicesClient(object):
                         "page_size": i_page_size,
                     }
                 ),
-                headers=headers,
                 cast=_PrivateListVoiceData,
                 stream=False,
             )

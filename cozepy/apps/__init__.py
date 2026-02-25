@@ -65,6 +65,7 @@ class AppsClient(object):
             return self._requester.make_request(
                 "GET",
                 url,
+                headers=headers,
                 params=remove_none_values(
                     {
                         "workspace_id": workspace_id,
@@ -74,7 +75,6 @@ class AppsClient(object):
                         "connector_id": connector_id,
                     }
                 ),
-                headers=headers,
                 cast=_PrivateListAppsData,
                 stream=False,
             )
@@ -120,6 +120,7 @@ class AsyncAppsClient(object):
             return await self._requester.amake_request(
                 "GET",
                 url,
+                headers=headers,
                 params=remove_none_values(
                     {
                         "workspace_id": workspace_id,
@@ -129,7 +130,6 @@ class AsyncAppsClient(object):
                         "connector_id": connector_id,
                     }
                 ),
-                headers=headers,
                 cast=_PrivateListAppsData,
                 stream=False,
             )
