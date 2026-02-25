@@ -71,7 +71,7 @@ class WorkflowsClient(object):
         if not self._chat:
             from .chat import WorkflowsChatClient
 
-            self._chat = WorkflowsChatClient(self._base_url, self._requester)
+            self._chat = WorkflowsChatClient(base_url=self._base_url, requester=self._requester)
         return self._chat
 
     @property
@@ -79,7 +79,7 @@ class WorkflowsClient(object):
         if not self._collaborators:
             from .collaborators import WorkflowsCollaboratorsClient
 
-            self._collaborators = WorkflowsCollaboratorsClient(self._base_url, self._requester)
+            self._collaborators = WorkflowsCollaboratorsClient(base_url=self._base_url, requester=self._requester)
         return self._collaborators
 
     @property
@@ -87,7 +87,7 @@ class WorkflowsClient(object):
         if not self._runs:
             from .runs import WorkflowsRunsClient
 
-            self._runs = WorkflowsRunsClient(self._base_url, self._requester)
+            self._runs = WorkflowsRunsClient(base_url=self._base_url, requester=self._requester)
         return self._runs
 
     @property
@@ -95,7 +95,7 @@ class WorkflowsClient(object):
         if not self._versions:
             from .versions import WorkflowsVersionsClient
 
-            self._versions = WorkflowsVersionsClient(self._base_url, self._requester)
+            self._versions = WorkflowsVersionsClient(base_url=self._base_url, requester=self._requester)
         return self._versions
 
     def retrieve(
@@ -170,7 +170,7 @@ class AsyncWorkflowsClient(object):
         if not self._chat:
             from .chat import AsyncWorkflowsChatClient
 
-            self._chat = AsyncWorkflowsChatClient(self._base_url, self._requester)
+            self._chat = AsyncWorkflowsChatClient(base_url=self._base_url, requester=self._requester)
         return self._chat
 
     @property
@@ -178,7 +178,7 @@ class AsyncWorkflowsClient(object):
         if not self._collaborators:
             from .collaborators import AsyncWorkflowsCollaboratorsClient
 
-            self._collaborators = AsyncWorkflowsCollaboratorsClient(self._base_url, self._requester)
+            self._collaborators = AsyncWorkflowsCollaboratorsClient(base_url=self._base_url, requester=self._requester)
         return self._collaborators
 
     @property
@@ -186,7 +186,7 @@ class AsyncWorkflowsClient(object):
         if not self._runs:
             from .runs import AsyncWorkflowsRunsClient
 
-            self._runs = AsyncWorkflowsRunsClient(self._base_url, self._requester)
+            self._runs = AsyncWorkflowsRunsClient(base_url=self._base_url, requester=self._requester)
         return self._runs
 
     @property
@@ -194,7 +194,7 @@ class AsyncWorkflowsClient(object):
         if not self._versions:
             from .versions import AsyncWorkflowsVersionsClient
 
-            self._versions = AsyncWorkflowsVersionsClient(self._base_url, self._requester)
+            self._versions = AsyncWorkflowsVersionsClient(base_url=self._base_url, requester=self._requester)
         return self._versions
 
     async def retrieve(

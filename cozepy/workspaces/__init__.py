@@ -59,7 +59,7 @@ class WorkspacesClient(object):
         if not self._members:
             from .members import WorkspacesMembersClient
 
-            self._members = WorkspacesMembersClient(self._base_url, self._requester)
+            self._members = WorkspacesMembersClient(base_url=self._base_url, requester=self._requester)
         return self._members
 
     def list(
@@ -110,7 +110,7 @@ class AsyncWorkspacesClient(object):
         if not self._members:
             from .members import AsyncWorkspacesMembersClient
 
-            self._members = AsyncWorkspacesMembersClient(self._base_url, self._requester)
+            self._members = AsyncWorkspacesMembersClient(base_url=self._base_url, requester=self._requester)
         return self._members
 
     async def list(

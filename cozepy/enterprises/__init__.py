@@ -18,7 +18,7 @@ class EnterprisesClient(object):
         if not self._members:
             from .members import EnterprisesMembersClient
 
-            self._members = EnterprisesMembersClient(self._base_url, self._requester)
+            self._members = EnterprisesMembersClient(base_url=self._base_url, requester=self._requester)
         return self._members
 
 
@@ -33,5 +33,5 @@ class AsyncEnterprisesClient(object):
         if not self._members:
             from .members import AsyncEnterprisesMembersClient
 
-            self._members = AsyncEnterprisesMembersClient(self._base_url, self._requester)
+            self._members = AsyncEnterprisesMembersClient(base_url=self._base_url, requester=self._requester)
         return self._members

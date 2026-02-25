@@ -22,7 +22,7 @@ class ConnectorsClient(object):
         if not self._bots:
             from .bots import ConnectorsBotsClient
 
-            self._bots = ConnectorsBotsClient(self._base_url, self._requester)
+            self._bots = ConnectorsBotsClient(base_url=self._base_url, requester=self._requester)
         return self._bots
 
 
@@ -46,5 +46,5 @@ class AsyncConnectorsClient(object):
         if not self._bots:
             from .bots import AsyncConnectorsBotsClient
 
-            self._bots = AsyncConnectorsBotsClient(self._base_url, self._requester)
+            self._bots = AsyncConnectorsBotsClient(base_url=self._base_url, requester=self._requester)
         return self._bots

@@ -431,7 +431,7 @@ class ChatClient(object):
         if self._messages is None:
             from .message import ChatMessagesClient
 
-            self._messages = ChatMessagesClient(self._base_url, self._requester)
+            self._messages = ChatMessagesClient(base_url=self._base_url, requester=self._requester)
         return self._messages
 
     def stream(
@@ -793,7 +793,7 @@ class AsyncChatClient(object):
         if self._messages is None:
             from .message import AsyncChatMessagesClient
 
-            self._messages = AsyncChatMessagesClient(self._base_url, self._requester)
+            self._messages = AsyncChatMessagesClient(base_url=self._base_url, requester=self._requester)
         return self._messages
 
     async def stream(
