@@ -1,6 +1,7 @@
 from .api_apps import APIApp, AppType, DeleteAPIAppsResp, UpdateAPIAppsResp
 from .api_apps.events import CreateAPIAppsEventsResp, DeleteAPIAppsEventsResp
 from .apps import SimpleApp
+from .apps.collaborators import AddAppCollaboratorResp, AppCollaborator, RemoveAppCollaboratorResp
 from .audio.live import LiveInfo, LiveType, StreamInfo
 from .audio.rooms import CreateRoomResp
 from .audio.speech import AudioFormat
@@ -90,12 +91,7 @@ from .chat import (
     MessageType,
     ToolOutput,
 )
-from .config import (
-    COZE_CN_BASE_URL,
-    COZE_COM_BASE_URL,
-    DEFAULT_CONNECTION_LIMITS,
-    DEFAULT_TIMEOUT,
-)
+from .config import COZE_CN_BASE_URL, COZE_COM_BASE_URL, DEFAULT_CONNECTION_LIMITS, DEFAULT_TIMEOUT
 from .conversations import Conversation, Section
 from .conversations.message.feedback import (
     CreateConversationMessageFeedbackResp,
@@ -117,7 +113,13 @@ from .datasets.documents import (
 )
 from .datasets.images import Photo
 from .enterprises.members import EnterpriseMember, EnterpriseMemberRole
-from .exception import CozeAPIError, CozeError, CozeInvalidEventError, CozePKCEAuthError, CozePKCEAuthErrorType
+from .exception import (
+    CozeAPIError,
+    CozeError,
+    CozeInvalidEventError,
+    CozePKCEAuthError,
+    CozePKCEAuthErrorType,
+)
 from .files import File
 from .folders import FolderType, SimpleFolder
 from .log import setup_logging
@@ -235,24 +237,24 @@ __all__ = [
     # api_apps
     "APIApp",
     "AppType",
-    "UpdateAPIAppsResp",
     "DeleteAPIAppsResp",
+    "UpdateAPIAppsResp",
     # api_apps.events
     "CreateAPIAppsEventsResp",
     "DeleteAPIAppsEventsResp",
     # apps
     "SimpleApp",
-    # audio
+    # apps.collaborators
+    "AddAppCollaboratorResp",
+    "AppCollaborator",
+    "RemoveAppCollaboratorResp",
     # audio.live
     "LiveInfo",
-    "StreamInfo",
     "LiveType",
+    "StreamInfo",
     # audio.rooms
     "CreateRoomResp",
-    # audio.voices
-    "VoiceState",
-    "VoiceModelType",
-    "Voice",
+    # audio.speech
     "AudioFormat",
     # audio.transcriptions
     "CreateTranscriptionsResp",
@@ -264,21 +266,23 @@ __all__ = [
     "UpdateVoicePrintGroupResp",
     "VoicePrintGroup",
     # audio.voiceprint_groups.features
-    "VoicePrintGroupFeature",
     "CreateVoicePrintGroupFeatureResp",
-    "UpdateVoicePrintGroupFeatureResp",
     "DeleteVoicePrintGroupFeatureResp",
+    "UpdateVoicePrintGroupFeatureResp",
+    "VoicePrintGroupFeature",
+    # audio.voices
+    "Voice",
+    "VoiceModelType",
+    "VoiceState",
     # auth
-    "load_oauth_app_from_config",
+    "AsyncAuth",
     "AsyncDeviceOAuthApp",
+    "AsyncJWTAuth",
     "AsyncJWTOAuthApp",
     "AsyncPKCEOAuthApp",
+    "AsyncTokenAuth",
     "AsyncWebOAuthApp",
     "Auth",
-    "AsyncAuth",
-    "SyncAuth",
-    "AsyncJWTAuth",
-    "AsyncTokenAuth",
     "DeviceAuthCode",
     "DeviceOAuthApp",
     "JWTAuth",
@@ -287,8 +291,10 @@ __all__ = [
     "OAuthToken",
     "PKCEOAuthApp",
     "Scope",
+    "SyncAuth",
     "TokenAuth",
     "WebOAuthApp",
+    "load_oauth_app_from_config",
     # bots
     "BackgroundImageInfo",
     "Bot",
@@ -305,36 +311,41 @@ __all__ = [
     "BotWorkflowInfo",
     "CanvasPosition",
     "GradientPosition",
+    "PluginIDList",
     "PublishStatus",
     "SimpleBot",
     "SuggestReplyMode",
-    "PluginIDList",
-    "WorkflowIDList",
     "UpdateBotResp",
     "UserInputType",
     "VariableChannel",
     "VariableType",
+    "WorkflowIDList",
     # chat
+    "Chat",
+    "ChatError",
+    "ChatEvent",
+    "ChatEventType",
+    "ChatPoll",
+    "ChatRequiredAction",
+    "ChatRequiredActionType",
+    "ChatStatus",
+    "ChatSubmitToolOutputs",
+    "ChatToolCall",
+    "ChatToolCallFunction",
+    "ChatToolCallType",
+    "ChatUsage",
+    "Message",
+    "MessageContentType",
+    "MessageObjectString",
+    "MessageObjectStringType",
     "MessageRole",
     "MessageType",
-    "MessageContentType",
-    "MessageObjectStringType",
-    "MessageObjectString",
-    "Message",
-    "ChatStatus",
-    "ChatError",
-    "ChatRequiredActionType",
-    "ChatToolCallType",
-    "ChatToolCallFunction",
-    "ChatToolCall",
-    "ChatSubmitToolOutputs",
-    "ChatRequiredAction",
-    "ChatUsage",
-    "Chat",
-    "ChatPoll",
-    "ChatEventType",
-    "ChatEvent",
     "ToolOutput",
+    # config
+    "COZE_CN_BASE_URL",
+    "COZE_COM_BASE_URL",
+    "DEFAULT_CONNECTION_LIMITS",
+    "DEFAULT_TIMEOUT",
     # conversations
     "Conversation",
     "Section",
@@ -342,152 +353,43 @@ __all__ = [
     "CreateConversationMessageFeedbackResp",
     "DeleteConversationMessageFeedbackResp",
     "FeedbackType",
+    # coze
+    "AsyncCoze",
+    "Coze",
+    # datasets
+    "CreateDatasetResp",
+    "Dataset",
+    "DatasetStatus",
+    "DocumentProgress",
+    # datasets.documents
+    "Document",
+    "DocumentBase",
+    "DocumentChunkStrategy",
+    "DocumentFormatType",
+    "DocumentSourceInfo",
+    "DocumentSourceType",
+    "DocumentStatus",
+    "DocumentUpdateRule",
+    "DocumentUpdateType",
+    # datasets.images
+    "Photo",
+    # enterprises.members
+    "EnterpriseMember",
+    "EnterpriseMemberRole",
+    # exception
+    "CozeAPIError",
+    "CozeError",
+    "CozeInvalidEventError",
+    "CozePKCEAuthError",
+    "CozePKCEAuthErrorType",
     # files
     "File",
     # folders
     "FolderType",
     "SimpleFolder",
-    # datasets
-    "Dataset",
-    "DatasetStatus",
-    "DocumentProgress",
-    "CreateDatasetResp",
-    # datasets.images
-    "Photo",
-    # datasets.documents
-    "DocumentChunkStrategy",
-    "DocumentFormatType",
-    "DocumentSourceType",
-    "DocumentStatus",
-    "DocumentUpdateType",
-    "Document",
-    "DocumentSourceInfo",
-    "DocumentUpdateRule",
-    "DocumentBase",
-    # enterprises.members
-    "EnterpriseMember",
-    "EnterpriseMemberRole",
-    # websockets.audio.speech
-    "InputTextBufferAppendEvent",
-    "InputTextBufferCompleteEvent",
-    "SpeechUpdateEvent",
-    "SpeechCreatedEvent",
-    "SpeechUpdatedEvent",
-    "InputTextBufferCompletedEvent",
-    "SpeechAudioUpdateEvent",
-    "SpeechAudioCompletedEvent",
-    "WebsocketsAudioSpeechEventHandler",
-    "WebsocketsAudioSpeechClient",
-    "AsyncWebsocketsAudioSpeechEventHandler",
-    "AsyncWebsocketsAudioSpeechClient",
-    # websockets.audio.transcriptions
-    "TranscriptionsUpdateEvent",
-    "InputAudioBufferAppendEvent",
-    "InputAudioBufferCompleteEvent",
-    "InputAudioBufferClearEvent",
-    "TranscriptionsCreatedEvent",
-    "TranscriptionsUpdatedEvent",
-    "InputAudioBufferCompletedEvent",
-    "InputAudioBufferClearedEvent",
-    "TranscriptionsMessageUpdateEvent",
-    "TranscriptionsMessageCompletedEvent",
-    "WebsocketsAudioTranscriptionsEventHandler",
-    "WebsocketsAudioTranscriptionsClient",
-    "AsyncWebsocketsAudioTranscriptionsEventHandler",
-    "AsyncWebsocketsAudioTranscriptionsClient",
-    # websockets.chat
-    "ChatUpdateEvent",
-    "ConversationMessageCreateEvent",
-    "ConversationClear",
-    "ConversationChatSubmitToolOutputsEvent",
-    "ConversationChatCancelEvent",
-    "InputTextGenerateAudioEvent",
-    "ChatCreatedEvent",
-    "ChatUpdatedEvent",
-    "ConversationChatCreatedEvent",
-    "ConversationChatInProgressEvent",
-    "ConversationMessageDeltaEvent",
-    "ConversationAudioSentenceStartEvent",
-    "ConversationMessageCompletedEvent",
-    "ConversationAudioCompletedEvent",
-    "ConversationAudioTranscriptCompletedEvent",
-    "ConversationChatRequiresActionEvent",
-    "InputAudioBufferSpeechStartedEvent",
-    "InputAudioBufferSpeechStoppedEvent",
-    "ConversationAudioDeltaEvent",
-    "ConversationChatCompletedEvent",
-    "ConversationChatFailedEvent",
-    "ConversationClearedEvent",
-    "ConversationChatCanceledEvent",
-    "ConversationAudioTranscriptUpdateEvent",
-    "WebsocketsChatEventHandler",
-    "WebsocketsChatClient",
-    "AsyncWebsocketsChatEventHandler",
-    "AsyncWebsocketsChatClient",
-    # websockets
-    "WebsocketsEventType",
-    "WebsocketsEvent",
-    "WebsocketsErrorEvent",
-    "LimitConfig",
-    "InputAudio",
-    "OpusConfig",
-    "PCMConfig",
-    "OutputAudio",
-    # workflows
-    "WorkflowBasic",
-    "WorkflowMode",
-    # workflows.versions
-    "WorkflowUserInfo",
-    "WorkflowVersionInfo",
-    # workflows.runs
-    "WorkflowRunResult",
-    "WorkflowEventType",
-    "WorkflowEventMessage",
-    "WorkflowEventInterruptData",
-    "WorkflowEventInterrupt",
-    "WorkflowEventError",
-    "WorkflowEvent",
-    # workflows.runs.run_histories
-    "WorkflowExecuteStatus",
-    "WorkflowRunMode",
-    "WorkflowRunHistory",
-    "WorkflowRunHistoryNodeExecuteStatus",
-    # workflows.runs.run_histories.execute_nodes
-    "WorkflowNodeExecuteHistory",
-    # workspaces
-    "WorkspaceRoleType",
-    "WorkspaceType",
-    "Workspace",
-    # workspaces.members
-    "CreateWorkspaceMemberResp",
-    "DeleteWorkspaceMemberResp",
-    "WorkspaceMember",
-    # templates
-    "TemplateDuplicateResp",
-    "TemplateEntityType",
-    # users
-    "User",
-    # variables
-    "VariableValue",
-    "UpdateVariableResp",
     # log
     "setup_logging",
-    # config
-    "COZE_COM_BASE_URL",
-    "COZE_CN_BASE_URL",
-    "DEFAULT_TIMEOUT",
-    "DEFAULT_CONNECTION_LIMITS",
-    # coze
-    "AsyncCoze",
-    "Coze",
-    # exception
-    "CozeError",
-    "CozeAPIError",
-    "CozeInvalidEventError",
-    "CozePKCEAuthError",
-    "CozePKCEAuthErrorType",
     # model
-    "ListResponse",
     "AsyncLastIDPaged",
     "AsyncNumberPaged",
     "AsyncPagedBase",
@@ -495,10 +397,114 @@ __all__ = [
     "FileHTTPResponse",
     "LastIDPaged",
     "LastIDPagedResponse",
+    "ListResponse",
     "NumberPaged",
     "NumberPagedResponse",
     "Stream",
     # request
-    "SyncHTTPClient",
     "AsyncHTTPClient",
+    "SyncHTTPClient",
+    # templates
+    "TemplateDuplicateResp",
+    "TemplateEntityType",
+    # users
+    "User",
+    # variables
+    "UpdateVariableResp",
+    "VariableValue",
+    # websockets.audio.speech
+    "AsyncWebsocketsAudioSpeechClient",
+    "AsyncWebsocketsAudioSpeechEventHandler",
+    "InputTextBufferAppendEvent",
+    "InputTextBufferCompletedEvent",
+    "InputTextBufferCompleteEvent",
+    "SpeechAudioCompletedEvent",
+    "SpeechAudioUpdateEvent",
+    "SpeechCreatedEvent",
+    "SpeechUpdatedEvent",
+    "SpeechUpdateEvent",
+    "WebsocketsAudioSpeechClient",
+    "WebsocketsAudioSpeechEventHandler",
+    # websockets.audio.transcriptions
+    "AsyncWebsocketsAudioTranscriptionsClient",
+    "AsyncWebsocketsAudioTranscriptionsEventHandler",
+    "InputAudioBufferAppendEvent",
+    "InputAudioBufferClearedEvent",
+    "InputAudioBufferClearEvent",
+    "InputAudioBufferCompletedEvent",
+    "InputAudioBufferCompleteEvent",
+    "TranscriptionsCreatedEvent",
+    "TranscriptionsMessageCompletedEvent",
+    "TranscriptionsMessageUpdateEvent",
+    "TranscriptionsUpdatedEvent",
+    "TranscriptionsUpdateEvent",
+    "WebsocketsAudioTranscriptionsClient",
+    "WebsocketsAudioTranscriptionsEventHandler",
+    # websockets.chat
+    "AsyncWebsocketsChatClient",
+    "AsyncWebsocketsChatEventHandler",
+    "ChatCreatedEvent",
+    "ChatUpdatedEvent",
+    "ChatUpdateEvent",
+    "ConversationAudioCompletedEvent",
+    "ConversationAudioDeltaEvent",
+    "ConversationAudioSentenceStartEvent",
+    "ConversationAudioTranscriptCompletedEvent",
+    "ConversationAudioTranscriptUpdateEvent",
+    "ConversationChatCanceledEvent",
+    "ConversationChatCancelEvent",
+    "ConversationChatCompletedEvent",
+    "ConversationChatCreatedEvent",
+    "ConversationChatFailedEvent",
+    "ConversationChatInProgressEvent",
+    "ConversationChatRequiresActionEvent",
+    "ConversationChatSubmitToolOutputsEvent",
+    "ConversationClear",
+    "ConversationClearedEvent",
+    "ConversationMessageCompletedEvent",
+    "ConversationMessageCreateEvent",
+    "ConversationMessageDeltaEvent",
+    "InputAudioBufferSpeechStartedEvent",
+    "InputAudioBufferSpeechStoppedEvent",
+    "InputTextGenerateAudioEvent",
+    "WebsocketsChatClient",
+    "WebsocketsChatEventHandler",
+    # websockets.ws
+    "InputAudio",
+    "LimitConfig",
+    "OpusConfig",
+    "OutputAudio",
+    "PCMConfig",
+    "WebsocketsErrorEvent",
+    "WebsocketsEvent",
+    "WebsocketsEventType",
+    # workflows
+    "WorkflowBasic",
+    "WorkflowMode",
+    # workflows.runs
+    "WorkflowEvent",
+    "WorkflowEventError",
+    "WorkflowEventInterrupt",
+    "WorkflowEventInterruptData",
+    "WorkflowEventMessage",
+    "WorkflowEventType",
+    "WorkflowRunResult",
+    # workflows.runs.run_histories
+    "WorkflowExecuteStatus",
+    "WorkflowRunHistory",
+    "WorkflowRunHistoryNodeExecuteStatus",
+    "WorkflowRunMode",
+    # workflows.runs.run_histories.execute_nodes
+    "WorkflowNodeExecuteHistory",
+    # workflows.versions
+    "WorkflowUserInfo",
+    "WorkflowVersionInfo",
+    # workspaces
+    "Workspace",
+    "WorkspaceRoleType",
+    "WorkspaceType",
+    # workspaces.members
+    "CreateWorkspaceMemberResp",
+    "DeleteWorkspaceMemberResp",
+    "WorkspaceMember",
 ]
