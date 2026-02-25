@@ -211,7 +211,6 @@ class DocumentSourceInfo(CozeModel):
     # 网页的 URL 地址。
     # 上传在线网页时必选
     web_url: Optional[str] = None
-
     source_file_id: Optional[str] = None  # uploaded by `coze.files.upload`
 
     # 文件的上传方式。支持设置为 1，表示上传在线网页。

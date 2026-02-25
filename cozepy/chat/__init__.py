@@ -153,7 +153,6 @@ class Message(CozeModel):
     # Additional information when creating a message, and this additional information will also be returned when retrieving messages.
     # Custom key-value pairs should be specified in Map object format, with a length of 16 key-value pairs. The length of the key should be between 1 and 64 characters, and the length of the value should be between 1 and 512 characters.
     meta_data: Optional[Dict[str, str]] = None
-
     id: Optional[str] = None
     conversation_id: Optional[str] = None
     # section_id is used to distinguish the context sections of the session history. The same section is one context.
@@ -319,13 +318,10 @@ class Chat(CozeModel):
     # failed: The session has failed.
     # requires_action: The session is interrupted and requires further processing.
     status: ChatStatus = ChatStatus.UNKNOWN
-
     # Details of the information needed for execution.
     required_action: Optional[ChatRequiredAction] = None
-
     # Detailed information about Token consumption.
     usage: Optional[ChatUsage] = None
-
     inserted_additional_messages: Optional[List[InsertedMessage]] = None
 
 

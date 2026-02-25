@@ -115,13 +115,9 @@ class WorkflowEvent(CozeModel):
 
     # The current streaming data packet event.
     event: WorkflowEventType
-
     message: Optional[WorkflowEventMessage] = None
-
     interrupt: Optional[WorkflowEventInterrupt] = None
-
     error: Optional[WorkflowEventError] = None
-
     unknown: Optional[Dict] = None
 
 
