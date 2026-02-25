@@ -1,9 +1,12 @@
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from cozepy.bots import PublishStatus
 from cozepy.model import AsyncNumberPaged, CozeModel, NumberPaged, NumberPagedResponse
 from cozepy.request import HTTPRequest, Requester
 from cozepy.util import remove_none_values, remove_url_trailing_slash
+
+if TYPE_CHECKING:
+    from .collaborators import AppsCollaboratorsClient, AsyncAppsCollaboratorsClient
 
 
 class SimpleApp(CozeModel):
@@ -16,10 +19,6 @@ class SimpleApp(CozeModel):
     updated_at: int
     folder_id: Optional[str] = None
     published_at: Optional[int] = None
-
-
-class RemoveAppCollaboratorResp(CozeModel):
-    pass
 
 
 class _PrivateListAppsData(CozeModel, NumberPagedResponse[SimpleApp]):
@@ -40,6 +39,15 @@ class AppsClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
+        self._collaborators: Optional[AppsCollaboratorsClient] = None
+
+    @property
+    def collaborators(self) -> "AppsCollaboratorsClient":
+        if not self._collaborators:
+            from .collaborators import AppsCollaboratorsClient
+
+            self._collaborators = AppsCollaboratorsClient(base_url=self._base_url, requester=self._requester)
+        return self._collaborators
 
     def list(
         self,
@@ -90,17 +98,20 @@ class AppsClient(object):
             request_maker=request_maker,
         )
 
-    def delete_collaborator(self, *, app_id: str, user_id: str, **kwargs) -> RemoveAppCollaboratorResp:
-        """删除应用协作者"""
-        url = f"{self._base_url}/v1/apps/{app_id}/collaborators/{user_id}"
-        headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("delete", url, False, cast=RemoveAppCollaboratorResp, headers=headers)
-
 
 class AsyncAppsClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
+        self._collaborators: Optional[AsyncAppsCollaboratorsClient] = None
+
+    @property
+    def collaborators(self) -> "AsyncAppsCollaboratorsClient":
+        if not self._collaborators:
+            from .collaborators import AsyncAppsCollaboratorsClient
+
+            self._collaborators = AsyncAppsCollaboratorsClient(base_url=self._base_url, requester=self._requester)
+        return self._collaborators
 
     async def list(
         self,
@@ -150,9 +161,3 @@ class AsyncAppsClient(object):
             requestor=self._requester,
             request_maker=request_maker,
         )
-
-    async def delete_collaborator(self, *, app_id: str, user_id: str, **kwargs) -> RemoveAppCollaboratorResp:
-        """删除应用协作者"""
-        url = f"{self._base_url}/v1/apps/{app_id}/collaborators/{user_id}"
-        headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("delete", url, False, cast=RemoveAppCollaboratorResp, headers=headers)
