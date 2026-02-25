@@ -32,13 +32,7 @@ class EnterprisesMembersClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    def create(
-        self,
-        *,
-        enterprise_id: str,
-        users: List[EnterpriseMember],
-        **kwargs,
-    ) -> CreateEnterpriseMemberResp:
+    def create(self, *, enterprise_id: str, users: List[EnterpriseMember], **kwargs) -> CreateEnterpriseMemberResp:
         url = f"{self._base_url}/v1/enterprises/{enterprise_id}/members"
         headers: Optional[dict] = kwargs.get("headers")
         body = dump_exclude_none(
@@ -95,11 +89,7 @@ class AsyncEnterprisesMembersClient(object):
         self._requester = requester
 
     async def create(
-        self,
-        *,
-        enterprise_id: str,
-        users: List[EnterpriseMember],
-        **kwargs,
+        self, *, enterprise_id: str, users: List[EnterpriseMember], **kwargs
     ) -> CreateEnterpriseMemberResp:
         url = f"{self._base_url}/v1/enterprises/{enterprise_id}/members"
         headers: Optional[dict] = kwargs.get("headers")

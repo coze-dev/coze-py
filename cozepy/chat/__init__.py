@@ -754,12 +754,7 @@ class ChatClient(object):
         )
         return Stream(resp._raw_response, resp.data, fields=["event", "data"], handler=_chat_stream_handler)
 
-    def cancel(
-        self,
-        *,
-        conversation_id: str,
-        chat_id: str,
-    ) -> Chat:
+    def cancel(self, *, conversation_id: str, chat_id: str) -> Chat:
         """
         Call this API to cancel an ongoing chat.
 
@@ -1084,12 +1079,7 @@ class AsyncChatClient(object):
             resp.data, fields=["event", "data"], handler=_chat_stream_handler, raw_response=resp._raw_response
         )
 
-    async def cancel(
-        self,
-        *,
-        conversation_id: str,
-        chat_id: str,
-    ) -> Chat:
+    async def cancel(self, *, conversation_id: str, chat_id: str) -> Chat:
         """
         Call this API to cancel an ongoing chat.
 

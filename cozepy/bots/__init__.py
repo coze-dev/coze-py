@@ -502,7 +502,12 @@ class BotsClient(object):
         return self._requester.request("post", url, False, Bot, headers=headers, body=body)
 
     def unpublish(
-        self, *, bot_id: str, connector_id: str, unpublish_reason: Optional[str] = None, **kwargs
+        self,
+        *,
+        bot_id: str,
+        connector_id: str,
+        unpublish_reason: Optional[str] = None,
+        **kwargs,
     ) -> UnpublishBotResp:
         """
         下架智能体
@@ -616,7 +621,13 @@ class BotsClient(object):
                 page_size=page_size,
             )
 
-    def _list_v1(self, *, space_id: str, page_num: int = 1, page_size: int = 20) -> NumberPaged[SimpleBot]:
+    def _list_v1(
+        self,
+        *,
+        space_id: str,
+        page_num: int = 1,
+        page_size: int = 20,
+    ) -> NumberPaged[SimpleBot]:
         """
         Get the bots published as API service.
         查看指定空间发布到 Bot as API 渠道的 Bot 列表。
@@ -845,7 +856,12 @@ class AsyncBotsClient(object):
         return await self._requester.arequest("post", url, False, Bot, headers=headers, body=body)
 
     async def unpublish(
-        self, *, bot_id: str, connector_id: str, unpublish_reason: Optional[str] = None, **kwargs
+        self,
+        *,
+        bot_id: str,
+        connector_id: str,
+        unpublish_reason: Optional[str] = None,
+        **kwargs,
     ) -> UnpublishBotResp:
         """
         下架智能体
@@ -959,7 +975,12 @@ class AsyncBotsClient(object):
             return await self._list_v1(space_id=space_id, page_num=page_num, page_size=page_size, **kwargs)
 
     async def _list_v1(
-        self, *, space_id: str, page_num: int = 1, page_size: int = 20, **kwargs
+        self,
+        *,
+        space_id: str,
+        page_num: int = 1,
+        page_size: int = 20,
+        **kwargs,
     ) -> AsyncNumberPaged[SimpleBot]:
         """
         Get the bots published as API service.

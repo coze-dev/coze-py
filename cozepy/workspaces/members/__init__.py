@@ -42,13 +42,7 @@ class WorkspacesMembersClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    def create(
-        self,
-        *,
-        workspace_id: str,
-        users: List[WorkspaceMember],
-        **kwargs,
-    ) -> CreateWorkspaceMemberResp:
+    def create(self, *, workspace_id: str, users: List[WorkspaceMember], **kwargs) -> CreateWorkspaceMemberResp:
         """批量邀请用户加入空间
 
         :param workspace_id: 需要添加用户的空间 ID。
@@ -71,13 +65,7 @@ class WorkspacesMembersClient(object):
             "post", url, stream=False, cast=CreateWorkspaceMemberResp, headers=headers, body=body
         )
 
-    def delete(
-        self,
-        *,
-        workspace_id: str,
-        user_ids: List[str],
-        **kwargs,
-    ) -> DeleteWorkspaceMemberResp:
+    def delete(self, *, workspace_id: str, user_ids: List[str], **kwargs) -> DeleteWorkspaceMemberResp:
         """ "批量移除空间中的用户
 
         :param workspace_id: 需要移除用户的空间 ID。
@@ -140,13 +128,7 @@ class AsyncWorkspacesMembersClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    async def create(
-        self,
-        *,
-        workspace_id: str,
-        users: List[WorkspaceMember],
-        **kwargs,
-    ) -> CreateWorkspaceMemberResp:
+    async def create(self, *, workspace_id: str, users: List[WorkspaceMember], **kwargs) -> CreateWorkspaceMemberResp:
         """批量邀请用户加入空间
 
         :param workspace_id: 需要添加用户的空间 ID。
@@ -169,13 +151,7 @@ class AsyncWorkspacesMembersClient(object):
             "post", url, stream=False, cast=CreateWorkspaceMemberResp, headers=headers, body=body
         )
 
-    async def delete(
-        self,
-        *,
-        workspace_id: str,
-        user_ids: List[str],
-        **kwargs,
-    ) -> DeleteWorkspaceMemberResp:
+    async def delete(self, *, workspace_id: str, user_ids: List[str], **kwargs) -> DeleteWorkspaceMemberResp:
         """ "批量移除空间中的用户
 
         :param workspace_id: 需要移除用户的空间 ID。
