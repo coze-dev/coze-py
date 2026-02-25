@@ -61,18 +61,10 @@ class WorkflowsClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
-        self._runs: Optional[WorkflowsRunsClient] = None
         self._chat: Optional[WorkflowsChatClient] = None
         self._collaborators: Optional[WorkflowsCollaboratorsClient] = None
+        self._runs: Optional[WorkflowsRunsClient] = None
         self._versions: Optional[WorkflowsVersionsClient] = None
-
-    @property
-    def runs(self) -> "WorkflowsRunsClient":
-        if not self._runs:
-            from .runs import WorkflowsRunsClient
-
-            self._runs = WorkflowsRunsClient(self._base_url, self._requester)
-        return self._runs
 
     @property
     def chat(self) -> "WorkflowsChatClient":
@@ -89,6 +81,14 @@ class WorkflowsClient(object):
 
             self._collaborators = WorkflowsCollaboratorsClient(self._base_url, self._requester)
         return self._collaborators
+
+    @property
+    def runs(self) -> "WorkflowsRunsClient":
+        if not self._runs:
+            from .runs import WorkflowsRunsClient
+
+            self._runs = WorkflowsRunsClient(self._base_url, self._requester)
+        return self._runs
 
     @property
     def versions(self) -> "WorkflowsVersionsClient":
@@ -160,18 +160,10 @@ class AsyncWorkflowsClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
-        self._runs: Optional[AsyncWorkflowsRunsClient] = None
         self._chat: Optional[AsyncWorkflowsChatClient] = None
         self._collaborators: Optional[AsyncWorkflowsCollaboratorsClient] = None
+        self._runs: Optional[AsyncWorkflowsRunsClient] = None
         self._versions: Optional[AsyncWorkflowsVersionsClient] = None
-
-    @property
-    def runs(self) -> "AsyncWorkflowsRunsClient":
-        if not self._runs:
-            from .runs import AsyncWorkflowsRunsClient
-
-            self._runs = AsyncWorkflowsRunsClient(self._base_url, self._requester)
-        return self._runs
 
     @property
     def chat(self) -> "AsyncWorkflowsChatClient":
@@ -188,6 +180,14 @@ class AsyncWorkflowsClient(object):
 
             self._collaborators = AsyncWorkflowsCollaboratorsClient(self._base_url, self._requester)
         return self._collaborators
+
+    @property
+    def runs(self) -> "AsyncWorkflowsRunsClient":
+        if not self._runs:
+            from .runs import AsyncWorkflowsRunsClient
+
+            self._runs = AsyncWorkflowsRunsClient(self._base_url, self._requester)
+        return self._runs
 
     @property
     def versions(self) -> "AsyncWorkflowsVersionsClient":
