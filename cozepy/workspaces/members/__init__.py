@@ -89,8 +89,8 @@ class WorkspacesMembersClient(object):
         self,
         *,
         workspace_id: str,
-        page_num: int = 1,
         page_size: int = 20,
+        page_num: int = 1,
         **kwargs,
     ) -> NumberPaged[WorkspaceMember]:
         """查看空间成员列表
@@ -178,8 +178,8 @@ class AsyncWorkspacesMembersClient(object):
         self,
         *,
         workspace_id: str,
-        page_num: int = 1,
         page_size: int = 20,
+        page_num: int = 1,
         **kwargs,
     ) -> AsyncNumberPaged[WorkspaceMember]:
         """查看空间成员列表

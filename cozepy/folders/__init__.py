@@ -63,8 +63,8 @@ class FoldersClient(object):
         workspace_id: str,
         folder_type: FolderType,
         parent_folder_id: Optional[str] = None,
-        page_num: int = 1,
         page_size: int = 20,
+        page_num: int = 1,
         **kwargs,
     ) -> NumberPaged[SimpleFolder]:
         url = f"{self._base_url}/v1/folders"
@@ -124,8 +124,8 @@ class AsyncFoldersClient(object):
         workspace_id: str,
         folder_type: FolderType,
         parent_folder_id: Optional[str] = None,
-        page_num: int = 1,
         page_size: int = 20,
+        page_num: int = 1,
         **kwargs,
     ) -> AsyncNumberPaged[SimpleFolder]:
         url = f"{self._base_url}/v1/folders"

@@ -589,8 +589,8 @@ class BotsClient(object):
         self,
         *,
         space_id: str,
-        page_num: int = 1,
         page_size: int = 20,
+        page_num: int = 1,
         **kwargs,
     ) -> NumberPaged[SimpleBot]:
         """
@@ -640,8 +640,8 @@ class BotsClient(object):
         workspace_id: str,
         publish_status: Optional[PublishStatus] = None,
         connector_id: Optional[str] = None,
-        page_num: int = 1,
         page_size: int = 20,
+        page_num: int = 1,
         **kwargs,
     ) -> NumberPaged[SimpleBot]:
         """
@@ -908,8 +908,8 @@ class AsyncBotsClient(object):
         self,
         *,
         space_id: str,
-        page_num: int = 1,
         page_size: int = 20,
+        page_num: int = 1,
         **kwargs,
     ) -> AsyncNumberPaged[SimpleBot]:
         """
@@ -959,8 +959,8 @@ class AsyncBotsClient(object):
         workspace_id: str,
         publish_status: Optional[PublishStatus] = None,
         connector_id: Optional[str] = None,
-        page_num: int = 1,
         page_size: int = 20,
+        page_num: int = 1,
         **kwargs,
     ) -> AsyncNumberPaged[SimpleBot]:
         """

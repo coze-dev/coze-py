@@ -53,8 +53,8 @@ class WorkflowsVersionsClient(object):
         *,
         workflow_id: str,
         publish_status: Optional[PublishStatus] = None,
-        page_size: int = 10,
         page_token: Optional[str] = None,
+        page_size: int = 10,
         **kwargs,
     ) -> TokenPaged[WorkflowVersionInfo]:
         """
@@ -109,8 +109,8 @@ class AsyncWorkflowsVersionsClient(object):
         *,
         workflow_id: str,
         publish_status: Optional[PublishStatus] = None,
-        page_size: int = 10,
         page_token: Optional[str] = None,
+        page_size: int = 10,
         **kwargs,
     ) -> AsyncTokenPaged[WorkflowVersionInfo]:
         """
