@@ -1,11 +1,25 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from cozepy.model import CozeModel
 from cozepy.request import Requester
-from cozepy.util import remove_url_trailing_slash
+from cozepy.util import remove_none_values, remove_url_trailing_slash
 
 if TYPE_CHECKING:
     from cozepy.connectors.bots import AsyncConnectorsBotsClient, ConnectorsBotsClient
+
+
+class UserConfigEnum(CozeModel):
+    label: str
+    value: str
+
+
+class UserConfig(CozeModel):
+    enums: List[UserConfigEnum]
+    key: str
+
+
+class BindConnectorUserConfigResp(CozeModel):
+    pass
 
 
 class InstallConnectorResp(CozeModel):
@@ -34,6 +48,31 @@ class ConnectorsClient(object):
 
             self._bots = ConnectorsBotsClient(base_url=self._base_url, requester=self._requester)
         return self._bots
+
+    def bind(
+        self,
+        *,
+        connector_id: str,
+        configs: List[UserConfig],
+        user_id: Optional[str] = None,
+        **kwargs,
+    ) -> BindConnectorUserConfigResp:
+        """
+        绑定设备
+
+        将设备与自定义渠道绑定。 接口描述 硬件厂商可以调用本 API 将企业内的硬件设备与企业的自定义渠道绑定，当开发者发布智能体到该自定义渠道时，在发布配置页面的设备列表中选择对应的设备，即可快速发布到对应设备。 支持批量绑定多台设备。 创建自定义渠道后，默认未开启 API 绑定设备的能力，如果需要调用本 API，你需要将自定义渠道的渠道 ID 提供给扣子商务经理，申请开通渠道设备绑定的能力，并由商务经理配置设备绑定的 key。
+
+        :param connector_id: 企业自定义渠道的渠道 ID。 自定义渠道 ID 的获取方式如下：在扣子左下角单击头像，在**账号设置** > **发布渠道** > **企业自定义渠道管理**页面查看渠道 ID。自定义渠道入驻扣子的方式可参考[渠道入驻](https://www.coze.cn/open/docs/dev_how_to_guides/channel_integration_overview)文档。
+        """
+        url = f"{self._base_url}/v1/connectors/{connector_id}/user_configs"
+        headers: Optional[dict] = kwargs.get("headers")
+        body = remove_none_values(
+            {
+                "configs": [i.model_dump() for i in configs] if configs else [],
+                "user_id": user_id,
+            }
+        )
+        return self._requester.request("post", url, False, cast=BindConnectorUserConfigResp, headers=headers, body=body)
 
     def install(self, *, connector_id: str, workspace_id: str, **kwargs) -> InstallConnectorResp:
         """
@@ -73,6 +112,33 @@ class AsyncConnectorsClient(object):
 
             self._bots = AsyncConnectorsBotsClient(base_url=self._base_url, requester=self._requester)
         return self._bots
+
+    async def bind(
+        self,
+        *,
+        connector_id: str,
+        configs: List[UserConfig],
+        user_id: Optional[str] = None,
+        **kwargs,
+    ) -> BindConnectorUserConfigResp:
+        """
+        绑定设备
+
+        将设备与自定义渠道绑定。 接口描述 硬件厂商可以调用本 API 将企业内的硬件设备与企业的自定义渠道绑定，当开发者发布智能体到该自定义渠道时，在发布配置页面的设备列表中选择对应的设备，即可快速发布到对应设备。 支持批量绑定多台设备。 创建自定义渠道后，默认未开启 API 绑定设备的能力，如果需要调用本 API，你需要将自定义渠道的渠道 ID 提供给扣子商务经理，申请开通渠道设备绑定的能力，并由商务经理配置设备绑定的 key。
+
+        :param connector_id: 企业自定义渠道的渠道 ID。 自定义渠道 ID 的获取方式如下：在扣子左下角单击头像，在**账号设置** > **发布渠道** > **企业自定义渠道管理**页面查看渠道 ID。自定义渠道入驻扣子的方式可参考[渠道入驻](https://www.coze.cn/open/docs/dev_how_to_guides/channel_integration_overview)文档。
+        """
+        url = f"{self._base_url}/v1/connectors/{connector_id}/user_configs"
+        headers: Optional[dict] = kwargs.get("headers")
+        body = remove_none_values(
+            {
+                "configs": [i.model_dump() for i in configs] if configs else [],
+                "user_id": user_id,
+            }
+        )
+        return await self._requester.arequest(
+            "post", url, False, cast=BindConnectorUserConfigResp, headers=headers, body=body
+        )
 
     async def install(self, *, connector_id: str, workspace_id: str, **kwargs) -> InstallConnectorResp:
         """
