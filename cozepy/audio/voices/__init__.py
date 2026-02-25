@@ -124,7 +124,7 @@ class VoicesClient(object):
         )
         files = {"file": _try_fix_file(file)}
 
-        return self._requester.request("post", url, False, Voice, headers=headers, body=body, files=files)
+        return self._requester.request("post", url, False, cast=Voice, headers=headers, body=body, files=files)
 
     def list(
         self,
@@ -231,7 +231,7 @@ class AsyncVoicesClient(object):
         )
         files = {"file": _try_fix_file(file)}
 
-        return await self._requester.arequest("post", url, False, Voice, headers=headers, body=body, files=files)
+        return await self._requester.arequest("post", url, False, cast=Voice, headers=headers, body=body, files=files)
 
     async def list(
         self,

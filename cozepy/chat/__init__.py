@@ -706,7 +706,7 @@ class ChatClient(object):
             "chat_id": chat_id,
         }
         headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("post", url, False, Chat, params=params, headers=headers)
+        return self._requester.request("post", url, False, cast=Chat, params=params, headers=headers)
 
     def submit_tool_outputs(
         self, *, conversation_id: str, chat_id: str, tool_outputs: List[ToolOutput], stream: bool
@@ -776,7 +776,7 @@ class ChatClient(object):
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return self._requester.request("post", url, False, Chat, headers=headers, body=body)
+        return self._requester.request("post", url, False, cast=Chat, headers=headers, body=body)
 
     @property
     def messages(
@@ -1002,7 +1002,7 @@ class AsyncChatClient(object):
             "chat_id": chat_id,
         }
         headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("post", url, False, Chat, params=params, headers=headers)
+        return await self._requester.arequest("post", url, False, cast=Chat, params=params, headers=headers)
 
     async def submit_tool_outputs(self, *, conversation_id: str, chat_id: str, tool_outputs: List[ToolOutput]) -> Chat:
         """
@@ -1105,7 +1105,7 @@ class AsyncChatClient(object):
             "conversation_id": conversation_id,
             "chat_id": chat_id,
         }
-        return await self._requester.arequest("post", url, False, Chat, headers=headers, body=body)
+        return await self._requester.arequest("post", url, False, cast=Chat, headers=headers, body=body)
 
     @property
     def messages(

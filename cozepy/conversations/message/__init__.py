@@ -84,7 +84,7 @@ class MessagesClient(object):
             "meta_data": meta_data,
         }
 
-        return self._requester.request("post", url, False, Message, params=params, headers=headers, body=body)
+        return self._requester.request("post", url, False, cast=Message, params=params, headers=headers, body=body)
 
     def list(
         self,
@@ -162,7 +162,7 @@ class MessagesClient(object):
         }
         headers: Optional[dict] = kwargs.get("headers")
 
-        return self._requester.request("get", url, False, Message, params=params, headers=headers)
+        return self._requester.request("get", url, False, cast=Message, params=params, headers=headers)
 
     def update(
         self,
@@ -201,7 +201,7 @@ class MessagesClient(object):
         }
 
         return self._requester.request(
-            "post", url, False, Message, params=params, headers=headers, body=body, data_field="message"
+            "post", url, False, cast=Message, params=params, headers=headers, body=body, data_field="message"
         )
 
     def delete(
@@ -228,7 +228,7 @@ class MessagesClient(object):
         }
         headers: Optional[dict] = kwargs.get("headers")
 
-        return self._requester.request("post", url, False, Message, params=params, headers=headers)
+        return self._requester.request("post", url, False, cast=Message, params=params, headers=headers)
 
 
 class AsyncMessagesClient(object):
@@ -287,7 +287,9 @@ class AsyncMessagesClient(object):
             "meta_data": meta_data,
         }
 
-        return await self._requester.arequest("post", url, False, Message, params=params, headers=headers, body=body)
+        return await self._requester.arequest(
+            "post", url, False, cast=Message, params=params, headers=headers, body=body
+        )
 
     async def list(
         self,
@@ -365,7 +367,7 @@ class AsyncMessagesClient(object):
         }
         headers: Optional[dict] = kwargs.get("headers")
 
-        return await self._requester.arequest("get", url, False, Message, params=params, headers=headers)
+        return await self._requester.arequest("get", url, False, cast=Message, params=params, headers=headers)
 
     async def update(
         self,
@@ -404,7 +406,7 @@ class AsyncMessagesClient(object):
         }
 
         return await self._requester.arequest(
-            "post", url, False, Message, params=params, headers=headers, body=body, data_field="message"
+            "post", url, False, cast=Message, params=params, headers=headers, body=body, data_field="message"
         )
 
     async def delete(
@@ -431,4 +433,4 @@ class AsyncMessagesClient(object):
         }
         headers: Optional[dict] = kwargs.get("headers")
 
-        return await self._requester.arequest("post", url, False, Message, params=params, headers=headers)
+        return await self._requester.arequest("post", url, False, cast=Message, params=params, headers=headers)

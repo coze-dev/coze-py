@@ -62,7 +62,7 @@ class ConnectorsBotsClient(object):
             "audit_status": audit_status,
             "reason": reason,
         }
-        return self._requester.request("put", url, False, UpdateConnectorBotResp, headers=headers, body=body)
+        return self._requester.request("put", url, False, cast=UpdateConnectorBotResp, headers=headers, body=body)
 
 
 class AsyncConnectorsBotsClient(object):
@@ -103,4 +103,6 @@ class AsyncConnectorsBotsClient(object):
             "audit_status": audit_status,
             "reason": reason,
         }
-        return await self._requester.arequest("put", url, False, UpdateConnectorBotResp, headers=headers, body=body)
+        return await self._requester.arequest(
+            "put", url, False, cast=UpdateConnectorBotResp, headers=headers, body=body
+        )

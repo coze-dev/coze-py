@@ -33,7 +33,7 @@ class TemplatesClient(object):
             "workspace_id": workspace_id,
             "name": name,
         }
-        return self._requester.request("post", url, False, TemplateDuplicateResp, headers=headers, body=body)
+        return self._requester.request("post", url, False, cast=TemplateDuplicateResp, headers=headers, body=body)
 
 
 class AsyncTemplatesClient(object):
@@ -55,4 +55,6 @@ class AsyncTemplatesClient(object):
             "workspace_id": workspace_id,
             "name": name,
         }
-        return await self._requester.arequest("post", url, False, TemplateDuplicateResp, headers=headers, body=body)
+        return await self._requester.arequest(
+            "post", url, False, cast=TemplateDuplicateResp, headers=headers, body=body
+        )

@@ -85,7 +85,7 @@ class ConversationsClient(object):
                 "connector_id": connector_id,
             }
         )
-        return self._requester.request("post", url, False, Conversation, headers=headers, body=body)
+        return self._requester.request("post", url, False, cast=Conversation, headers=headers, body=body)
 
     def list(
         self,
@@ -134,7 +134,7 @@ class ConversationsClient(object):
             "conversation_id": conversation_id,
         }
         headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("get", url, False, Conversation, params=params, headers=headers)
+        return self._requester.request("get", url, False, cast=Conversation, params=params, headers=headers)
 
     def clear(self, *, conversation_id: str, **kwargs) -> Section:
         """
@@ -146,7 +146,7 @@ class ConversationsClient(object):
         """
         url = f"{self._base_url}/v1/conversations/{conversation_id}/clear"
         headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("post", url, False, Section, headers=headers)
+        return self._requester.request("post", url, False, cast=Section, headers=headers)
 
     def update(self, *, conversation_id: str, name: Optional[str] = None, **kwargs) -> Conversation:
         """
@@ -162,7 +162,7 @@ class ConversationsClient(object):
         url = f"{self._base_url}/v1/conversations/{conversation_id}"
         headers: Optional[dict] = kwargs.get("headers")
         body = {"name": name}
-        return self._requester.request("put", url, False, Conversation, headers=headers, body=body)
+        return self._requester.request("put", url, False, cast=Conversation, headers=headers, body=body)
 
     def delete(self, *, conversation_id: str, **kwargs) -> DeleteConversationResp:
         """
@@ -176,7 +176,7 @@ class ConversationsClient(object):
         """
         url = f"{self._base_url}/v1/conversations/{conversation_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("delete", url, False, DeleteConversationResp, headers=headers)
+        return self._requester.request("delete", url, False, cast=DeleteConversationResp, headers=headers)
 
     @property
     def messages(self):
@@ -228,7 +228,7 @@ class AsyncConversationsClient(object):
                 "connector_id": connector_id,
             }
         )
-        return await self._requester.arequest("post", url, False, Conversation, headers=headers, body=body)
+        return await self._requester.arequest("post", url, False, cast=Conversation, headers=headers, body=body)
 
     async def list(
         self,
@@ -277,7 +277,7 @@ class AsyncConversationsClient(object):
             "conversation_id": conversation_id,
         }
         headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("get", url, False, Conversation, params=params, headers=headers)
+        return await self._requester.arequest("get", url, False, cast=Conversation, params=params, headers=headers)
 
     async def clear(self, *, conversation_id: str, **kwargs) -> Section:
         """
@@ -289,7 +289,7 @@ class AsyncConversationsClient(object):
         """
         url = f"{self._base_url}/v1/conversations/{conversation_id}/clear"
         headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("post", url, False, Section, headers=headers)
+        return await self._requester.arequest("post", url, False, cast=Section, headers=headers)
 
     async def update(self, *, conversation_id: str, name: Optional[str] = None, **kwargs) -> Conversation:
         """
@@ -305,7 +305,7 @@ class AsyncConversationsClient(object):
         url = f"{self._base_url}/v1/conversations/{conversation_id}"
         headers: Optional[dict] = kwargs.get("headers")
         body = {"name": name}
-        return await self._requester.arequest("put", url, False, Conversation, headers=headers, body=body)
+        return await self._requester.arequest("put", url, False, cast=Conversation, headers=headers, body=body)
 
     async def delete(self, *, conversation_id: str, **kwargs) -> DeleteConversationResp:
         """
@@ -319,7 +319,7 @@ class AsyncConversationsClient(object):
         """
         url = f"{self._base_url}/v1/conversations/{conversation_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("delete", url, False, DeleteConversationResp, headers=headers)
+        return await self._requester.arequest("delete", url, False, cast=DeleteConversationResp, headers=headers)
 
     @property
     def messages(self):

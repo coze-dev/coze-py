@@ -20,7 +20,7 @@ class UsersClient(object):
     def me(self, **kwargs) -> User:
         url = f"{self._base_url}/v1/users/me"
         headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("get", url, False, User, headers=headers)
+        return self._requester.request("get", url, False, cast=User, headers=headers)
 
 
 class AsyncUsersClient(object):
@@ -31,4 +31,4 @@ class AsyncUsersClient(object):
     async def me(self, **kwargs) -> User:
         url = f"{self._base_url}/v1/users/me"
         headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("get", url, False, User, headers=headers)
+        return await self._requester.arequest("get", url, False, cast=User, headers=headers)

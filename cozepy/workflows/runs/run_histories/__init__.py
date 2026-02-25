@@ -144,7 +144,7 @@ class WorkflowsRunsRunHistoriesClient(object):
         """
         url = f"{self._base_url}/v1/workflows/{workflow_id}/run_histories/{execute_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        res = self._requester.request("get", url, False, ListResponse[WorkflowRunHistory], headers=headers)
+        res = self._requester.request("get", url, False, cast=ListResponse[WorkflowRunHistory], headers=headers)
         data = res.data[0]
         data._raw_response = res._raw_response
         return data
@@ -178,7 +178,7 @@ class AsyncWorkflowsRunsRunHistoriesClient(object):
         """
         url = f"{self._base_url}/v1/workflows/{workflow_id}/run_histories/{execute_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        res = await self._requester.arequest("get", url, False, ListResponse[WorkflowRunHistory], headers=headers)
+        res = await self._requester.arequest("get", url, False, cast=ListResponse[WorkflowRunHistory], headers=headers)
         data = res.data[0]
         data._raw_response = res._raw_response
         return data

@@ -427,7 +427,7 @@ class BotsClient(object):
                 "workflow_id_list": workflow_id_list,
             }
         )
-        return self._requester.request("post", url, False, Bot, headers=headers, body=body)
+        return self._requester.request("post", url, False, cast=Bot, headers=headers, body=body)
 
     def update(
         self,
@@ -499,7 +499,7 @@ class BotsClient(object):
             "connector_ids": connector_ids,
         }
 
-        return self._requester.request("post", url, False, Bot, headers=headers, body=body)
+        return self._requester.request("post", url, False, cast=Bot, headers=headers, body=body)
 
     def unpublish(
         self,
@@ -528,7 +528,7 @@ class BotsClient(object):
             "connector_id": connector_id,
             "unpublish_reason": unpublish_reason,
         }
-        return self._requester.request("post", url, False, UnpublishBotResp, headers=headers, body=body)
+        return self._requester.request("post", url, False, cast=UnpublishBotResp, headers=headers, body=body)
 
     def retrieve(self, *, bot_id: str, is_published: Optional[bool] = None, use_api_version: int = 1, **kwargs) -> Bot:
         """查看智能体配置
@@ -562,7 +562,7 @@ class BotsClient(object):
         url = f"{self._base_url}/v1/bot/get_online_info"
         params = {"bot_id": bot_id}
         headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("get", url, False, Bot, params=params, headers=headers)
+        return self._requester.request("get", url, False, cast=Bot, params=params, headers=headers)
 
     def _retrieve_v2(self, *, bot_id: str, is_published: Optional[bool] = None, **kwargs) -> Bot:
         """查看智能体配置
@@ -577,7 +577,7 @@ class BotsClient(object):
         url = f"{self._base_url}/v1/bots/{bot_id}"
         params = remove_none_values({"is_published": is_published})
         headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("get", url, False, Bot, params=params, headers=headers)
+        return self._requester.request("get", url, False, cast=Bot, params=params, headers=headers)
 
     def list(
         self,
@@ -785,7 +785,7 @@ class AsyncBotsClient(object):
                 "workflow_id_list": workflow_id_list,
             }
         )
-        return await self._requester.arequest("post", url, False, Bot, headers=headers, body=body)
+        return await self._requester.arequest("post", url, False, cast=Bot, headers=headers, body=body)
 
     async def update(
         self,
@@ -856,7 +856,7 @@ class AsyncBotsClient(object):
             "connector_ids": connector_ids,
         }
 
-        return await self._requester.arequest("post", url, False, Bot, headers=headers, body=body)
+        return await self._requester.arequest("post", url, False, cast=Bot, headers=headers, body=body)
 
     async def unpublish(
         self,
@@ -885,7 +885,7 @@ class AsyncBotsClient(object):
             "connector_id": connector_id,
             "unpublish_reason": unpublish_reason,
         }
-        return await self._requester.arequest("post", url, False, UnpublishBotResp, headers=headers, body=body)
+        return await self._requester.arequest("post", url, False, cast=UnpublishBotResp, headers=headers, body=body)
 
     async def retrieve(
         self, *, bot_id: str, is_published: Optional[bool] = None, use_api_version: int = 1, **kwargs
@@ -921,7 +921,7 @@ class AsyncBotsClient(object):
         url = f"{self._base_url}/v1/bot/get_online_info"
         params = {"bot_id": bot_id}
         headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("get", url, False, Bot, params=params, headers=headers)
+        return await self._requester.arequest("get", url, False, cast=Bot, params=params, headers=headers)
 
     async def _retrieve_v2(self, *, bot_id: str, is_published: Optional[bool] = None, **kwargs) -> Bot:
         """查看智能体配置
@@ -936,7 +936,7 @@ class AsyncBotsClient(object):
         url = f"{self._base_url}/v1/bots/{bot_id}"
         params = remove_none_values({"is_published": is_published})
         headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("get", url, False, Bot, params=params, headers=headers)
+        return await self._requester.arequest("get", url, False, cast=Bot, params=params, headers=headers)
 
     async def list(
         self,
