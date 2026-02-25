@@ -16,7 +16,6 @@ class AudioClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
-
         self._rooms: Optional[RoomsClient] = None
         self._voices: Optional[VoicesClient] = None
         self._speech: Optional[SpeechClient] = None
@@ -77,7 +76,6 @@ class AsyncAudioClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
-
         self._rooms: Optional[AsyncRoomsClient] = None
         self._voices: Optional[AsyncVoicesClient] = None
         self._speech: Optional[AsyncSpeechClient] = None

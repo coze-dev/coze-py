@@ -52,7 +52,6 @@ class WorkspacesClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
-
         self._members: Optional[WorkspacesMembersClient] = None
 
     @property
@@ -104,7 +103,6 @@ class AsyncWorkspacesClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
-
         self._members: Optional[AsyncWorkspacesMembersClient] = None
 
     @property

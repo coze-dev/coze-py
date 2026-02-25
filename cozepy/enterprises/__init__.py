@@ -11,7 +11,6 @@ class EnterprisesClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
-
         self._members: Optional[EnterprisesMembersClient] = None
 
     @property
@@ -27,7 +26,6 @@ class AsyncEnterprisesClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
-
         self._members: Optional[AsyncEnterprisesMembersClient] = None
 
     @property
