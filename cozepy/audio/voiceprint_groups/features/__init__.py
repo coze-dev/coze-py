@@ -128,13 +128,16 @@ class VoiceprintGroupsFeaturesClient(object):
         group_id: str,
         page_num: int = 1,
         page_size: int = 10,
+        **kwargs,
     ) -> NumberPaged[VoicePrintGroupFeature]:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features"
+        headers: Optional[dict] = kwargs.get("headers")
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
                 "GET",
                 url,
+                headers=headers,
                 params=remove_none_values(
                     {
                         "page_num": i_page_num,
@@ -232,13 +235,16 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
         group_id: str,
         page_num: int = 1,
         page_size: int = 100,
+        **kwargs,
     ) -> AsyncNumberPaged[VoicePrintGroupFeature]:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features"
+        headers: Optional[dict] = kwargs.get("headers")
 
         async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return await self._requester.amake_request(
                 "GET",
                 url,
+                headers=headers,
                 params=remove_none_values(
                     {
                         "page_num": i_page_num,

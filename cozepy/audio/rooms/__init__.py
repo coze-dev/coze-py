@@ -95,6 +95,7 @@ class RoomsClient(object):
         uid: Optional[str] = None,
         workflow_id: Optional[str] = None,
         config: Optional[RoomConfig] = None,
+        **kwargs,
     ) -> CreateRoomResp:
         """
         create rtc room
@@ -108,6 +109,7 @@ class RoomsClient(object):
         :return: create room result
         """
         url = f"{self._base_url}/v1/audio/rooms"
+        headers: Optional[dict] = kwargs.get("headers")
         body = remove_none_values(
             {
                 "bot_id": bot_id,
@@ -118,7 +120,7 @@ class RoomsClient(object):
                 "config": config.model_dump() if config else None,
             }
         )
-        return self._requester.request("post", url, stream=False, cast=CreateRoomResp, body=body)
+        return self._requester.request("post", url, stream=False, cast=CreateRoomResp, headers=headers, body=body)
 
 
 class AsyncRoomsClient(object):
@@ -139,6 +141,7 @@ class AsyncRoomsClient(object):
         uid: Optional[str] = None,
         workflow_id: Optional[str] = None,
         config: Optional[RoomConfig] = None,
+        **kwargs,
     ) -> CreateRoomResp:
         """
         create rtc room
@@ -152,6 +155,7 @@ class AsyncRoomsClient(object):
         :return: create room result
         """
         url = f"{self._base_url}/v1/audio/rooms"
+        headers: Optional[dict] = kwargs.get("headers")
         body = remove_none_values(
             {
                 "bot_id": bot_id,
@@ -162,4 +166,6 @@ class AsyncRoomsClient(object):
                 "config": config.model_dump() if config else None,
             }
         )
-        return await self._requester.arequest("post", url, stream=False, cast=CreateRoomResp, body=body)
+        return await self._requester.arequest(
+            "post", url, stream=False, cast=CreateRoomResp, headers=headers, body=body
+        )

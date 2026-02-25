@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
 from cozepy.model import CozeModel
 from cozepy.request import Requester
@@ -35,6 +35,7 @@ class LiveClient(object):
         self,
         *,
         live_id: str,
+        **kwargs,
     ) -> LiveInfo:
         """
         retrieve live
@@ -43,7 +44,8 @@ class LiveClient(object):
         :return: live info
         """
         url = f"{self._base_url}/v1/audio/live/{live_id}"
-        return self._requester.request("get", url, stream=False, cast=LiveInfo)
+        headers: Optional[dict] = kwargs.get("headers")
+        return self._requester.request("get", url, stream=False, cast=LiveInfo, headers=headers)
 
 
 class AsyncLiveClient(object):
@@ -59,6 +61,7 @@ class AsyncLiveClient(object):
         self,
         *,
         live_id: str,
+        **kwargs,
     ) -> LiveInfo:
         """
         retrieve live
@@ -67,4 +70,5 @@ class AsyncLiveClient(object):
         :return: live info
         """
         url = f"{self._base_url}/v1/audio/live/{live_id}"
-        return await self._requester.arequest("get", url, stream=False, cast=LiveInfo)
+        headers: Optional[dict] = kwargs.get("headers")
+        return await self._requester.arequest("get", url, stream=False, cast=LiveInfo, headers=headers)

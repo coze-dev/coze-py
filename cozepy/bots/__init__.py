@@ -627,6 +627,7 @@ class BotsClient(object):
         space_id: str,
         page_num: int = 1,
         page_size: int = 20,
+        **kwargs,
     ) -> NumberPaged[SimpleBot]:
         """
         Get the bots published as API service.
@@ -646,11 +647,13 @@ class BotsClient(object):
         指定空间发布到 Bot as API 渠道的 Bot 列表。
         """
         url = f"{self._base_url}/v1/space/published_bots_list"
+        headers: Optional[dict] = kwargs.get("headers")
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
                 "GET",
                 url,
+                headers=headers,
                 params={
                     "space_id": space_id,
                     "page_size": i_page_size,
@@ -1000,11 +1003,13 @@ class AsyncBotsClient(object):
         指定空间发布到 Bot as API 渠道的 Bot 列表。
         """
         url = f"{self._base_url}/v1/space/published_bots_list"
+        headers: Optional[dict] = kwargs.get("headers")
 
         async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return await self._requester.amake_request(
                 "GET",
                 url,
+                headers=headers,
                 params={
                     "space_id": space_id,
                     "page_size": i_page_size,

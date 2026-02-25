@@ -294,6 +294,7 @@ class DatasetsDocumentsClient(object):
         document_bases: List[DocumentBase],
         chunk_strategy: Optional[DocumentChunkStrategy] = None,
         format_type: Optional[DocumentFormatType] = DocumentFormatType.DOCUMENT,
+        **kwargs,
     ) -> ListResponse[Document]:
         """
         Upload files to the specific knowledge.
@@ -329,6 +330,7 @@ class DatasetsDocumentsClient(object):
         document_id: str,
         document_name: Optional[str] = None,
         update_rule: Optional[DocumentUpdateRule] = None,
+        **kwargs,
     ) -> UpdateDocumentRes:
         """
         Modify the knowledge base file name and update strategy.
@@ -358,7 +360,7 @@ class DatasetsDocumentsClient(object):
             body=body,
         )
 
-    def delete(self, *, document_ids: List[str]) -> DeleteDocumentRes:
+    def delete(self, *, document_ids: List[str], **kwargs) -> DeleteDocumentRes:
         """
         Delete text, images, sheets, and other files in the knowledge base, supporting batch deletion.
 
@@ -389,6 +391,7 @@ class DatasetsDocumentsClient(object):
         dataset_id: str,
         page_num: int = 1,
         page_size: int = 10,
+        **kwargs,
     ) -> NumberPaged[Document]:
         """
         View the file list of a specified knowledge base, which includes lists of documents, spreadsheets, or images.
@@ -438,6 +441,7 @@ class AsyncDatasetsDocumentsClient(object):
         dataset_id: str,
         document_bases: List[DocumentBase],
         chunk_strategy: Optional[DocumentChunkStrategy] = None,
+        **kwargs,
     ) -> ListResponse[Document]:
         """
         Upload files to the specific knowledge.
@@ -472,6 +476,7 @@ class AsyncDatasetsDocumentsClient(object):
         document_id: str,
         document_name: Optional[str] = None,
         update_rule: Optional[DocumentUpdateRule] = None,
+        **kwargs,
     ) -> UpdateDocumentRes:
         """
         Modify the knowledge base file name and update strategy.
@@ -501,7 +506,7 @@ class AsyncDatasetsDocumentsClient(object):
             body=body,
         )
 
-    async def delete(self, *, document_ids: List[str]) -> DeleteDocumentRes:
+    async def delete(self, *, document_ids: List[str], **kwargs) -> DeleteDocumentRes:
         """
         Delete text, images, sheets, and other files in the knowledge base, supporting batch deletion.
 
@@ -532,6 +537,7 @@ class AsyncDatasetsDocumentsClient(object):
         dataset_id: str,
         page_num: int = 1,
         page_size: int = 10,
+        **kwargs,
     ) -> AsyncNumberPaged[Document]:
         """
         View the file list of a specified knowledge base, which includes lists of documents, spreadsheets, or images.
