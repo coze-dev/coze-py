@@ -13,3 +13,5 @@ response.wav
 temp_response.pcm
 runs
 integrations
+.coverage
+coverage.xml
