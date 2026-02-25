@@ -52,20 +52,11 @@ class DocumentsClient(object):
             stacklevel=2,
         )
         """
-        Upload files to the specific knowledge.
+        创建知识库文件
 
-        docs en: https://www.coze.com/docs/developer_guides/create_knowledge_files
-        docs zh: https://www.coze.cn/docs/developer_guides/create_knowledge_files
+        上传方式 图片知识库 ✅ 格式支持 pdf、txt、doc、docx 类型。 调用此 API 向指定的扣子知识库上传文件。 接口说明 通过此 API，你可以向文本或图片知识库中上传文件。 本 API 仅适用于扣子知识库的文件上传操作，不适用于火山知识库上传文件。火山知识库上传文件请参见 火山知识库上传文件 。 上传图片到图片知识库时，可以通过 caption_type 参数设置系统标注或手动标注，如果选择手动标注，还需要调用 更新知识库图片描述 API 手动设置标注。 支持的上传方式如下： 注意事项 每次最多可上传 10 个文件。 必须上传和知识库类型匹配的文件，例如 txt 等文档类型的文件只能上传到文档知识库中，不可上传到表格知识库中。 每个请求只能选择一种上传方式，不支持同时上传在线网页和本地文档。 仅知识库的所有者可以向知识库中上传文件。 通过 Base 64 上传本地文件 上传在线网页 ❌ 通过 上传文件 上传 文本知识库 ❌ ✅ ❌ ✅
 
-        :param dataset_id: The ID of the knowledge base.
-        :param document_bases: The metadata information of the files awaiting upload. The array has a maximum length of
-        10, meaning up to 10 files can be uploaded at a time. For detailed instructions, refer to the DocumentBase
-        object.
-        :param chunk_strategy: Chunk strategy. These rules must be set only when uploading a file to a new knowledge
-        for the first time. For subsequent file uploads to this knowledge, it is not necessary to pass these rules; the
-        default is to continue using the initial settings, and modifications are not supported.
-        For detailed instructions, refer to the ChunkStrategy object.
-        :return: list of Document
+        :param document_bases: 表格类型一次只能创建一个待创建的文档信息
         """
         url = f"{self._base_url}/open_api/knowledge/document/create"
         headers = {"Agw-Js-Conv": "str"}
@@ -128,14 +119,11 @@ class DocumentsClient(object):
             stacklevel=2,
         )
         """
-        Delete text, images, sheets, and other files in the knowledge base, supporting batch deletion.
+        删除知识库文件
 
-        docs en: https://www.coze.com/docs/developer_guides/delete_knowledge_files
-        docs zh: https://www.coze.cn/docs/developer_guides/delete_knowledge_files
-
-        :param document_ids: The list of knowledge base files to be deleted. The maximum length of the array is 100,
-        meaning a maximum of 100 files can be deleted at one time.
-        :return: None
+        调用此接口删除扣子知识库中的文本、图片、表格等文件，支持批量删除。
+        * 仅知识库的所有者可以删除知识库文件。
+        * 知识库分为扣子知识库和火山知识库，该 API 仅用于删除扣子知识库中的文件，不支持删除火山知识库中的文件，如果需要删除火山知识库中的文件，请参见[删除火山知识库文件](https://www.volcengine.com/docs/84313/1254608)。
         """
         url = f"{self._base_url}/open_api/knowledge/document/delete"
         headers = {"Agw-Js-Conv": "str"}
@@ -229,20 +217,11 @@ class AsyncDocumentsClient(object):
             stacklevel=2,
         )
         """
-        Upload files to the specific knowledge.
+        创建知识库文件
 
-        docs en: https://www.coze.com/docs/developer_guides/create_knowledge_files
-        docs zh: https://www.coze.cn/docs/developer_guides/create_knowledge_files
+        ✅ ✅ ❌ 文本知识库 图片知识库 ✅ 格式支持 pdf、txt、doc、docx 类型。 上传在线网页 上传方式 通过 Base 64 上传本地文件 ❌ 通过 上传文件 上传 调用此 API 向指定的扣子知识库上传文件。 接口说明 通过此 API，你可以向文本或图片知识库中上传文件。 本 API 仅适用于扣子知识库的文件上传操作，不适用于火山知识库上传文件。火山知识库上传文件请参见 火山知识库上传文件 。 上传图片到图片知识库时，可以通过 caption_type 参数设置系统标注或手动标注，如果选择手动标注，还需要调用 更新知识库图片描述 API 手动设置标注。 支持的上传方式如下： 注意事项 每次最多可上传 10 个文件。 必须上传和知识库类型匹配的文件，例如 txt 等文档类型的文件只能上传到文档知识库中，不可上传到表格知识库中。 每个请求只能选择一种上传方式，不支持同时上传在线网页和本地文档。 仅知识库的所有者可以向知识库中上传文件。 ❌
 
-        :param dataset_id: The ID of the knowledge base.
-        :param document_bases: The metadata information of the files awaiting upload. The array has a maximum length of
-        10, meaning up to 10 files can be uploaded at a time. For detailed instructions, refer to the DocumentBase
-        object.
-        :param chunk_strategy: Chunk strategy. These rules must be set only when uploading a file to a new knowledge
-        for the first time. For subsequent file uploads to this knowledge, it is not necessary to pass these rules; the
-        default is to continue using the initial settings, and modifications are not supported.
-        For detailed instructions, refer to the ChunkStrategy object.
-        :return: list of Document
+        :param document_bases: 表格类型一次只能创建一个待创建的文档信息
         """
         url = f"{self._base_url}/open_api/knowledge/document/create"
         headers = {"Agw-Js-Conv": "str"}
@@ -305,14 +284,11 @@ class AsyncDocumentsClient(object):
             stacklevel=2,
         )
         """
-        Delete text, images, sheets, and other files in the knowledge base, supporting batch deletion.
+        删除知识库文件
 
-        docs en: https://www.coze.com/docs/developer_guides/delete_knowledge_files
-        docs zh: https://www.coze.cn/docs/developer_guides/delete_knowledge_files
-
-        :param document_ids: The list of knowledge base files to be deleted. The maximum length of the array is 100,
-        meaning a maximum of 100 files can be deleted at one time.
-        :return: None
+        调用此接口删除扣子知识库中的文本、图片、表格等文件，支持批量删除。
+        * 仅知识库的所有者可以删除知识库文件。
+        * 知识库分为扣子知识库和火山知识库，该 API 仅用于删除扣子知识库中的文件，不支持删除火山知识库中的文件，如果需要删除火山知识库中的文件，请参见[删除火山知识库文件](https://www.volcengine.com/docs/84313/1254608)。
         """
         url = f"{self._base_url}/open_api/knowledge/document/delete"
         headers = {"Agw-Js-Conv": "str"}

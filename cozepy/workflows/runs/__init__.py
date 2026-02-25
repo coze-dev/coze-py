@@ -161,19 +161,15 @@ class WorkflowsRunsClient(object):
         **kwargs,
     ) -> Stream[WorkflowEvent]:
         """
-        Execute the published workflow with a streaming response method.
+        执行工作流（流式响应）
 
-        docs en: https://www.coze.com/docs/developer_guides/workflow_stream_run
-        docs zh: https://www.coze.cn/docs/developer_guides/workflow_stream_run
+        执行已发布的工作流，响应方式为流式响应。 接口说明 调用 API 执行工作流时，对于支持流式输出的工作流，往往需要使用流式响应方式接收响应数据，例如实时展示工作流的输出信息、呈现打字机效果等。 在流式响应中，服务端不会一次性发送所有数据，而是以数据流的形式逐条发送数据给客户端，数据流中包含工作流执行过程中触发的各种事件（event），直至处理完毕或处理中断。处理结束后，服务端会通过 event: Done 事件提示工作流执行完毕。各个事件的说明可参考 返回结果 。 限制说明 此接口为同步接口，如果工作流整体或某些节点运行超时，Bot 可能无法提供符合预期的回复。同步执行时，工作流整体超时时间限制可参考 工作流使用限制 。 目前支持流式响应的工作流节点包括 输出节点 、 问答节点 和 开启了流式输出的结束节点 。对于不包含这些节点的工作流，可以使用 执行工作流 接口一次性接收响应数据。 通过 API 方式执行工作流前，应确认此工作流已发布，执行从未发布过的工作流时会返回错误码 4200。创建并发布工作流的操作可参考 使用工作流 。 调用此 API 之前，应先在扣子平台中试运行此工作流。 如果试运行时需要关联智能体，则调用此 API 执行工作流时，也需要指定 bot_id。通常情况下，执行存在数据库节点、变量节点等节点的工作流需要关联智能体。 执行应用中的工作流时，需要指定 app_id。 请勿同时指定 bot_id 和 app_id，否则 API 会报错 4000，表示请求参数错误。 工作流支持的请求大小上限为 20MB，包括输入参数以及运行期间产生的消息历史等所有相关数据。 此接口为同步接口，如果工作流整体或某些节点运行超时，智能体可能无法提供符合预期的回复，建议将工作流的执行时间控制在 5 分钟以内。同步执行时，工作流整体超时时间限制可参考 工作流使用限制 。
 
-        :param workflow_id: The ID of the workflow, which should have been published.
-        :param parameters: Input parameters and their values for the starting node of the workflow. You can view the
-        list of parameters on the arrangement page of the specified workflow.
-        :param bot_id: The associated Bot ID required for some workflow executions,
-        such as workflows with database nodes, variable nodes, etc.
-        :param app_id: The app_id is required for some workflow executions,
-        :param ext: Used to specify some additional fields in the format of Map[String][String].
-        :return: The result of the workflow execution
+        :param workflow_id: required, 待执行的 Workflow ID，此工作流应已发布
+        :param parameters: 工作流开始节点的输入参数及取值 (JSON 序列化字符串)
+        :param bot_id: 需要关联的智能体 ID
+        :param app_id: 该工作流关联的应用的 ID
+        :param ext: 用于指定一些额外的字段，非必要可不填写
         """
         url = f"{self._base_url}/v1/workflow/stream_run"
         headers: Optional[dict] = kwargs.get("headers")
@@ -206,22 +202,16 @@ class WorkflowsRunsClient(object):
         **kwargs,
     ) -> WorkflowRunResult:
         """
-        Run the published workflow.
-        This API is in non-streaming response mode. For nodes that support streaming output,
-        you should run the API Run workflow (streaming response) to obtain streaming responses.
+        执行工作流
 
-        docs en: https://www.coze.com/docs/developer_guides/workflow_run
-        docs cn: https://www.coze.cn/docs/developer_guides/workflow_run
+        必须为已发布。执行未发布的工作流会返回错误码 4200。 创建并发布工作流的操作可参考 使用工作流 。 请求大小上限 超时时间 节点限制 关联智能体 工作流中不能包含输出节点、开启了流式输出的结束节点。 调用此 API 之前，应先在扣子平台中试运行此工作流，如果试运行时需要关联智能体，则调用此 API 执行工作流时，也需要指定智能体ID。通常情况下，执行存在数据库节点、变量节点等节点的工作流需要关联智能体。 20 MB，包括输入参数及运行期间产生的消息历史等所有相关数据。 未开启工作流异步运行时，工作流整体超时时间为 10 分钟，建议执行时间控制在 5 分钟以内，否则不保障执行结果的准确性。 详细说明可参考 工作流使用限制 。 开启工作流异步运行后，工作流整体超时时间为 24 小时。 调用此非流式响应 API 时，若 API 在 90 秒内未收到响应，将因超时而断开连接。对于执行耗时较长的工作流，建议使用 执行工作流（流式响应） API。 限制项 执行已发布的工作流。 接口说明 此接口为非流式响应模式，如果需要采用流式输出，请参考 执行工作流（流式响应） 。 调用此接口后，你可以从响应中获得 debug_url，访问链接即可通过可视化界面查看工作流的试运行过程，其中包含每个执行节点的输入输出等详细信息，帮助你在线调试或排障。 扣子个人付费版、企业版（企业标准版、企业旗舰版）用户调用此接口时，支持通过 is_async 参数异步运行工作流，适用于工作流执行耗时较长，导致运行超时的情况。异步运行后可通过本接口返回的 execute_id 调用 查询工作流异步执行结果 API 获取工作流的执行结果。 限制说明 说明 工作流发布状态
 
-        :param workflow_id: The ID of the workflow, which should have been published.
-        :param parameters: Input parameters and their values for the starting node of the workflow. You can view the
-        list of parameters on the arrangement page of the specified workflow.
-        :param bot_id: The associated Bot ID required for some workflow executions,
-        such as workflows with database nodes, variable nodes, etc.
-        :param app_id: The app_id is required for some workflow executions,
-        :param is_async: Whether to run asynchronously.
-        :param ext: Used to specify some additional fields in the format of Map[String][String].
-        :return: The result of the workflow execution
+        :param workflow_id: required, 待执行的 Workflow ID，此工作流应已发布
+        :param parameters: 工作流开始节点的输入参数及取值 (JSON 序列化字符串)
+        :param bot_id: 需要关联的智能体 ID
+        :param app_id: 该工作流关联的应用的 ID
+        :param is_async: 是否异步运行 (默认 false)
+        :param ext: 用于指定一些额外的字段，非必要可不填写
         """
         url = f"{self._base_url}/v1/workflow/run"
         headers: Optional[dict] = kwargs.get("headers")
@@ -247,13 +237,14 @@ class WorkflowsRunsClient(object):
         **kwargs,
     ) -> Stream[WorkflowEvent]:
         """
-        docs zh: https://www.coze.cn/docs/developer_guides/workflow_resume
+        恢复运行工作流（流式响应）
 
-        :param workflow_id: The ID of the workflow, which should have been published.
-        :param event_id:
-        :param resume_data:
-        :param interrupt_type:
-        :return: The result of the workflow execution
+        流式恢复运行已中断的工作流。 接口说明 执行包含问答节点的工作流时，智能体会以指定问题向用户提问，并等待用户回答。此时工作流为中断状态，开发者需要调用此接口回答问题，并恢复运行工作流。如果用户的响应和智能体预期提取的信息不匹配，例如缺少必选的字段，或字段数据类型不一致，工作流会再次中断并追问。如果询问 3 次仍未收到符合预期的回复，则判定为工作流执行失败。 恢复运行工作流（流式响应） 和 恢复运行工作流 的区别如下： 如果调用 执行工作流（流式响应） API，中断恢复时需要使用 恢复运行工作流（流式响应） API，该 API 通过流式返回执行结果。 如果调用 执行工作流 API，中断恢复时需要使用 恢复运行工作流 API，该 API 支持同步运行或异步运行返回执行结果。 限制说明 最多调用此接口恢复运行 3 次，如果第三次恢复运行时智能体仍未收到符合预期的回复，则判定为工作流执行失败。 恢复运行后，index 和节点 index 都会重置。 恢复运行工作流也会产生 token 消耗，且与 执行工作流（流式响应） 时消耗的 token 数量相同。
+
+        :param workflow_id: 待执行的 Workflow ID，此工作流应已发布
+        :param event_id: 工作流执行中断事件 ID
+        :param resume_data: 恢复执行时，用户对智能体指定问题的回复
+        :param interrupt_type: 中断类型
         """
         url = f"{self._base_url}/v1/workflow/stream_resume"
         headers: Optional[dict] = kwargs.get("headers")
@@ -301,19 +292,15 @@ class AsyncWorkflowsRunsClient(object):
         **kwargs,
     ) -> AsyncIterator[WorkflowEvent]:
         """
-        Execute the published workflow with a streaming response method.
+        执行工作流（流式响应）
 
-        docs en: https://www.coze.com/docs/developer_guides/workflow_stream_run
-        docs zh: https://www.coze.cn/docs/developer_guides/workflow_stream_run
+        执行已发布的工作流，响应方式为流式响应。 接口说明 调用 API 执行工作流时，对于支持流式输出的工作流，往往需要使用流式响应方式接收响应数据，例如实时展示工作流的输出信息、呈现打字机效果等。 在流式响应中，服务端不会一次性发送所有数据，而是以数据流的形式逐条发送数据给客户端，数据流中包含工作流执行过程中触发的各种事件（event），直至处理完毕或处理中断。处理结束后，服务端会通过 event: Done 事件提示工作流执行完毕。各个事件的说明可参考 返回结果 。 限制说明 此接口为同步接口，如果工作流整体或某些节点运行超时，Bot 可能无法提供符合预期的回复。同步执行时，工作流整体超时时间限制可参考 工作流使用限制 。 目前支持流式响应的工作流节点包括 输出节点 、 问答节点 和 开启了流式输出的结束节点 。对于不包含这些节点的工作流，可以使用 执行工作流 接口一次性接收响应数据。 通过 API 方式执行工作流前，应确认此工作流已发布，执行从未发布过的工作流时会返回错误码 4200。创建并发布工作流的操作可参考 使用工作流 。 调用此 API 之前，应先在扣子平台中试运行此工作流。 如果试运行时需要关联智能体，则调用此 API 执行工作流时，也需要指定 bot_id。通常情况下，执行存在数据库节点、变量节点等节点的工作流需要关联智能体。 执行应用中的工作流时，需要指定 app_id。 请勿同时指定 bot_id 和 app_id，否则 API 会报错 4000，表示请求参数错误。 工作流支持的请求大小上限为 20MB，包括输入参数以及运行期间产生的消息历史等所有相关数据。 此接口为同步接口，如果工作流整体或某些节点运行超时，智能体可能无法提供符合预期的回复，建议将工作流的执行时间控制在 5 分钟以内。同步执行时，工作流整体超时时间限制可参考 工作流使用限制 。
 
-        :param workflow_id: The ID of the workflow, which should have been published.
-        :param parameters: Input parameters and their values for the starting node of the workflow. You can view the
-        list of parameters on the arrangement page of the specified workflow.
-        :param bot_id: The associated Bot ID required for some workflow executions,
-        such as workflows with database nodes, variable nodes, etc.
-        :param app_id: The app_id is required for some workflow executions,
-        :param ext: Used to specify some additional fields in the format of Map[String][String].
-        :return: The result of the workflow execution
+        :param workflow_id: required, 待执行的 Workflow ID，此工作流应已发布
+        :param parameters: 工作流开始节点的输入参数及取值 (JSON 序列化字符串)
+        :param bot_id: 需要关联的智能体 ID
+        :param app_id: 该工作流关联的应用的 ID
+        :param ext: 用于指定一些额外的字段，非必要可不填写
         """
         url = f"{self._base_url}/v1/workflow/stream_run"
         headers: Optional[dict] = kwargs.get("headers")
@@ -352,22 +339,16 @@ class AsyncWorkflowsRunsClient(object):
         **kwargs,
     ) -> WorkflowRunResult:
         """
-        Run the published workflow.
-        This API is in non-streaming response mode. For nodes that support streaming output,
-        you should run the API Run workflow (streaming response) to obtain streaming responses.
+        执行工作流
 
-        docs en: https://www.coze.com/docs/developer_guides/workflow_run
-        docs cn: https://www.coze.cn/docs/developer_guides/workflow_run
+        限制项 说明 必须为已发布。执行未发布的工作流会返回错误码 4200。 创建并发布工作流的操作可参考 使用工作流 。 节点限制 执行已发布的工作流。 接口说明 此接口为非流式响应模式，如果需要采用流式输出，请参考 执行工作流（流式响应） 。 调用此接口后，你可以从响应中获得 debug_url，访问链接即可通过可视化界面查看工作流的试运行过程，其中包含每个执行节点的输入输出等详细信息，帮助你在线调试或排障。 扣子个人付费版、企业版（企业标准版、企业旗舰版）用户调用此接口时，支持通过 is_async 参数异步运行工作流，适用于工作流执行耗时较长，导致运行超时的情况。异步运行后可通过本接口返回的 execute_id 调用 查询工作流异步执行结果 API 获取工作流的执行结果。 限制说明 工作流发布状态 工作流中不能包含输出节点、开启了流式输出的结束节点。 调用此 API 之前，应先在扣子平台中试运行此工作流，如果试运行时需要关联智能体，则调用此 API 执行工作流时，也需要指定智能体ID。通常情况下，执行存在数据库节点、变量节点等节点的工作流需要关联智能体。 请求大小上限 未开启工作流异步运行时，工作流整体超时时间为 10 分钟，建议执行时间控制在 5 分钟以内，否则不保障执行结果的准确性。 详细说明可参考 工作流使用限制 。 开启工作流异步运行后，工作流整体超时时间为 24 小时。 调用此非流式响应 API 时，若 API 在 90 秒内未收到响应，将因超时而断开连接。对于执行耗时较长的工作流，建议使用 执行工作流（流式响应） API。 关联智能体 20 MB，包括输入参数及运行期间产生的消息历史等所有相关数据。 超时时间
 
-        :param workflow_id: The ID of the workflow, which should have been published.
-        :param parameters: Input parameters and their values for the starting node of the workflow. You can view the
-        list of parameters on the arrangement page of the specified workflow.
-        :param bot_id: The associated Bot ID required for some workflow executions,
-        such as workflows with database nodes, variable nodes, etc.
-        :param app_id: The app_id is required for some workflow executions,
-        :param is_async: Whether to run asynchronously.
-        :param ext: Used to specify some additional fields in the format of Map[String][String].
-        :return: The result of the workflow execution
+        :param workflow_id: required, 待执行的 Workflow ID，此工作流应已发布
+        :param parameters: 工作流开始节点的输入参数及取值 (JSON 序列化字符串)
+        :param bot_id: 需要关联的智能体 ID
+        :param app_id: 该工作流关联的应用的 ID
+        :param is_async: 是否异步运行 (默认 false)
+        :param ext: 用于指定一些额外的字段，非必要可不填写
         """
         url = f"{self._base_url}/v1/workflow/run"
         headers: Optional[dict] = kwargs.get("headers")
@@ -393,13 +374,14 @@ class AsyncWorkflowsRunsClient(object):
         **kwargs,
     ) -> AsyncIterator[WorkflowEvent]:
         """
-        docs zh: https://www.coze.cn/docs/developer_guides/workflow_resume
+        恢复运行工作流（流式响应）
 
-        :param workflow_id: The ID of the workflow, which should have been published.
-        :param event_id:
-        :param resume_data:
-        :param interrupt_type:
-        :return: The result of the workflow execution
+        流式恢复运行已中断的工作流。 接口说明 执行包含问答节点的工作流时，智能体会以指定问题向用户提问，并等待用户回答。此时工作流为中断状态，开发者需要调用此接口回答问题，并恢复运行工作流。如果用户的响应和智能体预期提取的信息不匹配，例如缺少必选的字段，或字段数据类型不一致，工作流会再次中断并追问。如果询问 3 次仍未收到符合预期的回复，则判定为工作流执行失败。 恢复运行工作流（流式响应） 和 恢复运行工作流 的区别如下： 如果调用 执行工作流（流式响应） API，中断恢复时需要使用 恢复运行工作流（流式响应） API，该 API 通过流式返回执行结果。 如果调用 执行工作流 API，中断恢复时需要使用 恢复运行工作流 API，该 API 支持同步运行或异步运行返回执行结果。 限制说明 最多调用此接口恢复运行 3 次，如果第三次恢复运行时智能体仍未收到符合预期的回复，则判定为工作流执行失败。 恢复运行后，index 和节点 index 都会重置。 恢复运行工作流也会产生 token 消耗，且与 执行工作流（流式响应） 时消耗的 token 数量相同。
+
+        :param workflow_id: 待执行的 Workflow ID，此工作流应已发布
+        :param event_id: 工作流执行中断事件 ID
+        :param resume_data: 恢复执行时，用户对智能体指定问题的回复
+        :param interrupt_type: 中断类型
         """
         url = f"{self._base_url}/v1/workflow/stream_resume"
         headers: Optional[dict] = kwargs.get("headers")

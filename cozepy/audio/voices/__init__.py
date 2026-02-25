@@ -31,30 +31,31 @@ class VoiceEmotionInfo(CozeModel):
 
 
 class Voice(CozeModel):
-    # The id of voice
+    # 唯一音色代号
     voice_id: str
-    # The name of voice
+    # 音色名
     name: str
-    # If is system voice
+    # 是否系统音色
     is_system_voice: bool
-    # Language code
+    # 语言代号
     language_code: str
-    # Language name
+    # 语言名
     language_name: str
-    # Preview text for the voice
+    # 音色预览文本
     preview_text: str
-    # Preview audio URL for the voice
+    # 音色预览音频
     preview_audio: str
-    # Number of remaining training times available for current voice
+    # 剩余训练次数
     available_training_times: int
-    # Voice creation timestamp
+    # 创建时间unix时间戳
     create_time: int
-    # Voice last update timestamp
+    # 更新时间unix时间戳
     update_time: int
-    # Voice model type
+    # 模型类型
     model_type: VoiceModelType
     # Voice state
     state: VoiceState
+    # 支持的情感列表
     support_emotions: Optional[List[VoiceEmotionInfo]] = None
 
 
@@ -92,23 +93,16 @@ class VoicesClient(object):
         **kwargs,
     ) -> Voice:
         """
-        Clone the user's voice, and use the cloned voice to create voice speech
-        Each Volcano account is assigned a voice by default. A voice can be cloned 10 times,
-        and repeated cloning of the same voice will overwrite it.
+        复刻音色
 
-        :param voice_name: The name of the cloned voice, cannot be empty, and the length is greater than 6.
-        :param file: Audio Files.
-        :param audio_format: Only "wav", "mp3", "ogg", "m4a", "aac", "pcm" formats are supported.
-        :param language: Only supports "zh", "en" "ja" "es" "id" "pt" languages.
-        :param voice_id: If it is passed in, it will be trained on the original voice, covering the previously
-        trained voice.
-        :param preview_text: If a text is passed in, a preview audio will be generated based on the text.
-         Otherwise, the default text "你好，我是你的专属AI克隆声音，希望未来可以一起好好相处哦".
-        :param text: Users can recite the text, and the service will compare the audio with the text.
-         If the difference is too large, an error will be returned.
-        :param space_id: The space id of the voice.
-        :param description: The description of the voice.
-        :return: Voice of the cloned.
+        复刻指定音频文件中人声的音色。 接口说明 和扣子智能体进行实时的智能语音通话时，你可以选择智能体使用的音色，支持使用扣子编程提供系统内置音色，或通过 复刻音色 API 复刻出的自定义音色。 此 API 用于上传音频文件复刻一个新的音色。调用此 API 时需要上传一个音频文件作为音色复刻的素材。扣子编程会自动复刻音频文件中的人声音色，并将音色保存在当前账号的音色列表中。复刻出的音色可以用于合成语音，或者在扣子编程实时通话中作为智能体的音色。 音色复刻素材要求 上传的音频文件素材应符合以下要求： 文件格式 语种 支持中文、英文、日语、西班牙语、印度尼西亚语葡萄牙语。 wav、mp3、ogg、m4a、aac、pcm。其中 pcm 仅支持 24k 采样率，单通道。 最大不超过 10MB。每次最多上传1个音频文件。 类别 说明 文件大小 音频时长 仅扣子企业版（企业标准版、企业旗舰版）用户可以使用音色复刻功能。 企业版订阅套餐中默认赠送了一个复刻音色，如需调用复刻音色 OpenAPI 复刻更多音色，请联系超级管理员或管理员购买音色复刻扩容包，具体步骤请参见 购买音色复刻扩容包 。  音色复刻涉及 音色数量费用 和 音色模型存储数费用 ，详细的费用信息可参考 音视频费用 。 调用此 API 之前请确认账户中资源点或余额充足，以免账号欠费导致服务中断 。 在工作空间中复刻的音色资源仅限于该工作空间的成员使用。即使在同一个企业中，不同工作空间复刻的音色资源是独立的，不允许跨空间使用。 同一个音色 ID 最多复刻 10 次。为节省音色成本，你可以调用此接口训练自己已复刻的音色，即录制一个新的音频文件重新复刻音色，训练后的音色会覆盖原音色，但音色 ID 不变。例如，购买一个音色后，你可以对这个音色重新免费复刻 9 次。 必须使用 multipart/form-data 方式上传音频文件。 建议 10s~30s。 文件录制 录制环境：选择安静的空间，建议将麦克风放置在离说话人50厘米以内的位置，尽量保持自然的发声状态，避免刻意改变声线或呢喃，这样得到的音色会更加自然。 音频质量：确保录音中只包含一个人的声音，说话人应保持清晰的发音和音质、稳定的音量和语速，保持姿态稳定。 录制内容：避免说话时韵律过于平淡，尽量让语调、节奏和强度有所变化，尽量不要尝试复刻小孩或老人的声音。
+
+        :param voice_name: 音色名
+        :param audio_format: 传入文件的音频格式，例如 pcm, m4a, mp3
+        :param voice_id: 如果有，则使用此 voice_id 进行训练覆盖，否则使用新的 voice_id 进行训练
+        :param preview_text: 如果传入会基于该文本生成预览音频，否则使用默认的文本"你好，我是你的专属AI克隆声音，希望未来可以一起好好相处哦"
+        :param text: 可以让用户按照该文本念诵，服务会对比音频与该文本的差异。若差异过大会返回1109 WERError
+        :param space_id: 克隆音色保存的空间，默认在个人空间
         """
         url = f"{self._base_url}/v1/audio/voices/clone"
         headers: Optional[dict] = kwargs.get("headers")
@@ -139,16 +133,15 @@ class VoicesClient(object):
         **kwargs,
     ) -> NumberPaged[Voice]:
         """
-        Get available voices, including system voices + user cloned voices
-        Tips: Voices cloned under each Volcano account can be reused within the team
+        查看音色列表
 
-        :param filter_system_voice: If True, system voices will not be returned.
-        :param model_type: The type of the voice.
-        :param voice_state: The state of the voice.
-        :param page_num: The page number for paginated queries. Default is 1, meaning the data return starts from the
-        first page.
-        :param page_size: The size of pagination. Default is 100, meaning that 100 data entries are returned per page.
-        :return: list of Voice
+        查看可用的音色列表，包括系统预置音色和自定义音色。 接口说明 调用此 API 可查看当前扣子用户可使用的音色列表，包括： 系统预置音色：扣子平台提供的默认音色。 自定义音色：当前扣子用户通过 复刻音色 API 复刻的音色、当前账号加入的所有工作空间中其他扣子用户复刻的音色。
+
+        :param filter_system_voice: 查看音色列表时是否过滤掉系统音色。 * true：过滤系统音色 * false：（默认）不过滤系统音色
+        :param model_type: 音色模型的类型，如果不填，默认都返回。可选值包括： * big：大模型 * small：小模型
+        :param page_num: 查询结果分页展示时，此参数用于设置查看的页码。最小值为 1，默认为 1。
+        :param page_size: 查询结果分页展示时，此参数用于设置每页返回的数据量。取值范围为 1~100，默认为 100。
+        :param voice_state: 音色克隆状态，用于筛选特定状态的音色。可选值包括： * init：待克隆。 * cloned：（默认值）已克隆。 * all：全部。
         """
         url = f"{self._base_url}/v1/audio/voices"
         headers: Optional[dict] = kwargs.get("headers")
@@ -199,23 +192,16 @@ class AsyncVoicesClient(object):
         **kwargs,
     ) -> Voice:
         """
-        Clone the user's voice, and use the cloned voice to create voice speech
-        Each Volcano account is assigned a voice by default. A voice can be cloned 10 times,
-        and repeated cloning of the same voice will overwrite it.
+        复刻音色
 
-        :param voice_name: The name of the cloned voice, cannot be empty, and the length is greater than 6.
-        :param file: Audio Files.
-        :param audio_format: Only "wav", "mp3", "ogg", "m4a", "aac", "pcm" formats are supported.
-        :param language: Only supports "zh", "en" "ja" "es" "id" "pt" languages.
-        :param voice_id: If it is passed in, it will be trained on the original voice, covering the previously
-        trained voice.
-        :param preview_text: If a text is passed in, a preview audio will be generated based on the text.
-         Otherwise, the default text "你好，我是你的专属AI克隆声音，希望未来可以一起好好相处哦".
-        :param text: Users can recite the text, and the service will compare the audio with the text.
-         If the difference is too large, an error will be returned.
-        :param space_id: The space id of the voice.
-        :param description: The description of the voice.
-        :return: Voice of the cloned.
+        音频时长 类别 文件格式 wav、mp3、ogg、m4a、aac、pcm。其中 pcm 仅支持 24k 采样率，单通道。 语种 文件录制 仅扣子企业版（企业标准版、企业旗舰版）用户可以使用音色复刻功能。 企业版订阅套餐中默认赠送了一个复刻音色，如需调用复刻音色 OpenAPI 复刻更多音色，请联系超级管理员或管理员购买音色复刻扩容包，具体步骤请参见 购买音色复刻扩容包 。  音色复刻涉及 音色数量费用 和 音色模型存储数费用 ，详细的费用信息可参考 音视频费用 。 调用此 API 之前请确认账户中资源点或余额充足，以免账号欠费导致服务中断 。 在工作空间中复刻的音色资源仅限于该工作空间的成员使用。即使在同一个企业中，不同工作空间复刻的音色资源是独立的，不允许跨空间使用。 同一个音色 ID 最多复刻 10 次。为节省音色成本，你可以调用此接口训练自己已复刻的音色，即录制一个新的音频文件重新复刻音色，训练后的音色会覆盖原音色，但音色 ID 不变。例如，购买一个音色后，你可以对这个音色重新免费复刻 9 次。 必须使用 multipart/form-data 方式上传音频文件。 说明 建议 10s~30s。 支持中文、英文、日语、西班牙语、印度尼西亚语葡萄牙语。 录制环境：选择安静的空间，建议将麦克风放置在离说话人50厘米以内的位置，尽量保持自然的发声状态，避免刻意改变声线或呢喃，这样得到的音色会更加自然。 音频质量：确保录音中只包含一个人的声音，说话人应保持清晰的发音和音质、稳定的音量和语速，保持姿态稳定。 录制内容：避免说话时韵律过于平淡，尽量让语调、节奏和强度有所变化，尽量不要尝试复刻小孩或老人的声音。 复刻指定音频文件中人声的音色。 接口说明 和扣子智能体进行实时的智能语音通话时，你可以选择智能体使用的音色，支持使用扣子编程提供系统内置音色，或通过 复刻音色 API 复刻出的自定义音色。 此 API 用于上传音频文件复刻一个新的音色。调用此 API 时需要上传一个音频文件作为音色复刻的素材。扣子编程会自动复刻音频文件中的人声音色，并将音色保存在当前账号的音色列表中。复刻出的音色可以用于合成语音，或者在扣子编程实时通话中作为智能体的音色。 音色复刻素材要求 上传的音频文件素材应符合以下要求： 文件大小 最大不超过 10MB。每次最多上传1个音频文件。
+
+        :param voice_name: 音色名
+        :param audio_format: 传入文件的音频格式，例如 pcm, m4a, mp3
+        :param voice_id: 如果有，则使用此 voice_id 进行训练覆盖，否则使用新的 voice_id 进行训练
+        :param preview_text: 如果传入会基于该文本生成预览音频，否则使用默认的文本"你好，我是你的专属AI克隆声音，希望未来可以一起好好相处哦"
+        :param text: 可以让用户按照该文本念诵，服务会对比音频与该文本的差异。若差异过大会返回1109 WERError
+        :param space_id: 克隆音色保存的空间，默认在个人空间
         """
         url = f"{self._base_url}/v1/audio/voices/clone"
         headers: Optional[dict] = kwargs.get("headers")
@@ -246,16 +232,15 @@ class AsyncVoicesClient(object):
         **kwargs,
     ) -> AsyncNumberPaged[Voice]:
         """
-        Get available voices, including system voices + user cloned voices
-        Tips: Voices cloned under each Volcano account can be reused within the team
+        查看音色列表
 
-        :param filter_system_voice: If True, system voices will not be returned.
-        :param model_type: The type of the voice.
-        :param voice_state: The state of the voice.
-        :param page_num: The page number for paginated queries. Default is 1, meaning the data return starts from the
-        first page.
-        :param page_size: The size of pagination. Default is 100, meaning that 100 data entries are returned per page.
-        :return: list of Voice
+        查看可用的音色列表，包括系统预置音色和自定义音色。 接口说明 调用此 API 可查看当前扣子用户可使用的音色列表，包括： 系统预置音色：扣子平台提供的默认音色。 自定义音色：当前扣子用户通过 复刻音色 API 复刻的音色、当前账号加入的所有工作空间中其他扣子用户复刻的音色。
+
+        :param filter_system_voice: 查看音色列表时是否过滤掉系统音色。 * true：过滤系统音色 * false：（默认）不过滤系统音色
+        :param model_type: 音色模型的类型，如果不填，默认都返回。可选值包括： * big：大模型 * small：小模型
+        :param page_num: 查询结果分页展示时，此参数用于设置查看的页码。最小值为 1，默认为 1。
+        :param page_size: 查询结果分页展示时，此参数用于设置每页返回的数据量。取值范围为 1~100，默认为 100。
+        :param voice_state: 音色克隆状态，用于筛选特定状态的音色。可选值包括： * init：待克隆。 * cloned：（默认值）已克隆。 * all：全部。
         """
         url = f"{self._base_url}/v1/audio/voices"
         headers: Optional[dict] = kwargs.get("headers")

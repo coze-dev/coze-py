@@ -46,6 +46,13 @@ class FoldersClient(object):
         folder_id: str,
         **kwargs,
     ) -> SimpleFolder:
+        """
+        查询文件夹详情
+
+        工作空间中的用户可以查询工作空间中指定文件夹的详情，包括文件夹的名称、描述、所属工作空间、文件夹创建者的 UID等。
+
+        :param folder_id: 文件夹 ID。你可以通过扣子页面获取文件夹 ID： 进入指定工作空间，单击**项目开发**，单击目标文件夹，在 URL 中 `folder_id` 参数后的数字就是文件夹 ID。例如：`https://www.coze.cn/space/7487600442370***/develop?folder_id=752430442263***`，`folder_id` 为 `752430442263***`。
+        """
         url = f"{self._base_url}/v1/folders/{folder_id}"
         headers: Optional[dict] = kwargs.get("headers")
         return self._requester.request("GET", url, stream=False, cast=SimpleFolder, headers=headers)
@@ -100,6 +107,13 @@ class AsyncFoldersClient(object):
         folder_id: str,
         **kwargs,
     ) -> SimpleFolder:
+        """
+        查询文件夹详情
+
+        工作空间中的用户可以查询工作空间中指定文件夹的详情，包括文件夹的名称、描述、所属工作空间、文件夹创建者的 UID等。
+
+        :param folder_id: 文件夹 ID。你可以通过扣子页面获取文件夹 ID： 进入指定工作空间，单击**项目开发**，单击目标文件夹，在 URL 中 `folder_id` 参数后的数字就是文件夹 ID。例如：`https://www.coze.cn/space/7487600442370***/develop?folder_id=752430442263***`，`folder_id` 为 `752430442263***`。
+        """
         url = f"{self._base_url}/v1/folders/{folder_id}"
         headers: Optional[dict] = kwargs.get("headers")
         return await self._requester.arequest("GET", url, stream=False, cast=SimpleFolder, headers=headers)

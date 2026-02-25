@@ -22,28 +22,43 @@ class DatasetStatus(IntEnum):
 
 class Dataset(CozeModel):
     dataset_id: str  # The ID of the dataset
-    name: str  # The name of the dataset
+    # 数据集名称
+    name: str
     description: str  # The description of the dataset
-    space_id: str  # The ID of the space that the dataset belongs to
+    # 空间ID
+    space_id: str
     status: DatasetStatus  # The status of the dataset, 1: enable, 3: disable
     format_type: DocumentFormatType  # The format type of the dataset, 0: text, 1: table, 2: image
-    can_edit: bool = False  # Whether the dataset can be edited
+    # 是否可以编辑
+    can_edit: bool = False
     icon_url: str = ""  # The icon URL of the dataset
-    doc_count: int = 0  # The count of the documents in the dataset
-    file_list: List[str] = []  # The list of files in the dataset
-    hit_count: int = 0  # The count of the hits in the dataset
-    bot_used_count: int = 0  # The count of the bots used in the dataset
-    slice_count: int = 0  # The count of the segments in the dataset
-    all_file_size: int = 0  # The total size of all files in the dataset
+    # 文档数量
+    doc_count: int = 0
+    # 文件列表
+    file_list: List[str] = []
+    # 命中次数
+    hit_count: int = 0
+    # 使用Bot数
+    bot_used_count: int = 0
+    # 分段数量
+    slice_count: int = 0
+    # 所有文件大小
+    all_file_size: int = 0
     chunk_strategy: Optional[DocumentChunkStrategy] = None  # The chunk strategy of the dataset
-    failed_file_list: List[str] = []  # The list of files that failed to be uploaded in the dataset
-    processing_file_list: List[str] = []  # The list of files that are being processed in the dataset
-    processing_file_id_list: List[str] = []  # The list of file IDs that are being processed in the dataset
+    # 处理失败的文件
+    failed_file_list: List[str] = []
+    # 处理中的文件名称列表，兼容老逻辑
+    processing_file_list: List[str] = []
+    # 处理中的文件ID列表
+    processing_file_id_list: List[str] = []
     avatar_url: str = ""  # The avatar URL of the dataset creator
-    creator_id: str = ""  # The ID of the dataset creator
+    # 创建者ID
+    creator_id: str = ""
     creator_name: str = ""  # The name of the dataset creator
-    create_time: int = 0  # The creation second-level timestamp of the dataset
-    update_time: int = 0  # The update second-level timestamp of the dataset
+    # 创建时间，秒级时间戳
+    create_time: int = 0
+    # 更新时间，秒级时间戳
+    update_time: int = 0
 
 
 class _PrivateListDatasetsData(CozeModel, NumberPagedResponse[Dataset]):
@@ -72,8 +87,10 @@ class DocumentProgress(CozeModel):
     update_type: DocumentUpdateType  # Will the webpage automatically update online. Values include:
     document_name: str = ""  # File name.
     remaining_time: int = 0  # Estimated remaining time, in seconds.
-    status_descript: str = ""  # Detailed description of the failure status, for example, the failure information returned when slicing fails. This parameter is returned only when document processing fails.
-    update_interval: int = 0  # Frequency of automatic updates for online web pages. Unit is hours.
+    # 状态的详细描述；如果切片失败，返回失败信息
+    status_descript: str = ""
+    # 更新间隔
+    update_interval: int = 0
 
 
 class UpdateDatasetRes(CozeModel):
@@ -157,16 +174,15 @@ class DatasetsClient(object):
         **kwargs,
     ) -> UpdateDatasetRes:
         """
-        Update Dataset
-        This API will fully refresh the knowledge base's name, file_id, and description settings. If these parameters are not set, they will revert to default settings.
+        修改知识库信息
 
-        docs en: https://www.coze.com/docs/developer_guides/update_dataset
-        docs zh: https://www.coze.cn/docs/developer_guides/update_dataset
+        调用此接口修改扣子知识库信息。
+        * 此接口会全量刷新知识库的 name、file_id 和 description 配置，如果未设置这些参数，参数将恢复默认配置。
+        * 知识库分为扣子知识库和火山知识库，该 API 仅用于修改扣子知识库，不支持修改火山知识库，如果需要修改火山知识库的信息，请参见[修改火山知识库信息 API 文档](https://whttps://www.volcengine.com/docs/84313/1254592)。
+        * 仅支持修改本人为所有者的知识库信息，包括知识库名称、图标、描述等信息。
+        * 如需修改知识库图标，需要先调用 API [上传文件](https://www.coze.cn/docs/developer_guides/upload_files)，将图片文件上传至扣子平台。
 
-        :param dataset_id: The ID of the dataset
-        :param name: The name of the dataset
-        :param description: The description of the dataset
-        :param icon_file_id: The ID of the icon file, uploaded by `coze.files.upload`
+        :param dataset_id: 知识库 ID。 在扣子平台中打开指定知识库页面，页面 URL 中 `knowledge` 参数后的数字就是知识库 ID。例如 `https://www.coze.cn/space/736142423532160****/knowledge/738509371792341****`，知识库 ID 为 `738509371792341****`。
         """
         url = f"{self._base_url}/v1/datasets/{dataset_id}"
         headers: Optional[dict] = kwargs.get("headers")
@@ -261,16 +277,11 @@ class DatasetsClient(object):
 
     def process(self, *, dataset_id: str, document_ids: List[str], **kwargs) -> ListResponse[DocumentProgress]:
         """
-        Check the upload progress
-        Call this API to get the upload progress of knowledge base files.
-        This API supports viewing the upload progress of all types of knowledge base files, such as text, images, and tables.
-        It supports batch viewing of multiple files' progress, but the files must be located in the same knowledge base.
+        查看知识库文件上传进度
 
-        docs en: https://www.coze.com/docs/developer_guides/get_dataset_progress
-        docs zh: https://www.coze.cn/docs/developer_guides/get_dataset_progress
+        调用此接口获取扣子知识库文件的上传进度。 此接口支持查看所有类型知识库文件的上传进度，例如文本、图片、表格。 支持批量查看多个文件的进度，多个文件必须位于同一个知识库中。 该 API 仅支持查看扣子知识库中的文件上传进度，不支持查看火山知识库中的文件上传进度。
 
-        :param dataset_id: The ID of the dataset
-        :param document_ids: The IDs of the documents
+        :param dataset_id: 扣子知识库 ID。不能填写火山知识库 ID。 在扣子编程中打开指定扣子知识库页面，页面 URL 中 `knowledge` 参数后的数字就是扣子知识库 ID。例如 `https://www.coze.cn/space/736142423532160****/knowledge/738509371792341****`，扣子知识库 ID 为 `738509371792341****`。
         """
         url = f"{self._base_url}/v1/datasets/{dataset_id}/process"
         headers: Optional[dict] = kwargs.get("headers")
@@ -358,16 +369,15 @@ class AsyncDatasetsClient(object):
         **kwargs,
     ) -> UpdateDatasetRes:
         """
-        Update Dataset
-        This API will fully refresh the knowledge base's name, file_id, and description settings. If these parameters are not set, they will revert to default settings.
+        修改知识库信息
 
-        docs en: https://www.coze.com/docs/developer_guides/update_dataset
-        docs zh: https://www.coze.cn/docs/developer_guides/update_dataset
+        调用此接口修改扣子知识库信息。
+        * 此接口会全量刷新知识库的 name、file_id 和 description 配置，如果未设置这些参数，参数将恢复默认配置。
+        * 知识库分为扣子知识库和火山知识库，该 API 仅用于修改扣子知识库，不支持修改火山知识库，如果需要修改火山知识库的信息，请参见[修改火山知识库信息 API 文档](https://whttps://www.volcengine.com/docs/84313/1254592)。
+        * 仅支持修改本人为所有者的知识库信息，包括知识库名称、图标、描述等信息。
+        * 如需修改知识库图标，需要先调用 API [上传文件](https://www.coze.cn/docs/developer_guides/upload_files)，将图片文件上传至扣子平台。
 
-        :param dataset_id: The ID of the dataset
-        :param name: The name of the dataset
-        :param description: The description of the dataset
-        :param icon_file_id: The ID of the icon file, uploaded by `coze.files.upload`
+        :param dataset_id: 知识库 ID。 在扣子平台中打开指定知识库页面，页面 URL 中 `knowledge` 参数后的数字就是知识库 ID。例如 `https://www.coze.cn/space/736142423532160****/knowledge/738509371792341****`，知识库 ID 为 `738509371792341****`。
         """
         url = f"{self._base_url}/v1/datasets/{dataset_id}"
         headers: Optional[dict] = kwargs.get("headers")
@@ -462,16 +472,11 @@ class AsyncDatasetsClient(object):
 
     async def process(self, *, dataset_id: str, document_ids: List[str], **kwargs) -> ListResponse[DocumentProgress]:
         """
-        Check the upload progress
-        Call this API to get the upload progress of knowledge base files.
-        This API supports viewing the upload progress of all types of knowledge base files, such as text, images, and tables.
-        It supports batch viewing of multiple files' progress, but the files must be located in the same knowledge base.
+        查看知识库文件上传进度
 
-        docs en: https://www.coze.com/docs/developer_guides/get_dataset_progress
-        docs zh: https://www.coze.cn/docs/developer_guides/get_dataset_progress
+        调用此接口获取扣子知识库文件的上传进度。 此接口支持查看所有类型知识库文件的上传进度，例如文本、图片、表格。 支持批量查看多个文件的进度，多个文件必须位于同一个知识库中。 该 API 仅支持查看扣子知识库中的文件上传进度，不支持查看火山知识库中的文件上传进度。
 
-        :param dataset_id: The ID of the dataset
-        :param document_ids: The IDs of the documents
+        :param dataset_id: 扣子知识库 ID。不能填写火山知识库 ID。 在扣子编程中打开指定扣子知识库页面，页面 URL 中 `knowledge` 参数后的数字就是扣子知识库 ID。例如 `https://www.coze.cn/space/736142423532160****/knowledge/738509371792341****`，扣子知识库 ID 为 `738509371792341****`。
         """
         url = f"{self._base_url}/v1/datasets/{dataset_id}/process"
         headers: Optional[dict] = kwargs.get("headers")

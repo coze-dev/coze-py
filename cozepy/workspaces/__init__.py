@@ -20,17 +20,17 @@ class WorkspaceType(DynamicStrEnum):
 
 
 class Workspace(CozeModel):
-    # workspace id
+    # 空间 id
     id: str
-    # workspace name
+    # 空间名称
     name: str
-    # workspace icon url
+    # 空间图标 url
     icon_url: str
-    # user in workspace role type
+    # 当前用户角色, 枚举值: owner, admin, member
     role_type: WorkspaceRoleType
-    # workspace type
+    # 工作空间类型, 枚举值: personal, team
     workspace_type: WorkspaceType
-    # enterprise id
+    # 企业 id
     enterprise_id: str
 
 

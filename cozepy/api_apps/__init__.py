@@ -68,12 +68,14 @@ class APIAppsClient(object):
         connector_id: Optional[str] = None,
         **kwargs,
     ) -> APIApp:
-        """create api app
+        """
+        创建回调应用
 
-        :param app_type: The type of the api app.
-        :param name: The name of the api app, required when app_type is normal.
-        :param connector_id: The connector id of the api app, required when app_type is connector.
-        :return: The api app object.
+        本 API 用于创建回调应用，支持创建普通回调应用和渠道回调应用。订阅扣子编程回调功能时需要创建回调应用。 接口说明 订阅回调 功能支持开发者通过配置回调应用实时获取扣子编程的事件通知。当 智能体发布 、 智能体删除 、 账单生成 等关键业务事件被触发时，扣子编程将向开发者指定的服务器地址发送回调消息。 回调分为普通回调和渠道回调，具体说明如下： 普通回调应用：开发者在扣子编程中创建回调应用，用于接收扣子编程触发的事件通知。当订阅的事件被触发时，扣子编程会向该回调地址推送回调消息。 渠道回调应用：当渠道入驻扣子编程后，开发者可以在该渠道中创建回调应用，用于接收该渠道中触发的事件通知。当订阅的事件被触发时，扣子编程会向渠道指定的回调地址推送回调消息。 接口限制 扣子个人版中，任何用户均可以创建普通回调应用。仅渠道创建者支持创建对应渠道的回调应用，统一接收该渠道中的回调消息。 扣子企业版（企业标准版、企业旗舰版）中，仅超级管理员和管理员可创建回调应用。
+
+        :param app_type: 必填
+        :param name: 回调应用的名称， app_type=normal 时必传
+        :param connector_id: app_type=connector 时必传
         """
         url = f"{self._base_url}/v1/api_apps"
         headers: Optional[dict] = kwargs.get("headers")
@@ -95,11 +97,11 @@ class APIAppsClient(object):
         **kwargs,
     ) -> UpdateAPIAppsResp:
         """
-        update api app
+        修改回调应用
 
-        :param app_id: The id of the api app.
-        :param name: The name of the api app, required when app_type is normal.
-        :param callback_url: The callback url of the api app.
+        修改回调应用的名称和回调地址。 接口限制 扣子个人版中，仅支持修改本人创建的回调应用。 扣子企业版中，仅超级管理员和管理员可修改回调应用。
+
+        :param app_id: 待修改的回调应用的 ID。你可以通过[查询回调应用列表](https://docs.coze.cn/developer_guides/list_callback_app) API 获取回调应用的 ID。
         """
         url = f"{self._base_url}/v1/api_apps/{app_id}"
         headers: Optional[dict] = kwargs.get("headers")
@@ -180,12 +182,14 @@ class AsyncAPIAppsClient(object):
         connector_id: Optional[str] = None,
         **kwargs,
     ) -> APIApp:
-        """create api app
+        """
+        创建回调应用
 
-        :param app_type: The type of the api app.
-        :param name: The name of the api app, required when app_type is normal.
-        :param connector_id: The connector id of the api app, required when app_type is connector.
-        :return: The api app object.
+        本 API 用于创建回调应用，支持创建普通回调应用和渠道回调应用。订阅扣子编程回调功能时需要创建回调应用。 接口说明 订阅回调 功能支持开发者通过配置回调应用实时获取扣子编程的事件通知。当 智能体发布 、 智能体删除 、 账单生成 等关键业务事件被触发时，扣子编程将向开发者指定的服务器地址发送回调消息。 回调分为普通回调和渠道回调，具体说明如下： 普通回调应用：开发者在扣子编程中创建回调应用，用于接收扣子编程触发的事件通知。当订阅的事件被触发时，扣子编程会向该回调地址推送回调消息。 渠道回调应用：当渠道入驻扣子编程后，开发者可以在该渠道中创建回调应用，用于接收该渠道中触发的事件通知。当订阅的事件被触发时，扣子编程会向渠道指定的回调地址推送回调消息。 接口限制 扣子个人版中，任何用户均可以创建普通回调应用。仅渠道创建者支持创建对应渠道的回调应用，统一接收该渠道中的回调消息。 扣子企业版（企业标准版、企业旗舰版）中，仅超级管理员和管理员可创建回调应用。
+
+        :param app_type: 必填
+        :param name: 回调应用的名称， app_type=normal 时必传
+        :param connector_id: app_type=connector 时必传
         """
         url = f"{self._base_url}/v1/api_apps"
         headers: Optional[dict] = kwargs.get("headers")
@@ -207,11 +211,11 @@ class AsyncAPIAppsClient(object):
         **kwargs,
     ) -> UpdateAPIAppsResp:
         """
-        update api app
+        修改回调应用
 
-        :param app_id: The id of the api app.
-        :param name: The name of the api app, required when app_type is normal.
-        :param callback_url: The callback url of the api app.
+        修改回调应用的名称和回调地址。 接口限制 扣子个人版中，仅支持修改本人创建的回调应用。 扣子企业版中，仅超级管理员和管理员可修改回调应用。
+
+        :param app_id: 待修改的回调应用的 ID。你可以通过[查询回调应用列表](https://docs.coze.cn/developer_guides/list_callback_app) API 获取回调应用的 ID。
         """
         url = f"{self._base_url}/v1/api_apps/{app_id}"
         headers: Optional[dict] = kwargs.get("headers")

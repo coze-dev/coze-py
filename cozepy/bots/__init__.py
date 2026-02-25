@@ -16,24 +16,23 @@ class PublishStatus(DynamicStrEnum):
 
 
 class BotPromptInfo(CozeModel):
-    # Configured prompt of the bot.
+    # 文本prompt
     prompt: str
 
 
 class BotOnboardingInfo(CozeModel):
-    # Configured prologue of the bot.
+    # 对应 Coze Opening Dialog开场白
     prologue: str = ""
-    # The list of recommended questions configured for the bot.
-    # This field will not be returned when user suggested questions are not enabled.
+    # 建议问题
     suggested_questions: Optional[List[str]] = []
 
 
 class BotKnowledge(CozeModel):
-    # Configured dataset ids of the bot.
+    # 更新知识库列表 全量覆盖更新
     dataset_ids: List[str] = []
-    # Whether to call knowledge base automatically.
+    # 自动调用 or 按需调用
     auto_call: bool = True
-    # Configured search strategy of the bot, values: 0: semantic search, 1: hybrid search, 20: full-text search.
+    # 搜索策略
     search_strategy: int = 0
 
 
@@ -54,39 +53,33 @@ class BotModelInfo(CozeModel):
         # 前缀缓存模式。
         PREFIX = "prefix"
 
-    # The ID of the model.
+    # 模型id
     model_id: str
     # The name of the model.
     model_name: Optional[str] = None
-    # The temperature of the model.
+    # 生成随机性
     temperature: Optional[float] = None
-    # The context_round of the model.
-    # 携带上下文轮数。
+    # 携带上下文轮数
     context_round: Optional[int] = None
-    # The max_tokens of the model.
+    # 最大回复长度
     max_tokens: Optional[int] = None
-    # The response format of the model.
+    # 输出格式 text、markdown、json
     response_format: Optional[ResponseFormat] = None
-    # The top_k of the model.
+    # 生成时，采样候选集的大小
     top_k: Optional[int] = None
-    # The top_p of the model.
+    # top p
     top_p: Optional[float] = None
-    # 扣子的部分模型支持开启或关闭上下文缓存中的前缀缓存。
+    # 缓存配置
     cache_type: Optional[CacheType] = None
-    # The presence_penalty of the model.
-    # 重复主题惩罚。
+    # 存在惩罚
     presence_penalty: Optional[float] = None
-    # The frequency_penalty of the model.
-    # 重复语句惩罚。
+    # 频率惩罚
     frequency_penalty: Optional[float] = None
-    # The parameters of the model.
-    # claude: {"thinking_type": "disabled/enable", "thinking_budget_tokens": "2000"}
-    # gemini: {"thinking_type": "disabled/enable"}
-    # doubao: {"thinking_type": "auto/disabled/enable"}
+    # 模型个性化配置参数
     parameters: Optional[Dict[str, str]] = None
-    # 是否启用 SP 拼接防泄露指令，开启后，当用户尝试获取或复述系统内部的规则、提示词或其他敏感内容时，智能体将礼貌地拒绝用户的请求，确保机密信息不被泄露。
+    # sp拼接防泄露指令
     sp_anti_leak: Optional[bool] = None
-    # 是否在 SP 中包含当前时间信息。
+    # sp拼接当前时间
     sp_current_time: Optional[bool] = None
 
 
@@ -115,24 +108,24 @@ class BotMode(IntEnum):
 
 
 class BotPluginAPIInfo(CozeModel):
-    # The ID of the tool.
+    # api id
     api_id: str
-    # The name of the tool.
+    # api名称
     name: str
-    # The description of the tool.
+    # api描述
     description: str
 
 
 class BotPluginInfo(CozeModel):
-    # The unique identifier for the plugin.
+    # 插件id
     plugin_id: str
-    # The name of the plugin.
+    # 插件名称
     name: str
-    # The description of the plugin.
+    # 插件描述
     description: str
-    # The avatar URL for the plugin.
+    # 插件图片url
     icon_url: str
-    # The list of tool information for the plugin. For more information, see PluginAPI object.
+    # 插件包含的api列表
     api_info_list: List[BotPluginAPIInfo]
 
 
@@ -153,9 +146,9 @@ class SuggestReplyMode(DynamicStrEnum):
 
 
 class BotSuggestReplyInfo(CozeModel):
-    # 配置智能体回复后，是否提供用户问题建议。
+    # 回复模式
     reply_mode: SuggestReplyMode
-    # 关于用户问题建议的 Prompt。当 reply_mode 设置为 customized时，需要设置提示词内容。智能体会根据该提示词生成用户问题建议。
+    # custom 模式下的自定义 prompt
     customized_prompt: str = ""
 
 
@@ -204,24 +197,26 @@ class VariableChannel(DynamicStrEnum):
 
 
 class BotVariable(CozeModel):
-    # The name of the variable.
+    # 变量名
     keyword: str
-    # The default value of the variable.
+    # 默认值
     default_value: str
     # The type of the variable.
     variable_type: VariableType
     # The source of the variable.
     channel: VariableChannel
-    # The description of the variable.
+    # 变量描述
     description: str
-    # Whether the variable is enabled.
+    # 是否启用
     enable: bool
-    # Whether the variable is supported in the prompt.
+    # 变量默认支持在Prompt中访问，取消勾选后将不支持在Prompt中访问（仅能在Workflow中访问
     prompt_enable: bool
 
 
 class BotVoiceInfo(CozeModel):
+    # 唯一id
     voice_id: str
+    # 音色语种code
     language_code: str
 
 
@@ -237,26 +232,30 @@ class UserInputType(DynamicStrEnum):
 
 
 class BotWorkflowInfo(CozeModel):
+    # workflow_id
     id: str
+    # workflow名称
     name: str
+    # workflow描述
     description: str
+    # workflow图片url
     icon_url: str
 
 
 class Bot(CozeModel):
-    # The ID for the bot.
+    # bot id
     bot_id: str
-    # The name of the bot.
+    # bot名称
     name: Optional[str] = None
-    # The description of the bot.
+    # bot描述
     description: Optional[str] = None
-    # The URL address for the bot's avatar.
+    # bot图像url
     icon_url: Optional[str] = None
-    # The creation time, in the format of a 10-digit Unix timestamp in seconds (s).
+    # 创建时间
     create_time: Optional[int] = None
-    # The update time, in the format of a 10-digit Unix timestamp in seconds (s).
+    # 更新时间
     update_time: Optional[int] = None
-    # The latest version of the bot.
+    # 版本
     version: Optional[str] = None
     # The prompt configuration for the bot. For more information, see Prompt object.
     prompt_info: Optional[BotPromptInfo] = None
@@ -266,7 +265,7 @@ class Bot(CozeModel):
     knowledge: Optional[BotKnowledge] = None
     # The mode of the Bot, values: 0: Single Agent mode, 1: Multi Agent mode, 3: Single Agent Workflow mode.
     bot_mode: Optional[BotMode] = None
-    # The plugins configured for the bot. For more information, see  Plugin object.
+    # 插件信息列表
     plugin_info_list: Optional[List[BotPluginInfo]] = None
     # The model configured for the bot. For more information, see Model object.
     model_info: Optional[BotModelInfo] = None
@@ -274,15 +273,15 @@ class Bot(CozeModel):
     suggest_reply_info: Optional[BotSuggestReplyInfo] = None
     # The background image info for the bot.
     background_image_info: Optional[BotBackgroundImageInfo] = None
-    # The list of variables configured for the bot. For more information, see Variable object.
+    # 变量列表
     variables: Optional[List[BotVariable]] = None
-    # The user ID of the bot's owner.
+    # owner_id
     owner_user_id: Optional[str] = None
-    # The voice info for the bot.
+    # 音色配置
     voice_info_list: Optional[List[BotVoiceInfo]] = None
-    # The default user input type for the bot.
+    # 默认用户输入类型
     default_user_input_type: Optional[UserInputType] = None
-    # The workflow info for the bot.
+    # workflow信息列表
     workflow_info_list: Optional[List[BotWorkflowInfo]] = None
     # The folder ID for the bot.
     folder_id: Optional[str] = None
@@ -294,9 +293,11 @@ class SimpleBot(CozeModel):
     description: str
     icon_url: str
     is_published: bool
+    # 草稿返回update_time
     updated_at: int
     owner_user_id: str
     folder_id: Optional[str] = None
+    # 发布态返回publish_time
     published_at: Optional[int] = None
 
     # compatibility fields
@@ -394,22 +395,9 @@ class BotsClient(object):
         """
         创建智能体
 
-        通过指定空间、名称等参数创建一个新的智能体。
+        创建一个新的智能体。 创建的智能体为未发布的草稿状态，创建后可以在扣子编程智能体列表中查看智能体。调用 发布智能体 API 发布智能体后，才能通过 查看智能体列表 或 查看智能体配置 API 查看此智能体。 通过 API 方式创建智能体时，支持为智能体设置所在空间、智能体名称和描述、头像、人设与回复逻辑及开场白。
 
-        docs: https://www.coze.cn/open/docs/developer_guides/create_bot
-
-        :param space_id: 空间 ID。智能体将创建在此空间下。
-        :param name: 智能体名称。长度限制为 1-20 个字符。
-        :param description: 智能体描述。长度限制为 0-500 个字符，默认为空。
-        :param icon_file_id: 智能体头像的文件 ID。如需使用自定义头像，请先通过上传文件接口上传本地文件，
-        并从接口响应中获取文件 ID。如果未指定文件 ID，平台将分配默认头像。
-        :param prompt_info: 智能体的提示词配置信息。
-        :param onboarding_info: 智能体的开场白配置信息。
-        :param suggest_reply_info: 智能体的建议回复配置信息。
-        :param model_info_config: 智能体的模型配置信息。
-        :param plugin_id_list: 智能体使用的插件 ID 列表。
-        :param workflow_id_list: 智能体使用的工作流 ID 列表。
-        :return: 创建成功的智能体对象
+        :param icon_file_id: 头像文件id
         """
         url = f"{self._base_url}/v1/bot/create"
         headers: Optional[dict] = kwargs.get("headers")
@@ -459,26 +447,9 @@ class BotsClient(object):
         **kwargs,
     ) -> UpdateBotResp:
         """
-        Update the configuration of a bot.
-        This API can be used to update all bots created through the Coze platform or via the API.
-        In addition to updating the bot's name and description, avatar, personality and reply logic,
-        and opening remarks, this API also supports binding a knowledge base to the bot.
+        更新智能体
 
-        docs en: https://www.coze.com/docs/developer_guides/update_bot
-        docs zh: https://www.coze.cn/docs/developer_guides/update_bot
-
-        :param bot_id: The ID of the bot that the API interacts with.
-        :param name: The name of the bot. It should be 1 to 20 characters long.
-        :param description: The description of the Bot. It can be 0 to 500 characters long. The default is empty.
-        :param icon_file_id: The file ID for the Bot's avatar. If no file ID is specified, the Coze platform will
-        assign a default avatar for the bot. To use a custom avatar, first upload the local file through the Upload
-        file interface and obtain the file ID from the interface response.
-        :param prompt_info: The personality and reply logic of the bot.
-        :param onboarding_info: The settings related to the bot's opening remarks.
-        :param knowledge: The knowledge base that the bot uses to answer user queries.
-        :param suggest_reply_info: The suggest reply info for the bot.
-        :param model_info_config: The model configuration for the bot.
-        :return: None
+        更新智能体的配置。 通过此 API 可更新通过扣子编程或 API 方式创建的所有智能体。通过 API 方式修改智能体除了智能体名称和描述、头像、人设与回复逻辑及开场白之外，还支持为智能体绑定知识库和插件。 接口限制 不支持通过 API 绑定火山知识库，只能绑定扣子知识库。
         """
         url = f"{self._base_url}/v1/bot/update"
         headers: Optional[dict] = kwargs.get("headers")
@@ -547,6 +518,11 @@ class BotsClient(object):
             )
 
     def publish(self, *, bot_id: str, connector_ids: Optional[List[str]] = None, **kwargs) -> Bot:
+        """
+        发布智能体
+
+        将指定智能体发布到 API、Chat SDK 或者自定义渠道。
+        """
         url = f"{self._base_url}/v1/bot/publish"
         headers: Optional[dict] = kwargs.get("headers")
         if not connector_ids:
@@ -569,14 +545,9 @@ class BotsClient(object):
         """
         下架智能体
 
-        智能体发布后，你可以调用本 API 从扣子官方渠道及自定义渠道下架智能体。
+        智能体发布后，你可以调用本 API 从扣子官方渠道及自定义渠道下架智能体。 接口限制 仅智能体所有者可以下架智能体。 暂不支持调用本 API 下架豆包渠道的智能体。
 
-        docs: https://www.coze.cn/open/docs/developer_guides/unpublish_agent
-
-        :param bot_id: 待下架的智能体的 ID。
-        :param connector_id: 渠道 ID，例如 "1024" 表示 API 渠道。
-        :param unpublish_reason: 下架渠道的原因说明，用于记录或说明为何执行下架操作。最大 1024 个字符。
-        :return: 智能体对象
+        :param bot_id: 待下架的智能体的 ID。你可通过智能体开发页面 URL 中的 `bot` 参数获取智能体 ID 。例如 URL 为 `https://www.coze.com/space/341****/bot/73428668*****` 时，智能体 ID 为 `73428668*****`。
         """
         url = f"{self._base_url}/v1/bots/{bot_id}/unpublish"
         headers: Optional[dict] = kwargs.get("headers")
@@ -589,17 +560,11 @@ class BotsClient(object):
 
     def _retrieve_v1(self, *, bot_id: str, **kwargs) -> Bot:
         """
-        Get the configuration information of the bot, which must have been published
-        to the Bot as API channel.
-        获取指定 Bot 的配置信息，此 Bot 必须已发布到 Bot as API 渠道中。
+        获取已发布智能体配置（即将下线）
 
-        docs en: https://www.coze.com/docs/developer_guides/get_metadata
-        docs zh: https://www.coze.cn/docs/developer_guides/get_metadata
+        获取指定智能体的配置信息，此智能体必须已发布到 Agent as API 渠道中。 此接口仅支持查看已发布为 API 服务的智能体。对于创建后从未发布到 API 渠道的智能体，可以在 扣子平台 中查看列表及配置。
 
-        :param bot_id: The ID of the bot that the API interacts with.
-        要查看的 Bot ID。
-        :return: bot object
-        Bot 的配置信息
+        :param bot_id: 要查看的智能体 ID。 进入智能体的 开发页面，开发页面 URL 中 `bot` 参数后的数字就是智能体 ID。例如`https://www.coze.cn/space/341****/bot/73428668*****`，bot ID 为`73428668*****`。 确保该智能体的所属空间已经生成了访问令牌。
         """
         url = f"{self._base_url}/v1/bot/get_online_info"
         params = {"bot_id": bot_id}
@@ -607,14 +572,13 @@ class BotsClient(object):
         return self._requester.request("get", url, False, cast=Bot, params=params, headers=headers)
 
     def _retrieve_v2(self, *, bot_id: str, is_published: Optional[bool] = None, **kwargs) -> Bot:
-        """查看智能体配置
+        """
+        查看智能体配置
 
         查看指定智能体的配置信息，你可以查看该智能体已发布版本的配置，或当前草稿版本的配置。
 
-        docs: https://www.coze.cn/open/docs/developer_guides/get_metadata_draft_published
-
-        :param bot_id: 要查看的智能体 ID。
-        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 true。
+        :param bot_id: 要查看的智能体 ID。 进入智能体的开发页面，开发页面 URL 中 `bot` 参数后的数字就是智能体 ID。例如`https://www.coze.cn/space/341****/bot/73428668*****`，bot ID 为`73428668*****`。 确保该智能体的所属空间已经生成了访问令牌。
+        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 `true`。 * `true` ：查看已发布版本的配置。 * `false` ：查看当前草稿版本的配置。
         """
         url = f"{self._base_url}/v1/bots/{bot_id}"
         params = remove_none_values({"is_published": is_published})
@@ -752,22 +716,9 @@ class AsyncBotsClient(object):
         """
         创建智能体
 
-        通过指定空间、名称等参数创建一个新的智能体。
+        创建一个新的智能体。 创建的智能体为未发布的草稿状态，创建后可以在扣子编程智能体列表中查看智能体。调用 发布智能体 API 发布智能体后，才能通过 查看智能体列表 或 查看智能体配置 API 查看此智能体。 通过 API 方式创建智能体时，支持为智能体设置所在空间、智能体名称和描述、头像、人设与回复逻辑及开场白。
 
-        docs: https://www.coze.cn/open/docs/developer_guides/create_bot
-
-        :param space_id: 空间 ID。智能体将创建在此空间下。
-        :param name: 智能体名称。长度限制为 1-20 个字符。
-        :param description: 智能体描述。长度限制为 0-500 个字符，默认为空。
-        :param icon_file_id: 智能体头像的文件 ID。如需使用自定义头像，请先通过上传文件接口上传本地文件，
-        并从接口响应中获取文件 ID。如果未指定文件 ID，平台将分配默认头像。
-        :param prompt_info: 智能体的提示词配置信息。
-        :param onboarding_info: 智能体的开场白配置信息。
-        :param suggest_reply_info: 智能体的建议回复配置信息。
-        :param model_info_config: 智能体的模型配置信息。
-        :param plugin_id_list: 智能体使用的插件 ID 列表。
-        :param workflow_id_list: 智能体使用的工作流 ID 列表。
-        :return: 创建成功的智能体对象
+        :param icon_file_id: 头像文件id
         """
         url = f"{self._base_url}/v1/bot/create"
         headers: Optional[dict] = kwargs.get("headers")
@@ -819,26 +770,9 @@ class AsyncBotsClient(object):
         **kwargs,
     ) -> UpdateBotResp:
         """
-        Update the configuration of a bot.
-        This API can be used to update all bots created through the Coze platform or via the API.
-        In addition to updating the bot's name and description, avatar, personality and reply logic,
-        and opening remarks, this API also supports binding a knowledge base to the bot.
+        更新智能体
 
-        docs en: https://www.coze.com/docs/developer_guides/update_bot
-        docs zh: https://www.coze.cn/docs/developer_guides/update_bot
-
-        :param bot_id: The ID of the bot that the API interacts with.
-        :param name: The name of the bot. It should be 1 to 20 characters long.
-        :param description: The description of the Bot. It can be 0 to 500 characters long. The default is empty.
-        :param icon_file_id: The file ID for the Bot's avatar. If no file ID is specified, the Coze platform will
-        assign a default avatar for the bot. To use a custom avatar, first upload the local file through the Upload
-        file interface and obtain the file ID from the interface response.
-        :param prompt_info: The personality and reply logic of the bot.
-        :param onboarding_info: The settings related to the bot's opening remarks.
-        :param knowledge: The knowledge base that the bot uses to answer user queries.
-        :param suggest_reply_info: The suggest reply info for the bot.
-        :param model_info_config: The model configuration for the bot.
-        :return: None
+        更新智能体的配置。 通过此 API 可更新通过扣子编程或 API 方式创建的所有智能体。通过 API 方式修改智能体除了智能体名称和描述、头像、人设与回复逻辑及开场白之外，还支持为智能体绑定知识库和插件。 接口限制 不支持通过 API 绑定火山知识库，只能绑定扣子知识库。
         """
         url = f"{self._base_url}/v1/bot/update"
         headers: Optional[dict] = kwargs.get("headers")
@@ -903,6 +837,11 @@ class AsyncBotsClient(object):
         connector_ids: Optional[List[str]] = None,
         **kwargs,
     ) -> Bot:
+        """
+        发布智能体
+
+        将指定智能体发布到 API、Chat SDK 或者自定义渠道。
+        """
         url = f"{self._base_url}/v1/bot/publish"
         headers: Optional[dict] = kwargs.get("headers")
         if not connector_ids:
@@ -925,14 +864,9 @@ class AsyncBotsClient(object):
         """
         下架智能体
 
-        智能体发布后，你可以调用本 API 从扣子官方渠道及自定义渠道下架智能体。
+        智能体发布后，你可以调用本 API 从扣子官方渠道及自定义渠道下架智能体。 接口限制 仅智能体所有者可以下架智能体。 暂不支持调用本 API 下架豆包渠道的智能体。
 
-        docs: https://www.coze.cn/open/docs/developer_guides/unpublish_agent
-
-        :param bot_id: 待下架的智能体的 ID。
-        :param connector_id: 渠道 ID，例如 "1024" 表示 API 渠道。
-        :param unpublish_reason: 下架渠道的原因说明，用于记录或说明为何执行下架操作。最大 1024 个字符。
-        :return: 智能体对象
+        :param bot_id: 待下架的智能体的 ID。你可通过智能体开发页面 URL 中的 `bot` 参数获取智能体 ID 。例如 URL 为 `https://www.coze.com/space/341****/bot/73428668*****` 时，智能体 ID 为 `73428668*****`。
         """
         url = f"{self._base_url}/v1/bots/{bot_id}/unpublish"
         headers: Optional[dict] = kwargs.get("headers")
@@ -945,17 +879,11 @@ class AsyncBotsClient(object):
 
     async def _retrieve_v1(self, *, bot_id: str, **kwargs) -> Bot:
         """
-        Get the configuration information of the bot, which must have been published
-        to the Bot as API channel.
-        获取指定 Bot 的配置信息，此 Bot 必须已发布到 Bot as API 渠道中。
+        获取已发布智能体配置（即将下线）
 
-        docs en: https://www.coze.com/docs/developer_guides/get_metadata
-        docs zh: https://www.coze.cn/docs/developer_guides/get_metadata
+        获取指定智能体的配置信息，此智能体必须已发布到 Agent as API 渠道中。 此接口仅支持查看已发布为 API 服务的智能体。对于创建后从未发布到 API 渠道的智能体，可以在 扣子平台 中查看列表及配置。
 
-        :param bot_id: The ID of the bot that the API interacts with.
-        要查看的 Bot ID。
-        :return: bot object
-        Bot 的配置信息
+        :param bot_id: 要查看的智能体 ID。 进入智能体的 开发页面，开发页面 URL 中 `bot` 参数后的数字就是智能体 ID。例如`https://www.coze.cn/space/341****/bot/73428668*****`，bot ID 为`73428668*****`。 确保该智能体的所属空间已经生成了访问令牌。
         """
         url = f"{self._base_url}/v1/bot/get_online_info"
         params = {"bot_id": bot_id}
@@ -963,14 +891,13 @@ class AsyncBotsClient(object):
         return await self._requester.arequest("get", url, False, cast=Bot, params=params, headers=headers)
 
     async def _retrieve_v2(self, *, bot_id: str, is_published: Optional[bool] = None, **kwargs) -> Bot:
-        """查看智能体配置
+        """
+        查看智能体配置
 
         查看指定智能体的配置信息，你可以查看该智能体已发布版本的配置，或当前草稿版本的配置。
 
-        docs: https://www.coze.cn/open/docs/developer_guides/get_metadata_draft_published
-
-        :param bot_id: 要查看的智能体 ID。
-        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 true。
+        :param bot_id: 要查看的智能体 ID。 进入智能体的开发页面，开发页面 URL 中 `bot` 参数后的数字就是智能体 ID。例如`https://www.coze.cn/space/341****/bot/73428668*****`，bot ID 为`73428668*****`。 确保该智能体的所属空间已经生成了访问令牌。
+        :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 `true`。 * `true` ：查看已发布版本的配置。 * `false` ：查看当前草稿版本的配置。
         """
         url = f"{self._base_url}/v1/bots/{bot_id}"
         params = remove_none_values({"is_published": is_published})

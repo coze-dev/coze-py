@@ -447,22 +447,12 @@ class ChatClient(object):
         **kwargs,
     ) -> Stream[ChatEvent]:
         """
-        Call the Chat API with streaming to send messages to a published Coze bot.
+        发起对话
 
-        docs en: https://www.coze.com/docs/developer_guides/chat_v3
-        docs zh: https://www.coze.cn/docs/developer_guides/chat_v3
+        调用此接口发起一次对话，支持添加上下文和流式响应。 会话、对话和消息的概念说明，可参考 基础概念 。 接口说明 发起对话接口用于向指定智能体发起一次对话，支持在对话时添加对话的上下文消息，以便智能体基于历史消息做出合理的回复。开发者可以按需选择响应方式，即流式或非流式响应，响应方式决定了开发者获取智能体回复的方式。关于获取智能体回复的详细说明可参考 通过对话接口获取智能体回复 。 流式响应 ：智能体在生成回复的同时，将回复消息以数据流的形式逐条发送给客户端。处理结束后，服务端会返回一条完整的智能体回复。详细说明可参考 流式响应 。 非流式响应 ：无论对话是否处理完毕，立即发送响应消息。开发者可以通过接口 查看对话详情 确认本次对话处理结束后，再调用 查看对话消息详情 接口查看模型回复等完整响应内容。详细说明可参考 非流式响应 。 创建会话 API 和 发起对话 API 的区别如下： 创建会话： 主要用于初始化一个新的会话环境。 一个会话是Bot和用户之间的一段问答交互，可以包含多条消息。 创建会话时，可以选择携带初始的消息内容。 发起对话： 用于在已经存在的会话中发起一次对话。 支持添加上下文和流式响应。 可以基于历史消息进行上下文关联，提供更符合语境的回复。
 
-        :param bot_id: The ID of the bot that the API interacts with.
-        :param user_id: The user who calls the API to chat with the bot.
-        This parameter is defined, generated, and maintained by the user within their business system.
-        :param conversation_id: Indicate which conversation the chat is taking place in.
-        :param additional_messages: Additional information for the conversation. You can pass the user's query for this
-        conversation through this field. The array length is limited to 100, meaning up to 100 messages can be input.
-        :param custom_variables: The customized variable in a key-value pair.
-        :param auto_save_history: Whether to automatically save the history of conversation records.
-        :param meta_data: Additional information, typically used to encapsulate some business-related fields.
-        :param parameters: Additional parameters for the chat API. pass through to the workflow.
-        :return: iterator of ChatEvent
+        :param conversation_id: 标识对话发生在哪一次会话中。 会话是 Bot 和用户之间的一段问答交互。一个会话包含一条或多条消息。对话是会话中对 Bot 的一次调用，Bot 会将对话中产生的消息添加到会话中。 * 可以使用已创建的会话，会话中已存在的消息将作为上下文传递给模型。创建会话的方式可参考[创建会话](/docs/developer_guides/create_conversation)。 * 对于一问一答等不需要区分 conversation 的场合可不传该参数，系统会自动生成一个会话 一个会话中，只能有一个进行中的对话，否则调用此接口时会报错 4016。
+        :param parameters: key=参数名 value=值 传递给 workflows parameters 参数
         """
         return self._create(
             conversation_id=conversation_id,
@@ -492,22 +482,12 @@ class ChatClient(object):
         **kwargs,
     ) -> Chat:
         """
-        Call the Chat API with non-streaming to send messages to a published Coze bot.
+        发起对话
 
-        docs en: https://www.coze.com/docs/developer_guides/chat_v3
-        docs zh: https://www.coze.cn/docs/developer_guides/chat_v3
+        调用此接口发起一次对话，支持添加上下文和流式响应。 会话、对话和消息的概念说明，可参考 基础概念 。 接口说明 发起对话接口用于向指定智能体发起一次对话，支持在对话时添加对话的上下文消息，以便智能体基于历史消息做出合理的回复。开发者可以按需选择响应方式，即流式或非流式响应，响应方式决定了开发者获取智能体回复的方式。关于获取智能体回复的详细说明可参考 通过对话接口获取智能体回复 。 流式响应 ：智能体在生成回复的同时，将回复消息以数据流的形式逐条发送给客户端。处理结束后，服务端会返回一条完整的智能体回复。详细说明可参考 流式响应 。 非流式响应 ：无论对话是否处理完毕，立即发送响应消息。开发者可以通过接口 查看对话详情 确认本次对话处理结束后，再调用 查看对话消息详情 接口查看模型回复等完整响应内容。详细说明可参考 非流式响应 。 创建会话 API 和 发起对话 API 的区别如下： 创建会话： 主要用于初始化一个新的会话环境。 一个会话是Bot和用户之间的一段问答交互，可以包含多条消息。 创建会话时，可以选择携带初始的消息内容。 发起对话： 用于在已经存在的会话中发起一次对话。 支持添加上下文和流式响应。 可以基于历史消息进行上下文关联，提供更符合语境的回复。
 
-        :param bot_id: The ID of the bot that the API interacts with.
-        :param user_id: The user who calls the API to chat with the bot.
-        This parameter is defined, generated, and maintained by the user within their business system.
-        :param conversation_id: Indicate which conversation the chat is taking place in.
-        :param additional_messages: Additional information for the conversation. You can pass the user's query for this
-        conversation through this field. The array length is limited to 100, meaning up to 100 messages can be input.
-        :param custom_variables: The customized variable in a key-value pair.
-        :param auto_save_history: Whether to automatically save the history of conversation records.
-        :param meta_data: Additional information, typically used to encapsulate some business-related fields.
-        :param parameters: Additional parameters for the chat API. pass through to the workflow.
-        :return: chat object
+        :param conversation_id: 标识对话发生在哪一次会话中。 会话是 Bot 和用户之间的一段问答交互。一个会话包含一条或多条消息。对话是会话中对 Bot 的一次调用，Bot 会将对话中产生的消息添加到会话中。 * 可以使用已创建的会话，会话中已存在的消息将作为上下文传递给模型。创建会话的方式可参考[创建会话](/docs/developer_guides/create_conversation)。 * 对于一问一答等不需要区分 conversation 的场合可不传该参数，系统会自动生成一个会话 一个会话中，只能有一个进行中的对话，否则调用此接口时会报错 4016。
+        :param parameters: key=参数名 value=值 传递给 workflows parameters 参数
         """
         return self._create(
             conversation_id=conversation_id,
@@ -549,16 +529,9 @@ class ChatClient(object):
 
     def cancel(self, *, conversation_id: str, chat_id: str, **kwargs) -> Chat:
         """
-        Call this API to cancel an ongoing chat.
+        取消进行中的对话
 
-        docs en: https://www.coze.com/docs/developer_guides/chat_cancel
-        docs zh: https://www.coze.cn/docs/developer_guides/chat_cancel
-
-        :param conversation_id: The Conversation ID can be viewed in the 'conversation_id' field of the Response when
-        initiating a conversation through the Chat API.
-        :param chat_id: The Chat ID can be viewed in the 'id' field of the Response when initiating a chat through the
-        Chat API. If it is a streaming response, check the 'id' field in the chat event of the Response.
-        :return:
+        调用此接口取消进行中的对话。 调用 发起对话 接口时，如果对话触发了复杂的工作流、图像流，或模型处理数据量大时，对话可能耗时较久。对话进行中时，用户无法在此会话中发起新的对话。此时可以调用此接口取消正在进行中的对话，取消后，对话转为已取消状态（status=canceled），你可以在会话中创建新的对话。 注意事项 调用取消对话 API 仅切换对话状态，不会中断 chat API 的流式回复，同时根据完整回复内容来计算消耗的模型 Token。如需中断流式回复、停止打印机效果，可以在调用此 API 之后主动中断客户端连接，例如调用浏览器 Web API AbortController 。 取消对话后，本轮用户的 Query 和智能体的回复不会记录为对话的上下文。 不支持取消以下状态的对话。你可以通过 查看对话详情 接口的 status 字段查看对话状态。 completed：会话结束。 failed：会话失败。 requires_action：会话中断。 对话过程中的状态流转：
         """
         url = f"{self._base_url}/v3/chat/cancel"
         headers: Optional[dict] = kwargs.get("headers")
@@ -807,22 +780,12 @@ class AsyncChatClient(object):
         **kwargs,
     ) -> AsyncIterator[ChatEvent]:
         """
-        Call the Chat API with streaming to send messages to a published Coze bot.
+        发起对话
 
-        docs en: https://www.coze.com/docs/developer_guides/chat_v3
-        docs zh: https://www.coze.cn/docs/developer_guides/chat_v3
+        调用此接口发起一次对话，支持添加上下文和流式响应。 会话、对话和消息的概念说明，可参考 基础概念 。 接口说明 发起对话接口用于向指定智能体发起一次对话，支持在对话时添加对话的上下文消息，以便智能体基于历史消息做出合理的回复。开发者可以按需选择响应方式，即流式或非流式响应，响应方式决定了开发者获取智能体回复的方式。关于获取智能体回复的详细说明可参考 通过对话接口获取智能体回复 。 流式响应 ：智能体在生成回复的同时，将回复消息以数据流的形式逐条发送给客户端。处理结束后，服务端会返回一条完整的智能体回复。详细说明可参考 流式响应 。 非流式响应 ：无论对话是否处理完毕，立即发送响应消息。开发者可以通过接口 查看对话详情 确认本次对话处理结束后，再调用 查看对话消息详情 接口查看模型回复等完整响应内容。详细说明可参考 非流式响应 。 创建会话 API 和 发起对话 API 的区别如下： 创建会话： 主要用于初始化一个新的会话环境。 一个会话是Bot和用户之间的一段问答交互，可以包含多条消息。 创建会话时，可以选择携带初始的消息内容。 发起对话： 用于在已经存在的会话中发起一次对话。 支持添加上下文和流式响应。 可以基于历史消息进行上下文关联，提供更符合语境的回复。
 
-        :param bot_id: The ID of the bot that the API interacts with.
-        :param user_id: The user who calls the API to chat with the bot.
-        This parameter is defined, generated, and maintained by the user within their business system.
-        :param conversation_id: Indicate which conversation the chat is taking place in.
-        :param additional_messages: Additional information for the conversation. You can pass the user's query for this
-        conversation through this field. The array length is limited to 100, meaning up to 100 messages can be input.
-        :param custom_variables: The customized variable in a key-value pair.
-        :param auto_save_history: Whether to automatically save the history of conversation records.
-        :param meta_data: Additional information, typically used to encapsulate some business-related fields.
-        :param parameters: Additional parameters for the chat API. pass through to the workflow.
-        :return: iterator of ChatEvent
+        :param conversation_id: 标识对话发生在哪一次会话中。 会话是 Bot 和用户之间的一段问答交互。一个会话包含一条或多条消息。对话是会话中对 Bot 的一次调用，Bot 会将对话中产生的消息添加到会话中。 * 可以使用已创建的会话，会话中已存在的消息将作为上下文传递给模型。创建会话的方式可参考[创建会话](/docs/developer_guides/create_conversation)。 * 对于一问一答等不需要区分 conversation 的场合可不传该参数，系统会自动生成一个会话 一个会话中，只能有一个进行中的对话，否则调用此接口时会报错 4016。
+        :param parameters: key=参数名 value=值 传递给 workflows parameters 参数
         """
         async for item in await self._create(
             conversation_id=conversation_id,
@@ -853,22 +816,12 @@ class AsyncChatClient(object):
         **kwargs,
     ) -> Chat:
         """
-        Call the Chat API with non-streaming to send messages to a published Coze bot.
+        发起对话
 
-        docs en: https://www.coze.com/docs/developer_guides/chat_v3
-        docs zh: https://www.coze.cn/docs/developer_guides/chat_v3
+        调用此接口发起一次对话，支持添加上下文和流式响应。 会话、对话和消息的概念说明，可参考 基础概念 。 接口说明 发起对话接口用于向指定智能体发起一次对话，支持在对话时添加对话的上下文消息，以便智能体基于历史消息做出合理的回复。开发者可以按需选择响应方式，即流式或非流式响应，响应方式决定了开发者获取智能体回复的方式。关于获取智能体回复的详细说明可参考 通过对话接口获取智能体回复 。 流式响应 ：智能体在生成回复的同时，将回复消息以数据流的形式逐条发送给客户端。处理结束后，服务端会返回一条完整的智能体回复。详细说明可参考 流式响应 。 非流式响应 ：无论对话是否处理完毕，立即发送响应消息。开发者可以通过接口 查看对话详情 确认本次对话处理结束后，再调用 查看对话消息详情 接口查看模型回复等完整响应内容。详细说明可参考 非流式响应 。 创建会话 API 和 发起对话 API 的区别如下： 创建会话： 主要用于初始化一个新的会话环境。 一个会话是Bot和用户之间的一段问答交互，可以包含多条消息。 创建会话时，可以选择携带初始的消息内容。 发起对话： 用于在已经存在的会话中发起一次对话。 支持添加上下文和流式响应。 可以基于历史消息进行上下文关联，提供更符合语境的回复。
 
-        :param bot_id: The ID of the bot that the API interacts with.
-        :param user_id: The user who calls the API to chat with the bot.
-        This parameter is defined, generated, and maintained by the user within their business system.
-        :param conversation_id: Indicate which conversation the chat is taking place in.
-        :param additional_messages: Additional information for the conversation. You can pass the user's query for this
-        conversation through this field. The array length is limited to 100, meaning up to 100 messages can be input.
-        :param custom_variables: The customized variable in a key-value pair.
-        :param auto_save_history: Whether to automatically save the history of conversation records.
-        :param meta_data: Additional information, typically used to encapsulate some business-related fields.
-        :param parameters: Additional parameters for the chat API. pass through to the workflow.
-        :return: chat object
+        :param conversation_id: 标识对话发生在哪一次会话中。 会话是 Bot 和用户之间的一段问答交互。一个会话包含一条或多条消息。对话是会话中对 Bot 的一次调用，Bot 会将对话中产生的消息添加到会话中。 * 可以使用已创建的会话，会话中已存在的消息将作为上下文传递给模型。创建会话的方式可参考[创建会话](/docs/developer_guides/create_conversation)。 * 对于一问一答等不需要区分 conversation 的场合可不传该参数，系统会自动生成一个会话 一个会话中，只能有一个进行中的对话，否则调用此接口时会报错 4016。
+        :param parameters: key=参数名 value=值 传递给 workflows parameters 参数
         """
         return await self._create(
             conversation_id=conversation_id,
@@ -910,16 +863,9 @@ class AsyncChatClient(object):
 
     async def cancel(self, *, conversation_id: str, chat_id: str, **kwargs) -> Chat:
         """
-        Call this API to cancel an ongoing chat.
+        取消进行中的对话
 
-        docs en: https://www.coze.com/docs/developer_guides/chat_cancel
-        docs zh: https://www.coze.cn/docs/developer_guides/chat_cancel
-
-        :param conversation_id: The Conversation ID can be viewed in the 'conversation_id' field of the Response when
-        initiating a conversation through the Chat API.
-        :param chat_id: The Chat ID can be viewed in the 'id' field of the Response when initiating a chat through the
-        Chat API. If it is a streaming response, check the 'id' field in the chat event of the Response.
-        :return:
+        调用此接口取消进行中的对话。 调用 发起对话 接口时，如果对话触发了复杂的工作流、图像流，或模型处理数据量大时，对话可能耗时较久。对话进行中时，用户无法在此会话中发起新的对话。此时可以调用此接口取消正在进行中的对话，取消后，对话转为已取消状态（status=canceled），你可以在会话中创建新的对话。 注意事项 调用取消对话 API 仅切换对话状态，不会中断 chat API 的流式回复，同时根据完整回复内容来计算消耗的模型 Token。如需中断流式回复、停止打印机效果，可以在调用此 API 之后主动中断客户端连接，例如调用浏览器 Web API AbortController 。 取消对话后，本轮用户的 Query 和智能体的回复不会记录为对话的上下文。 不支持取消以下状态的对话。你可以通过 查看对话详情 接口的 status 字段查看对话状态。 completed：会话结束。 failed：会话失败。 requires_action：会话中断。 对话过程中的状态流转：
         """
         url = f"{self._base_url}/v3/chat/cancel"
         headers: Optional[dict] = kwargs.get("headers")
