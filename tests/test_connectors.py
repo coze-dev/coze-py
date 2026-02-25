@@ -1,7 +1,10 @@
+import json
+
 import httpx
 import pytest
 
 from cozepy import AsyncCoze, AsyncTokenAuth, Coze, TokenAuth
+from cozepy.connectors import UserConfig, UserConfigEnum
 from cozepy.connectors.bots import AuditStatus, UpdateConnectorBotResp
 from cozepy.util import random_hex
 from tests.test_util import logid_key
@@ -18,6 +21,21 @@ def mock_update_connector_bot(respx_mock, connector_id: str, bot_id: str):
     )
     route = respx_mock.put(f"/v1/connectors/{connector_id}/bots/{bot_id}")
     route.mock(mock_response._raw_response)
+
+
+def mock_bind_connector_user_config(respx_mock, connector_id: str):
+    logid = random_hex(10)
+    route = respx_mock.post(f"/v1/connectors/{connector_id}/user_configs")
+    route.mock(
+        httpx.Response(
+            200,
+            json={
+                "data": {},
+            },
+            headers={logid_key(): logid},
+        )
+    )
+    return route, logid
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
@@ -40,6 +58,34 @@ class TestConnectorsBotsClient:
         assert resp
         assert resp.response.logid
 
+    def test_bind(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+        connector_id = random_hex(10)
+        user_id = random_hex(10)
+        configs = [
+            UserConfig(
+                key="device_id",
+                enums=[
+                    UserConfigEnum(label="device_1", value="123"),
+                ],
+            )
+        ]
+        route, logid = mock_bind_connector_user_config(respx_mock, connector_id)
+
+        resp = coze.connectors.bind(
+            connector_id=connector_id,
+            configs=configs,
+            user_id=user_id,
+        )
+        assert resp
+        assert resp.response.logid == logid
+
+        body = json.loads(route.calls[0].request.content.decode())
+        assert body == {
+            "configs": [{"key": "device_id", "enums": [{"label": "device_1", "value": "123"}]}],
+            "user_id": user_id,
+        }
+
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
@@ -61,3 +107,31 @@ class TestAsyncConnectorsBotsClient:
         )
         assert resp
         assert resp.response.logid
+
+    async def test_bind(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+        connector_id = random_hex(10)
+        user_id = random_hex(10)
+        configs = [
+            UserConfig(
+                key="device_id",
+                enums=[
+                    UserConfigEnum(label="device_1", value="123"),
+                ],
+            )
+        ]
+        route, logid = mock_bind_connector_user_config(respx_mock, connector_id)
+
+        resp = await coze.connectors.bind(
+            connector_id=connector_id,
+            configs=configs,
+            user_id=user_id,
+        )
+        assert resp
+        assert resp.response.logid == logid
+
+        body = json.loads(route.calls[0].request.content.decode())
+        assert body == {
+            "configs": [{"key": "device_id", "enums": [{"label": "device_1", "value": "123"}]}],
+            "user_id": user_id,
+        }
