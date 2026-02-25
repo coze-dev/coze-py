@@ -58,8 +58,8 @@ class AsyncTranscriptionsClient(object):
         :return: create transcriptions result
         """
         url = f"{self._base_url}/v1/audio/transcriptions"
-        files = {"file": _try_fix_file(file)}
         headers: Optional[dict] = kwargs.get("headers")
+        files = {"file": _try_fix_file(file)}
         return await self._requester.arequest(
             "post", url, stream=False, cast=CreateTranscriptionsResp, headers=headers, files=files
         )

@@ -9,7 +9,6 @@ from cozepy.workspaces import WorkspaceRoleType
 class WorkspaceMember(CozeModel):
     user_id: str  # 用户ID
     role_type: WorkspaceRoleType  # 当前用户角色
-
     user_nickname: Optional[str] = None  # 昵称（添加成员时不用传）
     user_unique_name: Optional[str] = None  # 用户名（添加成员时不用传）
     avatar_url: Optional[str] = None  # 头像 （添加成员时不用传）
