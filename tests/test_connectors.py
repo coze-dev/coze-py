@@ -86,6 +86,45 @@ class TestConnectorsBotsClient:
             "user_id": user_id,
         }
 
+    def test_bind_no_user_id(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+        connector_id = random_hex(10)
+        configs = [
+            UserConfig(
+                key="device_id",
+                enums=[
+                    UserConfigEnum(label="device_1", value="123"),
+                ],
+            )
+        ]
+        route, logid = mock_bind_connector_user_config(respx_mock, connector_id)
+
+        resp = coze.connectors.bind(
+            connector_id=connector_id,
+            configs=configs,
+        )
+        assert resp
+        assert resp.response.logid == logid
+
+        body = json.loads(route.calls[0].request.content.decode())
+        assert "user_id" not in body
+        assert body["configs"] == [{"key": "device_id", "enums": [{"label": "device_1", "value": "123"}]}]
+
+    def test_bind_empty_configs(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+        connector_id = random_hex(10)
+        route, logid = mock_bind_connector_user_config(respx_mock, connector_id)
+
+        resp = coze.connectors.bind(
+            connector_id=connector_id,
+            configs=[],
+        )
+        assert resp
+        assert resp.response.logid == logid
+
+        body = json.loads(route.calls[0].request.content.decode())
+        assert body["configs"] == []
+
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
