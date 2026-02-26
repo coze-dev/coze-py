@@ -241,7 +241,7 @@ class AsyncVoiceprintGroupsClient(object):
         group_id: Optional[str] = None,
         user_id: Optional[str] = None,
         page_num: int = 1,
-        page_size: int = 10,
+        page_size: int = 100,
         **kwargs,
     ) -> AsyncNumberPaged[VoicePrintGroup]:
         """
