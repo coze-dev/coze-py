@@ -34,21 +34,17 @@ class WorkflowEventType(str, Enum):
     # the message node or end node. You can view the specific message content in data.
     # 工作流节点输出消息，例如消息节点、结束节点的输出消息。可以在 data 中查看具体的消息内容。
     MESSAGE = "Message"
-
     # An error has occurred. You can view the error_code and error_message in data to
     # troubleshoot the issue.
     # 报错。可以在 data 中查看 error_code 和 error_message，排查问题。
     ERROR = "Error"
-
     # End. Indicates the end of the workflow execution, where data is empty.
     # 结束。表示工作流执行结束，此时 data 为空。
     DONE = "Done"
-
     # Interruption. Indicates the workflow has been interrupted, where the data field
     # contains specific interruption information.
     # 中断。表示工作流中断，此时 data 字段中包含具体的中断信息。
     INTERRUPT = "Interrupt"
-
     UNKNOWN = "unknown"  # 默认的未知值
 
 

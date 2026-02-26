@@ -68,11 +68,9 @@ class DocumentFormatType(IntEnum):
     # Document type, such as txt, pdf, online web pages, etc.
     # 文档类型，例如 txt 、pdf 、在线网页等格式均属于文档类型。
     DOCUMENT = 0
-
     # 表格类型，例如 xls 表格等格式属于表格类型。
     # Spreadsheet type, such as xls spreadsheets, etc.
     SPREADSHEET = 1
-
     # 照片类型，例如 png 图片等格式属于照片类型。
     # Photo type, such as png images, etc.
     IMAGE = 2
@@ -95,11 +93,9 @@ class DocumentStatus(IntEnum):
     # Processing
     # 处理中
     PROCESSING = 0
-
     # Completed
     # 处理完毕
     COMPLETED = 1
-
     # Processing failed, it is recommended to re-upload
     # 处理失败，建议重新上传
     FAILED = 9
@@ -109,7 +105,6 @@ class DocumentUpdateType(IntEnum):
     # Do not automatically update
     # 不自动更新
     NO_AUTO_UPDATE = 0
-
     # Automatically update
     # 自动更新
     AUTO_UPDATE = 1
