@@ -31,12 +31,7 @@ class LiveClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    def retrieve(
-        self,
-        *,
-        live_id: str,
-        **kwargs,
-    ) -> LiveInfo:
+    def retrieve(self, *, live_id: str, **kwargs) -> LiveInfo:
         """
         retrieve live
 
@@ -57,12 +52,7 @@ class AsyncLiveClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    async def retrieve(
-        self,
-        *,
-        live_id: str,
-        **kwargs,
-    ) -> LiveInfo:
+    async def retrieve(self, *, live_id: str, **kwargs) -> LiveInfo:
         """
         retrieve live
 

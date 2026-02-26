@@ -200,12 +200,7 @@ class DatasetsClient(object):
             body=body,
         )
 
-    def delete(
-        self,
-        *,
-        dataset_id: str,
-        **kwargs,
-    ) -> DeleteDatasetRes:
+    def delete(self, *, dataset_id: str, **kwargs) -> DeleteDatasetRes:
         """
         Delete Dataset
         The workspace administrator can delete all knowledge bases in the team, while other members can only delete knowledge bases they own.
@@ -397,12 +392,7 @@ class AsyncDatasetsClient(object):
             body=body,
         )
 
-    async def delete(
-        self,
-        *,
-        dataset_id: str,
-        **kwargs,
-    ) -> DeleteDatasetRes:
+    async def delete(self, *, dataset_id: str, **kwargs) -> DeleteDatasetRes:
         """
         Delete Dataset
         The workspace administrator can delete all knowledge bases in the team, while other members can only delete knowledge bases they own.

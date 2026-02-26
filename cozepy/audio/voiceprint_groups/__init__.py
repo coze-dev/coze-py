@@ -75,13 +75,7 @@ class VoiceprintGroupsClient(object):
             self._features = VoiceprintGroupsFeaturesClient(base_url=self._base_url, requester=self._requester)
         return self._features
 
-    def create(
-        self,
-        *,
-        name: str,
-        desc: Optional[str] = None,
-        **kwargs,
-    ) -> CreateVoicePrintGroupResp:
+    def create(self, *, name: str, desc: Optional[str] = None, **kwargs) -> CreateVoicePrintGroupResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups"
         headers: Optional[dict] = kwargs.get("headers")
         body = remove_none_values(
@@ -110,12 +104,7 @@ class VoiceprintGroupsClient(object):
         )
         return self._requester.request("put", url, False, cast=UpdateVoicePrintGroupResp, headers=headers, body=body)
 
-    def delete(
-        self,
-        *,
-        group_id: str,
-        **kwargs,
-    ) -> DeleteVoicePrintGroupResp:
+    def delete(self, *, group_id: str, **kwargs) -> DeleteVoicePrintGroupResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}"
         headers: Optional[dict] = kwargs.get("headers")
         return self._requester.request("delete", url, False, cast=DeleteVoicePrintGroupResp, headers=headers)
@@ -207,13 +196,7 @@ class AsyncVoiceprintGroupsClient(object):
             self._features = AsyncVoiceprintGroupsFeaturesClient(base_url=self._base_url, requester=self._requester)
         return self._features
 
-    async def create(
-        self,
-        *,
-        name: str,
-        desc: Optional[str] = None,
-        **kwargs,
-    ) -> CreateVoicePrintGroupResp:
+    async def create(self, *, name: str, desc: Optional[str] = None, **kwargs) -> CreateVoicePrintGroupResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups"
         headers: Optional[dict] = kwargs.get("headers")
         body = remove_none_values(
@@ -246,12 +229,7 @@ class AsyncVoiceprintGroupsClient(object):
             "put", url, False, cast=UpdateVoicePrintGroupResp, headers=headers, body=body
         )
 
-    async def delete(
-        self,
-        *,
-        group_id: str,
-        **kwargs,
-    ) -> DeleteVoicePrintGroupResp:
+    async def delete(self, *, group_id: str, **kwargs) -> DeleteVoicePrintGroupResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}"
         headers: Optional[dict] = kwargs.get("headers")
         return await self._requester.arequest("delete", url, False, cast=DeleteVoicePrintGroupResp, headers=headers)

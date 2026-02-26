@@ -11,13 +11,7 @@ class ChatMessagesClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    def list(
-        self,
-        *,
-        conversation_id: str,
-        chat_id: str,
-        **kwargs,
-    ) -> ListResponse[Message]:
+    def list(self, *, conversation_id: str, chat_id: str, **kwargs) -> ListResponse[Message]:
         """
         查看对话消息详情
 
@@ -45,13 +39,7 @@ class AsyncChatMessagesClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    async def list(
-        self,
-        *,
-        conversation_id: str,
-        chat_id: str,
-        **kwargs,
-    ) -> ListResponse[Message]:
+    async def list(self, *, conversation_id: str, chat_id: str, **kwargs) -> ListResponse[Message]:
         """
         查看对话消息详情
 

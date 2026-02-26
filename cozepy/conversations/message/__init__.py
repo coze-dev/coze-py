@@ -74,13 +74,7 @@ class MessagesClient(object):
         }
         return self._requester.request("post", url, False, cast=Message, params=params, headers=headers, body=body)
 
-    def retrieve(
-        self,
-        *,
-        conversation_id: str,
-        message_id: str,
-        **kwargs,
-    ) -> Message:
+    def retrieve(self, *, conversation_id: str, message_id: str, **kwargs) -> Message:
         """
         查看消息详情
 
@@ -131,13 +125,7 @@ class MessagesClient(object):
             "post", url, False, cast=Message, params=params, headers=headers, body=body, data_field="message"
         )
 
-    def delete(
-        self,
-        *,
-        conversation_id: str,
-        message_id: str,
-        **kwargs,
-    ) -> Message:
+    def delete(self, *, conversation_id: str, message_id: str, **kwargs) -> Message:
         """
         删除消息
 
@@ -266,13 +254,7 @@ class AsyncMessagesClient(object):
             "post", url, False, cast=Message, params=params, headers=headers, body=body
         )
 
-    async def retrieve(
-        self,
-        *,
-        conversation_id: str,
-        message_id: str,
-        **kwargs,
-    ) -> Message:
+    async def retrieve(self, *, conversation_id: str, message_id: str, **kwargs) -> Message:
         """
         查看消息详情
 
@@ -323,13 +305,7 @@ class AsyncMessagesClient(object):
             "post", url, False, cast=Message, params=params, headers=headers, body=body, data_field="message"
         )
 
-    async def delete(
-        self,
-        *,
-        conversation_id: str,
-        message_id: str,
-        **kwargs,
-    ) -> Message:
+    async def delete(self, *, conversation_id: str, message_id: str, **kwargs) -> Message:
         """
         删除消息
         暂不支持批量操作，需要逐条删除。
