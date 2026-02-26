@@ -386,7 +386,7 @@ class AsyncDatasetsDocumentsClient(object):
         dataset_id: str,
         document_bases: List[DocumentBase],
         chunk_strategy: Optional[DocumentChunkStrategy] = None,
-        format_type: Optional[DocumentFormatType] = None,
+        format_type: Optional[DocumentFormatType] = DocumentFormatType.DOCUMENT,
         **kwargs,
     ) -> ListResponse[Document]:
         """
