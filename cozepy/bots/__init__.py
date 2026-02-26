@@ -600,7 +600,9 @@ class BotsClient(object):
         :param bot_id: 要查看的智能体 ID。 进入智能体的 开发页面，开发页面 URL 中 `bot` 参数后的数字就是智能体 ID。例如`https://www.coze.cn/space/341****/bot/73428668*****`，bot ID 为`73428668*****`。 确保该智能体的所属空间已经生成了访问令牌。
         """
         url = f"{self._base_url}/v1/bot/get_online_info"
-        params = {"bot_id": bot_id}
+        params = {
+            "bot_id": bot_id,
+        }
         headers: Optional[dict] = kwargs.get("headers")
         return self._requester.request("get", url, False, cast=Bot, params=params, headers=headers)
 
@@ -614,7 +616,11 @@ class BotsClient(object):
         :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 `true`。 * `true` ：查看已发布版本的配置。 * `false` ：查看当前草稿版本的配置。
         """
         url = f"{self._base_url}/v1/bots/{bot_id}"
-        params = remove_none_values({"is_published": is_published})
+        params = remove_none_values(
+            {
+                "is_published": is_published,
+            }
+        )
         headers: Optional[dict] = kwargs.get("headers")
         return self._requester.request("get", url, False, cast=Bot, params=params, headers=headers)
 
@@ -956,7 +962,9 @@ class AsyncBotsClient(object):
         :param bot_id: 要查看的智能体 ID。 进入智能体的 开发页面，开发页面 URL 中 `bot` 参数后的数字就是智能体 ID。例如`https://www.coze.cn/space/341****/bot/73428668*****`，bot ID 为`73428668*****`。 确保该智能体的所属空间已经生成了访问令牌。
         """
         url = f"{self._base_url}/v1/bot/get_online_info"
-        params = {"bot_id": bot_id}
+        params = {
+            "bot_id": bot_id,
+        }
         headers: Optional[dict] = kwargs.get("headers")
         return await self._requester.arequest("get", url, False, cast=Bot, params=params, headers=headers)
 
@@ -970,7 +978,11 @@ class AsyncBotsClient(object):
         :param is_published: 根据智能体的发布状态筛选对应版本。默认值为 `true`。 * `true` ：查看已发布版本的配置。 * `false` ：查看当前草稿版本的配置。
         """
         url = f"{self._base_url}/v1/bots/{bot_id}"
-        params = remove_none_values({"is_published": is_published})
+        params = remove_none_values(
+            {
+                "is_published": is_published,
+            }
+        )
         headers: Optional[dict] = kwargs.get("headers")
         return await self._requester.arequest("get", url, False, cast=Bot, params=params, headers=headers)
 
