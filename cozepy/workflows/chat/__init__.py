@@ -54,27 +54,15 @@ class WorkflowsChatClient(object):
         :param conversation_id: 对话流对应的会话 ID
         :param ext: 用于指定一些额外的字段，例如经纬度、用户ID等
         """
-        url = f"{self._base_url}/v1/workflows/chat"
-        headers: Optional[dict] = kwargs.get("headers")
-        body = remove_none_values(
-            {
-                "workflow_id": workflow_id,
-                "additional_messages": [i.model_dump() for i in additional_messages] if additional_messages else [],
-                "parameters": parameters,
-                "app_id": app_id,
-                "bot_id": bot_id,
-                "conversation_id": conversation_id,
-                "ext": ext,
-            }
-        )
-        response: IteratorHTTPResponse[str] = self._requester.request(
-            "post", url, True, cast=None, headers=headers, body=body
-        )
-        return Stream(
-            response._raw_response,
-            response.data,
-            fields=["event", "data"],
-            handler=_chat_stream_handler,
+        return self._create(
+            workflow_id=workflow_id,
+            additional_messages=additional_messages,
+            parameters=parameters,
+            app_id=app_id,
+            bot_id=bot_id,
+            conversation_id=conversation_id,
+            ext=ext,
+            **kwargs,
         )
 
     def _create(
@@ -189,27 +177,15 @@ class AsyncWorkflowsChatClient(object):
         :param conversation_id: 对话流对应的会话 ID
         :param ext: 用于指定一些额外的字段，例如经纬度、用户ID等
         """
-        url = f"{self._base_url}/v1/workflows/chat"
-        headers: Optional[dict] = kwargs.get("headers")
-        body = remove_none_values(
-            {
-                "workflow_id": workflow_id,
-                "additional_messages": [i.model_dump() for i in additional_messages] if additional_messages else [],
-                "parameters": parameters,
-                "app_id": app_id,
-                "bot_id": bot_id,
-                "conversation_id": conversation_id,
-                "ext": ext,
-            }
-        )
-        resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
-            "post", url, True, cast=None, headers=headers, body=body
-        )
-        async for item in AsyncStream(
-            resp.data,
-            fields=["event", "data"],
-            handler=_chat_stream_handler,
-            raw_response=resp._raw_response,
+        async for item in await self._create(
+            workflow_id=workflow_id,
+            additional_messages=additional_messages,
+            parameters=parameters,
+            app_id=app_id,
+            bot_id=bot_id,
+            conversation_id=conversation_id,
+            ext=ext,
+            **kwargs,
         ):
             yield item
 

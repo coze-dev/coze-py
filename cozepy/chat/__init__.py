@@ -441,32 +441,18 @@ class ChatClient(object):
         :param conversation_id: 标识对话发生在哪一次会话中。 会话是 Bot 和用户之间的一段问答交互。一个会话包含一条或多条消息。对话是会话中对 Bot 的一次调用，Bot 会将对话中产生的消息添加到会话中。 * 可以使用已创建的会话，会话中已存在的消息将作为上下文传递给模型。创建会话的方式可参考[创建会话](/docs/developer_guides/create_conversation)。 * 对于一问一答等不需要区分 conversation 的场合可不传该参数，系统会自动生成一个会话 一个会话中，只能有一个进行中的对话，否则调用此接口时会报错 4016。
         :param parameters: key=参数名 value=值 传递给 workflows parameters 参数
         """
-        url = f"{self._base_url}/v3/chat"
-        params = {
-            "conversation_id": conversation_id if conversation_id else None,
-        }
-        headers: Optional[dict] = kwargs.get("headers")
-        body = remove_none_values(
-            {
-                "bot_id": bot_id,
-                "user_id": user_id,
-                "additional_messages": [i.model_dump() for i in additional_messages] if additional_messages else [],
-                "custom_variables": custom_variables,
-                "auto_save_history": auto_save_history,
-                "meta_data": meta_data,
-                "enable_card": enable_card,
-                "parameters": parameters,
-                "stream": True,
-            }
-        )
-        response: IteratorHTTPResponse[str] = self._requester.request(
-            "post", url, True, cast=None, params=params, headers=headers, body=body
-        )
-        return Stream(
-            response._raw_response,
-            response.data,
-            fields=["event", "data"],
-            handler=_chat_stream_handler,
+        return self._create(
+            conversation_id=conversation_id,
+            bot_id=bot_id,
+            user_id=user_id,
+            additional_messages=additional_messages,
+            custom_variables=custom_variables,
+            auto_save_history=auto_save_history,
+            meta_data=meta_data,
+            enable_card=enable_card,
+            parameters=parameters,
+            stream=True,
+            **kwargs,
         )
 
     def create(
@@ -504,24 +490,18 @@ class ChatClient(object):
         :param conversation_id: 标识对话发生在哪一次会话中。 会话是 Bot 和用户之间的一段问答交互。一个会话包含一条或多条消息。对话是会话中对 Bot 的一次调用，Bot 会将对话中产生的消息添加到会话中。 * 可以使用已创建的会话，会话中已存在的消息将作为上下文传递给模型。创建会话的方式可参考[创建会话](/docs/developer_guides/create_conversation)。 * 对于一问一答等不需要区分 conversation 的场合可不传该参数，系统会自动生成一个会话 一个会话中，只能有一个进行中的对话，否则调用此接口时会报错 4016。
         :param parameters: key=参数名 value=值 传递给 workflows parameters 参数
         """
-        url = f"{self._base_url}/v3/chat"
-        params = {
-            "conversation_id": conversation_id if conversation_id else None,
-        }
-        headers: Optional[dict] = kwargs.get("headers")
-        body = remove_none_values(
-            {
-                "bot_id": bot_id,
-                "user_id": user_id,
-                "additional_messages": [i.model_dump() for i in additional_messages] if additional_messages else [],
-                "custom_variables": custom_variables,
-                "auto_save_history": auto_save_history,
-                "meta_data": meta_data,
-                "parameters": parameters,
-                "stream": False,
-            }
+        return self._create(
+            conversation_id=conversation_id,
+            bot_id=bot_id,
+            user_id=user_id,
+            additional_messages=additional_messages,
+            custom_variables=custom_variables,
+            auto_save_history=auto_save_history,
+            meta_data=meta_data,
+            parameters=parameters,
+            stream=False,
+            **kwargs,
         )
-        return self._requester.request("post", url, False, cast=Chat, params=params, headers=headers, body=body)
 
     def retrieve(
         self,
@@ -831,32 +811,18 @@ class AsyncChatClient(object):
         :param conversation_id: 标识对话发生在哪一次会话中。 会话是 Bot 和用户之间的一段问答交互。一个会话包含一条或多条消息。对话是会话中对 Bot 的一次调用，Bot 会将对话中产生的消息添加到会话中。 * 可以使用已创建的会话，会话中已存在的消息将作为上下文传递给模型。创建会话的方式可参考[创建会话](/docs/developer_guides/create_conversation)。 * 对于一问一答等不需要区分 conversation 的场合可不传该参数，系统会自动生成一个会话 一个会话中，只能有一个进行中的对话，否则调用此接口时会报错 4016。
         :param parameters: key=参数名 value=值 传递给 workflows parameters 参数
         """
-        url = f"{self._base_url}/v3/chat"
-        params = {
-            "conversation_id": conversation_id if conversation_id else None,
-        }
-        headers: Optional[dict] = kwargs.get("headers")
-        body = remove_none_values(
-            {
-                "bot_id": bot_id,
-                "user_id": user_id,
-                "additional_messages": [i.model_dump() for i in additional_messages] if additional_messages else [],
-                "custom_variables": custom_variables,
-                "auto_save_history": auto_save_history,
-                "meta_data": meta_data,
-                "enable_card": enable_card,
-                "parameters": parameters,
-                "stream": True,
-            }
-        )
-        resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
-            "post", url, True, cast=None, params=params, headers=headers, body=body
-        )
-        async for item in AsyncStream(
-            resp.data,
-            fields=["event", "data"],
-            handler=_chat_stream_handler,
-            raw_response=resp._raw_response,
+        async for item in await self._create(
+            conversation_id=conversation_id,
+            bot_id=bot_id,
+            user_id=user_id,
+            additional_messages=additional_messages,
+            custom_variables=custom_variables,
+            auto_save_history=auto_save_history,
+            meta_data=meta_data,
+            enable_card=enable_card,
+            parameters=parameters,
+            stream=True,
+            **kwargs,
         ):
             yield item
 
@@ -895,24 +861,18 @@ class AsyncChatClient(object):
         :param conversation_id: 标识对话发生在哪一次会话中。 会话是 Bot 和用户之间的一段问答交互。一个会话包含一条或多条消息。对话是会话中对 Bot 的一次调用，Bot 会将对话中产生的消息添加到会话中。 * 可以使用已创建的会话，会话中已存在的消息将作为上下文传递给模型。创建会话的方式可参考[创建会话](/docs/developer_guides/create_conversation)。 * 对于一问一答等不需要区分 conversation 的场合可不传该参数，系统会自动生成一个会话 一个会话中，只能有一个进行中的对话，否则调用此接口时会报错 4016。
         :param parameters: key=参数名 value=值 传递给 workflows parameters 参数
         """
-        url = f"{self._base_url}/v3/chat"
-        params = {
-            "conversation_id": conversation_id if conversation_id else None,
-        }
-        headers: Optional[dict] = kwargs.get("headers")
-        body = remove_none_values(
-            {
-                "bot_id": bot_id,
-                "user_id": user_id,
-                "additional_messages": [i.model_dump() for i in additional_messages] if additional_messages else [],
-                "custom_variables": custom_variables,
-                "auto_save_history": auto_save_history,
-                "meta_data": meta_data,
-                "parameters": parameters,
-                "stream": False,
-            }
+        return await self._create(
+            conversation_id=conversation_id,
+            bot_id=bot_id,
+            user_id=user_id,
+            additional_messages=additional_messages,
+            custom_variables=custom_variables,
+            auto_save_history=auto_save_history,
+            meta_data=meta_data,
+            parameters=parameters,
+            stream=False,
+            **kwargs,
         )
-        return await self._requester.arequest("post", url, False, cast=Chat, params=params, headers=headers, body=body)
 
     async def retrieve(
         self,
