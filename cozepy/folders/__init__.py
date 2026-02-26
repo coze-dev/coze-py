@@ -40,12 +40,7 @@ class FoldersClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    def retrieve(
-        self,
-        *,
-        folder_id: str,
-        **kwargs,
-    ) -> SimpleFolder:
+    def retrieve(self, *, folder_id: str, **kwargs) -> SimpleFolder:
         """
         查询文件夹详情
 
@@ -101,12 +96,7 @@ class AsyncFoldersClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    async def retrieve(
-        self,
-        *,
-        folder_id: str,
-        **kwargs,
-    ) -> SimpleFolder:
+    async def retrieve(self, *, folder_id: str, **kwargs) -> SimpleFolder:
         """
         查询文件夹详情
 

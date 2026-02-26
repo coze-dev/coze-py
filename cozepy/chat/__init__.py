@@ -503,13 +503,7 @@ class ChatClient(object):
             **kwargs,
         )
 
-    def retrieve(
-        self,
-        *,
-        conversation_id: str,
-        chat_id: str,
-        **kwargs,
-    ) -> Chat:
+    def retrieve(self, *, conversation_id: str, chat_id: str, **kwargs) -> Chat:
         """
         Get the detailed information of the chat.
 
@@ -874,13 +868,7 @@ class AsyncChatClient(object):
             **kwargs,
         )
 
-    async def retrieve(
-        self,
-        *,
-        conversation_id: str,
-        chat_id: str,
-        **kwargs,
-    ) -> Chat:
+    async def retrieve(self, *, conversation_id: str, chat_id: str, **kwargs) -> Chat:
         """
         Get the detailed information of the chat.
 

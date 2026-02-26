@@ -16,12 +16,7 @@ class TranscriptionsClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    def create(
-        self,
-        *,
-        file: FileTypes,
-        **kwargs,
-    ) -> CreateTranscriptionsResp:
+    def create(self, *, file: FileTypes, **kwargs) -> CreateTranscriptionsResp:
         """
         语音识别
         限制说明
@@ -49,12 +44,7 @@ class AsyncTranscriptionsClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    async def create(
-        self,
-        *,
-        file: FileTypes,
-        **kwargs,
-    ) -> CreateTranscriptionsResp:
+    async def create(self, *, file: FileTypes, **kwargs) -> CreateTranscriptionsResp:
         """
         语音识别
         支持的文件格式包括 ogg、mp3 和 wav。
