@@ -9,6 +9,7 @@ from cozepy.util import dump_exclude_none, remove_none_values, remove_url_traili
 
 if TYPE_CHECKING:
     from cozepy.bots.collaboration_modes import AsyncBotsCollaborationModesClient, BotsCollaborationModesClient
+    from cozepy.bots.collaborators import AsyncBotsCollaboratorsClient, BotsCollaboratorsClient
 
 
 class PublishStatus(DynamicStrEnum):
@@ -380,6 +381,7 @@ class BotsClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
         self._collaboration_modes: Optional[BotsCollaborationModesClient] = None
+        self._collaborators: Optional[BotsCollaboratorsClient] = None
 
     @property
     def collaboration_modes(self) -> "BotsCollaborationModesClient":
@@ -388,6 +390,14 @@ class BotsClient(object):
 
             self._collaboration_modes = BotsCollaborationModesClient(base_url=self._base_url, requester=self._requester)
         return self._collaboration_modes
+
+    @property
+    def collaborators(self) -> "BotsCollaboratorsClient":
+        if not self._collaborators:
+            from .collaborators import BotsCollaboratorsClient
+
+            self._collaborators = BotsCollaboratorsClient(base_url=self._base_url, requester=self._requester)
+        return self._collaborators
 
     def create(
         self,
@@ -709,6 +719,7 @@ class AsyncBotsClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
         self._collaboration_modes: Optional[AsyncBotsCollaborationModesClient] = None
+        self._collaborators: Optional[AsyncBotsCollaboratorsClient] = None
 
     @property
     def collaboration_modes(self) -> "AsyncBotsCollaborationModesClient":
@@ -719,6 +730,14 @@ class AsyncBotsClient(object):
                 base_url=self._base_url, requester=self._requester
             )
         return self._collaboration_modes
+
+    @property
+    def collaborators(self) -> "AsyncBotsCollaboratorsClient":
+        if not self._collaborators:
+            from .collaborators import AsyncBotsCollaboratorsClient
+
+            self._collaborators = AsyncBotsCollaboratorsClient(base_url=self._base_url, requester=self._requester)
+        return self._collaborators
 
     async def create(
         self,
