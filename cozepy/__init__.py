@@ -111,6 +111,11 @@ from .auth import (
     WebOAuthApp,
     load_oauth_app_from_config,
 )
+from .benefit_limitations import (
+    AsyncBenefitLimitationsClient,
+    BenefitLimitationsClient,
+    CreateBenefitLimitationResp,
+)
 from .bill_tasks import (
     AsyncBillTasksClient,
     BenefitBillTask,
@@ -526,6 +531,7 @@ __all__ = [
     "AsyncAppsCollaboratorsClient",
     "AsyncAudioClient",
     "AsyncAuth",
+    "AsyncBenefitLimitationsClient",
     "AsyncBillTasksClient",
     "AsyncBotsClient",
     "AsyncBotsCollaborationModesClient",
@@ -600,6 +606,7 @@ __all__ = [
     "Auth",
     "BackgroundImageInfo",
     "BenefitBillTask",
+    "BenefitLimitationsClient",
     "BillTasksClient",
     "BindConnectorUserConfigResp",
     "Bot",
@@ -675,6 +682,7 @@ __all__ = [
     "CozePKCEAuthError",
     "CozePKCEAuthErrorType",
     "CreateAPIAppsEventsResp",
+    "CreateBenefitLimitationResp",
     "CreateConversationMessageFeedbackResp",
     "CreateDatasetResp",
     "CreateEnterpriseMemberResp",
