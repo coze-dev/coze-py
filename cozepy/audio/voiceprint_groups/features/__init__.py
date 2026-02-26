@@ -78,7 +78,6 @@ class VoiceprintGroupsFeaturesClient(object):
                 "channel": channel,
             }
         )
-
         return self._requester.request(
             "post", url, False, cast=CreateVoicePrintGroupFeatureResp, headers=headers, body=body, files=files
         )
@@ -106,7 +105,6 @@ class VoiceprintGroupsFeaturesClient(object):
                 "channel": channel,
             }
         )
-
         return self._requester.request(
             "put", url, False, cast=UpdateVoicePrintGroupFeatureResp, headers=headers, body=body, files=files
         )
@@ -183,7 +181,6 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
                 "channel": channel,
             }
         )
-
         return await self._requester.arequest(
             "post", url, False, cast=CreateVoicePrintGroupFeatureResp, headers=headers, body=body, files=files
         )
@@ -211,7 +208,6 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
                 "channel": channel,
             }
         )
-
         return await self._requester.arequest(
             "put", url, False, cast=UpdateVoicePrintGroupFeatureResp, headers=headers, body=body, files=files
         )
