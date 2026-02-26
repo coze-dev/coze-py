@@ -257,6 +257,11 @@ from .enterprises.members import (
     EnterprisesMembersClient,
     UpdateEnterpriseMemberResp,
 )
+from .enterprises.organizations import (
+    AsyncEnterprisesOrganizationsClient,
+    CreateEnterpriseOrganizationResp,
+    EnterprisesOrganizationsClient,
+)
 from .exception import (
     CozeAPIError,
     CozeError,
@@ -510,6 +515,7 @@ __all__ = [
     "AsyncDocumentsClient",
     "AsyncEnterprisesClient",
     "AsyncEnterprisesMembersClient",
+    "AsyncEnterprisesOrganizationsClient",
     "AsyncFilesClient",
     "AsyncFoldersClient",
     "AsyncHTTPClient",
@@ -634,6 +640,7 @@ __all__ = [
     "CreateConversationMessageFeedbackResp",
     "CreateDatasetResp",
     "CreateEnterpriseMemberResp",
+    "CreateEnterpriseOrganizationResp",
     "CreateRoomResp",
     "CreateTranscriptionsResp",
     "CreateVoicePrintGroupFeatureResp",
@@ -674,6 +681,7 @@ __all__ = [
     "EnterpriseMemberRole",
     "EnterprisesClient",
     "EnterprisesMembersClient",
+    "EnterprisesOrganizationsClient",
     "FeatureScore",
     "FeedbackType",
     "File",
