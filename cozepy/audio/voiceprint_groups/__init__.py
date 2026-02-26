@@ -90,7 +90,6 @@ class VoiceprintGroupsClient(object):
                 "desc": desc,
             }
         )
-
         return self._requester.request("post", url, False, cast=CreateVoicePrintGroupResp, headers=headers, body=body)
 
     def update(
@@ -109,7 +108,6 @@ class VoiceprintGroupsClient(object):
                 "desc": desc,
             }
         )
-
         return self._requester.request("put", url, False, cast=UpdateVoicePrintGroupResp, headers=headers, body=body)
 
     def delete(
@@ -190,7 +188,6 @@ class VoiceprintGroupsClient(object):
                 "channel": channel,
             }
         )
-
         return self._requester.request(
             "post", url, False, cast=SpeakerIdentifyResp, headers=headers, body=body, files=files
         )
@@ -225,7 +222,6 @@ class AsyncVoiceprintGroupsClient(object):
                 "desc": desc,
             }
         )
-
         return await self._requester.arequest(
             "post", url, False, cast=CreateVoicePrintGroupResp, headers=headers, body=body
         )
@@ -246,7 +242,6 @@ class AsyncVoiceprintGroupsClient(object):
                 "desc": desc,
             }
         )
-
         return await self._requester.arequest(
             "put", url, False, cast=UpdateVoicePrintGroupResp, headers=headers, body=body
         )
@@ -329,7 +324,6 @@ class AsyncVoiceprintGroupsClient(object):
                 "channel": channel,
             }
         )
-
         return await self._requester.arequest(
             "post", url, False, cast=SpeakerIdentifyResp, headers=headers, body=body, files=files
         )

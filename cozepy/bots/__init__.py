@@ -531,7 +531,6 @@ class BotsClient(object):
             "bot_id": bot_id,
             "connector_ids": connector_ids,
         }
-
         return self._requester.request("post", url, False, cast=Bot, headers=headers, body=body)
 
     def unpublish(
@@ -850,7 +849,6 @@ class AsyncBotsClient(object):
             "bot_id": bot_id,
             "connector_ids": connector_ids,
         }
-
         return await self._requester.arequest("post", url, False, cast=Bot, headers=headers, body=body)
 
     async def unpublish(
