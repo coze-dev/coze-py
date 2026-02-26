@@ -57,7 +57,6 @@ class ConnectorsBotsClient(object):
         """
         url = f"{self._base_url}/v1/connectors/{connector_id}/bots/{bot_id}"
         headers: Optional[dict] = kwargs.get("headers")
-
         body = {
             "audit_status": audit_status,
             "reason": reason,
@@ -98,7 +97,6 @@ class AsyncConnectorsBotsClient(object):
         """
         url = f"{self._base_url}/v1/connectors/{connector_id}/bots/{bot_id}"
         headers: Optional[dict] = kwargs.get("headers")
-
         body = {
             "audit_status": audit_status,
             "reason": reason,
