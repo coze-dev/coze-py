@@ -1,3 +1,5 @@
+import json
+
 import httpx
 import pytest
 
@@ -124,6 +126,48 @@ class TestConversationMessage:
             assert message.content == f"id_{total_result}"
         assert total_result == total
 
+    def test_sync_conversations_messages_list_page(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        logid = random_hex(10)
+        respx_mock.post("/v1/conversation/message/list").mock(
+            httpx.Response(
+                200,
+                json={
+                    "first_id": "first_id",
+                    "has_more": False,
+                    "last_id": "last_id",
+                    "data": [Message.build_user_question_text("id_1").model_dump()],
+                },
+                headers={logid_key(): logid},
+            )
+        )
+
+        resp = coze.conversations.messages._list_page(
+            conversation_id="conversation_id",
+            order="asc",
+            chat_id="chat_id",
+            before_id="before_id",
+            after_id="after_id",
+            limit=2,
+        )
+        assert resp
+        assert resp.response.logid == logid
+        assert resp.first_id == "first_id"
+        assert resp.last_id == "last_id"
+        assert len(resp.items) == 1
+        assert resp.items[0].content == "id_1"
+
+        request = respx_mock.calls.last.request
+        assert request.url.params.get("conversation_id") == "conversation_id"
+        assert json.loads(request.content) == {
+            "order": "asc",
+            "chat_id": "chat_id",
+            "before_id": "before_id",
+            "after_id": "after_id",
+            "limit": 2,
+        }
+
     def test_sync_conversations_messages_retrieve(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
@@ -204,6 +248,48 @@ class TestAsyncConversationMessage:
             message = page.items[0]
             assert message.content == f"id_{total_result}"
         assert total_result == total
+
+    async def test_async_conversations_messages_list_page(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+
+        logid = random_hex(10)
+        respx_mock.post("/v1/conversation/message/list").mock(
+            httpx.Response(
+                200,
+                json={
+                    "first_id": "first_id",
+                    "has_more": False,
+                    "last_id": "last_id",
+                    "data": [Message.build_user_question_text("id_1").model_dump()],
+                },
+                headers={logid_key(): logid},
+            )
+        )
+
+        resp = await coze.conversations.messages._list_page(
+            conversation_id="conversation_id",
+            order="asc",
+            chat_id="chat_id",
+            before_id="before_id",
+            after_id="after_id",
+            limit=2,
+        )
+        assert resp
+        assert resp.response.logid == logid
+        assert resp.first_id == "first_id"
+        assert resp.last_id == "last_id"
+        assert len(resp.items) == 1
+        assert resp.items[0].content == "id_1"
+
+        request = respx_mock.calls.last.request
+        assert request.url.params.get("conversation_id") == "conversation_id"
+        assert json.loads(request.content) == {
+            "order": "asc",
+            "chat_id": "chat_id",
+            "before_id": "before_id",
+            "after_id": "after_id",
+            "limit": 2,
+        }
 
     async def test_async_conversations_messages_retrieve(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))

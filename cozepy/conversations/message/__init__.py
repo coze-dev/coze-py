@@ -209,6 +209,49 @@ class MessagesClient(object):
             request_maker=request_maker,
         )
 
+    def _list_page(
+        self,
+        *,
+        conversation_id: str,
+        order: Optional[str] = "desc",
+        chat_id: Optional[str] = None,
+        before_id: Optional[str] = None,
+        after_id: Optional[str] = None,
+        limit: Optional[int] = 50,
+        **kwargs,
+    ) -> _PrivateListMessageResp:
+        """
+        查看消息列表
+
+        查看指定会话的消息列表。
+        **查看消息列表** API 与**查看对话消息详情** API 的区别在于：
+        * **查看消息列表** API 用于查询指定会话（conversation）中的消息记录，不仅包括开发者在会话中手动插入的每一条消息和用户发送的 Query，也包括调用**发起对话** API 得到的 type=answer 的智能体回复，但不包括 type=function_call、tool_response 和 follow-up 类型的对话中间态消息。
+        * **查看对话消息详情** API 通常用于非流式对话场景中，查看某次对话（chat）中 type=answer 的智能体回复及 type=function_call、tool_response 和 follow-up 类型类型的对话中间态消息。不包括用户发送的 Query。
+        消息在服务端的保存时长为180天，期满后，消息将自动从会话的消息记录中删除。
+
+        :param conversation_id: Conversation ID，即会话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 conversation_id 字段。
+        :param order: 查询顺序  desc倒序 asc正序 TODO 默认倒序
+        :param chat_id: 运行id
+        :param before_id: 前序消息游标ID  已TODO str
+        :param after_id: 后序消息游标ID  已TODO str
+        :param limit: 每页限制条数  TODO 限制50条
+        """
+        url = f"{self._base_url}/v1/conversation/message/list"
+        params = {
+            "conversation_id": conversation_id,
+        }
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {
+            "order": order,
+            "chat_id": chat_id,
+            "before_id": before_id if before_id else None,
+            "after_id": after_id if after_id else None,
+            "limit": limit,
+        }
+        return self._requester.request(
+            "post", url, False, cast=_PrivateListMessageResp, params=params, headers=headers, body=body
+        )
+
     @property
     def feedback(self) -> "ConversationsMessagesFeedbackClient":
         if not self._feedback:
@@ -401,6 +444,49 @@ class AsyncMessagesClient(object):
             after_id=after_id or "",
             requestor=self._requester,
             request_maker=request_maker,
+        )
+
+    async def _list_page(
+        self,
+        *,
+        conversation_id: str,
+        order: Optional[str] = "desc",
+        chat_id: Optional[str] = None,
+        before_id: Optional[str] = None,
+        after_id: Optional[str] = None,
+        limit: Optional[int] = 50,
+        **kwargs,
+    ) -> _PrivateListMessageResp:
+        """
+        查看消息列表
+
+        查看指定会话的消息列表。
+        **查看消息列表** API 与**查看对话消息详情** API 的区别在于：
+        * **查看消息列表** API 用于查询指定会话（conversation）中的消息记录，不仅包括开发者在会话中手动插入的每一条消息和用户发送的 Query，也包括调用**发起对话** API 得到的 type=answer 的智能体回复，但不包括 type=function_call、tool_response 和 follow-up 类型的对话中间态消息。
+        * **查看对话消息详情** API 通常用于非流式对话场景中，查看某次对话（chat）中 type=answer 的智能体回复及 type=function_call、tool_response 和 follow-up 类型类型的对话中间态消息。不包括用户发送的 Query。
+        消息在服务端的保存时长为180天，期满后，消息将自动从会话的消息记录中删除。
+
+        :param conversation_id: Conversation ID，即会话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 conversation_id 字段。
+        :param order: 查询顺序  desc倒序 asc正序 TODO 默认倒序
+        :param chat_id: 运行id
+        :param before_id: 前序消息游标ID  已TODO str
+        :param after_id: 后序消息游标ID  已TODO str
+        :param limit: 每页限制条数  TODO 限制50条
+        """
+        url = f"{self._base_url}/v1/conversation/message/list"
+        params = {
+            "conversation_id": conversation_id,
+        }
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {
+            "order": order,
+            "chat_id": chat_id,
+            "before_id": before_id if before_id else None,
+            "after_id": after_id if after_id else None,
+            "limit": limit,
+        }
+        return await self._requester.arequest(
+            "post", url, False, cast=_PrivateListMessageResp, params=params, headers=headers, body=body
         )
 
     @property
