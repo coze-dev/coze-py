@@ -155,14 +155,7 @@ class DatasetsClient(object):
             "description": description,
             "file_id": icon_file_id,
         }
-        return self._requester.request(
-            "post",
-            url,
-            False,
-            cast=CreateDatasetResp,
-            headers=headers,
-            body=body,
-        )
+        return self._requester.request("post", url, False, cast=CreateDatasetResp, headers=headers, body=body)
 
     def update(
         self,
@@ -191,14 +184,7 @@ class DatasetsClient(object):
             "description": description,
             "file_id": icon_file_id,
         }
-        return self._requester.request(
-            "put",
-            url,
-            False,
-            cast=UpdateDatasetRes,
-            headers=headers,
-            body=body,
-        )
+        return self._requester.request("put", url, False, cast=UpdateDatasetRes, headers=headers, body=body)
 
     def delete(self, *, dataset_id: str, **kwargs) -> DeleteDatasetRes:
         """
@@ -213,13 +199,7 @@ class DatasetsClient(object):
         """
         url = f"{self._base_url}/v1/datasets/{dataset_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request(
-            "delete",
-            url,
-            False,
-            cast=DeleteDatasetRes,
-            headers=headers,
-        )
+        return self._requester.request("delete", url, False, cast=DeleteDatasetRes, headers=headers)
 
     def list(
         self,
@@ -286,13 +266,7 @@ class DatasetsClient(object):
             "document_ids": document_ids,
         }
         return self._requester.request(
-            "post",
-            url,
-            False,
-            cast=ListResponse[DocumentProgress],
-            headers=headers,
-            body=body,
-            data_field="data.data",
+            "post", url, False, cast=ListResponse[DocumentProgress], headers=headers, body=body, data_field="data.data"
         )
 
 
@@ -347,14 +321,7 @@ class AsyncDatasetsClient(object):
             "description": description,
             "file_id": icon_file_id,
         }
-        return await self._requester.arequest(
-            "post",
-            url,
-            False,
-            cast=CreateDatasetResp,
-            headers=headers,
-            body=body,
-        )
+        return await self._requester.arequest("post", url, False, cast=CreateDatasetResp, headers=headers, body=body)
 
     async def update(
         self,
@@ -383,14 +350,7 @@ class AsyncDatasetsClient(object):
             "description": description,
             "file_id": icon_file_id,
         }
-        return await self._requester.arequest(
-            "put",
-            url,
-            False,
-            cast=UpdateDatasetRes,
-            headers=headers,
-            body=body,
-        )
+        return await self._requester.arequest("put", url, False, cast=UpdateDatasetRes, headers=headers, body=body)
 
     async def delete(self, *, dataset_id: str, **kwargs) -> DeleteDatasetRes:
         """
@@ -405,13 +365,7 @@ class AsyncDatasetsClient(object):
         """
         url = f"{self._base_url}/v1/datasets/{dataset_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest(
-            "delete",
-            url,
-            False,
-            cast=DeleteDatasetRes,
-            headers=headers,
-        )
+        return await self._requester.arequest("delete", url, False, cast=DeleteDatasetRes, headers=headers)
 
     async def list(
         self,
@@ -478,11 +432,5 @@ class AsyncDatasetsClient(object):
             "document_ids": document_ids,
         }
         return await self._requester.arequest(
-            "post",
-            url,
-            False,
-            cast=ListResponse[DocumentProgress],
-            headers=headers,
-            body=body,
-            data_field="data.data",
+            "post", url, False, cast=ListResponse[DocumentProgress], headers=headers, body=body, data_field="data.data"
         )

@@ -118,12 +118,7 @@ class WorkflowsChatClient(object):
             }
         )
         response: IteratorHTTPResponse[str] = self._requester.request(
-            "post",
-            url,
-            True,
-            cast=None,
-            headers=headers,
-            body=body,
+            "post", url, True, cast=None, headers=headers, body=body
         )
         return Stream(
             response._raw_response,
@@ -242,12 +237,7 @@ class AsyncWorkflowsChatClient(object):
             }
         )
         resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
-            "post",
-            url,
-            True,
-            cast=None,
-            headers=headers,
-            body=body,
+            "post", url, True, cast=None, headers=headers, body=body
         )
         return AsyncStream(
             resp.data, fields=["event", "data"], handler=_chat_stream_handler, raw_response=resp._raw_response

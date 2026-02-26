@@ -122,14 +122,7 @@ class APIAppsClient(object):
                 "callback_url": callback_url,
             }
         )
-        return self._requester.request(
-            "put",
-            url,
-            False,
-            cast=UpdateAPIAppsResp,
-            headers=headers,
-            body=body,
-        )
+        return self._requester.request("put", url, False, cast=UpdateAPIAppsResp, headers=headers, body=body)
 
     def delete(self, *, app_id: str, **kwargs) -> DeleteAPIAppsResp:
         url = f"{self._base_url}/v1/api_apps/{app_id}"
@@ -247,14 +240,7 @@ class AsyncAPIAppsClient(object):
                 "callback_url": callback_url,
             }
         )
-        return await self._requester.arequest(
-            "put",
-            url,
-            False,
-            cast=UpdateAPIAppsResp,
-            headers=headers,
-            body=body,
-        )
+        return await self._requester.arequest("put", url, False, cast=UpdateAPIAppsResp, headers=headers, body=body)
 
     async def delete(self, *, app_id: str, **kwargs) -> DeleteAPIAppsResp:
         url = f"{self._base_url}/v1/api_apps/{app_id}"
