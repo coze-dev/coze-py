@@ -69,7 +69,6 @@ class VoiceprintGroupsFeaturesClient(object):
     ) -> CreateVoicePrintGroupFeatureResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features"
         headers: Optional[dict] = kwargs.get("headers")
-        files = {"file": _try_fix_file(file)}
         body = remove_none_values(
             {
                 "name": name,
@@ -78,6 +77,7 @@ class VoiceprintGroupsFeaturesClient(object):
                 "channel": channel,
             }
         )
+        files = {"file": _try_fix_file(file)}
         return self._requester.request(
             "post", url, False, cast=CreateVoicePrintGroupFeatureResp, headers=headers, body=body, files=files
         )
@@ -96,7 +96,6 @@ class VoiceprintGroupsFeaturesClient(object):
     ) -> UpdateVoicePrintGroupFeatureResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features/{feature_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        files = {"file": _try_fix_file(file)} if file else {}
         body = remove_none_values(
             {
                 "name": name,
@@ -105,6 +104,7 @@ class VoiceprintGroupsFeaturesClient(object):
                 "channel": channel,
             }
         )
+        files = {"file": _try_fix_file(file)} if file else {}
         return self._requester.request(
             "put", url, False, cast=UpdateVoicePrintGroupFeatureResp, headers=headers, body=body, files=files
         )
@@ -166,7 +166,6 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
     ) -> CreateVoicePrintGroupFeatureResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features"
         headers: Optional[dict] = kwargs.get("headers")
-        files = {"file": _try_fix_file(file)}
         body = remove_none_values(
             {
                 "name": name,
@@ -175,6 +174,7 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
                 "channel": channel,
             }
         )
+        files = {"file": _try_fix_file(file)}
         return await self._requester.arequest(
             "post", url, False, cast=CreateVoicePrintGroupFeatureResp, headers=headers, body=body, files=files
         )
@@ -193,7 +193,6 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
     ) -> UpdateVoicePrintGroupFeatureResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features/{feature_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        files = {"file": _try_fix_file(file)} if file else {}
         body = remove_none_values(
             {
                 "name": name,
@@ -202,6 +201,7 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
                 "channel": channel,
             }
         )
+        files = {"file": _try_fix_file(file)} if file else {}
         return await self._requester.arequest(
             "put", url, False, cast=UpdateVoicePrintGroupFeatureResp, headers=headers, body=body, files=files
         )
