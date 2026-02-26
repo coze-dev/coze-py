@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from .audio import AsyncAudioClient, AudioClient
     from .bots import AsyncBotsClient, BotsClient
     from .chat import AsyncChatClient, ChatClient
+    from .commerce_benefit import AsyncCommerceBenefitClient, CommerceBenefitClient
     from .connectors import AsyncConnectorsClient, ConnectorsClient
     from .conversations import AsyncConversationsClient, ConversationsClient
     from .datasets import AsyncDatasetsClient, DatasetsClient
@@ -57,6 +58,7 @@ class Coze(object):
         self._enterprises: Optional[EnterprisesClient] = None
         self._api_apps: Optional[APIAppsClient] = None
         self._folders: Optional[FoldersClient] = None
+        self._commerce_benefit: Optional[CommerceBenefitClient] = None
 
     @property
     def bots(self) -> "BotsClient":
@@ -208,6 +210,14 @@ class Coze(object):
             self._folders = FoldersClient(self._base_url, self._requester)
         return self._folders
 
+    @property
+    def commerce_benefit(self) -> "CommerceBenefitClient":
+        if not self._commerce_benefit:
+            from .commerce_benefit import CommerceBenefitClient
+
+            self._commerce_benefit = CommerceBenefitClient(self._base_url, self._requester)
+        return self._commerce_benefit
+
 
 class AsyncCoze(object):
     def __init__(
@@ -247,6 +257,7 @@ class AsyncCoze(object):
         self._enterprises: Optional[AsyncEnterprisesClient] = None
         self._api_apps: Optional[AsyncAPIAppsClient] = None
         self._folders: Optional[AsyncFoldersClient] = None
+        self._commerce_benefit: Optional[AsyncCommerceBenefitClient] = None
 
     @property
     def bots(self) -> "AsyncBotsClient":
@@ -397,3 +408,11 @@ class AsyncCoze(object):
 
             self._folders = AsyncFoldersClient(self._base_url, self._requester)
         return self._folders
+
+    @property
+    def commerce_benefit(self) -> "AsyncCommerceBenefitClient":
+        if not self._commerce_benefit:
+            from .commerce_benefit import AsyncCommerceBenefitClient
+
+            self._commerce_benefit = AsyncCommerceBenefitClient(self._base_url, self._requester)
+        return self._commerce_benefit
