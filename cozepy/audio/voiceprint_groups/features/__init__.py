@@ -218,7 +218,7 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
         *,
         group_id: str,
         page_num: int = 1,
-        page_size: int = 100,
+        page_size: int = 10,
         **kwargs,
     ) -> AsyncNumberPaged[VoicePrintGroupFeature]:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features"
