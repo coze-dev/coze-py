@@ -124,7 +124,9 @@ class ConversationsClient(object):
         """
         url = f"{self._base_url}/v1/conversations/{conversation_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        body = {"name": name}
+        body = {
+            "name": name,
+        }
         return self._requester.request("put", url, False, cast=Conversation, headers=headers, body=body)
 
     def delete(self, *, conversation_id: str, **kwargs) -> DeleteConversationResp:
@@ -284,7 +286,9 @@ class AsyncConversationsClient(object):
         """
         url = f"{self._base_url}/v1/conversations/{conversation_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        body = {"name": name}
+        body = {
+            "name": name,
+        }
         return await self._requester.arequest("put", url, False, cast=Conversation, headers=headers, body=body)
 
     async def delete(self, *, conversation_id: str, **kwargs) -> DeleteConversationResp:

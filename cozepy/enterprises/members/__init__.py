@@ -132,7 +132,11 @@ class AsyncEnterprisesMembersClient(object):
         """
         url = f"{self._base_url}/v1/enterprises/{enterprise_id}/members"
         headers: Optional[dict] = kwargs.get("headers")
-        body = dump_exclude_none({"users": users})
+        body = dump_exclude_none(
+            {
+                "users": users,
+            }
+        )
         return await self._requester.arequest(
             "post", url, stream=False, cast=CreateEnterpriseMemberResp, headers=headers, body=body
         )
