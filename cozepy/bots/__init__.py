@@ -498,14 +498,7 @@ class BotsClient(object):
                 "model_info_config": model_info_config,
             }
         )
-        return self._requester.request(
-            "post",
-            url,
-            False,
-            cast=UpdateBotResp,
-            headers=headers,
-            body=body,
-        )
+        return self._requester.request("post", url, False, cast=UpdateBotResp, headers=headers, body=body)
 
     def list(
         self,
