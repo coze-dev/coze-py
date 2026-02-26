@@ -1,3 +1,4 @@
+import json
 import warnings
 
 import httpx
@@ -239,6 +240,35 @@ class TestAsyncDatasetsDocuments:
         assert documents
         assert documents.response.logid == mock_document.response.logid
         assert len(documents) == 1
+
+    async def test_async_datasets_documents_create_with_format_type(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+
+        mock_document = make_document()
+        route = respx_mock.post("/open_api/knowledge/document/create")
+        route.mock(
+            httpx.Response(
+                200,
+                json={"document_infos": [mock_document.model_dump()]},
+                headers={logid_key(): random_hex(10)},
+            )
+        )
+
+        await coze.datasets.documents.create(
+            dataset_id="dataset_id",
+            document_bases=[
+                DocumentBase(
+                    name="name",
+                    source_info=DocumentSourceInfo.build_local_file("content"),
+                    update_rule=DocumentUpdateRule.build_no_auto_update(),
+                ),
+            ],
+            chunk_strategy=DocumentChunkStrategy.build_auto(),
+            format_type=DocumentFormatType.IMAGE,
+        )
+
+        body = json.loads(route.calls[0].request.content.decode())
+        assert body["format_type"] == DocumentFormatType.IMAGE
 
     async def test_async_datasets_documents_update(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
