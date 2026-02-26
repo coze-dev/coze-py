@@ -154,6 +154,12 @@ from .bots.collaborators import (
     BotsCollaboratorsClient,
     DeleteBotCollaboratorResp,
 )
+from .bots.versions import (
+    AsyncBotsVersionsClient,
+    BotsVersionsClient,
+    BotVersionInfo,
+    BotVersionUserInfo,
+)
 from .chat import (
     AsyncChatClient,
     Chat,
@@ -518,6 +524,7 @@ __all__ = [
     "AsyncBotsClient",
     "AsyncBotsCollaborationModesClient",
     "AsyncBotsCollaboratorsClient",
+    "AsyncBotsVersionsClient",
     "AsyncChatClient",
     "AsyncChatMessagesClient",
     "AsyncConnectorsBotsClient",
@@ -600,11 +607,14 @@ __all__ = [
     "BotPromptInfo",
     "BotSuggestReplyInfo",
     "BotVariable",
+    "BotVersionInfo",
+    "BotVersionUserInfo",
     "BotVoiceInfo",
     "BotWorkflowInfo",
     "BotsClient",
     "BotsCollaborationModesClient",
     "BotsCollaboratorsClient",
+    "BotsVersionsClient",
     "COZE_CN_BASE_URL",
     "COZE_COM_BASE_URL",
     "CanvasPosition",

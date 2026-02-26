@@ -10,6 +10,7 @@ from cozepy.util import dump_exclude_none, remove_none_values, remove_url_traili
 if TYPE_CHECKING:
     from cozepy.bots.collaboration_modes import AsyncBotsCollaborationModesClient, BotsCollaborationModesClient
     from cozepy.bots.collaborators import AsyncBotsCollaboratorsClient, BotsCollaboratorsClient
+    from cozepy.bots.versions import AsyncBotsVersionsClient, BotsVersionsClient
 
 
 class PublishStatus(DynamicStrEnum):
@@ -382,6 +383,7 @@ class BotsClient(object):
         self._requester = requester
         self._collaboration_modes: Optional[BotsCollaborationModesClient] = None
         self._collaborators: Optional[BotsCollaboratorsClient] = None
+        self._versions: Optional[BotsVersionsClient] = None
 
     @property
     def collaboration_modes(self) -> "BotsCollaborationModesClient":
@@ -398,6 +400,14 @@ class BotsClient(object):
 
             self._collaborators = BotsCollaboratorsClient(base_url=self._base_url, requester=self._requester)
         return self._collaborators
+
+    @property
+    def versions(self) -> "BotsVersionsClient":
+        if not self._versions:
+            from .versions import BotsVersionsClient
+
+            self._versions = BotsVersionsClient(base_url=self._base_url, requester=self._requester)
+        return self._versions
 
     def create(
         self,
@@ -720,6 +730,7 @@ class AsyncBotsClient(object):
         self._requester = requester
         self._collaboration_modes: Optional[AsyncBotsCollaborationModesClient] = None
         self._collaborators: Optional[AsyncBotsCollaboratorsClient] = None
+        self._versions: Optional[AsyncBotsVersionsClient] = None
 
     @property
     def collaboration_modes(self) -> "AsyncBotsCollaborationModesClient":
@@ -738,6 +749,14 @@ class AsyncBotsClient(object):
 
             self._collaborators = AsyncBotsCollaboratorsClient(base_url=self._base_url, requester=self._requester)
         return self._collaborators
+
+    @property
+    def versions(self) -> "AsyncBotsVersionsClient":
+        if not self._versions:
+            from .versions import AsyncBotsVersionsClient
+
+            self._versions = AsyncBotsVersionsClient(base_url=self._base_url, requester=self._requester)
+        return self._versions
 
     async def create(
         self,
