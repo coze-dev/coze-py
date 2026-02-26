@@ -151,6 +151,7 @@ class APIAppsClient(object):
             return self._requester.make_request(
                 "GET",
                 url,
+                headers=headers,
                 params=dump_exclude_none(
                     {
                         "app_type": app_type,
@@ -159,7 +160,6 @@ class APIAppsClient(object):
                     }
                 ),
                 cast=_PrivateListAPIAppsData,
-                headers=headers,
                 stream=False,
             )
 
@@ -276,6 +276,7 @@ class AsyncAPIAppsClient(object):
             return await self._requester.amake_request(
                 "GET",
                 url,
+                headers=headers,
                 params=dump_exclude_none(
                     {
                         "app_type": app_type,
@@ -284,7 +285,6 @@ class AsyncAPIAppsClient(object):
                     }
                 ),
                 cast=_PrivateListAPIAppsData,
-                headers=headers,
                 stream=False,
             )
 

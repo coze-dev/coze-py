@@ -88,6 +88,7 @@ class APIAppsEventsClient(object):
             return self._requester.make_request(
                 "GET",
                 url,
+                headers=headers,
                 params=remove_none_values(
                     {
                         "page_size": i_page_size,
@@ -95,7 +96,6 @@ class APIAppsEventsClient(object):
                     }
                 ),
                 cast=_PrivateListAPIAppsEventsData,
-                headers=headers,
                 stream=False,
             )
 
@@ -160,6 +160,7 @@ class AsyncAPIAppsEventsClient(object):
             return await self._requester.amake_request(
                 "GET",
                 url,
+                headers=headers,
                 params=remove_none_values(
                     {
                         "page_size": i_page_size,
@@ -167,7 +168,6 @@ class AsyncAPIAppsEventsClient(object):
                     }
                 ),
                 cast=_PrivateListAPIAppsEventsData,
-                headers=headers,
                 stream=False,
             )
 
