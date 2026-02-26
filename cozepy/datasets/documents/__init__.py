@@ -392,6 +392,7 @@ class AsyncDatasetsDocumentsClient(object):
         dataset_id: str,
         document_bases: List[DocumentBase],
         chunk_strategy: Optional[DocumentChunkStrategy] = None,
+        format_type: Optional[DocumentFormatType] = None,
         **kwargs,
     ) -> ListResponse[Document]:
         """
@@ -407,6 +408,7 @@ class AsyncDatasetsDocumentsClient(object):
             "dataset_id": dataset_id,
             "document_bases": [i.model_dump() for i in document_bases],
             "chunk_strategy": chunk_strategy.model_dump() if chunk_strategy else None,
+            "format_type": format_type,
         }
         return await self._requester.arequest(
             "post", url, False, cast=ListResponse[Document], headers=headers, body=body, data_field="document_infos"
