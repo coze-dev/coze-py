@@ -48,7 +48,7 @@ class ConversationsMessagesFeedbackClient(object):
             }
         )
         return self._requester.request(
-            "post", url, False, body=body, cast=CreateConversationMessageFeedbackResp, headers=headers
+            "post", url, False, cast=CreateConversationMessageFeedbackResp, headers=headers, body=body
         )
 
     def delete(self, *, conversation_id: str, message_id: str, **kwargs) -> DeleteConversationMessageFeedbackResp:
@@ -92,7 +92,7 @@ class AsyncMessagesFeedbackClient(object):
             }
         )
         return await self._requester.arequest(
-            "post", url, False, body=body, cast=CreateConversationMessageFeedbackResp, headers=headers
+            "post", url, False, cast=CreateConversationMessageFeedbackResp, headers=headers, body=body
         )
 
     async def delete(self, *, conversation_id: str, message_id: str, **kwargs) -> DeleteConversationMessageFeedbackResp:
