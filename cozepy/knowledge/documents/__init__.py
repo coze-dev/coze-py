@@ -1,5 +1,5 @@
 import warnings
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from cozepy.datasets.documents import (
     Document,
@@ -153,6 +153,7 @@ class DocumentsClient(object):
         dataset_id: str,
         page_num: int = 1,
         page_size: int = 10,
+        body: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> NumberPaged[Document]:
         warnings.warn(
@@ -326,6 +327,7 @@ class AsyncDocumentsClient(object):
         dataset_id: str,
         page_num: int = 1,
         page_size: int = 10,
+        body: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> AsyncNumberPaged[Document]:
         warnings.warn(

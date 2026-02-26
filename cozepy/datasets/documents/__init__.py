@@ -1,5 +1,5 @@
 from enum import IntEnum
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, ListResponse, NumberPaged, NumberPagedResponse
 from cozepy.request import Requester
@@ -350,6 +350,7 @@ class DatasetsDocumentsClient(object):
         dataset_id: str,
         page_num: int = 1,
         page_size: int = 10,
+        body: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> NumberPaged[Document]:
         """
@@ -494,6 +495,7 @@ class AsyncDatasetsDocumentsClient(object):
         dataset_id: str,
         page_num: int = 1,
         page_size: int = 10,
+        body: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> AsyncNumberPaged[Document]:
         """
