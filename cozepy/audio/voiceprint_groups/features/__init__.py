@@ -96,7 +96,7 @@ class VoiceprintGroupsFeaturesClient(object):
     ) -> UpdateVoicePrintGroupFeatureResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features/{feature_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        files = {"file": _try_fix_file(file)} if file else {}
+        files = {"file": _try_fix_file(file)} if file is not None else {}
         body = remove_none_values(
             {
                 "name": name,
@@ -193,7 +193,7 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
     ) -> UpdateVoicePrintGroupFeatureResp:
         url = f"{self._base_url}/v1/audio/voiceprint_groups/{group_id}/features/{feature_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        files = {"file": _try_fix_file(file)} if file else {}
+        files = {"file": _try_fix_file(file)} if file is not None else {}
         body = remove_none_values(
             {
                 "name": name,
