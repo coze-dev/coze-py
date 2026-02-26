@@ -10,24 +10,36 @@ class BenefitBasicInfo(CozeModel):
 
 
 class BenefitItemInfo(CozeModel):
-    used: Optional[float] = None
-    total: Optional[float] = None
-    start_at: Optional[int] = None
+    # 结束时间，单位秒
     end_at: Optional[int] = None
+    # 开始时间，单位秒
+    start_at: Optional[int] = None
+    # 资源使用策略
     strategy: Optional[str] = None
+    # 当 Strategy == ByQuota 时, 表示用量上限
+    total: Optional[float] = None
+    # 当 Strategy == ByQuota 时, 表示已使用量, 若权益无相关用量数据则返回 0
+    used: Optional[float] = None
 
 
 class BenefitStatusInfo(CozeModel):
-    status: Optional[str] = None
+    """
+    基础值
+    """
+
     item_info: Optional[BenefitItemInfo] = None
+    status: Optional[str] = None
 
 
 class BenefitInfo(CozeModel):
+    # 基础值
     basic: Optional[BenefitStatusInfo] = None
-    extra: Optional[List[BenefitStatusInfo]] = None
-    effective: Optional[BenefitStatusInfo] = None
-    resource_id: Optional[str] = None
     benefit_type: Optional[str] = None
+    # 实际生效总量
+    effective: Optional[BenefitStatusInfo] = None
+    # 扩容值，不一定有
+    extra: Optional[List[BenefitStatusInfo]] = None
+    resource_id: Optional[str] = None
 
 
 class BenefitOverview(CozeModel):
