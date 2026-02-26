@@ -141,6 +141,18 @@ from .bots import (
     VariableType,
     WorkflowIDList,
 )
+from .bots.collaboration_modes import (
+    AsyncBotsCollaborationModesClient,
+    BotCollaborationMode,
+    BotsCollaborationModesClient,
+    UpdateBotCollaborationModeResp,
+)
+from .bots.collaborators import (
+    AddBotCollaboratorResp,
+    AsyncBotsCollaboratorsClient,
+    BotCollaborator,
+    BotsCollaboratorsClient,
+)
 from .chat import (
     AsyncChatClient,
     Chat,
@@ -491,6 +503,7 @@ __all__ = [
     "APIAppsClient",
     "APIAppsEventsClient",
     "AddAppCollaboratorResp",
+    "AddBotCollaboratorResp",
     "AppCollaborator",
     "AppType",
     "AppsClient",
@@ -502,6 +515,8 @@ __all__ = [
     "AsyncAudioClient",
     "AsyncAuth",
     "AsyncBotsClient",
+    "AsyncBotsCollaborationModesClient",
+    "AsyncBotsCollaboratorsClient",
     "AsyncChatClient",
     "AsyncChatMessagesClient",
     "AsyncConnectorsBotsClient",
@@ -573,6 +588,8 @@ __all__ = [
     "BindConnectorUserConfigResp",
     "Bot",
     "BotBackgroundImageInfo",
+    "BotCollaborationMode",
+    "BotCollaborator",
     "BotKnowledge",
     "BotMode",
     "BotModelInfo",
@@ -585,6 +602,8 @@ __all__ = [
     "BotVoiceInfo",
     "BotWorkflowInfo",
     "BotsClient",
+    "BotsCollaborationModesClient",
+    "BotsCollaboratorsClient",
     "COZE_CN_BASE_URL",
     "COZE_COM_BASE_URL",
     "CanvasPosition",
@@ -783,6 +802,7 @@ __all__ = [
     "UnpublishBotResp",
     "UpdateAPIAppsEventsResp",
     "UpdateAPIAppsResp",
+    "UpdateBotCollaborationModeResp",
     "UpdateBotResp",
     "UpdateConnectorBotResp",
     "UpdateDatasetRes",

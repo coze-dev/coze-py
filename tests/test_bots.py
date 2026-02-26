@@ -20,6 +20,7 @@ from cozepy import (
     WorkflowIDList,
 )
 from cozepy.bots.collaboration_modes import BotCollaborationMode
+from cozepy.bots.collaborators import BotCollaborator
 from cozepy.util import random_hex
 from tests.test_util import logid_key
 
@@ -97,6 +98,18 @@ def mock_unpublish_bot(respx_mock, bot_id: str = "bot_id") -> None:
 def mock_update_bot_collaboration_mode(respx_mock, bot_id: str = "bot_id") -> str:
     logid = random_hex(10)
     respx_mock.post(f"/v1/bots/{bot_id}/collaboration_mode").mock(
+        httpx.Response(
+            200,
+            json={"data": None},
+            headers={logid_key(): logid},
+        )
+    )
+    return logid
+
+
+def mock_add_bot_collaborator(respx_mock, bot_id: str = "bot_id") -> str:
+    logid = random_hex(10)
+    respx_mock.post(f"/v1/bots/{bot_id}/collaborators").mock(
         httpx.Response(
             200,
             json={"data": None},
@@ -323,6 +336,17 @@ class TestSyncBots:
         assert resp.response.logid is not None
         assert resp.response.logid == mock_logid
 
+    def test_sync_bot_collaborators_create(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        bot_id = "bot_id"
+        mock_logid = mock_add_bot_collaborator(respx_mock, bot_id=bot_id)
+
+        resp = coze.bots.collaborators.create(bot_id=bot_id, collaborators=[BotCollaborator(user_id="user_id")])
+        assert resp
+        assert resp.response.logid is not None
+        assert resp.response.logid == mock_logid
+
     def test_sync_bot_retrieve(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
@@ -462,6 +486,17 @@ class TestAsyncBots:
         resp = await coze.bots.collaboration_modes.update(
             bot_id=bot_id, collaboration_mode=BotCollaborationMode.COLLABORATION
         )
+        assert resp
+        assert resp.response.logid is not None
+        assert resp.response.logid == mock_logid
+
+    async def test_async_bot_collaborators_create(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+
+        bot_id = "bot_id"
+        mock_logid = mock_add_bot_collaborator(respx_mock, bot_id=bot_id)
+
+        resp = await coze.bots.collaborators.create(bot_id=bot_id, collaborators=[BotCollaborator(user_id="user_id")])
         assert resp
         assert resp.response.logid is not None
         assert resp.response.logid == mock_logid
