@@ -119,6 +119,18 @@ def mock_add_bot_collaborator(respx_mock, bot_id: str = "bot_id") -> str:
     return logid
 
 
+def mock_delete_bot_collaborator(respx_mock, bot_id: str = "bot_id", user_id: str = "user_id") -> str:
+    logid = random_hex(10)
+    respx_mock.delete(f"/v1/bots/{bot_id}/collaborators/{user_id}").mock(
+        httpx.Response(
+            200,
+            json={"data": None},
+            headers={logid_key(): logid},
+        )
+    )
+    return logid
+
+
 def mock_retrieve_bot(respx_mock, use_api_version=1) -> Bot:
     bot_id = random_hex(10)
     bot = mock_bot(bot_id)
@@ -347,6 +359,18 @@ class TestSyncBots:
         assert resp.response.logid is not None
         assert resp.response.logid == mock_logid
 
+    def test_sync_bot_collaborators_delete(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        bot_id = "bot_id"
+        user_id = "user_id"
+        mock_logid = mock_delete_bot_collaborator(respx_mock, bot_id=bot_id, user_id=user_id)
+
+        resp = coze.bots.collaborators.delete(bot_id=bot_id, user_id=user_id)
+        assert resp
+        assert resp.response.logid is not None
+        assert resp.response.logid == mock_logid
+
     def test_sync_bot_retrieve(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
@@ -497,6 +521,18 @@ class TestAsyncBots:
         mock_logid = mock_add_bot_collaborator(respx_mock, bot_id=bot_id)
 
         resp = await coze.bots.collaborators.create(bot_id=bot_id, collaborators=[BotCollaborator(user_id="user_id")])
+        assert resp
+        assert resp.response.logid is not None
+        assert resp.response.logid == mock_logid
+
+    async def test_async_bot_collaborators_delete(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+
+        bot_id = "bot_id"
+        user_id = "user_id"
+        mock_logid = mock_delete_bot_collaborator(respx_mock, bot_id=bot_id, user_id=user_id)
+
+        resp = await coze.bots.collaborators.delete(bot_id=bot_id, user_id=user_id)
         assert resp
         assert resp.response.logid is not None
         assert resp.response.logid == mock_logid
