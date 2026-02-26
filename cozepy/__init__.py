@@ -111,6 +111,11 @@ from .auth import (
     WebOAuthApp,
     load_oauth_app_from_config,
 )
+from .bill_tasks import (
+    AsyncBillTasksClient,
+    BenefitBillTask,
+    BillTasksClient,
+)
 from .bots import (
     AsyncBotsClient,
     BackgroundImageInfo,
@@ -521,6 +526,7 @@ __all__ = [
     "AsyncAppsCollaboratorsClient",
     "AsyncAudioClient",
     "AsyncAuth",
+    "AsyncBillTasksClient",
     "AsyncBotsClient",
     "AsyncBotsCollaborationModesClient",
     "AsyncBotsCollaboratorsClient",
@@ -593,6 +599,8 @@ __all__ = [
     "AuditStatus",
     "Auth",
     "BackgroundImageInfo",
+    "BenefitBillTask",
+    "BillTasksClient",
     "BindConnectorUserConfigResp",
     "Bot",
     "BotBackgroundImageInfo",

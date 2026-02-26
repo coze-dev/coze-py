@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from .api_apps import APIAppsClient, AsyncAPIAppsClient
     from .apps import AppsClient, AsyncAppsClient
     from .audio import AsyncAudioClient, AudioClient
+    from .bill_tasks import AsyncBillTasksClient, BillTasksClient
     from .bots import AsyncBotsClient, BotsClient
     from .chat import AsyncChatClient, ChatClient
     from .connectors import AsyncConnectorsClient, ConnectorsClient
@@ -57,6 +58,7 @@ class Coze(object):
         self._enterprises: Optional[EnterprisesClient] = None
         self._api_apps: Optional[APIAppsClient] = None
         self._folders: Optional[FoldersClient] = None
+        self._bill_tasks: Optional[BillTasksClient] = None
 
     @property
     def bots(self) -> "BotsClient":
@@ -208,6 +210,14 @@ class Coze(object):
             self._folders = FoldersClient(self._base_url, self._requester)
         return self._folders
 
+    @property
+    def bill_tasks(self) -> "BillTasksClient":
+        if not self._bill_tasks:
+            from .bill_tasks import BillTasksClient
+
+            self._bill_tasks = BillTasksClient(self._base_url, self._requester)
+        return self._bill_tasks
+
 
 class AsyncCoze(object):
     def __init__(
@@ -247,6 +257,7 @@ class AsyncCoze(object):
         self._enterprises: Optional[AsyncEnterprisesClient] = None
         self._api_apps: Optional[AsyncAPIAppsClient] = None
         self._folders: Optional[AsyncFoldersClient] = None
+        self._bill_tasks: Optional[AsyncBillTasksClient] = None
 
     @property
     def bots(self) -> "AsyncBotsClient":
@@ -397,3 +408,11 @@ class AsyncCoze(object):
 
             self._folders = AsyncFoldersClient(self._base_url, self._requester)
         return self._folders
+
+    @property
+    def bill_tasks(self) -> "AsyncBillTasksClient":
+        if not self._bill_tasks:
+            from .bill_tasks import AsyncBillTasksClient
+
+            self._bill_tasks = AsyncBillTasksClient(self._base_url, self._requester)
+        return self._bill_tasks
