@@ -105,7 +105,7 @@ class WorkflowsRunsRunHistoriesClient(object):
             )
         return self._execute_nodes
 
-    def retrieve(self, *, execute_id: str, workflow_id: str, **kwargs) -> WorkflowRunHistory:
+    def retrieve(self, *, execute_id: str, workflow_id: str, **kwargs) -> ListResponse[WorkflowRunHistory]:
         """
         查询工作流异步执行结果
 
@@ -122,10 +122,7 @@ class WorkflowsRunsRunHistoriesClient(object):
         """
         url = f"{self._base_url}/v1/workflows/{workflow_id}/run_histories/{execute_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        res = self._requester.request("get", url, False, cast=ListResponse[WorkflowRunHistory], headers=headers)
-        data = res.data[0]
-        data._raw_response = res._raw_response
-        return data
+        return self._requester.request("get", url, False, cast=ListResponse[WorkflowRunHistory], headers=headers)
 
 
 class AsyncWorkflowsRunsRunHistoriesClient(object):
@@ -144,7 +141,7 @@ class AsyncWorkflowsRunsRunHistoriesClient(object):
             )
         return self._execute_nodes
 
-    async def retrieve(self, *, execute_id: str, workflow_id: str, **kwargs) -> WorkflowRunHistory:
+    async def retrieve(self, *, execute_id: str, workflow_id: str, **kwargs) -> ListResponse[WorkflowRunHistory]:
         """
         查询工作流异步执行结果
 
@@ -161,7 +158,4 @@ class AsyncWorkflowsRunsRunHistoriesClient(object):
         """
         url = f"{self._base_url}/v1/workflows/{workflow_id}/run_histories/{execute_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        res = await self._requester.arequest("get", url, False, cast=ListResponse[WorkflowRunHistory], headers=headers)
-        data = res.data[0]
-        data._raw_response = res._raw_response
-        return data
+        return await self._requester.arequest("get", url, False, cast=ListResponse[WorkflowRunHistory], headers=headers)

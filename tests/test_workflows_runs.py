@@ -163,7 +163,7 @@ class TestSyncWorkflowsRuns:
 
         res = coze.workflows.runs.run_histories.retrieve(workflow_id=workflow_id, execute_id=execute_id)
         assert res
-        assert res.logid == execute_logid
+        assert res.data[0].logid == execute_logid
         assert res.response.logid == current_logid
 
     def test_sync_workflows_runs_execute_nodes_retrieve(self, respx_mock):
@@ -261,7 +261,7 @@ class TestAsyncWorkflowsRuns:
 
         res = await coze.workflows.runs.run_histories.retrieve(workflow_id=workflow_id, execute_id=execute_id)
         assert res
-        assert res.logid == execute_logid
+        assert res.data[0].logid == execute_logid
         assert res.response.logid == current_logid
 
     async def test_async_workflows_runs_execute_nodes_retrieve(self, respx_mock):
