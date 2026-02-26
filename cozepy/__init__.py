@@ -152,6 +152,7 @@ from .bots.collaborators import (
     AsyncBotsCollaboratorsClient,
     BotCollaborator,
     BotsCollaboratorsClient,
+    DeleteBotCollaboratorResp,
 )
 from .chat import (
     AsyncChatClient,
@@ -674,6 +675,7 @@ __all__ = [
     "DatasetsImagesClient",
     "DeleteAPIAppsEventsResp",
     "DeleteAPIAppsResp",
+    "DeleteBotCollaboratorResp",
     "DeleteConversationMessageFeedbackResp",
     "DeleteConversationResp",
     "DeleteDatasetRes",
