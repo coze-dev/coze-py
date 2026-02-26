@@ -33,12 +33,12 @@ class _PrivateListBenefitBillTasksData(CozeModel, NumberPagedResponse[BenefitBil
         return self.task_infos
 
 
-class CommerceBenefitClient(object):
+class BillTasksClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    def list_bill_tasks(
+    def list(
         self,
         *,
         task_ids: Optional[List[str]] = None,
@@ -73,12 +73,12 @@ class CommerceBenefitClient(object):
         )
 
 
-class AsyncCommerceBenefitClient(object):
+class AsyncBillTasksClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    async def list_bill_tasks(
+    async def list(
         self,
         *,
         task_ids: Optional[List[str]] = None,

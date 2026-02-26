@@ -44,8 +44,8 @@ def mock_list_bill_tasks(respx_mock, total_count, page, task_ids):
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
-class TestSyncCommerceBenefit:
-    def test_sync_list_bill_tasks(self, respx_mock):
+class TestSyncBillTasks:
+    def test_sync_bill_tasks_list(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
         task_ids = ["task_a", "task_b"]
@@ -54,7 +54,7 @@ class TestSyncCommerceBenefit:
         for idx in range(total):
             mock_list_bill_tasks(respx_mock, total_count=total, page=idx + 1, task_ids=task_ids)
 
-        resp = coze.commerce_benefit.list_bill_tasks(task_ids=task_ids, page_num=1, page_size=1)
+        resp = coze.bill_tasks.list(task_ids=task_ids, page_num=1, page_size=1)
         assert resp
         assert resp.has_more is True
 
@@ -80,8 +80,8 @@ class TestSyncCommerceBenefit:
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 @pytest.mark.asyncio
-class TestAsyncCommerceBenefit:
-    async def test_async_list_bill_tasks(self, respx_mock):
+class TestAsyncBillTasks:
+    async def test_async_bill_tasks_list(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
 
         task_ids = ["task_a", "task_b"]
@@ -90,7 +90,7 @@ class TestAsyncCommerceBenefit:
         for idx in range(total):
             mock_list_bill_tasks(respx_mock, total_count=total, page=idx + 1, task_ids=task_ids)
 
-        resp = await coze.commerce_benefit.list_bill_tasks(task_ids=task_ids, page_num=1, page_size=1)
+        resp = await coze.bill_tasks.list(task_ids=task_ids, page_num=1, page_size=1)
         assert resp
         assert resp.has_more is True
 

@@ -111,6 +111,11 @@ from .auth import (
     WebOAuthApp,
     load_oauth_app_from_config,
 )
+from .bill_tasks import (
+    AsyncBillTasksClient,
+    BenefitBillTask,
+    BillTasksClient,
+)
 from .bots import (
     AsyncBotsClient,
     BackgroundImageInfo,
@@ -188,11 +193,6 @@ from .chat import (
 from .chat.message import (
     AsyncChatMessagesClient,
     ChatMessagesClient,
-)
-from .commerce_benefit import (
-    AsyncCommerceBenefitClient,
-    BenefitBillTask,
-    CommerceBenefitClient,
 )
 from .config import (
     COZE_CN_BASE_URL,
@@ -526,13 +526,13 @@ __all__ = [
     "AsyncAppsCollaboratorsClient",
     "AsyncAudioClient",
     "AsyncAuth",
+    "AsyncBillTasksClient",
     "AsyncBotsClient",
     "AsyncBotsCollaborationModesClient",
     "AsyncBotsCollaboratorsClient",
     "AsyncBotsVersionsClient",
     "AsyncChatClient",
     "AsyncChatMessagesClient",
-    "AsyncCommerceBenefitClient",
     "AsyncConnectorsBotsClient",
     "AsyncConnectorsClient",
     "AsyncConversationsClient",
@@ -600,6 +600,7 @@ __all__ = [
     "Auth",
     "BackgroundImageInfo",
     "BenefitBillTask",
+    "BillTasksClient",
     "BindConnectorUserConfigResp",
     "Bot",
     "BotBackgroundImageInfo",
@@ -643,7 +644,6 @@ __all__ = [
     "ChatUpdateEvent",
     "ChatUpdatedEvent",
     "ChatUsage",
-    "CommerceBenefitClient",
     "ConnectorsBotsClient",
     "ConnectorsClient",
     "Conversation",
