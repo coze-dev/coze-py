@@ -195,12 +195,7 @@ class WorkflowsRunsClient(object):
             }
         )
         response: IteratorHTTPResponse[str] = self._requester.request(
-            "post",
-            url,
-            True,
-            cast=None,
-            headers=headers,
-            body=body,
+            "post", url, True, cast=None, headers=headers, body=body
         )
         return Stream(
             response._raw_response, response.data, fields=["id", "event", "data"], handler=_workflow_stream_handler
@@ -295,12 +290,7 @@ class WorkflowsRunsClient(object):
             "interrupt_type": interrupt_type,
         }
         response: IteratorHTTPResponse[str] = self._requester.request(
-            "post",
-            url,
-            True,
-            cast=None,
-            headers=headers,
-            body=body,
+            "post", url, True, cast=None, headers=headers, body=body
         )
         return Stream(
             response._raw_response, response.data, fields=["id", "event", "data"], handler=_workflow_stream_handler
@@ -372,12 +362,7 @@ class AsyncWorkflowsRunsClient(object):
             }
         )
         resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
-            "post",
-            url,
-            True,
-            cast=None,
-            headers=headers,
-            body=body,
+            "post", url, True, cast=None, headers=headers, body=body
         )
         async for item in AsyncStream(
             resp.data,
@@ -475,12 +460,7 @@ class AsyncWorkflowsRunsClient(object):
             "interrupt_type": interrupt_type,
         }
         resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
-            "post",
-            url,
-            True,
-            cast=None,
-            headers=headers,
-            body=body,
+            "post", url, True, cast=None, headers=headers, body=body
         )
         async for item in AsyncStream(
             resp.data,

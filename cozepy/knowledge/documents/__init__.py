@@ -110,14 +110,7 @@ class DocumentsClient(object):
             "document_name": document_name,
             "update_rule": update_rule,
         }
-        return self._requester.request(
-            "post",
-            url,
-            False,
-            cast=None,
-            headers=headers,
-            body=body,
-        )
+        return self._requester.request("post", url, False, cast=None, headers=headers, body=body)
 
     def delete(self, *, document_ids: List[str], **kwargs) -> None:
         warnings.warn(
@@ -138,14 +131,7 @@ class DocumentsClient(object):
         body = {
             "document_ids": document_ids,
         }
-        return self._requester.request(
-            "post",
-            url,
-            False,
-            cast=None,
-            headers=headers,
-            body=body,
-        )
+        return self._requester.request("post", url, False, cast=None, headers=headers, body=body)
 
     def list(
         self,
@@ -283,14 +269,7 @@ class AsyncDocumentsClient(object):
             "document_name": document_name,
             "update_rule": update_rule,
         }
-        return await self._requester.arequest(
-            "post",
-            url,
-            False,
-            cast=None,
-            headers=headers,
-            body=body,
-        )
+        return await self._requester.arequest("post", url, False, cast=None, headers=headers, body=body)
 
     async def delete(self, *, document_ids: List[str], **kwargs) -> None:
         warnings.warn(
@@ -311,14 +290,7 @@ class AsyncDocumentsClient(object):
         body = {
             "document_ids": document_ids,
         }
-        return await self._requester.arequest(
-            "post",
-            url,
-            False,
-            cast=None,
-            headers=headers,
-            body=body,
-        )
+        return await self._requester.arequest("post", url, False, cast=None, headers=headers, body=body)
 
     async def list(
         self,

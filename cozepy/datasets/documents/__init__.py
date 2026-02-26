@@ -313,14 +313,7 @@ class DatasetsDocumentsClient(object):
             "document_name": document_name,
             "update_rule": update_rule,
         }
-        return self._requester.request(
-            "post",
-            url,
-            False,
-            cast=UpdateDocumentRes,
-            headers=headers,
-            body=body,
-        )
+        return self._requester.request("post", url, False, cast=UpdateDocumentRes, headers=headers, body=body)
 
     def delete(self, *, document_ids: List[str], **kwargs) -> DeleteDocumentRes:
         """
@@ -335,14 +328,7 @@ class DatasetsDocumentsClient(object):
         body = {
             "document_ids": document_ids,
         }
-        return self._requester.request(
-            "post",
-            url,
-            False,
-            cast=DeleteDocumentRes,
-            headers=headers,
-            body=body,
-        )
+        return self._requester.request("post", url, False, cast=DeleteDocumentRes, headers=headers, body=body)
 
     def list(
         self,
@@ -457,14 +443,7 @@ class AsyncDatasetsDocumentsClient(object):
             "document_name": document_name,
             "update_rule": update_rule,
         }
-        return await self._requester.arequest(
-            "post",
-            url,
-            False,
-            cast=UpdateDocumentRes,
-            headers=headers,
-            body=body,
-        )
+        return await self._requester.arequest("post", url, False, cast=UpdateDocumentRes, headers=headers, body=body)
 
     async def delete(self, *, document_ids: List[str], **kwargs) -> DeleteDocumentRes:
         """
@@ -479,14 +458,7 @@ class AsyncDatasetsDocumentsClient(object):
         body = {
             "document_ids": document_ids,
         }
-        return await self._requester.arequest(
-            "post",
-            url,
-            False,
-            cast=DeleteDocumentRes,
-            headers=headers,
-            body=body,
-        )
+        return await self._requester.arequest("post", url, False, cast=DeleteDocumentRes, headers=headers, body=body)
 
     async def list(
         self,
