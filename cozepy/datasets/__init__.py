@@ -248,7 +248,6 @@ class DatasetsClient(object):
         :param page_num: The page number. The minimum value is 1, and the default is 1.
         :param page_size: The page size. The value range is 1~300, and the default is 10.
         """
-
         url = f"{self._base_url}/v1/datasets"
         headers: Optional[dict] = kwargs.get("headers")
 
@@ -446,7 +445,6 @@ class AsyncDatasetsClient(object):
         :param page_num: The page number. The minimum value is 1, and the default is 1.
         :param page_size: The page size. The value range is 1~300, and the default is 10.
         """
-
         url = f"{self._base_url}/v1/datasets"
         headers: Optional[dict] = kwargs.get("headers")
 
