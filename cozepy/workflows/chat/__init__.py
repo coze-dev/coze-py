@@ -250,5 +250,8 @@ class AsyncWorkflowsChatClient(object):
             body=body,
         )
         return AsyncStream(
-            resp.data, fields=["event", "data"], handler=_chat_stream_handler, raw_response=resp._raw_response
+            resp.data,
+            fields=["event", "data"],
+            handler=_chat_stream_handler,
+            raw_response=resp._raw_response,
         )
