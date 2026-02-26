@@ -48,7 +48,9 @@ class APIAppsEventsClient(object):
         """
         订阅回调事件
 
-        订阅回调事件。 接口描述 扣子当前支持的回调事件和使用限制请参考 回调事件 。
+        订阅回调事件。
+        接口描述
+        扣子当前支持的回调事件和使用限制请参考回调事件。
 
         :param api_app_id: 回调应用的 ID。你可以通过[查询回调应用列表](https://www.coze.cn/open/docs/developer_guides/list_callback_app) API 获取回调应用的 ID。
         """
@@ -114,7 +116,9 @@ class AsyncAPIAppsEventsClient(object):
         """
         订阅回调事件
 
-        订阅回调事件。 接口描述 扣子当前支持的回调事件和使用限制请参考 回调事件 。
+        订阅回调事件。
+        接口描述
+        扣子当前支持的回调事件和使用限制请参考回调事件。
 
         :param api_app_id: 回调应用的 ID。你可以通过[查询回调应用列表](https://www.coze.cn/open/docs/developer_guides/list_callback_app) API 获取回调应用的 ID。
         """

@@ -55,7 +55,9 @@ class ConversationsMessagesFeedbackClient(object):
         """
         删除消息评价
 
-        删除指定消息的评价。 接口限制 仅会话创建者能删除对应会话中消息的评价。
+        删除指定消息的评价。
+        接口限制
+        仅会话创建者能删除对应会话中消息的评价。
 
         :param conversation_id: Conversation ID，即会话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 conversation_id 字段。
         :param message_id: 待删除评价的消息 ID。你可以通过[查看对话消息详情](https://www.coze.cn/open/docs/developer_guides/list_chat_messages) API 返回的 Response 中查看消息 ID。 * 此消息必须在 conversation_id 指定的会话中。 * 仅支持评价以下来源的文本消息： * 通过发起对话 API 生成的 **type=answer** 类型的文本消息。 * 通过执行对话流 API 返回的文本消息。
@@ -99,7 +101,9 @@ class AsyncMessagesFeedbackClient(object):
         """
         删除消息评价
 
-        删除指定消息的评价。 接口限制 仅会话创建者能删除对应会话中消息的评价。
+        删除指定消息的评价。
+        接口限制
+        仅会话创建者能删除对应会话中消息的评价。
 
         :param conversation_id: Conversation ID，即会话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 conversation_id 字段。
         :param message_id: 待删除评价的消息 ID。你可以通过[查看对话消息详情](https://www.coze.cn/open/docs/developer_guides/list_chat_messages) API 返回的 Response 中查看消息 ID。 * 此消息必须在 conversation_id 指定的会话中。 * 仅支持评价以下来源的文本消息： * 通过发起对话 API 生成的 **type=answer** 类型的文本消息。 * 通过执行对话流 API 返回的文本消息。
