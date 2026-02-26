@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from cozepy.chat import Message
 from cozepy.model import AsyncNumberPaged, CozeModel, HTTPRequest, NumberPaged, NumberPagedResponse
@@ -85,7 +85,7 @@ class ConversationsClient(object):
         """
         url = f"{self._base_url}/v1/conversation/create"
         headers: Optional[dict] = kwargs.get("headers")
-        body: Dict[str, Any] = dump_exclude_none(
+        body = dump_exclude_none(
             {
                 "messages": messages,
                 "meta_data": meta_data,
@@ -247,7 +247,7 @@ class AsyncConversationsClient(object):
         """
         url = f"{self._base_url}/v1/conversation/create"
         headers: Optional[dict] = kwargs.get("headers")
-        body: Dict[str, Any] = dump_exclude_none(
+        body = dump_exclude_none(
             {
                 "messages": messages,
                 "meta_data": meta_data,
