@@ -5,9 +5,9 @@ from cozepy import (
     AsyncCoze,
     AsyncTokenAuth,
     BenefitBasicInfo,
+    BenefitData,
     BenefitInfo,
     BenefitItemInfo,
-    BenefitOverview,
     BenefitStatusInfo,
     Coze,
     TokenAuth,
@@ -16,7 +16,7 @@ from cozepy.util import random_hex
 from tests.test_util import logid_key
 
 
-def mock_get_benefits(respx_mock) -> BenefitOverview:
+def mock_get_benefits(respx_mock) -> BenefitData:
     benefit_item_info = BenefitItemInfo(
         used=100,
         total=1000,
@@ -28,7 +28,7 @@ def mock_get_benefits(respx_mock) -> BenefitOverview:
         status="valid",
         item_info=benefit_item_info,
     )
-    benefits = BenefitOverview(
+    benefits = BenefitData(
         basic_info=BenefitBasicInfo(user_level="enterprise"),
         benefit_info=[
             BenefitInfo(

@@ -119,9 +119,9 @@ from .benefit_limitations import (
 from .benefits import (
     AsyncBenefitsClient,
     BenefitBasicInfo,
+    BenefitData,
     BenefitInfo,
     BenefitItemInfo,
-    BenefitOverview,
     BenefitsClient,
     BenefitStatusInfo,
 )
@@ -617,10 +617,10 @@ __all__ = [
     "BackgroundImageInfo",
     "BenefitBasicInfo",
     "BenefitBillTask",
+    "BenefitData",
     "BenefitInfo",
     "BenefitItemInfo",
     "BenefitLimitationsClient",
-    "BenefitOverview",
     "BenefitStatusInfo",
     "BenefitsClient",
     "BillTasksClient",

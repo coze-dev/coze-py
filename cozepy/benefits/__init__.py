@@ -42,7 +42,7 @@ class BenefitInfo(CozeModel):
     resource_id: Optional[str] = None
 
 
-class BenefitOverview(CozeModel):
+class BenefitData(CozeModel):
     basic_info: Optional[BenefitBasicInfo] = None
     benefit_info: Optional[List[BenefitInfo]] = None
 
@@ -54,11 +54,16 @@ class BenefitsClient(object):
 
     def retrieve(
         self, *, benefit_type_list: Optional[List[str]] = None, resource_id: Optional[str] = None, **kwargs
-    ) -> BenefitOverview:
+    ) -> BenefitData:
         """
         查询套餐权益
 
-        查询当前账号的套餐权益信息。 接口描述 你可以通过本 API 查询当前账号的以下套餐权益信息： 所属的套餐类型。 扩容管理页面中 API 扩容的信息，包括套餐默认的 API QPS、扩容新增的 API QPS 额度，以及当前实际生效的 API QPS 额度。 套餐权益内通过 MCP 方式调用付费插件的次数限制。
+        查询当前账号的套餐权益信息。
+        接口描述
+        你可以通过本 API 查询当前账号的以下套餐权益信息：
+        所属的套餐类型。
+        扩容管理页面中 API 扩容的信息，包括套餐默认的 API QPS、扩容新增的 API QPS 额度，以及当前实际生效的 API QPS 额度。
+        套餐权益内通过 MCP 方式调用付费插件的次数限制。
 
         :param benefit_type_list: 权益类型列表，多个类型用逗号分隔。支持的权益类型如下： * `api_run_qps`： API 扩容的信息，你需要在 `resource_id` 中传入待查询的 API 类型。 * `call_tool_limit`：通过 MCP 方式调用付费插件的次数限制。 默认为空，即返回订阅的套餐类型，不含额外扩容的权益。
         :param resource_id: API 类型，当 `benefit_type_list `为 `api_run_qps`时，需要配置该参数。当前仅支持查询可扩容的 API 类型。枚举值： * `plugin`：插件相关 API 的 QPS 限制。 * `chat`：对话相关的 API 的 QPS 限制。 * `workflow`：工作流相关的 API 的 QPS 限制。
@@ -71,7 +76,7 @@ class BenefitsClient(object):
             }
         )
         headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("get", url, False, cast=BenefitOverview, params=params, headers=headers)
+        return self._requester.request("get", url, False, cast=BenefitData, params=params, headers=headers)
 
 
 class AsyncBenefitsClient(object):
@@ -81,11 +86,16 @@ class AsyncBenefitsClient(object):
 
     async def retrieve(
         self, *, benefit_type_list: Optional[List[str]] = None, resource_id: Optional[str] = None, **kwargs
-    ) -> BenefitOverview:
+    ) -> BenefitData:
         """
         查询套餐权益
 
-        查询当前账号的套餐权益信息。 接口描述 你可以通过本 API 查询当前账号的以下套餐权益信息： 所属的套餐类型。 扩容管理页面中 API 扩容的信息，包括套餐默认的 API QPS、扩容新增的 API QPS 额度，以及当前实际生效的 API QPS 额度。 套餐权益内通过 MCP 方式调用付费插件的次数限制。
+        查询当前账号的套餐权益信息。
+        接口描述
+        你可以通过本 API 查询当前账号的以下套餐权益信息：
+        所属的套餐类型。
+        扩容管理页面中 API 扩容的信息，包括套餐默认的 API QPS、扩容新增的 API QPS 额度，以及当前实际生效的 API QPS 额度。
+        套餐权益内通过 MCP 方式调用付费插件的次数限制。
 
         :param benefit_type_list: 权益类型列表，多个类型用逗号分隔。支持的权益类型如下： * `api_run_qps`： API 扩容的信息，你需要在 `resource_id` 中传入待查询的 API 类型。 * `call_tool_limit`：通过 MCP 方式调用付费插件的次数限制。 默认为空，即返回订阅的套餐类型，不含额外扩容的权益。
         :param resource_id: API 类型，当 `benefit_type_list `为 `api_run_qps`时，需要配置该参数。当前仅支持查询可扩容的 API 类型。枚举值： * `plugin`：插件相关 API 的 QPS 限制。 * `chat`：对话相关的 API 的 QPS 限制。 * `workflow`：工作流相关的 API 的 QPS 限制。
@@ -98,4 +108,4 @@ class AsyncBenefitsClient(object):
             }
         )
         headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("get", url, False, cast=BenefitOverview, params=params, headers=headers)
+        return await self._requester.arequest("get", url, False, cast=BenefitData, params=params, headers=headers)
