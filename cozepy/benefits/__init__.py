@@ -52,7 +52,7 @@ class BenefitsClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    def get(
+    def retrieve(
         self, *, benefit_type_list: Optional[List[str]] = None, resource_id: Optional[str] = None, **kwargs
     ) -> BenefitOverview:
         """
@@ -79,7 +79,7 @@ class AsyncBenefitsClient(object):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
 
-    async def get(
+    async def retrieve(
         self, *, benefit_type_list: Optional[List[str]] = None, resource_id: Optional[str] = None, **kwargs
     ) -> BenefitOverview:
         """
