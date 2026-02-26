@@ -31,7 +31,7 @@ class TranscriptionsClient(object):
         """
         url = f"{self._base_url}/v1/audio/transcriptions"
         headers: Optional[dict] = kwargs.get("headers")
-        files = {"file": _try_fix_file(file)}
+        files = {"file": _try_fix_file(file)} if file else {}
         return self._requester.request("post", url, False, cast=CreateTranscriptionsResp, headers=headers, files=files)
 
 
@@ -60,7 +60,7 @@ class AsyncTranscriptionsClient(object):
         """
         url = f"{self._base_url}/v1/audio/transcriptions"
         headers: Optional[dict] = kwargs.get("headers")
-        files = {"file": _try_fix_file(file)}
+        files = {"file": _try_fix_file(file)} if file else {}
         return await self._requester.arequest(
             "post", url, False, cast=CreateTranscriptionsResp, headers=headers, files=files
         )

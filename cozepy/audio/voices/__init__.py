@@ -140,7 +140,7 @@ class VoicesClient(object):
                 "description": description,
             }
         )
-        files = {"file": _try_fix_file(file)}
+        files = {"file": _try_fix_file(file)} if file else {}
         return self._requester.request("post", url, False, cast=Voice, headers=headers, body=body, files=files)
 
     def list(
@@ -265,7 +265,7 @@ class AsyncVoicesClient(object):
                 "description": description,
             }
         )
-        files = {"file": _try_fix_file(file)}
+        files = {"file": _try_fix_file(file)} if file else {}
         return await self._requester.arequest("post", url, False, cast=Voice, headers=headers, body=body, files=files)
 
     async def list(
