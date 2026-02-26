@@ -249,7 +249,14 @@ class DatasetsClient(object):
             request_maker=request_maker,
         )
 
-    def process(self, *, dataset_id: str, document_ids: List[str], **kwargs) -> ListResponse[DocumentProgress]:
+    def process(
+        self,
+        *,
+        dataset_id: str,
+        agw_js_conv: str,
+        document_ids: List[str],
+        **kwargs,
+    ) -> ListResponse[DocumentProgress]:
         """
         查看知识库文件上传进度
 
@@ -262,6 +269,10 @@ class DatasetsClient(object):
         """
         url = f"{self._base_url}/v1/datasets/{dataset_id}/process"
         headers: Optional[dict] = kwargs.get("headers")
+
+        header_values = dict(headers or {})
+        header_values["Agw-Js-Conv"] = str(agw_js_conv)
+        headers = header_values
         body = {
             "document_ids": document_ids,
         }
@@ -415,7 +426,14 @@ class AsyncDatasetsClient(object):
             request_maker=request_maker,
         )
 
-    async def process(self, *, dataset_id: str, document_ids: List[str], **kwargs) -> ListResponse[DocumentProgress]:
+    async def process(
+        self,
+        *,
+        dataset_id: str,
+        agw_js_conv: str,
+        document_ids: List[str],
+        **kwargs,
+    ) -> ListResponse[DocumentProgress]:
         """
         查看知识库文件上传进度
 
@@ -428,6 +446,10 @@ class AsyncDatasetsClient(object):
         """
         url = f"{self._base_url}/v1/datasets/{dataset_id}/process"
         headers: Optional[dict] = kwargs.get("headers")
+
+        header_values = dict(headers or {})
+        header_values["Agw-Js-Conv"] = str(agw_js_conv)
+        headers = header_values
         body = {
             "document_ids": document_ids,
         }

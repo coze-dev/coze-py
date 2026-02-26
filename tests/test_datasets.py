@@ -173,7 +173,7 @@ class TestSyncDataset:
 
         dataset_id, document_id, mock_logid = mock_process_datasets(respx_mock)
 
-        res = coze.datasets.process(dataset_id=dataset_id, document_ids=[document_id])
+        res = coze.datasets.process(dataset_id=dataset_id, document_ids=[document_id], agw_js_conv="str")
         assert res
         assert res.response.logid == mock_logid
 
@@ -247,6 +247,6 @@ class TestAsyncDataset:
 
         dataset_id, document_id, mock_logid = mock_process_datasets(respx_mock)
 
-        res = await coze.datasets.process(dataset_id=dataset_id, document_ids=[document_id])
+        res = await coze.datasets.process(dataset_id=dataset_id, document_ids=[document_id], agw_js_conv="str")
         assert res
         assert res.response.logid == mock_logid
