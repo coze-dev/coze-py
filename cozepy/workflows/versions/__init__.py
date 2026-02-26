@@ -75,18 +75,17 @@ class WorkflowsVersionsClient(object):
         headers: Optional[dict] = kwargs.get("headers")
 
         def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
-            params = dump_exclude_none(
-                {
-                    "publish_status": publish_status,
-                    "page_size": i_page_size,
-                    "page_token": i_page_token,
-                }
-            )
             return self._requester.make_request(
                 "GET",
                 url,
                 headers=headers,
-                params=params,
+                params=dump_exclude_none(
+                    {
+                        "publish_status": publish_status,
+                        "page_size": i_page_size,
+                        "page_token": i_page_token,
+                    }
+                ),
                 cast=_PrivateListWorkflowVersionData,
                 stream=False,
             )
@@ -131,18 +130,17 @@ class AsyncWorkflowsVersionsClient(object):
         headers: Optional[dict] = kwargs.get("headers")
 
         async def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
-            params = dump_exclude_none(
-                {
-                    "publish_status": publish_status,
-                    "page_size": i_page_size,
-                    "page_token": i_page_token,
-                }
-            )
             return await self._requester.amake_request(
                 "GET",
                 url,
                 headers=headers,
-                params=params,
+                params=dump_exclude_none(
+                    {
+                        "publish_status": publish_status,
+                        "page_size": i_page_size,
+                        "page_token": i_page_token,
+                    }
+                ),
                 cast=_PrivateListWorkflowVersionData,
                 stream=False,
             )
