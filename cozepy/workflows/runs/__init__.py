@@ -203,7 +203,10 @@ class WorkflowsRunsClient(object):
             body=body,
         )
         return Stream(
-            response._raw_response, response.data, fields=["id", "event", "data"], handler=_workflow_stream_handler
+            response._raw_response,
+            response.data,
+            fields=["id", "event", "data"],
+            handler=_workflow_stream_handler,
         )
 
     def create(
@@ -303,7 +306,10 @@ class WorkflowsRunsClient(object):
             body=body,
         )
         return Stream(
-            response._raw_response, response.data, fields=["id", "event", "data"], handler=_workflow_stream_handler
+            response._raw_response,
+            response.data,
+            fields=["id", "event", "data"],
+            handler=_workflow_stream_handler,
         )
 
 
