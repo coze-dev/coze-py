@@ -1,3 +1,5 @@
+import json
+
 import httpx
 import pytest
 
@@ -12,6 +14,7 @@ from cozepy import (
     ChatUsage,
     Coze,
     CozeAPIError,
+    Message,
     TokenAuth,
 )
 from cozepy.util import random_hex
@@ -57,6 +60,31 @@ def mock_workflows_chat_stream_json_fail(respx_mock) -> str:
 
 @pytest.mark.respx(base_url="https://api.coze.com")
 class TestSyncWorkflowsChat:
+    def test_sync_workflows_chat_stream_request_body(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        route = respx_mock.post("/v1/workflows/chat").mock(
+            httpx.Response(
+                200,
+                headers={"content-type": "text/event-stream", logid_key(): random_hex(10)},
+                content=read_file("testdata/workflows_chat_stream_resp.txt"),
+            )
+        )
+        stream = coze.workflows.chat.stream(
+            workflow_id="workflow",
+            bot_id="bot",
+            additional_messages=[Message.build_user_question_text("hello")],
+            parameters={"k": "v"},
+        )
+        list(stream)
+
+        assert route.called
+        body = json.loads(route.calls[0].request.content.decode())
+        assert body["workflow_id"] == "workflow"
+        assert body["bot_id"] == "bot"
+        assert body["parameters"] == {"k": "v"}
+        assert body["additional_messages"][0]["content"] == "hello"
+
     def test_sync_workflows_chat_stream(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
