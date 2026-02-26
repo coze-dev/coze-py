@@ -116,6 +116,15 @@ from .benefit_limitations import (
     BenefitLimitationsClient,
     CreateBenefitLimitationResp,
 )
+from .benefits import (
+    AsyncBenefitsClient,
+    BenefitBasicInfo,
+    BenefitData,
+    BenefitInfo,
+    BenefitItemInfo,
+    BenefitsClient,
+    BenefitStatusInfo,
+)
 from .bill_tasks import (
     AsyncBillTasksClient,
     BenefitBillTask,
@@ -532,6 +541,7 @@ __all__ = [
     "AsyncAudioClient",
     "AsyncAuth",
     "AsyncBenefitLimitationsClient",
+    "AsyncBenefitsClient",
     "AsyncBillTasksClient",
     "AsyncBotsClient",
     "AsyncBotsCollaborationModesClient",
@@ -605,8 +615,14 @@ __all__ = [
     "AuditStatus",
     "Auth",
     "BackgroundImageInfo",
+    "BenefitBasicInfo",
     "BenefitBillTask",
+    "BenefitData",
+    "BenefitInfo",
+    "BenefitItemInfo",
     "BenefitLimitationsClient",
+    "BenefitStatusInfo",
+    "BenefitsClient",
     "BillTasksClient",
     "BindConnectorUserConfigResp",
     "Bot",

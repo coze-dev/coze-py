@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from .apps import AppsClient, AsyncAppsClient
     from .audio import AsyncAudioClient, AudioClient
     from .benefit_limitations import AsyncBenefitLimitationsClient, BenefitLimitationsClient
+    from .benefits import AsyncBenefitsClient, BenefitsClient
     from .bill_tasks import AsyncBillTasksClient, BillTasksClient
     from .bots import AsyncBotsClient, BotsClient
     from .chat import AsyncChatClient, ChatClient
@@ -60,6 +61,7 @@ class Coze(object):
         self._api_apps: Optional[APIAppsClient] = None
         self._folders: Optional[FoldersClient] = None
         self._benefit_limitations: Optional[BenefitLimitationsClient] = None
+        self._benefits: Optional[BenefitsClient] = None
         self._bill_tasks: Optional[BillTasksClient] = None
 
     @property
@@ -221,6 +223,14 @@ class Coze(object):
         return self._benefit_limitations
 
     @property
+    def benefits(self) -> "BenefitsClient":
+        if not self._benefits:
+            from .benefits import BenefitsClient
+
+            self._benefits = BenefitsClient(self._base_url, self._requester)
+        return self._benefits
+
+    @property
     def bill_tasks(self) -> "BillTasksClient":
         if not self._bill_tasks:
             from .bill_tasks import BillTasksClient
@@ -268,6 +278,7 @@ class AsyncCoze(object):
         self._api_apps: Optional[AsyncAPIAppsClient] = None
         self._folders: Optional[AsyncFoldersClient] = None
         self._benefit_limitations: Optional[AsyncBenefitLimitationsClient] = None
+        self._benefits: Optional[AsyncBenefitsClient] = None
         self._bill_tasks: Optional[AsyncBillTasksClient] = None
 
     @property
@@ -427,6 +438,14 @@ class AsyncCoze(object):
 
             self._benefit_limitations = AsyncBenefitLimitationsClient(self._base_url, self._requester)
         return self._benefit_limitations
+
+    @property
+    def benefits(self) -> "AsyncBenefitsClient":
+        if not self._benefits:
+            from .benefits import AsyncBenefitsClient
+
+            self._benefits = AsyncBenefitsClient(self._base_url, self._requester)
+        return self._benefits
 
     @property
     def bill_tasks(self) -> "AsyncBillTasksClient":
