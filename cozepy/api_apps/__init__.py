@@ -132,9 +132,19 @@ class APIAppsClient(object):
         )
 
     def delete(self, *, app_id: str, **kwargs) -> DeleteAPIAppsResp:
+        """
+        修改回调应用
+
+        修改回调应用的名称和回调地址。
+        接口限制
+        扣子个人版中，仅支持修改本人创建的回调应用。
+        扣子企业版中，仅超级管理员和管理员可修改回调应用。
+
+        :param app_id: 待修改的回调应用的 ID。你可以通过[查询回调应用列表](https://docs.coze.cn/developer_guides/list_callback_app) API 获取回调应用的 ID。
+        """
         url = f"{self._base_url}/v1/api_apps/{app_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("delete", url, False, cast=DeleteAPIAppsResp, headers=headers)
+        return self._requester.request("put", url, False, cast=DeleteAPIAppsResp, headers=headers)
 
     def list(
         self,
@@ -149,7 +159,7 @@ class APIAppsClient(object):
 
         def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
-                "GET",
+                "POST",
                 url,
                 params=dump_exclude_none(
                     {
@@ -257,9 +267,19 @@ class AsyncAPIAppsClient(object):
         )
 
     async def delete(self, *, app_id: str, **kwargs) -> DeleteAPIAppsResp:
+        """
+        修改回调应用
+
+        修改回调应用的名称和回调地址。
+        接口限制
+        扣子个人版中，仅支持修改本人创建的回调应用。
+        扣子企业版中，仅超级管理员和管理员可修改回调应用。
+
+        :param app_id: 待修改的回调应用的 ID。你可以通过[查询回调应用列表](https://docs.coze.cn/developer_guides/list_callback_app) API 获取回调应用的 ID。
+        """
         url = f"{self._base_url}/v1/api_apps/{app_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("delete", url, False, cast=DeleteAPIAppsResp, headers=headers)
+        return await self._requester.arequest("put", url, False, cast=DeleteAPIAppsResp, headers=headers)
 
     async def list(
         self,
@@ -274,7 +294,7 @@ class AsyncAPIAppsClient(object):
 
         async def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
             return await self._requester.amake_request(
-                "GET",
+                "POST",
                 url,
                 params=dump_exclude_none(
                     {

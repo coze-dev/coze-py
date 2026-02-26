@@ -511,14 +511,15 @@ class ChatClient(object):
         **kwargs,
     ) -> Chat:
         """
-        Get the detailed information of the chat.
+        查看对话详情
 
-        docs en: https://www.coze.com/docs/developer_guides/retrieve_chat
-        docs zh: https://www.coze.cn/docs/developer_guides/retrieve_chat
+        查看对话的详细信息。
+        在非流式会话场景中，调用发起对话接口后，可以先轮询此 API 确认本轮对话已结束（status=completed），再调用接口查看对话消息详情查看本轮对话的模型回复。
+        仅在对话开启了保存历史记录（auto_save_history=true）后，可通过此接口查看对话的详细信息。
+        建议一个对话每秒轮询一次。
 
-        :param conversation_id: The ID of the conversation.
-        :param chat_id: The ID of the chat.
-        :return: chat object
+        :param chat_id: Chat ID，即对话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 id 字段，如果是流式响应，则在 Response 的 chat 事件中查看 id 字段。
+        :param conversation_id: Conversation ID，即会话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 conversation_id 字段。
         """
         url = f"{self._base_url}/v3/chat/retrieve"
         params = {
@@ -526,7 +527,7 @@ class ChatClient(object):
             "chat_id": chat_id,
         }
         headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("post", url, False, cast=Chat, params=params, headers=headers)
+        return self._requester.request("get", url, False, cast=Chat, params=params, headers=headers)
 
     def cancel(self, *, conversation_id: str, chat_id: str, **kwargs) -> Chat:
         """
@@ -882,14 +883,15 @@ class AsyncChatClient(object):
         **kwargs,
     ) -> Chat:
         """
-        Get the detailed information of the chat.
+        查看对话详情
 
-        docs en: https://www.coze.com/docs/developer_guides/retrieve_chat
-        docs zh: https://www.coze.cn/docs/developer_guides/retrieve_chat
+        查看对话的详细信息。
+        在非流式会话场景中，调用发起对话接口后，可以先轮询此 API 确认本轮对话已结束（status=completed），再调用接口查看对话消息详情查看本轮对话的模型回复。
+        仅在对话开启了保存历史记录（auto_save_history=true）后，可通过此接口查看对话的详细信息。
+        建议一个对话每秒轮询一次。
 
-        :param conversation_id: The ID of the conversation.
-        :param chat_id: The ID of the chat.
-        :return: chat object
+        :param chat_id: Chat ID，即对话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 id 字段，如果是流式响应，则在 Response 的 chat 事件中查看 id 字段。
+        :param conversation_id: Conversation ID，即会话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 conversation_id 字段。
         """
         url = f"{self._base_url}/v3/chat/retrieve"
         params = {
@@ -897,7 +899,7 @@ class AsyncChatClient(object):
             "chat_id": chat_id,
         }
         headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("post", url, False, cast=Chat, params=params, headers=headers)
+        return await self._requester.arequest("get", url, False, cast=Chat, params=params, headers=headers)
 
     async def cancel(self, *, conversation_id: str, chat_id: str, **kwargs) -> Chat:
         """

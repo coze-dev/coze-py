@@ -77,7 +77,7 @@ def mock_chat_retrieve(respx_mock, conversation_id: str, status: ChatStatus):
         json={"data": chat.model_dump()},
         headers={logid_key(): logid},
     )
-    respx_mock.post("/v3/chat/retrieve").mock(chat._raw_response)
+    respx_mock.get("/v3/chat/retrieve").mock(chat._raw_response)
     return logid
 
 
@@ -135,7 +135,7 @@ def mock_chat_poll(
         json={"data": chat_completed.model_dump()},
         headers={logid_key(): random_hex(10)},
     )
-    respx_mock.post("/v3/chat/retrieve").mock(chat_completed._raw_response)
+    respx_mock.get("/v3/chat/retrieve").mock(chat_completed._raw_response)
 
     msg = Message.build_user_question_text("hi")
     list_message_logid = random_hex(10)

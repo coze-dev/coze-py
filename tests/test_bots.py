@@ -244,21 +244,26 @@ def mock_create_api_app(respx_mock) -> APIApp:
 def mock_update_api_app(respx_mock):
     logid = random_hex(10)
     raw_response = httpx.Response(200, json={"data": None}, headers={logid_key(): logid})
-    respx_mock.put("/v1/api_apps/app_id").mock(raw_response)
+    respx_mock.put(
+        "/v1/api_apps/app_id",
+        json={
+            "name": "new_name",
+        },
+    ).mock(raw_response)
     return logid
 
 
 def mock_delete_api_app(respx_mock):
     logid = random_hex(10)
     raw_response = httpx.Response(200, json={"data": None}, headers={logid_key(): logid})
-    respx_mock.delete("/v1/api_apps/app_id").mock(raw_response)
+    respx_mock.put("/v1/api_apps/app_id").mock(raw_response)
     return logid
 
 
 def mock_list_api_app(respx_mock, total_count, page):
     logid = random_hex(10)
     # 正常页和兜底页都注册
-    respx_mock.get(
+    respx_mock.post(
         "https://api.coze.com/v1/api_apps",
         params={
             "page_size": 1,

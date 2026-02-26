@@ -30,7 +30,12 @@ def mock_create_api_app(respx_mock):
 
 def mock_update_api_app(respx_mock):
     logid = random_hex(10)
-    respx_mock.put("https://api.coze.com/v1/api_apps/app_id").mock(
+    respx_mock.put(
+        "https://api.coze.com/v1/api_apps/app_id",
+        json={
+            "name": "new_name",
+        },
+    ).mock(
         httpx.Response(
             200,
             json={
@@ -45,7 +50,7 @@ def mock_update_api_app(respx_mock):
 
 def mock_delete_api_app(respx_mock):
     logid = random_hex(10)
-    respx_mock.delete("https://api.coze.com/v1/api_apps/app_id").mock(
+    respx_mock.put("https://api.coze.com/v1/api_apps/app_id").mock(
         httpx.Response(
             200,
             json={
@@ -60,7 +65,7 @@ def mock_delete_api_app(respx_mock):
 
 def mock_list_api_app(respx_mock, total_count, page):
     logid = random_hex(10)
-    respx_mock.get(
+    respx_mock.post(
         "https://api.coze.com/v1/api_apps",
         params={
             "page_token": str(page),
