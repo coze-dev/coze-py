@@ -119,7 +119,7 @@ def mock_add_bot_collaborator(respx_mock, bot_id: str = "bot_id") -> str:
     return logid
 
 
-def mock_delete_bot_collaborator(respx_mock, bot_id: str = "bot_id", user_id: str = "user_id") -> str:
+def mock_remove_bot_collaborator(respx_mock, bot_id: str = "bot_id", user_id: str = "user_id") -> str:
     logid = random_hex(10)
     respx_mock.delete(f"/v1/bots/{bot_id}/collaborators/{user_id}").mock(
         httpx.Response(
@@ -364,7 +364,7 @@ class TestSyncBots:
 
         bot_id = "bot_id"
         user_id = "user_id"
-        mock_logid = mock_delete_bot_collaborator(respx_mock, bot_id=bot_id, user_id=user_id)
+        mock_logid = mock_remove_bot_collaborator(respx_mock, bot_id=bot_id, user_id=user_id)
 
         resp = coze.bots.collaborators.delete(bot_id=bot_id, user_id=user_id)
         assert resp
@@ -530,7 +530,7 @@ class TestAsyncBots:
 
         bot_id = "bot_id"
         user_id = "user_id"
-        mock_logid = mock_delete_bot_collaborator(respx_mock, bot_id=bot_id, user_id=user_id)
+        mock_logid = mock_remove_bot_collaborator(respx_mock, bot_id=bot_id, user_id=user_id)
 
         resp = await coze.bots.collaborators.delete(bot_id=bot_id, user_id=user_id)
         assert resp
