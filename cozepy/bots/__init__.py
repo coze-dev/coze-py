@@ -1,11 +1,14 @@
 from enum import IntEnum
-from typing import Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from pydantic import Field, field_validator
 
 from cozepy.model import AsyncNumberPaged, CozeModel, DynamicStrEnum, NumberPaged, NumberPagedResponse
 from cozepy.request import HTTPRequest, Requester
 from cozepy.util import dump_exclude_none, remove_none_values, remove_url_trailing_slash
+
+if TYPE_CHECKING:
+    from cozepy.bots.collaboration_modes import AsyncBotsCollaborationModesClient, BotsCollaborationModesClient
 
 
 class PublishStatus(DynamicStrEnum):
@@ -376,6 +379,15 @@ class BotsClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
+        self._collaboration_modes: Optional[BotsCollaborationModesClient] = None
+
+    @property
+    def collaboration_modes(self) -> "BotsCollaborationModesClient":
+        if not self._collaboration_modes:
+            from .collaboration_modes import BotsCollaborationModesClient
+
+            self._collaboration_modes = BotsCollaborationModesClient(base_url=self._base_url, requester=self._requester)
+        return self._collaboration_modes
 
     def create(
         self,
@@ -696,6 +708,17 @@ class AsyncBotsClient(object):
     def __init__(self, base_url: str, requester: Requester):
         self._base_url = remove_url_trailing_slash(base_url)
         self._requester = requester
+        self._collaboration_modes: Optional[AsyncBotsCollaborationModesClient] = None
+
+    @property
+    def collaboration_modes(self) -> "AsyncBotsCollaborationModesClient":
+        if not self._collaboration_modes:
+            from .collaboration_modes import AsyncBotsCollaborationModesClient
+
+            self._collaboration_modes = AsyncBotsCollaborationModesClient(
+                base_url=self._base_url, requester=self._requester
+            )
+        return self._collaboration_modes
 
     async def create(
         self,
