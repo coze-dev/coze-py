@@ -13,7 +13,7 @@ class AddBotCollaboratorResp(CozeModel):
     pass
 
 
-class RemoveBotCollaboratorResp(CozeModel):
+class DeleteBotCollaboratorResp(CozeModel):
     pass
 
 
@@ -39,7 +39,7 @@ class BotsCollaboratorsClient(object):
         )
         return self._requester.request("post", url, False, cast=AddBotCollaboratorResp, headers=headers, body=body)
 
-    def delete(self, *, bot_id: str, user_id: str, **kwargs) -> RemoveBotCollaboratorResp:
+    def delete(self, *, bot_id: str, user_id: str, **kwargs) -> DeleteBotCollaboratorResp:
         """
         删除智能体协作者
 
@@ -50,7 +50,7 @@ class BotsCollaboratorsClient(object):
         """
         url = f"{self._base_url}/v1/bots/{bot_id}/collaborators/{user_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("delete", url, False, cast=RemoveBotCollaboratorResp, headers=headers)
+        return self._requester.request("delete", url, False, cast=DeleteBotCollaboratorResp, headers=headers)
 
 
 class AsyncBotsCollaboratorsClient(object):
@@ -77,7 +77,7 @@ class AsyncBotsCollaboratorsClient(object):
             "post", url, False, cast=AddBotCollaboratorResp, headers=headers, body=body
         )
 
-    async def delete(self, *, bot_id: str, user_id: str, **kwargs) -> RemoveBotCollaboratorResp:
+    async def delete(self, *, bot_id: str, user_id: str, **kwargs) -> DeleteBotCollaboratorResp:
         """
         删除智能体协作者
 
@@ -88,4 +88,4 @@ class AsyncBotsCollaboratorsClient(object):
         """
         url = f"{self._base_url}/v1/bots/{bot_id}/collaborators/{user_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("delete", url, False, cast=RemoveBotCollaboratorResp, headers=headers)
+        return await self._requester.arequest("delete", url, False, cast=DeleteBotCollaboratorResp, headers=headers)
