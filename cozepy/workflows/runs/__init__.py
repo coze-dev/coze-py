@@ -194,7 +194,7 @@ class WorkflowsRunsClient(object):
                 "ext": ext,
             }
         )
-        resp: IteratorHTTPResponse[str] = self._requester.request(
+        response: IteratorHTTPResponse[str] = self._requester.request(
             "post",
             url,
             True,
@@ -202,7 +202,9 @@ class WorkflowsRunsClient(object):
             headers=headers,
             body=body,
         )
-        return Stream(resp._raw_response, resp.data, fields=["id", "event", "data"], handler=_workflow_stream_handler)
+        return Stream(
+            response._raw_response, response.data, fields=["id", "event", "data"], handler=_workflow_stream_handler
+        )
 
     def create(
         self,
@@ -292,7 +294,7 @@ class WorkflowsRunsClient(object):
             "resume_data": resume_data,
             "interrupt_type": interrupt_type,
         }
-        resp: IteratorHTTPResponse[str] = self._requester.request(
+        response: IteratorHTTPResponse[str] = self._requester.request(
             "post",
             url,
             True,
@@ -300,7 +302,9 @@ class WorkflowsRunsClient(object):
             headers=headers,
             body=body,
         )
-        return Stream(resp._raw_response, resp.data, fields=["id", "event", "data"], handler=_workflow_stream_handler)
+        return Stream(
+            response._raw_response, response.data, fields=["id", "event", "data"], handler=_workflow_stream_handler
+        )
 
 
 class AsyncWorkflowsRunsClient(object):
