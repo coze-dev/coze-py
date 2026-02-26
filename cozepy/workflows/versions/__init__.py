@@ -3,7 +3,7 @@ from typing import List, Optional
 from cozepy.bots import PublishStatus
 from cozepy.model import AsyncTokenPaged, CozeModel, HTTPRequest, TokenPaged, TokenPagedResponse
 from cozepy.request import Requester
-from cozepy.util import dump_exclude_none, remove_none_values, remove_url_trailing_slash
+from cozepy.util import dump_exclude_none, remove_url_trailing_slash
 
 
 class WorkflowUserInfo(CozeModel):
@@ -131,7 +131,7 @@ class AsyncWorkflowsVersionsClient(object):
         headers: Optional[dict] = kwargs.get("headers")
 
         async def request_maker(i_page_token: str, i_page_size: int) -> HTTPRequest:
-            params = remove_none_values(
+            params = dump_exclude_none(
                 {
                     "publish_status": publish_status,
                     "page_size": i_page_size,
