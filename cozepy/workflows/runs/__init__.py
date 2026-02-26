@@ -185,20 +185,22 @@ class WorkflowsRunsClient(object):
         """
         url = f"{self._base_url}/v1/workflow/stream_run"
         headers: Optional[dict] = kwargs.get("headers")
-        body = {
-            "workflow_id": workflow_id,
-            "parameters": parameters,
-            "bot_id": bot_id,
-            "app_id": app_id,
-            "ext": ext,
-        }
+        body = remove_none_values(
+            {
+                "workflow_id": workflow_id,
+                "parameters": parameters,
+                "bot_id": bot_id,
+                "app_id": app_id,
+                "ext": ext,
+            }
+        )
         resp: IteratorHTTPResponse[str] = self._requester.request(
             "post",
             url,
             True,
             cast=None,
             headers=headers,
-            body=remove_none_values(body),
+            body=body,
         )
         return Stream(resp._raw_response, resp.data, fields=["id", "event", "data"], handler=_workflow_stream_handler)
 
@@ -242,17 +244,17 @@ class WorkflowsRunsClient(object):
         """
         url = f"{self._base_url}/v1/workflow/run"
         headers: Optional[dict] = kwargs.get("headers")
-        body = {
-            "workflow_id": workflow_id,
-            "parameters": parameters,
-            "bot_id": bot_id,
-            "app_id": app_id,
-            "is_async": is_async,
-            "ext": ext,
-        }
-        return self._requester.request(
-            "post", url, False, cast=WorkflowRunResult, headers=headers, body=remove_none_values(body)
+        body = remove_none_values(
+            {
+                "workflow_id": workflow_id,
+                "parameters": parameters,
+                "bot_id": bot_id,
+                "app_id": app_id,
+                "is_async": is_async,
+                "ext": ext,
+            }
         )
+        return self._requester.request("post", url, False, cast=WorkflowRunResult, headers=headers, body=body)
 
     def resume(
         self,
@@ -356,20 +358,22 @@ class AsyncWorkflowsRunsClient(object):
         """
         url = f"{self._base_url}/v1/workflow/stream_run"
         headers: Optional[dict] = kwargs.get("headers")
-        body = {
-            "workflow_id": workflow_id,
-            "parameters": parameters,
-            "bot_id": bot_id,
-            "app_id": app_id,
-            "ext": ext,
-        }
+        body = remove_none_values(
+            {
+                "workflow_id": workflow_id,
+                "parameters": parameters,
+                "bot_id": bot_id,
+                "app_id": app_id,
+                "ext": ext,
+            }
+        )
         resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
             "post",
             url,
             True,
             cast=None,
             headers=headers,
-            body=remove_none_values(body),
+            body=body,
         )
         async for item in AsyncStream(
             resp.data,
@@ -418,17 +422,17 @@ class AsyncWorkflowsRunsClient(object):
         """
         url = f"{self._base_url}/v1/workflow/run"
         headers: Optional[dict] = kwargs.get("headers")
-        body = {
-            "workflow_id": workflow_id,
-            "parameters": parameters,
-            "bot_id": bot_id,
-            "app_id": app_id,
-            "is_async": is_async,
-            "ext": ext,
-        }
-        return await self._requester.arequest(
-            "post", url, False, cast=WorkflowRunResult, headers=headers, body=remove_none_values(body)
+        body = remove_none_values(
+            {
+                "workflow_id": workflow_id,
+                "parameters": parameters,
+                "bot_id": bot_id,
+                "app_id": app_id,
+                "is_async": is_async,
+                "ext": ext,
+            }
         )
+        return await self._requester.arequest("post", url, False, cast=WorkflowRunResult, headers=headers, body=body)
 
     async def resume(
         self,
