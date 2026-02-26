@@ -28,7 +28,14 @@ class WorkflowsRunsRunHistoriesExecuteNodesClient(object):
         """
         查询输出节点的执行结果
 
-        查询输出节点的执行结果。 接口描述 通过 查询工作流异步执行结果 API 查询工作流执行结果时，如果工作流输出节点的输出内容超过 1MB，查询工作流异步执行结果 API 无法返回完整的输出节点内容。需要调用本 API，根据工作流的执行 ID 以及 查询工作流异步执行结果 API 返回的节点执行 UUID，逐一查询每个节点的输出内容。 接口限制 本 API 的流控限制请参见 API 介绍 。 输出节点的输出数据最多保存 24 小时。 仅支持查询输出节点的执行结果，不支持查询结束节点的执行结果。 输出节点的输出内容超过1MB 时，无法保证返回内容的完整性。
+        查询输出节点的执行结果。
+        接口描述
+        通过 查询工作流异步执行结果 API 查询工作流执行结果时，如果工作流输出节点的输出内容超过 1MB，查询工作流异步执行结果 API 无法返回完整的输出节点内容。需要调用本 API，根据工作流的执行 ID 以及查询工作流异步执行结果 API 返回的节点执行 UUID，逐一查询每个节点的输出内容。
+        接口限制
+        本 API 的流控限制请参见 API 介绍。
+        输出节点的输出数据最多保存 24 小时。
+        仅支持查询输出节点的执行结果，不支持查询结束节点的执行结果。
+        输出节点的输出内容超过1MB 时，无法保证返回内容的完整性。
 
         :param execute_id: 工作流的执行 ID。调用接口[执行工作流](https://www.coze.cn/docs/developer_guides/workflow_run)，如果选择异步执行工作流，响应信息中会返回 execute_id。
         :param node_execute_uuid: [工作流异步执行结果](https://www.coze.cn/open/docs/developer_guides/workflow_history) API 中返回的节点执行 uuid。
@@ -57,7 +64,14 @@ class AsyncWorkflowsRunsRunHistoriesExecuteNodesClient(object):
         """
         查询输出节点的执行结果
 
-        查询输出节点的执行结果。 接口描述 通过 查询工作流异步执行结果 API 查询工作流执行结果时，如果工作流输出节点的输出内容超过 1MB，查询工作流异步执行结果 API 无法返回完整的输出节点内容。需要调用本 API，根据工作流的执行 ID 以及 查询工作流异步执行结果 API 返回的节点执行 UUID，逐一查询每个节点的输出内容。 接口限制 本 API 的流控限制请参见 API 介绍 。 输出节点的输出数据最多保存 24 小时。 仅支持查询输出节点的执行结果，不支持查询结束节点的执行结果。 输出节点的输出内容超过1MB 时，无法保证返回内容的完整性。
+        查询输出节点的执行结果。
+        接口描述
+        通过 查询工作流异步执行结果 API 查询工作流执行结果时，如果工作流输出节点的输出内容超过 1MB，查询工作流异步执行结果 API 无法返回完整的输出节点内容。需要调用本 API，根据工作流的执行 ID 以及查询工作流异步执行结果 API 返回的节点执行 UUID，逐一查询每个节点的输出内容。
+        接口限制
+        本 API 的流控限制请参见 API 介绍。
+        输出节点的输出数据最多保存 24 小时。
+        仅支持查询输出节点的执行结果，不支持查询结束节点的执行结果。
+        输出节点的输出内容超过1MB 时，无法保证返回内容的完整性。
 
         :param execute_id: 工作流的执行 ID。调用接口[执行工作流](https://www.coze.cn/docs/developer_guides/workflow_run)，如果选择异步执行工作流，响应信息中会返回 execute_id。
         :param node_execute_uuid: [工作流异步执行结果](https://www.coze.cn/open/docs/developer_guides/workflow_history) API 中返回的节点执行 uuid。

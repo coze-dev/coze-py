@@ -109,7 +109,13 @@ class WorkflowsRunsRunHistoriesClient(object):
         """
         查询工作流异步执行结果
 
-        工作流异步运行后，查看执行结果。 接口说明 调用 执行工作流 或 恢复运行工作流 API 时，如果选择异步运行工作流，响应信息中会返回 execute_id，开发者可以通过本 API 查询指定事件的执行结果。 限制说明 本 API 的流控限制请参见 API 介绍 。 工作流的 输出节点 的输出数据最多保存 24 小时， 结束节点 为 7 天。 输出节点的输出内容超过 1MB 时，无法保证返回内容的完整性。
+        工作流异步运行后，查看执行结果。
+        接口说明
+        调用执行工作流或恢复运行工作流 API 时，如果选择异步运行工作流，响应信息中会返回 execute_id，开发者可以通过本 API 查询指定事件的执行结果。
+        限制说明
+        本 API 的流控限制请参见 API 介绍。
+        工作流的输出节点的输出数据最多保存 24 小时，结束节点为 7 天。
+        输出节点的输出内容超过 1MB 时，无法保证返回内容的完整性。
 
         :param execute_id: 工作流执行 ID。调用接口[执行工作流](https://www.coze.cn/docs/developer_guides/workflow_run)，如果选择异步执行工作流，响应信息中会返回 execute_id。
         :param workflow_id: 待执行的 Workflow ID，此工作流应已发布。 进入 Workflow 编排页面，在页面 URL 中，workflow 参数后的数字就是 Workflow ID。例如 https://www.coze.com/work_flow?space_id=42463***&workflow_id=73505836754923***，Workflow ID 为 73505836754923***。
@@ -142,7 +148,13 @@ class AsyncWorkflowsRunsRunHistoriesClient(object):
         """
         查询工作流异步执行结果
 
-        工作流异步运行后，查看执行结果。 接口说明 调用 执行工作流 或 恢复运行工作流 API 时，如果选择异步运行工作流，响应信息中会返回 execute_id，开发者可以通过本 API 查询指定事件的执行结果。 限制说明 本 API 的流控限制请参见 API 介绍 。 工作流的 输出节点 的输出数据最多保存 24 小时， 结束节点 为 7 天。 输出节点的输出内容超过 1MB 时，无法保证返回内容的完整性。
+        工作流异步运行后，查看执行结果。
+        接口说明
+        调用执行工作流或恢复运行工作流 API 时，如果选择异步运行工作流，响应信息中会返回 execute_id，开发者可以通过本 API 查询指定事件的执行结果。
+        限制说明
+        本 API 的流控限制请参见 API 介绍。
+        工作流的输出节点的输出数据最多保存 24 小时，结束节点为 7 天。
+        输出节点的输出内容超过 1MB 时，无法保证返回内容的完整性。
 
         :param execute_id: 工作流执行 ID。调用接口[执行工作流](https://www.coze.cn/docs/developer_guides/workflow_run)，如果选择异步执行工作流，响应信息中会返回 execute_id。
         :param workflow_id: 待执行的 Workflow ID，此工作流应已发布。 进入 Workflow 编排页面，在页面 URL 中，workflow 参数后的数字就是 Workflow ID。例如 https://www.coze.com/work_flow?space_id=42463***&workflow_id=73505836754923***，Workflow ID 为 73505836754923***。

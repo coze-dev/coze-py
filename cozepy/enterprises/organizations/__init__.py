@@ -26,7 +26,10 @@ class EnterprisesOrganizationsClient(object):
         """
         创建组织
 
-        在指定的企业中创建组织。 接口限制 套餐限制 ：扣子企业旗舰版。 数量限制 ：一个企业中最多存在 20 个组织。
+        在指定的企业中创建组织。
+        接口限制
+        套餐限制：扣子企业旗舰版。
+        数量限制：一个企业中最多存在 20 个组织。
 
         :param enterprise_id: 企业 ID，用于标识该组织所属的企业。 你可以在**组织管理** > **组织设置**页面查看企业 ID。 ![Image](https://p9-arcosite.byteimg.com/tos-cn-i-goo7wpa0wc/02db2078f0c84bc2aa189f5cca93d49d~tplv-goo7wpa0wc-image.image =500x)
         """
@@ -61,7 +64,10 @@ class AsyncEnterprisesOrganizationsClient(object):
         """
         创建组织
 
-        在指定的企业中创建组织。 接口限制 套餐限制 ：扣子企业旗舰版。 数量限制 ：一个企业中最多存在 20 个组织。
+        在指定的企业中创建组织。
+        接口限制
+        套餐限制：扣子企业旗舰版。
+        数量限制：一个企业中最多存在 20 个组织。
 
         :param enterprise_id: 企业 ID，用于标识该组织所属的企业。 你可以在**组织管理** > **组织设置**页面查看企业 ID。 ![Image](https://p9-arcosite.byteimg.com/tos-cn-i-goo7wpa0wc/02db2078f0c84bc2aa189f5cca93d49d~tplv-goo7wpa0wc-image.image =500x)
         """

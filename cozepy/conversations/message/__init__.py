@@ -141,7 +141,10 @@ class MessagesClient(object):
         """
         删除消息
 
-        调用接口在指定会话中删除消息。 暂不支持批量操作，需要逐条删除。 删除指定 message id 对应的消息。如果消息 type=answer，会同步删除与之相关的 verbose、function_call 等中间态消息，但不支持仅删除某一条中间态消息。 删除消息后，无法通过 查看消息列表 或 查看对话消息详情 接口查看已删除的这些消息。
+        调用接口在指定会话中删除消息。
+        暂不支持批量操作，需要逐条删除。
+        删除指定 message id 对应的消息。如果消息 type=answer，会同步删除与之相关的 verbose、function_call 等中间态消息，但不支持仅删除某一条中间态消息。
+        删除消息后，无法通过查看消息列表或查看对话消息详情接口查看已删除的这些消息。
 
         :param conversation_id: 待删除的消息所属的会话 ID。
         :param message_id: 待删除的消息 ID，你可以选择删除会话中的 question 消息和 answer 消息。 * 待删除消息必须属于 conversation_id 指定的会话。 * 仅支持删除 type=answer 或 question 的消息，不支持单独删除 function_call 等中间态消息。当删除 type=answer 的消息时，系统会同步删除与之关联的 function_call 等中间态消息。
@@ -329,11 +332,16 @@ class AsyncMessagesClient(object):
     ) -> Message:
         """
         删除消息
-
-        暂不支持批量操作，需要逐条删除。 删除指定 message id 对应的消息。如果消息 type=answer，会同步删除与之相关的 verbose、function_call 等中间态消息，但不支持仅删除某一条中间态消息。 删除消息后，无法通过 查看消息列表 或 查看对话消息详情 接口查看已删除的这些消息。 调用接口在指定会话中删除消息。
-
+        暂不支持批量操作，需要逐条删除。
+        删除指定 message id 对应的消息。
+        如果消息 type=answer，会同步删除与之相关的 verbose、function_call 等中间态消息，但不支持仅删除某一条中间态消息。
+        删除消息后，无法通过 查看消息列表 或 查看对话消息详情 接口查看已删除的这些消息。
+        调用接口在指定会话中删除消息。
         :param conversation_id: 待删除的消息所属的会话 ID。
-        :param message_id: 待删除的消息 ID，你可以选择删除会话中的 question 消息和 answer 消息。 * 待删除消息必须属于 conversation_id 指定的会话。 * 仅支持删除 type=answer 或 question 的消息，不支持单独删除 function_call 等中间态消息。当删除 type=answer 的消息时，系统会同步删除与之关联的 function_call 等中间态消息。
+        :param message_id: 待删除的消息 ID，你可以选择删除会话中的 question 消息和 answer 消息。
+        * 待删除消息必须属于 conversation_id 指定的会话。
+        * 仅支持删除 type=answer 或 question 的消息，不支持单独删除 function_call 等中间态消息。
+        当删除 type=answer 的消息时，系统会同步删除与之关联的 function_call 等中间态消息。
         """
         url = f"{self._base_url}/v1/conversation/message/delete"
         params = {
