@@ -19,6 +19,7 @@ from cozepy import (
     TokenAuth,
     WorkflowIDList,
 )
+from cozepy.bots import BotCollaborationMode
 from cozepy.util import random_hex
 from tests.test_util import logid_key
 
@@ -91,6 +92,18 @@ def mock_unpublish_bot(respx_mock, bot_id: str = "bot_id") -> None:
             headers={logid_key(): random_hex(10)},
         )
     )
+
+
+def mock_switch_collaboration_mode(respx_mock, bot_id: str = "bot_id") -> str:
+    logid = random_hex(10)
+    respx_mock.post(f"/v1/bots/{bot_id}/collaboration_mode").mock(
+        httpx.Response(
+            200,
+            json={"data": None},
+            headers={logid_key(): logid},
+        )
+    )
+    return logid
 
 
 def mock_retrieve_bot(respx_mock, use_api_version=1) -> Bot:
@@ -296,6 +309,17 @@ class TestSyncBots:
         resp = coze.bots.unpublish(bot_id="bot_id", connector_id="1024")
         assert resp
 
+    def test_sync_bot_switch_collaboration_mode(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        bot_id = "bot_id"
+        mock_logid = mock_switch_collaboration_mode(respx_mock, bot_id=bot_id)
+
+        resp = coze.bots.switch_collaboration_mode(bot_id=bot_id, collaboration_mode=BotCollaborationMode.COLLABORATION)
+        assert resp
+        assert resp.response.logid is not None
+        assert resp.response.logid == mock_logid
+
     def test_sync_bot_retrieve(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
@@ -425,6 +449,19 @@ class TestAsyncBots:
 
         resp = await coze.bots.unpublish(bot_id="bot_id", connector_id="1024")
         assert resp
+
+    async def test_async_bot_switch_collaboration_mode(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+
+        bot_id = "bot_id"
+        mock_logid = mock_switch_collaboration_mode(respx_mock, bot_id=bot_id)
+
+        resp = await coze.bots.switch_collaboration_mode(
+            bot_id=bot_id, collaboration_mode=BotCollaborationMode.COLLABORATION
+        )
+        assert resp
+        assert resp.response.logid is not None
+        assert resp.response.logid == mock_logid
 
     async def test_async_bot_retrieve(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
