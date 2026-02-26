@@ -105,7 +105,7 @@ class DatasetsImagesClient(object):
 
         def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return self._requester.make_request(
-                "get",
+                "GET",
                 url,
                 headers=headers,
                 params={
@@ -186,7 +186,7 @@ class AsyncDatasetsImagesClient(object):
 
         async def request_maker(i_page_num: int, i_page_size: int) -> HTTPRequest:
             return await self._requester.amake_request(
-                "get",
+                "GET",
                 url,
                 headers=headers,
                 params={
