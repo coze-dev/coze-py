@@ -903,13 +903,7 @@ class AsyncBotsClient(object):
         else:
             return await self._list_v1(space_id=space_id, page_num=page_num, page_size=page_size, **kwargs)
 
-    async def publish(
-        self,
-        *,
-        bot_id: str,
-        connector_ids: Optional[List[str]] = None,
-        **kwargs,
-    ) -> Bot:
+    async def publish(self, *, bot_id: str, connector_ids: Optional[List[str]] = None, **kwargs) -> Bot:
         """
         发布智能体
 
