@@ -55,7 +55,7 @@ class FoldersClient(object):
         """
         url = f"{self._base_url}/v1/folders/{folder_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("GET", url, stream=False, cast=SimpleFolder, headers=headers)
+        return self._requester.request("GET", url, False, cast=SimpleFolder, headers=headers)
 
     def list(
         self,
@@ -116,7 +116,7 @@ class AsyncFoldersClient(object):
         """
         url = f"{self._base_url}/v1/folders/{folder_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("GET", url, stream=False, cast=SimpleFolder, headers=headers)
+        return await self._requester.arequest("GET", url, False, cast=SimpleFolder, headers=headers)
 
     async def list(
         self,

@@ -45,7 +45,7 @@ class LiveClient(object):
         """
         url = f"{self._base_url}/v1/audio/live/{live_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        return self._requester.request("get", url, stream=False, cast=LiveInfo, headers=headers)
+        return self._requester.request("get", url, False, cast=LiveInfo, headers=headers)
 
 
 class AsyncLiveClient(object):
@@ -71,4 +71,4 @@ class AsyncLiveClient(object):
         """
         url = f"{self._base_url}/v1/audio/live/{live_id}"
         headers: Optional[dict] = kwargs.get("headers")
-        return await self._requester.arequest("get", url, stream=False, cast=LiveInfo, headers=headers)
+        return await self._requester.arequest("get", url, False, cast=LiveInfo, headers=headers)

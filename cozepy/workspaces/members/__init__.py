@@ -61,9 +61,7 @@ class WorkspacesMembersClient(object):
                 ],
             }
         )
-        return self._requester.request(
-            "post", url, stream=False, cast=CreateWorkspaceMemberResp, headers=headers, body=body
-        )
+        return self._requester.request("post", url, False, cast=CreateWorkspaceMemberResp, headers=headers, body=body)
 
     def delete(self, *, workspace_id: str, user_ids: List[str], **kwargs) -> DeleteWorkspaceMemberResp:
         """
@@ -83,9 +81,7 @@ class WorkspacesMembersClient(object):
                 "user_ids": user_ids,
             }
         )
-        return self._requester.request(
-            "delete", url, stream=False, cast=DeleteWorkspaceMemberResp, headers=headers, body=body
-        )
+        return self._requester.request("delete", url, False, cast=DeleteWorkspaceMemberResp, headers=headers, body=body)
 
     def list(
         self,
@@ -153,7 +149,7 @@ class AsyncWorkspacesMembersClient(object):
             }
         )
         return await self._requester.arequest(
-            "post", url, stream=False, cast=CreateWorkspaceMemberResp, headers=headers, body=body
+            "post", url, False, cast=CreateWorkspaceMemberResp, headers=headers, body=body
         )
 
     async def delete(self, *, workspace_id: str, user_ids: List[str], **kwargs) -> DeleteWorkspaceMemberResp:
@@ -175,7 +171,7 @@ class AsyncWorkspacesMembersClient(object):
             }
         )
         return await self._requester.arequest(
-            "delete", url, stream=False, cast=DeleteWorkspaceMemberResp, headers=headers, body=body
+            "delete", url, False, cast=DeleteWorkspaceMemberResp, headers=headers, body=body
         )
 
     async def list(
