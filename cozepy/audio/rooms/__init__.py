@@ -125,7 +125,7 @@ class RoomsClient(object):
                 "config": config.model_dump() if config else None,
             }
         )
-        return self._requester.request("post", url, stream=False, cast=CreateRoomResp, headers=headers, body=body)
+        return self._requester.request("post", url, False, cast=CreateRoomResp, headers=headers, body=body)
 
 
 class AsyncRoomsClient(object):
@@ -176,6 +176,4 @@ class AsyncRoomsClient(object):
                 "config": config.model_dump() if config else None,
             }
         )
-        return await self._requester.arequest(
-            "post", url, stream=False, cast=CreateRoomResp, headers=headers, body=body
-        )
+        return await self._requester.arequest("post", url, False, cast=CreateRoomResp, headers=headers, body=body)

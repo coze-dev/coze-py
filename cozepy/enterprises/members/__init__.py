@@ -54,9 +54,7 @@ class EnterprisesMembersClient(object):
                 "users": users,
             }
         )
-        return self._requester.request(
-            "post", url, stream=False, cast=CreateEnterpriseMemberResp, headers=headers, body=body
-        )
+        return self._requester.request("post", url, False, cast=CreateEnterpriseMemberResp, headers=headers, body=body)
 
     def update(
         self,
@@ -84,9 +82,7 @@ class EnterprisesMembersClient(object):
                 "role": role,
             }
         )
-        return self._requester.request(
-            "put", url, stream=False, cast=UpdateEnterpriseMemberResp, headers=headers, body=body
-        )
+        return self._requester.request("put", url, False, cast=UpdateEnterpriseMemberResp, headers=headers, body=body)
 
     def delete(
         self,
@@ -104,7 +100,7 @@ class EnterprisesMembersClient(object):
             }
         )
         return self._requester.request(
-            "delete", url, stream=False, cast=DeleteEnterpriseMemberResp, headers=headers, body=body
+            "delete", url, False, cast=DeleteEnterpriseMemberResp, headers=headers, body=body
         )
 
 
@@ -138,7 +134,7 @@ class AsyncEnterprisesMembersClient(object):
             }
         )
         return await self._requester.arequest(
-            "post", url, stream=False, cast=CreateEnterpriseMemberResp, headers=headers, body=body
+            "post", url, False, cast=CreateEnterpriseMemberResp, headers=headers, body=body
         )
 
     async def update(
@@ -168,7 +164,7 @@ class AsyncEnterprisesMembersClient(object):
             }
         )
         return await self._requester.arequest(
-            "put", url, stream=False, cast=UpdateEnterpriseMemberResp, headers=headers, body=body
+            "put", url, False, cast=UpdateEnterpriseMemberResp, headers=headers, body=body
         )
 
     async def delete(
@@ -187,5 +183,5 @@ class AsyncEnterprisesMembersClient(object):
             }
         )
         return await self._requester.arequest(
-            "delete", url, stream=False, cast=DeleteEnterpriseMemberResp, headers=headers, body=body
+            "delete", url, False, cast=DeleteEnterpriseMemberResp, headers=headers, body=body
         )

@@ -63,7 +63,7 @@ class SpeechClient(object):
             "speed": speed,
             "sample_rate": sample_rate,
         }
-        return self._requester.request("post", url, stream=False, cast=FileHTTPResponse, headers=headers, body=body)
+        return self._requester.request("post", url, False, cast=FileHTTPResponse, headers=headers, body=body)
 
 
 class AsyncSpeechClient(object):
@@ -108,6 +108,4 @@ class AsyncSpeechClient(object):
             "speed": speed,
             "sample_rate": sample_rate,
         }
-        return await self._requester.arequest(
-            "post", url, stream=False, cast=FileHTTPResponse, headers=headers, body=body
-        )
+        return await self._requester.arequest("post", url, False, cast=FileHTTPResponse, headers=headers, body=body)
