@@ -26,38 +26,30 @@ if TYPE_CHECKING:
 class MessageRole(DynamicStrEnum):
     # Indicates that the content of the message is sent by the user.
     USER = "user"
-
     # Indicates that the content of the message is sent by the bot.
     ASSISTANT = "assistant"
 
 
 class MessageType(DynamicStrEnum):
     UNKNOWN = ""
-
     # User input content.
     # 用户输入内容。
     QUESTION = "question"
-
     # The message content returned by the Bot to the user, supporting incremental return. If the workflow is bound to a message node, there may be multiple answer scenarios, and the end flag of the streaming return can be used to determine that all answers are completed.
     # Bot 返回给用户的消息内容，支持增量返回。如果工作流绑定了消息节点，可能会存在多 answer 场景，此时可以用流式返回的结束标志来判断所有 answer 完成。
     ANSWER = "answer"
-
     # Intermediate results of the function (function call) called during the Bot conversation process.
     # Bot 对话过程中调用函数（function call）的中间结果。
     FUNCTION_CALL = "function_call"
-
     # Results returned after calling the tool (function call).
     # 调用工具 （function call）后返回的结果。
     TOOL_OUTPUT = "tool_output"
-
     # Results returned after calling the tool (function call).
     # 调用工具 （function call）后返回的结果。
     TOOL_RESPONSE = "tool_response"
-
     # If the user question suggestion switch is turned on in the Bot configuration, the reply content related to the recommended questions will be returned.
     # 如果在 Bot 上配置打开了用户问题建议开关，则会返回推荐问题相关的回复内容。不支持在请求中作为入参。
     FOLLOW_UP = "follow_up"
-
     # In the scenario of multiple answers, the server will return a verbose package, and the corresponding content is in JSON format. content.msg_type = generate_answer_finish represents that all answers have been replied to.
     # 多 answer 场景下，服务端会返回一个 verbose 包，对应的 content 为 JSON 格式，content.msg_type =generate_answer_finish 代表全部 answer 回复完成。不支持在请求中作为入参。
     VERBOSE = "verbose"
@@ -67,15 +59,12 @@ class MessageContentType(DynamicStrEnum):
     # Text.
     # 文本。
     TEXT = "text"
-
     # Multimodal content, that is, a combination of text and files, or a combination of text and images.
     # 多模态内容，即文本和文件的组合、文本和图片的组合。
     OBJECT_STRING = "object_string"
-
     # message card. This enum value only appears in the interface response and is not supported as an input parameter.
     # 卡片。此枚举值仅在接口响应中出现，不支持作为入参。
     CARD = "card"
-
     # If there is a voice message in the input message, the conversation.audio.delta event will be returned in the
     # streaming response event. The data of this event corresponds to the Message Object. The content_type is audio,
     # and the content is a PCM audio clip with a sampling rate of 24kHz, raw 16 bit, 1 channel, little-endian.
@@ -207,22 +196,16 @@ class ChatStatus(DynamicStrEnum):
     """
 
     UNKNOWN = ""
-
     # The session has been created.
     CREATED = "created"
-
     # The Bot is processing.
     IN_PROGRESS = "in_progress"
-
     # The Bot has finished processing, and the session has ended.
     COMPLETED = "completed"
-
     # The session has failed.
     FAILED = "failed"
-
     # The session is interrupted and requires further processing.
     REQUIRES_ACTION = "requires_action"
-
     # The session is canceled.
     CANCELED = "canceled"
 
@@ -328,46 +311,36 @@ class ChatEventType(DynamicStrEnum):
     # Event for creating a conversation, indicating the start of the conversation.
     # 创建对话的事件，表示对话开始。
     CONVERSATION_CHAT_CREATED = "conversation.chat.created"
-
     # The server is processing the conversation.
     # 服务端正在处理对话。
     CONVERSATION_CHAT_IN_PROGRESS = "conversation.chat.in_progress"
-
     # Incremental message, usually an incremental message when type=answer.
     # 增量消息，通常是 type=answer 时的增量消息。
     CONVERSATION_MESSAGE_DELTA = "conversation.message.delta"
-
     # The message has been completely replied to. At this point, the streaming package contains the spliced results of all message.delta, and each message is in a completed state.
     # message 已回复完成。此时流式包中带有所有 message.delta 的拼接结果，且每个消息均为 completed 状态。
     CONVERSATION_MESSAGE_COMPLETED = "conversation.message.completed"
-
     # The conversation is completed.
     # 对话完成。
     CONVERSATION_CHAT_COMPLETED = "conversation.chat.completed"
-
     # This event is used to mark a failed conversation.
     # 此事件用于标识对话失败。
     CONVERSATION_CHAT_FAILED = "conversation.chat.failed"
-
     # The conversation is interrupted and requires the user to report the execution results of the tool.
     # 对话中断，需要使用方上报工具的执行结果。
     CONVERSATION_CHAT_REQUIRES_ACTION = "conversation.chat.requires_action"
-
     # If there is a voice message in the input message, the conversation.audio.delta event will be returned in the
     # streaming response event. The data of this event corresponds to the Message Object. The content_type is audio,
     # and the content is a PCM audio clip with a sampling rate of 24kHz, raw 16 bit, 1 channel, little-endian.
     # 如果入参的消息中有语音消息，那么流式响应事件中，会返回 conversation.audio.delta 事件，此事件的 data 对应 Message Object。
     # content_type 为 audio，content 为采样率 24kHz，raw 16 bit, 1 channel, little-endian 的 pcm 音频片段。
     CONVERSATION_AUDIO_DELTA = "conversation.audio.delta"
-
     # Error events during the streaming response process. For detailed explanations of code and msg, please refer to Error codes.
     # 流式响应过程中的错误事件。关于 code 和 msg 的详细说明，可参考错误码。
     ERROR = "error"
-
     # The streaming response for this session ended normally.
     # 本次会话的流式返回正常结束。
     DONE = "done"
-
     UNKNOWN = "unknown"  # 默认的未知值
 
 
