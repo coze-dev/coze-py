@@ -77,7 +77,7 @@ class VoiceprintGroupsFeaturesClient(object):
                 "channel": channel,
             }
         )
-        files = {"file": _try_fix_file(file)}
+        files = {"file": _try_fix_file(file)} if file else {}
         return self._requester.request(
             "post", url, False, cast=CreateVoicePrintGroupFeatureResp, headers=headers, body=body, files=files
         )
@@ -174,7 +174,7 @@ class AsyncVoiceprintGroupsFeaturesClient(object):
                 "channel": channel,
             }
         )
-        files = {"file": _try_fix_file(file)}
+        files = {"file": _try_fix_file(file)} if file else {}
         return await self._requester.arequest(
             "post", url, False, cast=CreateVoicePrintGroupFeatureResp, headers=headers, body=body, files=files
         )
