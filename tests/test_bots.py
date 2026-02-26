@@ -12,6 +12,8 @@ from cozepy import (
     BotOnboardingInfo,
     BotPromptInfo,
     BotSuggestReplyInfo,
+    BotVersionInfo,
+    BotVersionUserInfo,
     Coze,
     PluginIDList,
     SimpleBot,
@@ -49,6 +51,16 @@ def mock_bot(bot_id) -> Bot:
         version="version",
         logid=random_hex(10),
         owner_user_id=random_hex(10),
+    )
+
+
+def mock_bot_version(page: int) -> BotVersionInfo:
+    return BotVersionInfo(
+        version=f"v{page}",
+        description="description",
+        created_at="0",
+        updated_at="0",
+        creator=BotVersionUserInfo(id="user_id", name="user_name"),
     )
 
 
@@ -144,6 +156,29 @@ def mock_retrieve_bot(respx_mock, use_api_version=1) -> Bot:
     else:
         respx_mock.get(f"/v1/bots/{bot_id}").mock(bot._raw_response)
     return bot
+
+
+def mock_list_bot_versions(respx_mock, total_count, page, bot_id: str = "bot_id"):
+    logid = random_hex(10)
+    respx_mock.get(
+        f"https://api.coze.com/v1/bots/{bot_id}/versions",
+        params={
+            "page_num": page,
+        },
+    ).mock(
+        httpx.Response(
+            200,
+            json={
+                "data": {
+                    "items": [mock_bot_version(page).model_dump()],
+                    "total": total_count,
+                }
+            },
+            headers={logid_key(): logid},
+        )
+    )
+
+    return logid
 
 
 def mock_list_bot(respx_mock, total_count, page, use_api_version=1):
@@ -371,6 +406,39 @@ class TestSyncBots:
         assert resp.response.logid is not None
         assert resp.response.logid == mock_logid
 
+    def test_sync_bot_versions_list(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        bot_id = random_hex(10)
+        total = 10
+        size = 1
+        for idx in range(total):
+            mock_list_bot_versions(respx_mock, total_count=total, page=idx + 1, bot_id=bot_id)
+
+        # no iter
+        resp = coze.bots.versions.list(bot_id=bot_id, page_num=1, page_size=1)
+        assert resp
+        assert resp.has_more is True
+
+        # iter dataset
+        total_result = 0
+        for version in resp:
+            total_result += 1
+            assert version
+            assert version.version == f"v{total_result}"
+        assert total_result == total
+
+        # iter page
+        total_result = 0
+        for page in resp.iter_pages():
+            total_result += 1
+            assert page
+            assert page.has_more == (total_result < total)
+            assert len(page.items) == size
+            version = page.items[0]
+            assert version.version == f"v{total_result}"
+        assert total_result == total
+
     def test_sync_bot_retrieve(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
@@ -536,6 +604,39 @@ class TestAsyncBots:
         assert resp
         assert resp.response.logid is not None
         assert resp.response.logid == mock_logid
+
+    async def test_async_bot_versions_list(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+
+        bot_id = random_hex(10)
+        total = 10
+        size = 1
+        for idx in range(total):
+            mock_list_bot_versions(respx_mock, total_count=total, page=idx + 1, bot_id=bot_id)
+
+        # no iter
+        resp = await coze.bots.versions.list(bot_id=bot_id, page_num=1, page_size=1)
+        assert resp
+        assert resp.has_more is True
+
+        # iter dataset
+        total_result = 0
+        async for version in resp:
+            total_result += 1
+            assert version
+            assert version.version == f"v{total_result}"
+        assert total_result == total
+
+        # iter page
+        total_result = 0
+        async for page in resp.iter_pages():
+            total_result += 1
+            assert page
+            assert page.has_more == (total_result < total)
+            assert len(page.items) == size
+            version = page.items[0]
+            assert version.version == f"v{total_result}"
+        assert total_result == total
 
     async def test_async_bot_retrieve(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
