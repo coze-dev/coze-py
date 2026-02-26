@@ -1,4 +1,5 @@
 import base64
+import json
 import os
 import tempfile
 
@@ -19,6 +20,7 @@ from cozepy import (
     Message,
     MessageObjectString,
     TokenAuth,
+    ToolOutput,
 )
 from cozepy.util import random_hex, write_pcm_to_wav_file
 from tests.test_util import logid_key, read_file
@@ -349,6 +351,25 @@ class TestSyncChat:
         )
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
 
+    def test_sync_submit_tool_outputs_body(self, respx_mock):
+        coze = Coze(auth=TokenAuth(token="token"))
+
+        mock_chat_submit_tool_outputs(respx_mock, "conversation_id", ChatStatus.FAILED)
+        coze.chat.submit_tool_outputs(
+            conversation_id="conversation_id",
+            chat_id="chat",
+            tool_outputs=[ToolOutput(tool_call_id="call-1", output="ok")],
+            stream=False,
+        )
+
+        request = respx_mock.calls.last.request
+        assert request.url.params.get("conversation_id") == "conversation_id"
+        assert request.url.params.get("chat_id") == "chat"
+        assert json.loads(request.content) == {
+            "tool_outputs": [{"tool_call_id": "call-1", "output": "ok"}],
+            "stream": False,
+        }
+
     def test_sync_chat_cancel(self, respx_mock):
         coze = Coze(auth=TokenAuth(token="token"))
 
@@ -542,6 +563,25 @@ class TestAsyncChatConversationMessage:
             ).model_dump()
         )
         assert events[len(events) - 1].event == ChatEventType.CONVERSATION_CHAT_COMPLETED
+
+    async def test_async_submit_tool_outputs_stream_body(self, respx_mock):
+        coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))
+
+        mock_chat_submit_tool_outputs_stream(respx_mock, read_file("testdata/chat_text_stream_resp.txt"))
+        stream = coze.chat.submit_tool_outputs_stream(
+            conversation_id="conversation",
+            chat_id="chat",
+            tool_outputs=[ToolOutput(tool_call_id="call-1", output="ok")],
+        )
+        [event async for event in stream]
+
+        request = respx_mock.calls.last.request
+        assert request.url.params.get("conversation_id") == "conversation"
+        assert request.url.params.get("chat_id") == "chat"
+        assert json.loads(request.content) == {
+            "tool_outputs": [{"tool_call_id": "call-1", "output": "ok"}],
+            "stream": True,
+        }
 
     async def test_async_chat_cancel(self, respx_mock):
         coze = AsyncCoze(auth=AsyncTokenAuth(token="token"))

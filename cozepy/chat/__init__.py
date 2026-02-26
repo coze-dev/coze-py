@@ -551,6 +551,78 @@ class ChatClient(object):
         }
         return self._requester.request("post", url, False, cast=Chat, headers=headers, body=body)
 
+    def _submit_tool_outputs(
+        self,
+        *,
+        conversation_id: str,
+        chat_id: str,
+        tool_outputs: List[ToolOutput],
+        **kwargs,
+    ) -> Chat:
+        """
+        提交工具执行结果
+
+        调用此接口提交工具执行的结果。
+        接口说明
+        你可以将需要客户端执行的操作定义为插件，对话中如果触发这个插件，流式 event 响应信息会提示“conversation.chat.requires_action”，此时需要执行客户端的操作后，通过此接口提交插件执行后的结果。
+        调用发起对话 API 时，auto_save_history 参数需要设置为 true，否则调用本 API 提交工具执行结果时会提示 5000 错误。
+        仅触发了端插件的对话需要调用此接口提交执行结果。端插件是非扣子服务端执行的插件，需要开发者自行执行任务后提交结果，通常用于 IoT 等设备控制场景。详细说明可参考通过 API 使用端插件。
+
+        :param chat_id: Chat ID，即对话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 id 字段，如果是流式响应，则在 Response 的 chat 事件中查看 id 字段。
+        :param conversation_id: Conversation ID，即会话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 conversation_id 字段。
+        """
+        url = f"{self._base_url}/v3/chat/submit_tool_outputs"
+        params = {
+            "conversation_id": conversation_id,
+            "chat_id": chat_id,
+        }
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {
+            "tool_outputs": [i.model_dump() for i in tool_outputs],
+            "stream": False,
+        }
+        return self._requester.request("post", url, False, cast=Chat, params=params, headers=headers, body=body)
+
+    def _submit_tool_outputs_stream(
+        self,
+        *,
+        conversation_id: str,
+        chat_id: str,
+        tool_outputs: List[ToolOutput],
+        **kwargs,
+    ) -> Stream[ChatEvent]:
+        """
+        提交工具执行结果
+
+        调用此接口提交工具执行的结果。
+        接口说明
+        你可以将需要客户端执行的操作定义为插件，对话中如果触发这个插件，流式 event 响应信息会提示“conversation.chat.requires_action”，此时需要执行客户端的操作后，通过此接口提交插件执行后的结果。
+        调用发起对话 API 时，auto_save_history 参数需要设置为 true，否则调用本 API 提交工具执行结果时会提示 5000 错误。
+        仅触发了端插件的对话需要调用此接口提交执行结果。端插件是非扣子服务端执行的插件，需要开发者自行执行任务后提交结果，通常用于 IoT 等设备控制场景。详细说明可参考通过 API 使用端插件。
+
+        :param chat_id: Chat ID，即对话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 id 字段，如果是流式响应，则在 Response 的 chat 事件中查看 id 字段。
+        :param conversation_id: Conversation ID，即会话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 conversation_id 字段。
+        """
+        url = f"{self._base_url}/v3/chat/submit_tool_outputs"
+        params = {
+            "conversation_id": conversation_id,
+            "chat_id": chat_id,
+        }
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {
+            "tool_outputs": [i.model_dump() for i in tool_outputs],
+            "stream": True,
+        }
+        response: IteratorHTTPResponse[str] = self._requester.request(
+            "post", url, True, cast=None, params=params, headers=headers, body=body
+        )
+        return Stream(
+            response._raw_response,
+            response.data,
+            fields=["event", "data"],
+            handler=_chat_stream_handler,
+        )
+
     @overload
     def _create(
         self,
@@ -730,35 +802,18 @@ class ChatClient(object):
         false: (Default) Non-streaming response, only reply with basic information of the conversation.
         :return:
         """
-        url = f"{self._base_url}/v3/chat/submit_tool_outputs"
-        params = {
-            "conversation_id": conversation_id,
-            "chat_id": chat_id,
-        }
-        body = {
-            "tool_outputs": [i.model_dump() for i in tool_outputs],
-            "stream": stream,
-        }
-
-        if not stream:
-            return self._requester.request(
-                "post",
-                url,
-                False,
-                Chat,
-                params=params,
-                body=body,
+        if stream:
+            return self._submit_tool_outputs_stream(
+                conversation_id=conversation_id,
+                chat_id=chat_id,
+                tool_outputs=tool_outputs,
             )
 
-        resp: IteratorHTTPResponse[str] = self._requester.request(
-            "post",
-            url,
-            True,
-            None,
-            params=params,
-            body=body,
+        return self._submit_tool_outputs(
+            conversation_id=conversation_id,
+            chat_id=chat_id,
+            tool_outputs=tool_outputs,
         )
-        return Stream(resp._raw_response, resp.data, fields=["event", "data"], handler=_chat_stream_handler)
 
 
 class AsyncChatClient(object):
@@ -922,6 +977,78 @@ class AsyncChatClient(object):
         }
         return await self._requester.arequest("post", url, False, cast=Chat, headers=headers, body=body)
 
+    async def _submit_tool_outputs(
+        self,
+        *,
+        conversation_id: str,
+        chat_id: str,
+        tool_outputs: List[ToolOutput],
+        **kwargs,
+    ) -> Chat:
+        """
+        提交工具执行结果
+
+        调用此接口提交工具执行的结果。
+        接口说明
+        你可以将需要客户端执行的操作定义为插件，对话中如果触发这个插件，流式 event 响应信息会提示“conversation.chat.requires_action”，此时需要执行客户端的操作后，通过此接口提交插件执行后的结果。
+        调用发起对话 API 时，auto_save_history 参数需要设置为 true，否则调用本 API 提交工具执行结果时会提示 5000 错误。
+        仅触发了端插件的对话需要调用此接口提交执行结果。端插件是非扣子服务端执行的插件，需要开发者自行执行任务后提交结果，通常用于 IoT 等设备控制场景。详细说明可参考通过 API 使用端插件。
+
+        :param chat_id: Chat ID，即对话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 id 字段，如果是流式响应，则在 Response 的 chat 事件中查看 id 字段。
+        :param conversation_id: Conversation ID，即会话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 conversation_id 字段。
+        """
+        url = f"{self._base_url}/v3/chat/submit_tool_outputs"
+        params = {
+            "conversation_id": conversation_id,
+            "chat_id": chat_id,
+        }
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {
+            "tool_outputs": [i.model_dump() for i in tool_outputs],
+            "stream": False,
+        }
+        return await self._requester.arequest("post", url, False, cast=Chat, params=params, headers=headers, body=body)
+
+    async def _submit_tool_outputs_stream(
+        self,
+        *,
+        conversation_id: str,
+        chat_id: str,
+        tool_outputs: List[ToolOutput],
+        **kwargs,
+    ) -> AsyncIterator[ChatEvent]:
+        """
+        提交工具执行结果
+
+        调用此接口提交工具执行的结果。
+        接口说明
+        你可以将需要客户端执行的操作定义为插件，对话中如果触发这个插件，流式 event 响应信息会提示“conversation.chat.requires_action”，此时需要执行客户端的操作后，通过此接口提交插件执行后的结果。
+        调用发起对话 API 时，auto_save_history 参数需要设置为 true，否则调用本 API 提交工具执行结果时会提示 5000 错误。
+        仅触发了端插件的对话需要调用此接口提交执行结果。端插件是非扣子服务端执行的插件，需要开发者自行执行任务后提交结果，通常用于 IoT 等设备控制场景。详细说明可参考通过 API 使用端插件。
+
+        :param chat_id: Chat ID，即对话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 id 字段，如果是流式响应，则在 Response 的 chat 事件中查看 id 字段。
+        :param conversation_id: Conversation ID，即会话的唯一标识。可以在[发起对话](https://www.coze.cn/docs/developer_guides/chat_v3)接口 Response 中查看 conversation_id 字段。
+        """
+        url = f"{self._base_url}/v3/chat/submit_tool_outputs"
+        params = {
+            "conversation_id": conversation_id,
+            "chat_id": chat_id,
+        }
+        headers: Optional[dict] = kwargs.get("headers")
+        body = {
+            "tool_outputs": [i.model_dump() for i in tool_outputs],
+            "stream": True,
+        }
+        resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
+            "post", url, True, cast=None, params=params, headers=headers, body=body
+        )
+        return AsyncStream(
+            resp.data,
+            fields=["event", "data"],
+            handler=_chat_stream_handler,
+            raw_response=resp._raw_response,
+        )
+
     @overload
     async def _create(
         self,
@@ -1016,39 +1143,6 @@ class AsyncChatClient(object):
             resp.data, fields=["event", "data"], handler=_chat_stream_handler, raw_response=resp._raw_response
         )
 
-    @overload
-    async def _submit_tool_outputs(
-        self, *, conversation_id: str, chat_id: str, stream: Literal[True], tool_outputs: List[ToolOutput]
-    ) -> AsyncStream[ChatEvent]: ...
-
-    @overload
-    async def _submit_tool_outputs(
-        self, *, conversation_id: str, chat_id: str, stream: Literal[False], tool_outputs: List[ToolOutput]
-    ) -> Chat: ...
-
-    async def _submit_tool_outputs(
-        self, *, conversation_id: str, chat_id: str, stream: Literal[True, False], tool_outputs: List[ToolOutput]
-    ) -> Union[Chat, AsyncStream[ChatEvent]]:
-        url = f"{self._base_url}/v3/chat/submit_tool_outputs"
-        params = {
-            "conversation_id": conversation_id,
-            "chat_id": chat_id,
-        }
-        body = {
-            "tool_outputs": [i.model_dump() for i in tool_outputs],
-            "stream": stream,
-        }
-
-        if not stream:
-            return await self._requester.arequest("post", url, False, Chat, params=params, body=body)
-
-        resp: AsyncIteratorHTTPResponse[str] = await self._requester.arequest(
-            "post", url, True, None, params=params, body=body
-        )
-        return AsyncStream(
-            resp.data, fields=["event", "data"], handler=_chat_stream_handler, raw_response=resp._raw_response
-        )
-
     async def submit_tool_outputs(self, *, conversation_id: str, chat_id: str, tool_outputs: List[ToolOutput]) -> Chat:
         """
         Call this API to submit the results of tool execution.
@@ -1067,7 +1161,7 @@ class AsyncChatClient(object):
         """
 
         return await self._submit_tool_outputs(
-            conversation_id=conversation_id, chat_id=chat_id, stream=False, tool_outputs=tool_outputs
+            conversation_id=conversation_id, chat_id=chat_id, tool_outputs=tool_outputs
         )
 
     async def submit_tool_outputs_stream(
@@ -1093,7 +1187,7 @@ class AsyncChatClient(object):
         :return:
         """
 
-        async for item in await self._submit_tool_outputs(
-            conversation_id=conversation_id, chat_id=chat_id, stream=True, tool_outputs=tool_outputs
+        async for item in await self._submit_tool_outputs_stream(
+            conversation_id=conversation_id, chat_id=chat_id, tool_outputs=tool_outputs
         ):
             yield item
