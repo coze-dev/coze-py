@@ -20,6 +20,7 @@ from cozepy import (
     MessageObjectString,
     TokenAuth,
 )
+from cozepy.request import SyncHTTPClient
 from cozepy.util import random_hex, write_pcm_to_wav_file
 from tests.test_util import logid_key, read_file
 
@@ -377,6 +378,38 @@ class TestSyncChat:
         assert res.chat.conversation_id == conversation_id
         assert res.messages
         assert res.messages[0].content == "hi"
+
+    @pytest.mark.parametrize("initial_status", [ChatStatus.FAILED, ChatStatus.IN_PROGRESS])
+    def test_sync_chat_poll_preserves_failure(self, initial_status, monkeypatch):
+        failed_chat = make_chat(status=ChatStatus.FAILED)
+        failed_chat.last_error = ChatError(code=4028, msg="Your free quota has been used up")
+        paths = []
+
+        def respond(request):
+            paths.append(request.url.path)
+            if request.url.path == "/v3/chat":
+                chat = failed_chat if initial_status == ChatStatus.FAILED else make_chat(status=initial_status)
+                return httpx.Response(200, json={"data": chat.model_dump()}, headers={logid_key(): "create-log"})
+            if request.url.path == "/v3/chat/retrieve":
+                return httpx.Response(200, json={"data": failed_chat.model_dump()}, headers={logid_key(): "poll-log"})
+            assert request.url.path == "/v3/chat/message/list"
+            return httpx.Response(200, json={"data": {"code": 4028, "msg": "No messages available"}})
+
+        monkeypatch.setattr("cozepy.chat.time.sleep", lambda _: None)
+        with SyncHTTPClient(transport=httpx.MockTransport(respond)) as http_client:
+            coze = Coze(auth=TokenAuth(token="test-token"), http_client=http_client)
+            result = coze.chat.create_and_poll(bot_id="bot", user_id="user")
+
+        assert result.chat.status == ChatStatus.FAILED
+        assert result.chat.last_error == failed_chat.last_error
+        assert result.messages is None
+        expected_paths = ["/v3/chat"]
+        expected_logid = "create-log"
+        if initial_status == ChatStatus.IN_PROGRESS:
+            expected_paths.append("/v3/chat/retrieve")
+            expected_logid = "poll-log"
+        assert paths == expected_paths
+        assert result.chat.response.logid == expected_logid
 
 
 @pytest.mark.respx(base_url="https://api.coze.com")
