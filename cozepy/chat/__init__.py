@@ -702,6 +702,9 @@ class ChatClient(object):
             time.sleep(interval)
             chat = self.retrieve(conversation_id=chat.conversation_id, chat_id=chat.id)
 
+        if chat.status == ChatStatus.FAILED:
+            return ChatPoll(chat=chat)
+
         messages = self.messages.list(conversation_id=chat.conversation_id, chat_id=chat.id)
         return ChatPoll(chat=chat, messages=messages)
 
